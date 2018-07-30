@@ -1,0 +1,25 @@
+{
+    "name": "nwidart/pekerjaan",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Modules\\Pekerjaan\\Providers\\PekerjaanServiceProvider"
+            ],
+            "aliases": {
+                
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Pekerjaan\\": ""
+        }
+    }
+}

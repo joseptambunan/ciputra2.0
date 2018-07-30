@@ -1,0 +1,16 @@
+{
+    "name": "Pt",
+    "alias": "pt",
+    "description": "",
+    "keywords": [],
+    "active": 1,
+    "order": 0,
+    "providers": [
+        "Modules\\Pt\\Providers\\PtServiceProvider"
+    ],
+    "aliases": {},
+    "files": [
+        "start.php"
+    ],
+    "requires": []
+}

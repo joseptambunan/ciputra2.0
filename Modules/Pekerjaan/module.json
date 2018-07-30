@@ -1,0 +1,16 @@
+{
+    "name": "Pekerjaan",
+    "alias": "pekerjaan",
+    "description": "",
+    "keywords": [],
+    "active": 1,
+    "order": 0,
+    "providers": [
+        "Modules\\Pekerjaan\\Providers\\PekerjaanServiceProvider"
+    ],
+    "aliases": {},
+    "files": [
+        "start.php"
+    ],
+    "requires": []
+}
