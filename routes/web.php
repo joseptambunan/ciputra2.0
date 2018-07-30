@@ -18,7 +18,7 @@ Route::get('/', function () {
 Auth::routes();
 
 
-/*Route::post('ces-login', function() 
+Route::post('ces-login', function() 
 {
 	if(!isset($_POST["user_login"]))
 	{
@@ -35,12 +35,12 @@ Auth::routes();
 	{
 		\Auth::loginUsingId($user->id);
 
-		return redirect()->route('project');
+		return redirect('/');
 	}else{
 		return redirect('https://ces-test.ciputragroup.com');
 	}
 
-});*/
+});
 
 Route::get('/', 'PrivilegeController@index')->middleware("auth");
 Route::post('/login/validation','PrivilegeController@validation');
