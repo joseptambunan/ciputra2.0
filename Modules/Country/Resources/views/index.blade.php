@@ -15,7 +15,7 @@
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <section class="content-header">
-      <h1>Data Country</h1>
+      <h1>Data Negara</h1>
 
     </section>
 
@@ -30,7 +30,7 @@
               <table id="example2" class="table table-bordered table-hover">
                 <thead>
                 <tr style="background-color: greenyellow;">
-                  <th>Country </th>
+                  <th>Negara </th>
                   <th>Detail</th>
                 </tr>
                 </thead>

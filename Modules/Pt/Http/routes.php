@@ -10,4 +10,8 @@ Route::group(['middleware' => 'web', 'prefix' => 'pt', 'namespace' => 'Modules\P
     Route::post('/update-rekening','PtController@update');
     Route::post('/delete-rekening','PtController@destroy');
     Route::post('/update-pt','PtController@edit');
+    Route::post('/delete-project','PtController@deleteproject');
+    Route::post('/add-proyek','PtController@addproject');
+    Route::post('/add-mapping','PtController@addmapping');
+    Route::post('/delete-mapping','PtController@deletemapping');
 });

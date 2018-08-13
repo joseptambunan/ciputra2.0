@@ -17,14 +17,14 @@
 <!-- page script -->
 <script>
   $(function () {
-    $('#example1').DataTable()
+    $('#example1').DataTable();
     $('#example2').DataTable({
-      'paging'      : false,
+      'paging'      : true,
       'lengthChange': false,
       'searching'   : true,
       'ordering'    : false,
       'info'        : true,
       'autoWidth'   : false
-    })
+    });
   })
 </script>

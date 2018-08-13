@@ -15,12 +15,12 @@ class Approval extends CustomModel
 
     public function status()
     {
-        return $this->belongsTo('App\ApprovalAction', 'approval_action_id');
+        return $this->belongsTo('Modules\Approval\Entities\ApprovalAction', 'approval_action_id');
     }
 
     public function histories()
     {
-    	return $this->hasMany('App\ApprovalHistory', 'approval_id');
+    	return $this->hasMany('Modules\Approval\Entities\ApprovalHistory', 'approval_id');
     }
 
     public function document()

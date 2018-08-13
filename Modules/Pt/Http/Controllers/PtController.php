@@ -10,6 +10,11 @@ use Modules\Country\Entities\City;
 use Modules\Country\Entities\Province;
 use Modules\Bank\Entities\Bank;
 use Modules\Pt\Entities\PtMasterRekening;
+use Modules\Project\Entities\Project;
+use Modules\Project\Entities\ProjectPtUser;
+use Modules\Department\Entities\Department;
+use Modules\Division\Entities\Division;
+use Modules\Pt\Entities\Mappingperusahaan;
 
 class PtController extends Controller
 {
@@ -72,7 +77,10 @@ class PtController extends Controller
         $city = City::get();
         $pt = Pt::find($request->id);
         $bank = Bank::get();
-        return view('pt::detail',compact("user","city","pt","bank"));
+        $project = Project::get();
+        $department = Department::get();
+        $divisi = Division::get();
+        return view('pt::detail',compact("user","city","pt","bank","project","department","divisi"));
     }
 
     /**
@@ -134,5 +142,44 @@ class PtController extends Controller
         $rekening->rekening  = $request->rekening  ;
         $rekening->save();
         return redirect("pt/detail/?id=".$request->pt_id);
+    }
+
+    public function addproject(Request $request){
+        $pt = new ProjectPtUser;
+        $pt->user_id = \Auth::user()->id;
+        $pt->pt_id = $request->pt_proyek;
+        $pt->project_id = $request->project;
+        $pt->save();
+        return redirect("/pt/detail/?id=".$request->pt_proyek);
+    }
+
+    public function deleteproject(Request $request)
+    {
+        $project = ProjectPtUser::find($request->id);
+        $status = $project->delete();
+        if ( $status ){
+            return response()->json( ["status" => "0"] );
+        }else{
+            return response()->json( ["status" => "1"] );
+        }
+    }
+
+    public function addmapping(Request $request){
+        $mapping = new Mappingperusahaan;
+        $mapping->pt_id = $request->pt_mapping;
+        $mapping->department_id = $request->departmen_mapping;
+        $mapping->division_id = $request->divisiion_mapping;
+        $mapping->save();
+        return redirect("/pt/detail/?id=".$request->pt_mapping);
+    }
+
+    public function deletemapping(Request $request){
+        $mapping = Mappingperusahaan::find($request->id);
+        $status = $mapping->delete();
+        if ( $status ){
+            return response()->json( ["status" => "0"] );
+        }else{
+            return response()->json( ["status" => "1"] );
+        }
     }
 }

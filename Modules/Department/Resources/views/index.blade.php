@@ -15,7 +15,7 @@
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <section class="content-header">
-      <h1>Data Department</h1>
+      <h1>Data Departemen</h1>
 
     </section>
 
@@ -28,15 +28,15 @@
             <!-- /.box-header -->
             <div class="box-body">
               <div class="col-md-6">
-                <h3 class="header">Tambah Divisi</h3>
+                <h3 class="header">Tambah Departemen</h3>
             	<form action="{{ url('/')}}/department/add-department" method="post" name="form1">
                   {{ csrf_field() }}                  
                   <div class="form-group">
-                      <label for="exampleInputEmail1">Code</label>
+                      <label for="exampleInputEmail1">Kode Departemen</label>
                       <input type="text" class="form-control" name="code">
                   </div>
                   <div class="form-group">
-                      <label for="exampleInputEmail1">Nama</label>
+                      <label for="exampleInputEmail1">Nama Departemen</label>
                       <input type="text" class="form-control" name="department">
                   </div>
                   <div class="form-group">
@@ -52,6 +52,7 @@
             	<table id="example3" class="table table-bordered table-hover">
                 <thead>
                 <tr style="background-color: greenyellow;">
+                  <th>Kode Departmen </th>
                   <th>Departemen </th>
                   <th>Perubahan Data</th>
                 </tr>
@@ -59,6 +60,10 @@
                 <tbody>
                 @foreach ( $department as $key => $value )
                 <tr>
+                  <td>
+                    <span class="labels" id="label_dept_{{ $value->id}}">{{ $value->code }}</span>
+                    <input type="text" id="dept_code_{{ $value->id }}" style="display: none;" value="{{ $value->code}}" data-attribute="{{ $value->id }}" class="form-control col-xs-4">
+                  </td> 
                   <td>
                   	<span class="labels" id="label_{{ $value->id}}">{{ $value->name }}</span>
                   	<input type="text" id="dept_{{ $value->id }}" style="display: none;" value="{{ $value->name}}" data-attribute="{{ $value->id }}" class="form-control col-xs-4">

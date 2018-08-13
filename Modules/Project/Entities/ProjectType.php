@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace Modules\Project\Entities;
 
 use App\CustomModel;
 

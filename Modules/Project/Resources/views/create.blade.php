@@ -43,35 +43,35 @@
                 </select>
               </div>
               <div class="form-group">
-                <label>Code</label>
+                <label>Kode Proyek</label>
                 <input type="text" class="form-control" name="code">
               </div>
               <div class="form-group">
-                <label>Nama</label>
+                <label>Nama Proyek</label>
                 <input type="text" class="form-control" name="name">
               </div>
               <div class="form-group">
-                <label>Luas Brutto</label>
+                <label>Luas Brutto(m2)</label>
                 <input type="text" class="form-control" name="luas" id="luas">
               </div>
               <div class="form-group">
-                <label>Telepon</label>
+                <label>Telepon Proyek</label>
                 <input type="text" class="form-control" name="phone">
               </div>
               <div class="form-group">
-                <label>Fax</label>
+                <label>Fax Proyek</label>
                 <input type="text" class="form-control" name="fax">
               </div>
               <div class="form-group">
-                <label>Email</label>
+                <label>Email Proyek</label>
                 <input type="text" class="form-control" name="email">
               </div>
               <div class="form-group">
-                <label>Alamat</label>
+                <label>Alamat Proyek</label>
                 <textarea class="form-control" name="address" rows="3"></textarea>
               </div>  
               <div class="form-group">
-                <label>Kode Pos</label>
+                <label>Kode Pos Proyek</label>
                 <input type="text" class="form-control" name="zipcode">
               </div> 
               <div class="form-group">

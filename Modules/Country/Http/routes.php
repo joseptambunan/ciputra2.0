@@ -8,6 +8,6 @@ Route::group(['middleware' => 'web', 'prefix' => 'country', 'namespace' => 'Modu
     Route::post('/add-city', 'CountryController@addCities');
     Route::post("/deletecity/","CountryController@deleteCities");
     Route::post("/deleteProvince/","CountryController@deleteProvince");
-    Route::post("/updateCity","CountryController@updateCity");
+    Route::post("/updatecity","CountryController@updateCity");
     Route::post("/updateProv","CountryController@updateProv");
 });

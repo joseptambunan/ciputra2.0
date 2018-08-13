@@ -35,19 +35,19 @@
               <form action="{{ url('/')}}/pt/add-pt" method="post" name="form1">
                 {{ csrf_field() }}
               <div class="form-group">
-                <label>Nama</label>
+                <label>Nama PT</label>
                 <input type="text" class="form-control" name="name">
               </div>
               <div class="form-group">
-                <label>Code</label>
+                <label>Kode PT</label>
                 <input type="text" class="form-control" name="code">
               </div>
               <div class="form-group">
-                <label>Alamat</label>
+                <label>Alamat PT</label>
                 <textarea class="form-control" name="alamat" rows="3"></textarea>
               </div>
               <div class="form-group">
-                <label>Kota</label>
+                <label>Kota PT</label>
                 <select class="form-control select2 " name="kota" id="kota">
                   @foreach($city as $key => $value )
                   <option value="{{ $value->id }}">{{ $value->name}}</option>
@@ -55,11 +55,11 @@
                 </select>
               </div>
               <div class="form-group">
-                <label>Telepon</label>
+                <label>Telepon PT</label>
                 <input type="text" class="form-control" name="telepon">
               </div>
               <div class="form-group">
-                <label>NPWP</label>
+                <label>NPWP PT</label>
                 <input type="text" name="npwp" class="form-control" data-inputmask='"mask":"99.999.999.9-999.999"' data-mask>
               </div>
               <div class="form-group">

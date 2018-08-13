@@ -10,7 +10,7 @@ class Itempekerjaan extends Model
 	
     public function templates()
     {
-        return $this->hasMany('App\Templatepekerjaan');
+        return $this->hasMany('Modules\Project\Entities\Templatepekerjaan');
     }
 
     public function scopeChildren()
@@ -42,12 +42,12 @@ class Itempekerjaan extends Model
 
     public function budget_details()
     {
-        return $this->hasMany('App\BudgetDetail');
+        return $this->hasMany('Modules\Budget\Entities\BudgetDetail');
     }
 
     public function templatepekerjaan_details()
     {
-        return $this->hasMany('App\TemplatepekerjaanDetail');
+        return $this->hasMany('Modules\Project\Entities\TemplatepekerjaanDetail');
     }
 
     public function rab_pekerjaans()
@@ -311,5 +311,13 @@ class Itempekerjaan extends Model
 
     public function getItemProgressAttribute(){
         return $this->hasMany('Modules\Pekerjaan\Entities\ItempekerjaanProgress','item_pekerjaan_id')->get();
+    }
+
+    public function budget_tahunan_monthly(){
+        return $this->hasOne("\Modules\Budget\Entities\BudgetTahunanPeriode");
+    }
+
+    public function progress_termyn(){
+        return $this->hasMany("\Modules\Spk\Entities\SpkTermynDetail","item_pekerjaan_id");
     }
 }

@@ -13,10 +13,16 @@ class DivisionController extends Controller
      * Display a listing of the resource.
      * @return Response
      */
+
+     public function __construct()
+    {
+        $this->middleware('auth');
+    }
+    
     public function index()
     {
         $user = \Auth::user();
-        $divisions = Division::get();
+        $divisions = Division::orderBy("id","desc")->get();
         return view('division::index',compact("user","divisions"));
     }
 
@@ -65,6 +71,7 @@ class DivisionController extends Controller
     {
         $division = Division::find($request->id);
         $division->name = $request->name;
+        $division->code = $request->code;
         $status = $division->save();
         if ( $status ){
             return response()->json( ["status" => "0"] );

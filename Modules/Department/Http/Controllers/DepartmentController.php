@@ -24,7 +24,7 @@ class DepartmentController extends Controller
     public function index()
     {
         $user = \Auth::user();
-        $department = Department::get();
+        $department = Department::orderBy("id","desc")->get();
         return view('department::index',compact("user","department"));
     }
 
@@ -103,6 +103,7 @@ class DepartmentController extends Controller
     public function updatedepartment(Request $request){
         $department = Department::find($request->id);
         $department->name = $request->name;
+        $department->code = $request->code;
         $status = $department->save();
         if ( $status ){
             return response()->json( ["status" => "0"] );

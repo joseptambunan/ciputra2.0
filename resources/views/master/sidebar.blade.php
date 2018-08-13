@@ -67,9 +67,10 @@
             <li><a href="{{ url('/')}}/document/"><i class="fa fa-circle-o"></i> Dokumen</a></li>
             <li><a href="{{ url('/')}}/bank/"><i class="fa fa-circle-o"></i> Bank</a></li>
             <li><a href="{{ url('/')}}/globalsetting/"><i class="fa fa-circle-o"></i>Global Setting</a></li>
+            <li><a href="{{ url('/')}}/logout/"><i class="fa fa-circle-o"></i>Logout</a></li>
           </ul>
         </li>
-        
+       
       </ul>
     </section>
     <!-- /.sidebar -->

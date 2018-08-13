@@ -38,9 +38,11 @@
   function showedit(id){
     $(".labels").show();
     $("#label_" + id).hide();
+    $("#label_kode_" +id).hide();
 
     $(".col-xs-4").hide();
     $("#jabatan_" + id).show();
+    $("#kode_jabatan_" +id ).show();
 
     $(".btn-warning").show();
     $(".btn-success").hide();
@@ -53,7 +55,8 @@
       url : "/jabatan/updatejabatan",
       data : {
         name : $("#jabatan_" + id).val(),
-        id : id
+        id : id,
+        code : $("#kode_jabatan_" +id).val()
       },
       type : "post",
       dataType : "json"

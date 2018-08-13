@@ -1,0 +1,16 @@
+{
+    "name": "Spk",
+    "alias": "spk",
+    "description": "",
+    "keywords": [],
+    "active": 1,
+    "order": 0,
+    "providers": [
+        "Modules\\Spk\\Providers\\SpkServiceProvider"
+    ],
+    "aliases": {},
+    "files": [
+        "start.php"
+    ],
+    "requires": []
+}

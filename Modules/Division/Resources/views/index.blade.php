@@ -15,7 +15,7 @@
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <section class="content-header">
-      <h1>Data Divison</h1>
+      <h1>Data Divisi</h1>
 
     </section>
 
@@ -32,11 +32,11 @@
             	   <form action="{{ url('/')}}/division/add-division" method="post" name="form1">
                   {{ csrf_field() }}                  
                   <div class="form-group">
-                      <label for="exampleInputEmail1">Code</label>
+                      <label for="exampleInputEmail1">Kode Divisi</label>
                       <input type="text" class="form-control" name="code">
                   </div>
                   <div class="form-group">
-                      <label for="exampleInputEmail1">Nama</label>
+                      <label for="exampleInputEmail1">Nama Divisi</label>
                       <input type="text" class="form-control" name="division">
                   </div>
                   <div class="form-group">
@@ -52,13 +52,18 @@
             	<table id="example3" class="table table-bordered table-hover">
                 <thead>
                 <tr style="background-color: greenyellow;">
-                  <th>Departemen </th>
+                  <th>Kode Divisi</th>
+                  <th>Divisi </th>
                   <th>Perubahan Data</th>
                 </tr>
                 </thead>
                 <tbody>
                 @foreach ( $divisions as $key => $value )
                 <tr>
+                  <td>
+                    <span class="labels" id="label_kode{{ $value->id}}">{{ $value->code }}</span>
+                    <input type="text" id="div_kode_{{ $value->id }}" style="display: none;" value="{{ $value->name}}" data-attribute="{{ $value->id }}" class="form-control col-xs-4">
+                  </td>
                   <td>
                   	<span class="labels" id="label_{{ $value->id}}">{{ $value->name }}</span>
                   	<input type="text" id="div_{{ $value->id }}" style="display: none;" value="{{ $value->name}}" data-attribute="{{ $value->id }}" class="form-control col-xs-4">

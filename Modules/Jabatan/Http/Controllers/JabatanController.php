@@ -102,6 +102,7 @@ class JabatanController extends Controller
     public function updatejabatan(Request $request){
         $jabatan = UserJabatan::find($request->id);
         $jabatan->name = $request->name;
+        $jabatan->code = $request->code;
         $status = $jabatan->save();
         if ( $status ){
             return response()->json( ["status" => "0"] );

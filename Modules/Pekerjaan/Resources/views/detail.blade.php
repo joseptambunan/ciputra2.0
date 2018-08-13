@@ -45,11 +45,11 @@
                 </select>
               </div>
               <div class="form-group">
-                <label>Code Pekerjaan</label>
+                <label>Kode Pekerjaan</label>
                 <input type="text" class="form-control" name="code" value="{{ $itempekerjaan->code }}">
               </div>
               <div class="form-group">
-                <label>Nama</label>
+                <label>Nama Pekerjaan</label>
                 <input type="text" class="form-control" name="name" value="{{ $itempekerjaan->name }}">
               </div>
               <div class="form-group">
@@ -122,7 +122,11 @@
                         <label>Item COA</label>
                         <select class="form-control select2" name="coa">
                           @foreach( $coa as $key => $value)
-                          <option value="{{ $value->id }}">{{ $value->code }}</option>
+                          @if ( $value->code == "11.41.".$itempekerjaan->code )
+                            <option value="{{ $value->id }}" selected>{{ $value->code }}</option>
+                          @else
+                            <option value="{{ $value->id }}">{{ $value->code }}</option>
+                          @endif
                           @endforeach
                         </select>
                       </div>
@@ -136,27 +140,29 @@
                   <div class="tab-pane active" id="tab_2">
                       <!-- /.form-group -->
                       <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modal-info">
-                        Launch Info Modal
+                        Sub Item Pekerjaan
                       </button>
                       <table id="example3" class="table table-bordered table-responsive">
                         <thead style="background-color: greenyellow;">
                           <tr>
-                            <td>Item Pekerjaan</td>
-                            <td>Bobot</td>
-                            <td>Termin 1</td>
-                            <td>Termin 2</td>
-                            <td>Termin 3</td>
-                            <td>Termin 4</td>
-                            <td>Termin 5</td>
-                            <td>Termin 6</td>
-                            <td>Termin 7</td>
-                            <td>Termin 8</td>
-                            <td>Termin 9</td>
-                            <td>Termin 10</td>
+                            <td>COA Pekerjaan</td>
+                            <td style="width: 50%;">Item Pekerjaan</td>
+                            <td>Bobot(%)</td>
+                            <td>Termin 1(%)</td>
+                            <td>Termin 2(%)</td>
+                            <td>Termin 3(%)</td>
+                            <td>Termin 4(%)</td>
+                            <td>Termin 5(%)</td>
+                            <td>Termin 6(%)</td>
+                            <td>Termin 7(%)</td>
+                            <td>Termin 8(%)</td>
+                            <td>Termin 9(%)</td>
+                            <td>Termin 10(%)</td>
                           </tr>
                         </thead>
                         <tbody>                          
                           <tr>
+                            <td><strong>{{ $itempekerjaan->code }}</strong></td>
                             <td><strong>{{ $itempekerjaan->name }}</strong></td>
                             <td>&nbsp;</td>
                             <td>&nbsp;</td>
@@ -172,7 +178,15 @@
                           </tr>
                           @foreach ( $itempekerjaan->child_item as $key3 => $value3 )
                           <tr>
-                            <td style="background-color: grey;color:white;font-weight: bolder;" onclick="showhide('{{ $value3->id }}')" data-attribute='1' id='btn_{{ $value3->id }}'>&nbsp;&nbsp;{{ $value3->name }}</td>
+                            <td><strong>{{ $value3->code }}</strong></td>
+                            <td style="background-color: white;color:black;" onclick="showhide('{{ $value3->id }}')" data-attribute='1' id='btn_{{ $value3->id }}'>
+                              @if ( count($value3->child_item) > 0 )
+                              {{ $value3->name }}
+                              @else
+                              <a href="#" onclick="setItem('{{ $value3->id}}','{{ $value3->name }}','{{ $itempekerjaan->id }}')"  data-toggle="modal" data-target="#modal-primary" title="Silahkan isi bobot disini!">
+                                      {{ $value3->name }}
+                              @endif
+                            </td>
                             <td>&nbsp;</td>
                             <td>&nbsp;</td>
                             <td>&nbsp;</td>
@@ -188,11 +202,14 @@
                           @if ( count($value3->child_item) > 0 )
                             @foreach ( $value3->child_item as $key4 => $value4 )
                             <tr class="class_{{ $value3->id}}">
-                              <td style="background-color: blue;color:white;font-weight: bolder;" >
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $value4->name }}
-                                <button type="button" onclick="setItem('{{ $value4->id}}','{{ $value4->name }}','{{ $itempekerjaan->id }}')" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#modal-primary">
-                                      Bobot
-                                    </button>
+                              <td><strong>{{ $value4->code }}</strong></td>
+                              <td style="background-color: white;color:black;" >
+                                @if ( count($value4->child_item) > 0 )
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $value4->name }}
+                                @else
+                                <a href="#" onclick="setItem('{{ $value4->id}}','{{ $value4->name }}','{{ $itempekerjaan->id }}')"  data-toggle="modal" data-target="#modal-primary" title="Silahkan isi bobot disini!">
+                                      {{ $value4->name }}
+                                @endif
                               </td>
                               <td>{{ $value4->item_progress->sum('percentage') }}</td>
                               <td>{{ $value4->item_progress[0]->percentage or '0.00' }}</td>
@@ -209,11 +226,12 @@
                               @if ( count($value4->child_item) > 0 )
                                 @foreach ( $value4->child_item as $key5 => $value5 )
                                 <tr class="class_{{ $value3->id}}">
+                                  <td><strong>{{ $value5->code }}</strong></td>
                                   <td>
-                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $value5->name }}
-                                    <button type="button" onclick="setItem('{{ $value5->id}}','{{ $value5->name }}','{{ $itempekerjaan->id }}')" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#modal-primary">
-                                      Bobot
-                                    </button>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <a href="#" onclick="setItem('{{ $value5->id}}','{{ $value5->name }}','{{ $itempekerjaan->id }}')"  data-toggle="modal" data-target="#modal-primary" title="Silahkan isi bobot disini!">
+                                      {{ $value5->name }}
+                                    </a>
                                   </td>
                                   <td>{{ $value5->item_progress->sum('percentage') }}</td>
                                   <td>{{ $value5->item_progress[0]->percentage or '0.00' }}</td>
@@ -274,13 +292,40 @@
             <span aria-hidden="true">&times;</span></button>
           <h4 class="modal-title">Primary Modal</h4>
         </div>
+        <form action="/pekerjaan/add-itemchild" method="post" name="form1">
+          {{ csrf_field() }}
+        <input type="hidden" name="item_dept" value="{{ $itempekerjaan->department_id }}">
+        <input type="hidden" name="item_coa" value="{{ $itempekerjaan->id }}">
         <div class="modal-body">
-          
+          <div class="form-group">
+              <label>Item Pekerjaan</label>
+              <select class='form-control' name='item_pekerjaan' id="item_pekerjaan">
+                  @foreach ( $itempekerjaan->child_item as $key3 => $value3 )
+                    <option value="{{ $value3->id }}">{{ $value3->name }}</option>
+                      @if ( count($value3->child_item) > 0 )
+                      @foreach ( $value3->child_item as $key4 => $value4 )
+                        <option value="{{ $value4->id }}">++ {{ $value4->name }}</option>
+                        @if ( count($value4->child_item) > 0 )
+                          @foreach ( $value4->child_item as $key4 => $value5 )
+                            <option value="{{ $value5->id }}">++++ {{ $value5->name }}</option>
+                          @endforeach
+                        @endif
+                    @endforeach
+                    @endif
+                  @endforeach
+              </select>
+            </div>  
+            <div class="form-group">
+              <label>Item Pekerjaan</label>
+              <input type="name" name="item_child" class="form-control">
+            </div>
         </div>
+
         <div class="modal-footer">
           <button type="button" class="btn btn-outline pull-left" data-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-outline">Save changes</button>
+          <button type="submit" class="btn btn-btn-info">Save changes</button>
         </div>
+        </form>
       </div>
       <!-- /.modal-content -->
     </div>
@@ -308,42 +353,42 @@
               <table class="table table-bordered">
                 <tr>                  
                   <td>Termin 1</td>
-                  <td><input type="text" name="item[0]"></td>                 
+                  <td><input type="text" name="item[0]">%</td>                 
                 </tr>
                 <tr>                  
                   <td>Termin 2</td>
-                  <td><input type="text" name="item[1]"></td>                 
+                  <td><input type="text" name="item[1]">%</td>                 
                 </tr>
                 <tr>                  
                   <td>Termin 3</td>
-                  <td><input type="text" name="item[2]"></td>                 
+                  <td><input type="text" name="item[2]">%</td>                 
                 </tr>
                 <tr>                  
                   <td>Termin 4</td>
-                  <td><input type="text" name="item[3]"></td>                 
+                  <td><input type="text" name="item[3]">%</td>                 
                 </tr>
                 <tr>                  
                   <td>Termin 5</td>
-                  <td><input type="text" name="item[4]"></td>                 
+                  <td><input type="text" name="item[4]">%</td>                 
                 </tr><tr>                  
                   <td>Termin 6</td>
-                  <td><input type="text" name="item[5]"></td>                 
+                  <td><input type="text" name="item[5]">%</td>                 
                 </tr>
                 <tr>                  
                   <td>Termin 7</td>
-                  <td><input type="text" name="item[6]"></td>                 
+                  <td><input type="text" name="item[6]">%</td>                 
                 </tr>
                 <tr>                  
                   <td>Termin 8</td>
-                  <td><input type="text" name="item[7]"></td>                 
+                  <td><input type="text" name="item[7]">%</td>                 
                 </tr>
                 <tr>                  
                   <td>Termin 9</td>
-                  <td><input type="text" name="item[8]"></td>                 
+                  <td><input type="text" name="item[8]">%</td>                 
                 </tr>
                 <tr>                  
                   <td>Termin 10</td>
-                  <td><input type="text" name="item[9]"></td>                 
+                  <td><input type="text" name="item[9]">%</td>                 
                 </tr>
               </table>              
               <div class="box-footer">

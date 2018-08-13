@@ -21,10 +21,12 @@
     $(".labels").show();
     $("#label_" + id).hide();
     $("#label_masking_" + id).hide();
+    $("#label_kota_" + id).hide();
 
     $(".col-xs-4").hide();
     $("#bank_" + id).show();
     $("#bank_masking_" + id).show();
+    $("#city_id_" + id).show();
 
     $(".btn-warning").show();
     $(".btn-success").hide();
@@ -64,7 +66,8 @@
       data : {
         id : id,
         name : $("#bank_" + id).val(),
-        masking : $("#bank_masking_" + id).val()
+        masking : $("#bank_masking_" + id).val(),
+        kota : $("#city_id_" + id).val()
       },
       type : "post",
       dataType : "json"

@@ -20,9 +20,11 @@
    function showedit(id){
     $(".labels").show();
     $("#label_" + id).hide();
+    $("#label_kode" + id).hide();
 
     $(".col-xs-4").hide();
     $("#div_" + id).show();
+    $("#div_kode_" + id).show();
 
     $(".btn-warning").show();
     $(".btn-success").hide();
@@ -61,7 +63,8 @@
       url : "/division/updatedivision",
       data : {
         id : id,
-        name : $("#div_" + id).val()
+        name : $("#div_" + id).val(),
+        code : $("#div_kode_" +id).val()
       },
       type : "post",
       dataType : "json"

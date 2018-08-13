@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Modules\Bank\Entities\Bank;
+use Modules\Country\Entities\City;
 
 class BankController extends Controller
 {
@@ -22,8 +23,9 @@ class BankController extends Controller
     public function index()
     {
         $user = \Auth::user();
-        $bank = Bank::get();
-        return view('bank::index',compact("bank","user"));
+        $bank = Bank::orderBy("name","asc")->get();
+        $city = City::get();
+        return view('bank::index',compact("bank","user","city"));
     }
 
     /**
@@ -35,6 +37,7 @@ class BankController extends Controller
         $bank = new Bank;
         $bank->name = $request->bank;
         $bank->masking = $request->masking;
+        $bank->city_id = $request->city_id;
         $status = $bank->save();
         return redirect("bank");
     }
@@ -66,6 +69,7 @@ class BankController extends Controller
         $bank = Bank::find($request->id);
         $bank->name = $request->name;
         $bank->masking = $request->masking;
+        $bank->city_id = $request->kota;
         $status = $bank->save();
         if ( $status ){
             return response()->json( ["status" => "0"] );

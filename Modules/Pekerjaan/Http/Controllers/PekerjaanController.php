@@ -104,6 +104,7 @@ class PekerjaanController extends Controller
         $itempekerjaan->tag = $request->tag;
         $itempekerjaan->name = $request->name;
         $itempekerjaan->ppn = $request->ppn;
+        $itempekerjaan->description = $request->description;
         $itempekerjaan->save();
         return redirect("/pekerjaan/detail/?id=".$request->id);
     }
@@ -143,5 +144,20 @@ class PekerjaanController extends Controller
         }
         return redirect("/pekerjaan/detail/?id=".$request->coa_id);
 
+    }
+
+    public function addchilditem(Request $request){
+        $parent = Itempekerjaan::find($request->item_pekerjaan);
+        $itempekerjaan = new Itempekerjaan;
+        $itempekerjaan->parent_id = $request->item_pekerjaan;
+        $itempekerjaan->department_id = $parent->department_id;
+        $itempekerjaan->group_cost = $parent->group_cost;
+        $itempekerjaan->code       = $request->code;
+        $itempekerjaan->name       = $request->item_child;
+        $itempekerjaan->ppn        = $parent->ppn / 100;
+        $itempekerjaan->tag        = $parent->tag;
+        $itempekerjaan->description = $request->item_child;
+        $status = $itempekerjaan->save();
+        return redirect("/pekerjaan/detail/?id=".$request->item_coa);
     }
 }

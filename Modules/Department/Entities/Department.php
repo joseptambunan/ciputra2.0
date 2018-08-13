@@ -12,4 +12,8 @@ class Department extends Model
     {
         return $this->belongsToMany('App\Coa');
     }
+
+    public function budgets(){
+    	return $this->hasMany("Modules\Budget\Entities\Budget");
+    }
 }

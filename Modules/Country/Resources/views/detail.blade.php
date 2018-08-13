@@ -111,7 +111,7 @@
                     </td>
                     <td>
                       <button class="btn-sm btn-warning" id="btn_ubah_{{ $value2->id }}" onclick="updateCity('{{ $value2->id }}')">Ubah</button>
-                      <button class="btn-sm btn-success" id="btn_edit_{{ $value2->id }}" onclick="updCity('{{ $value2->id }}','{{ $value2->name }}')" style="display: none;">Ubah</button>
+                      <button class="btn-sm btn-success" id="btn_edit_{{ $value2->id }}" onclick="updCitie('{{ $value2->id }}','{{ $value2->name }}')" style="display: none;">Ubah</button>
                       <button class="btn-sm btn-danger" onclick="deleteCity('{{ $value2->id }}','{{ $value2->name }}')">Hapus</button>
                     </td>
                   </tr>

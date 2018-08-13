@@ -39,6 +39,14 @@
                       <label for="exampleInputEmail1">Masking</label>
                       <input type="text" class="form-control" name="masking">
                   </div>
+                  <div class="form-group">
+                      <label for="exampleInputEmail1">Kota</label>
+                      <select class="form-control" name="city_id">
+                        @foreach ( $city as $key => $value )
+                        <option value="{{ $value->id }}">{{ $value->name }}</option>
+                        @endforeach
+                      </select>
+                  </div>
                   <div class="box-footer">
                     <button type="submit" class="btn btn-primary">Simpan</button>
                   </div>
@@ -49,6 +57,7 @@
                 <thead>
                 <tr style="background-color: greenyellow;">
                   <th>Bank </th>
+                  <th>Kota</th>
                   <th>Format Rekening</th>
                   <th>Perubahan Data</th>
                 </tr>
@@ -60,6 +69,14 @@
                   	<span class="labels" id="label_{{ $value->id}}">{{ $value->name }}</span>
                   	<input type="text" id="bank_{{ $value->id }}" style="display: none;" value="{{ $value->name}}" data-attribute="{{ $value->id }}" class="form-control col-xs-4">
                   </td> 
+                  <td>
+                    <span class="labels" id="label_kota_{{ $value->id}}">{{ $value->city->name or '' }}</span>
+                    <select class="form-control" name="city_id_{{ $value->id }}" id="city_id_{{ $value->id }}" style="display: none;">
+                        @foreach ( $city as $key5 => $value5 )
+                        <option value="{{ $value5->id }}">{{ $value5->name }}</option>
+                        @endforeach
+                    </select>
+                  </td>
                   <td>
                     <span class="labels" id="label_masking_{{ $value->id}}">{{ $value->masking }}</span>
                     <input type="text" id="bank_masking_{{ $value->id }}" style="display: none;" value="{{ $value->masking}}" data-attribute="{{ $value->id }}" class="form-control col-xs-4" ></td>                 

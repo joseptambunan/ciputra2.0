@@ -31,3 +31,10 @@
 
   <!-- Google Font -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+  <style type="text/css">
+    .head_table{
+      background-color: #009688;
+      color:white;
+      font-weight: bolder;
+    }
+  </style>

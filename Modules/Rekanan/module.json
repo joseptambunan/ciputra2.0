@@ -1,0 +1,16 @@
+{
+    "name": "Rekanan",
+    "alias": "rekanan",
+    "description": "",
+    "keywords": [],
+    "active": 1,
+    "order": 0,
+    "providers": [
+        "Modules\\Rekanan\\Providers\\RekananServiceProvider"
+    ],
+    "aliases": {},
+    "files": [
+        "start.php"
+    ],
+    "requires": []
+}

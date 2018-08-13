@@ -34,6 +34,7 @@
             	<table id="example3" class="table table-bordered table-hover">
                 <thead>
                 <tr style="background-color: greenyellow;">
+                  <th>COA</th>
                   <th>Item Pekerjaan</th>
                   <th>Department</th>
                   <th>Detail</th>
@@ -42,6 +43,7 @@
                 <tbody>
                 @foreach ( $itempekerjaan as $key => $value )
                 <tr>
+                  <td>{{ $value->code }}</td>
                   <td>
                   	<span class="labels" id="label_{{ $value->id}}">{{ $value->name }}</span>
                   </td>

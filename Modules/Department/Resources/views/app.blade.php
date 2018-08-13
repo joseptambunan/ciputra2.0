@@ -20,9 +20,11 @@
    function showedit(id){
     $(".labels").show();
     $("#label_" + id).hide();
+    $("#label_dept_" +id).hide();    
 
     $(".col-xs-4").hide();
     $("#dept_" + id).show();
+    $("#dept_code_" +id).show();
 
     $(".btn-warning").show();
     $(".btn-success").hide();
@@ -61,7 +63,8 @@
       url : "/department/updatedepartment",
       data : {
         id : id,
-        name : $("#dept_" + id).val()
+        name : $("#dept_" + id).val(),
+        code : $("#dept_code_" +id).val()
       },
       type : "post",
       dataType : "json"

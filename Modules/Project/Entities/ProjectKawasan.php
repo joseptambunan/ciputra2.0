@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace Modules\Project\Entities;
 
 use App\CustomModel;
 
@@ -20,12 +20,12 @@ class ProjectKawasan extends CustomModel
 
     public function bloks()
     {
-        return $this->hasMany('App\Blok');
+        return $this->hasMany('Modules\Project\Entities\Blok');
     }
     
 	public function budgets()
     {
-        return $this->hasMany('App\Budget',"project_kawasan_id");
+        return $this->hasMany('Modules\Budget\Entities\Budget',"project_kawasan_id");
     }
 
     public function units()

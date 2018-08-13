@@ -15,7 +15,7 @@
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <section class="content-header">
-      <h1>Data Country</h1>
+      <h1>Data Jabatan</h1>
 
     </section>
 
@@ -31,16 +31,16 @@
                   {{ csrf_field() }}
                   
                   <div class="form-group">
-                      <label for="exampleInputEmail1">Code</label>
+                      <label for="exampleInputEmail1">Kode Jabatan</label>
                       <input type="text" class="form-control" name="code">
                   </div>
                   <div class="form-group">
-                      <label for="exampleInputEmail1">Jabatan</label>
+                      <label for="exampleInputEmail1">Nama Jabatan</label>
                       <input type="text" class="form-control" name="jabatan">
                   </div>
                   <div class="form-group">
                       <label for="exampleInputEmail1">Keterangan</label>
-                      <textarea name="keterangan"> </textarea>
+                      <input type="text" class="form-control" name="keterangan">
                   </div>
                   <div class="box-footer">
                     <button type="submit" class="btn btn-primary">Simpan</button>
@@ -49,13 +49,18 @@
               	<table id="example2" class="table table-bordered table-hover">
 	                <thead>
 	                <tr style="background-color: greenyellow;">
+                    <th>Kode Jabatan</th>
 	                  <th>Jabatan </th>
-	                  <th>Detail</th>
+	                  <th>Perubahan Data</th>
 	                </tr>
 	                </thead>
 	                <tbody>
 	                @foreach ( $jabatan as $key => $value )
 	                <tr>
+                    <td>
+                      <span class="labels" id="label_kode_{{ $value->id}}">{{ $value->code }}</span>
+                      <input type="text" id="kode_jabatan_{{ $value->id }}" style="display: none;" value="{{ $value->code}}" data-attribute="{{ $value->id }}" class="form-control col-xs-4">
+                    </td>
 	                  <td>
 	                  	<span class="labels" id="label_{{ $value->id}}">{{ $value->name }}</span>
 	                  	<input type="text" id="jabatan_{{ $value->id }}" style="display: none;" value="{{ $value->name}}" data-attribute="{{ $value->id }}" class="form-control col-xs-4">

@@ -15,7 +15,7 @@
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <section class="content-header">
-      <h1>Data Divison</h1>
+      <h1>Data Perusahaan</h1>
 
     </section>
 

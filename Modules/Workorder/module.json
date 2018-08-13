@@ -1,0 +1,16 @@
+{
+    "name": "Workorder",
+    "alias": "workorder",
+    "description": "",
+    "keywords": [],
+    "active": 1,
+    "order": 0,
+    "providers": [
+        "Modules\\Workorder\\Providers\\WorkorderServiceProvider"
+    ],
+    "aliases": {},
+    "files": [
+        "start.php"
+    ],
+    "requires": []
+}

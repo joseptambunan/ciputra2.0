@@ -103,9 +103,9 @@
 
   }
 
-  function updCity(id,cityname){
+  function updCitie(id,cityname){
     var request = $.ajax({
-      url : "/country/updateCity/",
+      url : "/country/updatecity/",
       data : {
         id : id,
         city : $("#city_" +id).val()
@@ -124,7 +124,7 @@
 
   function updProvince(id,province){
     var request = $.ajax({
-      url : "/country/updateProv/",
+      url : "/country/updateprov/",
       data : {
         id : id,
         province : $("#province_" +id).val()

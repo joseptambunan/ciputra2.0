@@ -40,11 +40,11 @@
                 <input type="text" class="form-control" name="name" value="{{ $pt->name }}">
               </div>
               <div class="form-group">
-                <label>Code</label>
+                <label>Kode PT</label>
                 <input type="text" class="form-control" name="code" value="{{ $pt->code }}">
               </div>
               <div class="form-group">
-                <label>Alamat</label>
+                <label>Alamat / Kode Pos</label>
                 <textarea class="form-control" name="alamat" rows="3" >{{ $pt->address }}</textarea>
               </div>
               <div class="form-group">
@@ -65,7 +65,11 @@
               </div>
               <div class="form-group">
                 <label>NPWP</label>
+                @if ( $pt->npwp == "" )
+                <input type="text" name="npwp" class="form-control" data-inputmask='"mask":"99.999.999.9-999.999"' data-mask>
+                @else
                 <input type="text" name="npwp" class="form-control" value="{{ $pt->npwp }}">
+                @endif
               </div>
               <div class="form-group">
                 <label>Description</label>
@@ -84,6 +88,8 @@
                 
                 <ul class="nav nav-tabs">
                   <li class="active"><a href="#tab_1" data-toggle="tab">Rekening</a></li>
+                  <li><a href="#tab_2" data-toggle="tab">Proyek</a></li>
+                  <!--li><a href="#tab_3" data-toggle="tab">Departemen</a></li-->
                 </ul>
                 <div class="tab-content">
                   <div class="tab-pane active" id="tab_1">
@@ -118,7 +124,7 @@
                               <td>
                                 <span class="labels" id="label_rek_{{ $value->id}}">{{ $value->rekening }}</span>
                                 <input type="text" id="rek_bang_{{ $value->id }}" style="display: none;" value="{{ $value->rekening}}" data-attribute="{{ $value->id }}" class="form-control col-xs-4">
-                              </td>                  
+                              </td>                 
                               <td>
                                 <button class="btn btn-warning" id="btn_status_{{ $value->id }}" onclick="showedit('{{ $value->id}}');">Ubah</button>
                                 <button class="btn btn-success" id="btn_save_{{ $value->id }}" onclick="saveEdit('{{ $value->id}}','{{ $value->name}}');" style="display: none;">Ubah</button>
@@ -139,14 +145,69 @@
                       <input type="hidden" class="form-control" name="pt_proyek" value="{{ $pt->id }}">
                       <div class="form-group">
                           <label for="exampleInputEmail1">Proyek</label>
-                          
+                          <select class="form-control" name="project">
+                            @foreach ( $project as $key2 => $value2 )
+                            <option value="{{ $value2->id }}">{{ $value2->name}}</option>
+                            @endforeach
+                          </select>
                       </div>
                       <div class="box-footer">
                         <button type="submit" class="btn btn-primary">Simpan</button>
                       </div>
                       </form>
+                      <table class="table">
+                        <tr class="head_table">
+                          <td>Proyek</td>
+                          <td>Hapus</td>
+                        </tr>
+                        @foreach ( $pt->project_pt_users as $key3 => $value3 )
+                        <tr>
+                          <td>{{ $value3->project->name }}</td>
+                          <td><button onclick="removeproject('{{ $value3->id }}')" class="btn btn-danger">Hapus</button></td>
+                        </tr>
+                        @endforeach
+                      </table>
                   </div>
                   <!-- /.tab-pane -->
+                  <div class="tab-pane" id="tab_3">
+                    <form action="{{ url('/')}}/pt/add-mapping" method="post" name="form1">
+                      {{ csrf_field() }}
+                      <input type="hidden" class="form-control" name="pt_mapping" value="{{ $pt->id }}">
+                      <div class="form-group">
+                          <label for="exampleInputEmail1">Department</label>
+                          <select class="form-control" name="departmen_mapping">
+                            @foreach ( $department as $key2 => $value2 )
+                            <option value="{{ $value2->id }}">{{ $value2->name}}</option>
+                            @endforeach
+                          </select>
+                      </div>
+                      <div class="form-group">
+                          <label for="exampleInputEmail1">Proyek</label>
+                          <select class="form-control" name="divisiion_mapping">
+                            @foreach ( $divisi as $key2 => $value2 )
+                            <option value="{{ $value2->id }}">{{ $value2->name}}</option>
+                            @endforeach
+                          </select>
+                      </div>
+                      <div class="box-footer">
+                        <button type="submit" class="btn btn-primary">Simpan</button>
+                      </div>
+                      </form>
+                      <table class="table">
+                        <tr class="head_table">
+                          <td>Departemen</td>
+                          <td>Divisi</td>
+                          <td>Hapus</td>
+                        </tr>
+                        @foreach ( $pt->mapping as $key4 => $value4 )
+                        <tr>
+                          <td>{{ $value4->department->name }}</td>
+                          <td>{{ $value4->division->name }}</td>
+                          <td><button onclick="removemap('{{ $value4->id }}')" class="btn btn-danger">Hapus</button></td>
+                        </tr>
+                        @endforeach
+                      </table>
+                  </div>
                 </div>
                 <!-- /.tab-content -->
               </div>
@@ -223,7 +284,52 @@
 <script type="text/javascript">
   $(function () {
     $('.select2').select2();
+    $('[data-mask]').inputmask();
   });
+
+  function removeproject(id){
+    if ( confirm("Apakah anda yakin ingin menghapus data proyek ini ? ")){
+      var request = $.ajax({
+        url : "{{ url('/')}}/pt/delete-project",
+        data : { 
+          id : id
+        },
+        type : "post",
+        dataType : "json"
+      });
+
+      request.done(function(data){
+        if ( data.status == "0" ){
+          alert("Data telah dihapus");
+        }
+        window.location.reload();
+      })
+    }else{
+      return false;
+    }
+  }
+
+  function removemap(id){
+    if ( confirm("Apakah anda yakin ingin menghapus data department ini ? ")){
+      var request = $.ajax({
+        url : "{{ url('/')}}/pt/delete-mapping",
+        dataType : "json",
+        data : {
+          id : id
+        },
+        type : "post"
+      });
+
+      request.done(function(data){
+        if ( data.status == "0"){
+          alert("Data telah dihapus");
+          window.location.reload();
+        }
+      })
+    }else{
+      return false;
+    }
+  }
 </script>
 @include("pt::app")
 </body>

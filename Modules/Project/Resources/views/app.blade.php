@@ -85,4 +85,48 @@
   $("#kota").change(function(){
       
   })
+
+  function removeKawasan(id,kawasan_name){
+  if ( confirm("Apakah anda yakin ingin menghapus data ini ? ")){
+    var request = $.ajax({
+      url : "{{ url('/')}}/project/delete-kawasan",
+      data : {
+        id : id
+      },
+      dataType : "json",
+      type : "post"
+    });
+
+    request.done(function(data){
+      if ( data.status == "0"){
+        alert("Data Kawasan " + kawasan_name + " telah dihapus");
+      }
+      window.location.reload();
+    })
+  }else{
+    return false;
+  }
+}
+
+function removeblok(id,name) {
+    if ( confirm("Apakah anda yakin ingin menghapus blok " + name + " ini ? ")){
+        var request = $.ajax({
+            url : "{{ url('/')}}/project/delete-blok",
+            dataType : "json",
+            data : {
+              id : id
+            },
+            type : "post"
+        });
+
+        request.done(function(data){
+          if ( data.status == "0"){
+            alert(" Blok " + name + " telah dihapus" );
+          }
+          window.location.reload();
+        })
+    }else{
+      return false;
+    }
+  }
 </script>

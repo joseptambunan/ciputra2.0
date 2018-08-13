@@ -41,7 +41,10 @@
                 @foreach ( $project as $key => $value )
                 <tr>
                   <td>{{ $value->name }}</td>                  
-                  <td><a href="{{ url('/')}}/project/detail/?id={{ $value->id }}" class="btn btn-info">Detail</a></td>
+                  <td>
+                    <a href="{{ url('/')}}/project/detail-update/?id={{ $value->id }}" class="btn btn-success">Detail</a>
+                    <a href="{{ url('/')}}/project/detail/?id={{ $value->id }}" class="btn btn-info">Dashboard</a>
+                  </td>
                 </tr>
                 @endforeach
               </table>
