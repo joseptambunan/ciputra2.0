@@ -18,7 +18,7 @@ Route::get('/', function () {
 Auth::routes();
 
 
-/*Route::post('ces-login', function() 
+Route::post('ces-login', function() 
 {
 	if(!isset($_POST["user_login"]))
 	{
@@ -40,9 +40,9 @@ Auth::routes();
 		return redirect('https://ces-test.ciputragroup.com');
 	}
 
-});*/
+});
 
-Route::get('/', 'PrivilegeController@index')->middleware("auth");
-Route::post('/login/validation','PrivilegeController@validation');
+//Route::get('/', 'PrivilegeController@index')->middleware("auth");
+//Route::post('/login/validation','PrivilegeController@validation');
 Route::get('/logout','PrivilegeController@destroy');
 Route::post('/workorder/save-nonbudget','WorkorderController@savenonbudget');
