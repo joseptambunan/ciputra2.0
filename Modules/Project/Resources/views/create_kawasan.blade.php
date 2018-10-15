@@ -41,28 +41,29 @@
                 <input type="text" class="form-control" value="{{ $project->name }}" readonly>
               </div>
               <div class="form-group">
-                <label>Luas Area Bruto</label>
+                <label>Luas Area Bruto Proyek(m2)</label>
                 <input type="text" class="form-control" name="project_luas"  value="{{ number_format($project->luas) }}" readonly>
               </div>
+              <hr style="border:2px solid;width: 200%;">
               <div class="form-group">
                 <label>Kode Kawasan</label>
-                <input type="text" class="form-control" name="kode_kawasan" id="kode_kawasan">
+                <input type="text" class="form-control" name="kode_kawasan" id="kode_kawasan" autocomplete="off">
               </div>
               <div class="form-group">
                 <label>Nama Kawasan</label>
-                <input type="text" class="form-control" name="nama_kawasan" id="nama_kawasan">
+                <input type="text" class="form-control" name="nama_kawasan" id="nama_kawasan" autocomplete="off">
               </div>
               <div class="form-group">
-                <label>Luas Brutto</label>
-                <input type="text" class="form-control" name="luas_brutto" id="luas_brutto">
+                <label>Luas Brutto Kawasan(m2)</label>
+                <input type="text" class="form-control" name="luas_brutto" id="luas_brutto" max="{{ $project->luas}}" autocomplete="off">
               </div>
               <div class="form-group">
-                <label>Luas Netto</label>
-                <input type="text" class="form-control" name="luas_netto" id="luas_netto">
+                <label>Luas Netto Kawasan(m2)</label>
+                <input type="text" class="form-control" name="luas_netto" id="luas_netto" autocomplete="off" required>
               </div>
               <div class="form-group">
-                <label>Status Lahan</label>
-                <select class='form-control' name='lahan_status' id='lahan_status'>
+                <label>Status Lahan Kawasan</label>
+                <select class='form-control' name='lahan_status' id='lahan_status' autocomplete="off">
                   <option value='0'>Open</option>
                   <option value='1'>Deliver</option>
                   <option value='2'>In-Progress</option>

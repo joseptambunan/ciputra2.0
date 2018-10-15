@@ -30,8 +30,12 @@
         <!-- /.box-header -->
         <div class="box-body">
           <div class="row">
+            <div class="col-md-12">
+              
+              <form action="{{ url('/')}}/tender/penawaran-save" method="post" name="form1" enctype="multipart/form-data">
               <a href="{{ url('/')}}/tender/detail/?id={{ $rekanan->tender->id }}" class="btn btn-warning">Kembali</a>
-              <form action="{{ url('/')}}/tender/penawaran-save" method="post" name="form1">
+              <input type="file" name="fileupload"><br>
+              <button type="submit" class="btn btn-primary">Simpan</button>
               {{ csrf_field() }}
               <input type="hidden" name="tender_rab_id" value="{{ $rekanan->id }}">
               <h3><center>Rekanan : <strong>{{ $rekanan->rekanan->group->name}}</strong></center></h3>
@@ -46,78 +50,36 @@
                   <td>Harga Satuan</td>
                   <td>Subtotal</td>
                  </tr>
-               </thead>
-               @if ( $itempekerjaan != "" )
-               <tbody>                          
-                <tr>
-                  <td><strong>{{ $itempekerjaan->code }}</strong></td>
-                  <td><strong>{{ $itempekerjaan->name }}</strong></td>
-                  <td>&nbsp;</td>
-                  <td>&nbsp;</td>
-                </tr>
-                @php $start = 0; @endphp
-                @foreach ( $itempekerjaan->child_item as $key3 => $value3 )
-                <tr>
-                  <td><strong>{{ $value3->code }}</strong></td>
-                  <td>{{ $value3->name }}</td>
-                  @if ( count(Modules\Rab\Entities\RabPekerjaan::where('itempekerjaan_id',$value3->id)->get()) > 0 )
-                  <td>
-                    <input type="text" name="input_rab_id_[{{ $start}}]" class="form-control" value="">
-                    <input type="hidden" name="input_rab_volume_[{{ $start}}]" id="input_rab_volume_{{$start}}" class="form-control" value="{{ Modules\Rab\Entities\RabPekerjaan::where('itempekerjaan_id',$value4->id)->get()->first()->volume }}">
-                    <input type="text" class="form-control" value="{{ Modules\Rab\Entities\RabPekerjaan::where('itempekerjaan_id',$value4->id)->get()->first()->volume }}" readonly>
-                  </td>
-                  <td><input  type="text" name="input_rab_satuan_[{{ $start}}]" class="form-control" value="{{ Modules\Rab\Entities\RabPekerjaan::where('itempekerjaan_id',$value4->id)->get()->first()->satuan }}"></td>
-                  <td><input type="text" name="input_rab_nilai_[{{ $start}}]" id="input_rab_nilai_{{ $start}}" class="form-control"></td>
-                  @else
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  @php $start++; @endphp
-                  @endif
-                </tr>
-                
-                @if ( count($value3->child_item) > 0 )
-                  @foreach ( $value3->child_item as $key4 => $value4 )
-                  <tr class="class_{{ $value3->id}}">
-                    <td><strong>{{ $value4->code }}</strong></td>
-                    <td>{{ $value4->name }}</td>
+                </thead>
+                <tbody>
+                  @php $start=0; @endphp
+                  @foreach( $rekanan->tender->rab->pekerjaans as $key => $value )
+                  <tr>
+                    <td>{{ $value->itempekerjaan->code }}</td>
+                    <td>{{ $value->itempekerjaan->name }}</td>
+                    <td><input type="hidden" name="input_rab_id_[{{ $key}}]" class="form-control" value="{{ $value->id }}"><input  type="text" name="input_rab_volume_[{{ $key}}]" id="input_rab_volume_{{ $key}}" class="form-control" value="{{ $value->volume }}" style="width: 100%;" readonly></td>
                     <td>
-                        <input type="hidden" name="input_rab_id_[{{ $start}}]" class="form-control" value="{{ Modules\Rab\Entities\RabPekerjaan::where('itempekerjaan_id',$value4->id)->get()->first()->id }}">
-                         <input type="hidden" name="input_rab_volume_[{{ $start }}]" id="input_rab_volume_{{$start}}" class="form-control vol" value="{{ Modules\Rab\Entities\RabPekerjaan::where('itempekerjaan_id',$value4->id)->get()->first()->volume }}" >
-                        <input type="text" class="form-control" value="{{ Modules\Rab\Entities\RabPekerjaan::where('itempekerjaan_id',$value4->id)->get()->first()->volume }}" readonly>
+                      <input  type="hidden" name="input_rab_satuan_[{{ $key}}]"  id="input_rab_satuan_{{ $key}}" class="form-control" value="{{ $value->satuan }}" style="width: 100%;" readonly>
+                       <input  type="text" class="form-control" value="{{ $value->satuan }}" style="width: 100%;" readonly>
                     </td>
-                    <td><input  type="text" name="input_rab_satuan_[{{ $start }}]" class="form-control" value="{{ Modules\Rab\Entities\RabPekerjaan::where('itempekerjaan_id',$value4->id)->get()->first()->satuan }}" style="width: 100%;" readonly></td>
-                    <td><input type="text" name="input_rab_nilai_[{{ $start }}]" id="input_rab_nilai_{{ $start}}" class="form-control vol" onKeyUp="showSummary('{{ $start}}')"></td>
-                    <td><input type="text"  id="subtotal_{{$start}}"  class="form-control" /></span></td>
+                    <td><input type="text" name="input_rab_nilai_[{{ $key}}]"  id="input_rab_nilai_{{ $key}}" class="form-control vol"  onKeyUp="showSummary('{{ $key}}')" autocomplete="off" value=""></td>
+                    <td><input type="text"  id="subtotal_{{$key}}"  class="form-control" autocomplete="off" /></td>
                   </tr>
-                    @php $start++; @endphp
-                    @if ( count($value4->child_item) > 0 )
-                      @foreach ( $value4->child_item as $key5 => $value5 )                           
-                      <tr class="class_{{ $value3->id}}">
-                        <td><strong>{{ $value5->code }}</strong></td>
-                        <td>                                    
-                            {{ $value5->name }}                             
-                        </td>
-                        <td>
-                            <input type="hidden" name="input_rab_id_[{{ $start}}]" class="form-control" value="{{ Modules\Rab\Entities\RabPekerjaan::where('itempekerjaan_id',$value5->id)->get()->first()->id }}">
-                            <input type="text" name="input_rab_volume_[{{ $start}}]" class="form-control vol" value="{{ Modules\Rab\Entities\RabPekerjaan::where('itempekerjaan_id',$value4->id)->get()->first()->volume }}" readonly>
-                        </td>
-                        <td><input  type="text" name="input_rab_satuan_[{{ $start}}]" class="form-control" value="{{ Modules\Rab\Entities\RabPekerjaan::where('itempekerjaan_id',$value4->id)->get()->first()->satuan }}" style="width: 100%;" readonly></td>
-                        <td><input type="text" name="input_rab_nilai_[{{ $start}}]" class="form-control vol" onKeyUp="showSummary('{{ $start}}')"></td>
-                        <td><input type="text"  id="subtotal_{{$start}}"  class="form-control" /></td>
-                      </tr>
-                      @php $start++; @endphp
-                      @endforeach
-                    @endif
+                  @php $start = $key; @endphp
                   @endforeach
-                @endif
-                @endforeach
-              </tbody>
-              @endif
-            </table>
-            <button type="submit" class="btn btn-primary">Simpan</button>
-            </form>
+                  <tr>
+                    <td>&nbsp;</td>
+                    <td>Lain - Lain</td>
+                    <td><input type="hidden" name="input_rab_id_[{{ $start + 1 }}]" class="form-control" value=""><input  type="text" name="input_rab_volume_[{{ $start + 1 }}]" id="input_rab_volume_{{ $start + 1 }}" class="form-control" value="" style="width: 100%;"></td>
+                    <td><input  type="text" name="input_rab_satuan_[{{ $start + 1 }}]"  id="input_rab_satuan_{{ $start + 1 }}" class="form-control" value="{{ $value->satuan }}" style="width: 100%;"></td>
+                    <td><input type="text" name="input_rab_nilai_[{{ $start + 1 }}]"  id="input_rab_nilai_{{ $start + 1 }}" class="form-control vol" onKeyUp="showSummary('{{ $start + 1 }}')" autocomplete="off"></td>
+                    <td><input type="text"  id="subtotal_{{$start + 1 }}"  class="form-control" autocomplete="off"/></td>
+                  </tr>
+                </tbody>
+              </table>
+             
+              </form>
+            </div>
           </div>
           <!-- /.row -->
         </div>
@@ -157,13 +119,17 @@
 <script type="text/javascript">
   $(function(){
     $(".vol").number(true);
-  })
+  });
+
   function showSummary(id){
-    var summary = parseInt($("#input_rab_volume_" + id).val()) * parseInt($("#input_rab_nilai_" + id).val());
+    var vla = $("#input_rab_nilai_" + id).val();
+    console.log($("#input_rab_nilai_" + id).val(),vla);
+    var rep = vla.replace(",","");
+    var summary = parseInt($("#input_rab_volume_" + id).val()) * parseInt(rep);
     if ( summary == "NaN"){
-      $("#subtotal_" + id).text("0");
+      $("#subtotal_" + id).val("0");
     }else{
-      $("#subtotal_" + id).text(summary);
+      $("#subtotal_" + id).val(summary);
       $("#subtotal_" + id).number(true);
     }
   }

@@ -38,12 +38,12 @@
               <input type="hidden" name="project_id" value="{{ $project->id }}">
               <input type="hidden" name="budget_id" value="{{ $budget->id }}">
               <div class="form-group">
-                <label>Budget Awal</label>
+                <label>Budget Awal(Rp)</label>
                 <input type="text" class="form-control" value="{{ $budget->no }}" readonly>
               </div>
               <div class="form-group">
-                <label>Budget Nilai</label>
-                <input type="text" class="form-control" value="{{ $budget->nilai }}" readonly>
+                <label>Budget Nilai(Rp)</label>
+                <input type="text" class="form-control" value="{{ number_format($budget->nilai) }}" readonly>
               </div>
               <div class="form-group">
                 <label>Project</label>
@@ -78,11 +78,11 @@
               
               <div class="form-group">
                 <label>Start Date</label>
-                <input type="text" class="form-control" name="start_date" id="start_date" value="{{ $budget->start_date->format('d/m/y') }}" readonly>
+                <input type="text" class="form-control" name="start_date" id="start_date" value="{{ $budget->start_date->format('d/m/Y') }}" readonly>
               </div>
               <div class="form-group">
                 <label>End Date</label>
-                <input type="text" class="form-control" name="end_date" id="end_date" value="{{ $budget->end_date->format('d/m/y') }}" readonly>
+                <input type="text" class="form-control" name="end_date" id="end_date" value="{{ $budget->end_date->format('d/m/Y') }}" readonly>
               </div>
               <div class="form-group">
                 <label>Keterangan Date</label>

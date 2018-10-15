@@ -20,6 +20,6 @@ class UserDetail extends CustomModel
 
     public function mappingperusahaan()
     {
-        return $this->belongsTo('App\Mappingperusahaan');
+        return $this->belongsTo('Modules\Pt\Entities\Mappingperusahaan');
     }
 }

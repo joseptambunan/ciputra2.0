@@ -15,7 +15,7 @@ class Templatepekerjaan extends Model
 
     public function spkvo_units()
     {
-        return $this->hasMany('App\SpkvoUnit', 'templatepekerjaan_id');
+        return $this->hasMany('Modules\Spk\Entities\SpkvoUnit', 'templatepekerjaan_id');
     }
 
     public function details()
@@ -25,7 +25,7 @@ class Templatepekerjaan extends Model
 
     public function itempekerjaans()
     {
-        return \App\Itempekerjaan::whereHas('templatepekerjaan_details', function($q)
+        return \Modules\Pekerjaan\Entities\Itempekerjaan::whereHas('templatepekerjaan_details', function($q)
         {
             $q->where('templatepekerjaan_id', $this->id);
         });

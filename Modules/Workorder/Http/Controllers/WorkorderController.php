@@ -6,11 +6,16 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Modules\Project\Entities\Project;
+use Modules\Project\Entities\Unit;
 use Modules\Workorder\Entities\Workorder;
 use Modules\Workorder\Entities\WorkorderBudgetDetail;
 use Modules\Workorder\Entities\WorkorderDetail;
 use Modules\Department\Entities\Department;
 use Modules\Budget\Entities\BudgetTahunan;
+use Modules\Pekerjaan\Entities\Itempekerjaan;
+use Modules\BudgetDraft\Entities\BudgetDraft;
+use Modules\BudgetDraft\Entities\BudgetDraftDetail;
+
 
 class WorkorderController extends Controller
 {
@@ -29,7 +34,8 @@ class WorkorderController extends Controller
     {
         $user = \Auth::user();
         $project = Project::find($request->session()->get('project_id'));
-        $workorder = $project->workorder_details;
+        //$workorder = $project->workorder;
+        $workorder = $project->workorders;
         return view('workorder::index',compact("user","project","workorder"));
     }
 
@@ -63,6 +69,8 @@ class WorkorderController extends Controller
         $work_order->date = date("Y-m-d H:i:s");
         $work_order->estimasi_nilaiwo = '0';
         $work_order->description = $request->workorder_description;
+        $work_order->created_by = \Auth::user()->id;
+        $work_order->end_date = $request->end_date;
         $status = $work_order->save();
         return redirect("/workorder/detail/?id=".$work_order->id);
     }
@@ -76,7 +84,8 @@ class WorkorderController extends Controller
         $workorder = Workorder::find($request->id);
         $user = \Auth::user();
         $project = Project::find($request->session()->get('project_id'));
-        return view('workorder::detail',compact("workorder","project","user"));
+        $department = Department::get();
+        return view('workorder::detail',compact("workorder","project","user","department"));
     }
 
     /**
@@ -142,7 +151,7 @@ class WorkorderController extends Controller
                     $html .= "<tr style='background-color:grey;color:white;font-weight:bolder;'>";
                     $html .= "<td>".$itempekerjaan->code."</td>";
                     $html .= "<td>".$itempekerjaan->name."</td>";
-                    $html .= "<td>".number_format($value['nilai'] * $value['volume'])."</td>";
+                    $html .= "<td>".number_format($value['nilai'])."</td>";
                     $html .= "<td>&nbsp;</td>";
                     $html .= "<td>&nbsp;</td>";
                     $html .= "<td>&nbsp;</td>";
@@ -151,10 +160,10 @@ class WorkorderController extends Controller
                         $html .= "<tr>";
                         $html .= "<td>".$value2->code."</td>";
                         $html .= "<td>".$value2->name."</td>";
-                        $html .= "<td><input type='hidden' class='form-control' value='".$value2->id."' name='item_id[".$key2."]'/></td>";
-                        $html .= "<td><input type='text' class='form-control' value='".rand(100,1500)."' name='nilai[".$key2."]'/></td>";
-                        $html .= "<td><input type='text' class='form-control' value='".rand(1,100)."' name='volume[".$key2."]'/></td>";
-                        $html .= "<td><input type='text' class='form-control' value='m2' name='satuan[".$key2."]'/></td>";
+                        $html .= "<td><input type='hidden' class='form-control nilai_budgets' value='".$value2->id."' name='item_id[".$key2."]'/></td>";
+                        $html .= "<td><input type='text' class='form-control nilai_budgets' value='' name='nilai[".$key2."]'/></td>";
+                        $html .= "<td><input type='text' class='form-control nilai_budgets' value='' name='volume[".$key2."]'/></td>";
+                        $html .= "<td><input type='text' class='form-control' value='m2' name='satuan[".$key2."]' required/></td>";
                         $html .= "</tr>";
                     }
                 //}
@@ -196,14 +205,26 @@ class WorkorderController extends Controller
 
         foreach ($request->asset as $key => $value) {
             if ( $request->asset[$key] != "" ){
-                $asset_exist = WorkorderDetail::where("asset_id",$request->asset[$key])->where("workorder_id",$request->workorder_unit_id)->where("asset_type","Modules\Project\Entities\Unit")->get();
+
+                $asset_exist = WorkorderDetail::where("asset_id",str_replace("Unit_","",$request->asset[$key]))->where("workorder_id",$request->workorder_unit_id)->where("asset_type","Modules\Project\Entities\Unit")->get();
+                
                 if ( count($asset_exist) <= 0 ){
-                    $workorder_unit = new WorkorderDetail;
-                    $workorder_unit->workorder_id = $request->workorder_unit_id;
-                    $workorder_unit->asset_id = $request->asset[$key];
-                    $workorder_unit->asset_type = "Modules\Project\Entities\Unit";
-                    $workorder_unit->description = 'auto';
-                    $workorder_unit->save();
+                    $explode = explode("_", $request->asset[$key]);
+                    if ( count($explode) < 2 ){
+                        $workorder_unit = new WorkorderDetail;
+                        $workorder_unit->workorder_id = $request->workorder_unit_id;
+                        $workorder_unit->asset_id = $request->asset[$key];
+                        $workorder_unit->asset_type = "Modules\Project\Entities\ProjectKawasan";
+                        $workorder_unit->description = 'auto';
+                        $workorder_unit->save();
+                    }else{
+                        $workorder_unit = new WorkorderDetail;
+                        $workorder_unit->workorder_id = $request->workorder_unit_id;
+                        $workorder_unit->asset_id = str_replace("Unit_","",$request->asset[$key]);
+                        $workorder_unit->asset_type = "Modules\Project\Entities\Unit";
+                        $workorder_unit->description = 'auto';
+                        $workorder_unit->save();
+                    }
                 }
             }
             
@@ -225,7 +246,7 @@ class WorkorderController extends Controller
         $workorder = Workorder::find($request->id);
         $approval = \App\Helpers\Document::make_approval('Modules\Workorder\Entities\Workorder',$workorder->id);
        
-            return response()->json( ["status" => "0"] );
+        return response()->json( ["status" => "0"] );
         
     }
 
@@ -235,5 +256,70 @@ class WorkorderController extends Controller
         $project = Project::find($request->session()->get('project_id'));    
         $workorder = Workorder::find($request->workoder_par_id);    
         return view("workorder::detail_budget",compact("budget_tahunan","user","project","workorder"));
+    }
+
+    public function approval_history(Request $request){
+        $workorder = Workorder::find($request->id);
+        $approval = $workorder->approval;
+        $user = \Auth::user();
+        $project = Project::find($request->session()->get('project_id'));   
+        return view("workorder::approval_history",compact("workorder","user","project"));
+    }
+
+    public function nonbudget(Request $request){
+        $budget_tahunan = BudgetTahunan::find($request->budget);
+        $workorder = Workorder::find($request->id);
+        $budget = $budget_tahunan->budget;
+        $itempekerjaan = Itempekerjaan::get();
+        $user = \Auth::user();
+        $project = Project::find($request->session()->get('project_id'));    
+        return view("workorder::item_non_budget",compact("workorder","user","project","budget_tahunan","itempekerjaan","budget"));
+    }
+
+    public function savenonbudget(Request $request){
+        $budget_tahunan = BudgetTahunan::find($request->budget_tahunan);
+        $budget_draft = BudgetDraft::find($budget_tahunan->budget->id);
+        if ( $budget_draft == "" ){
+            $budget_draft = new BudgetDraft;
+            $budget_draft->budget_parent_id = $budget_tahunan->budget->id;
+            $budget_draft->budget_tahunan_id = $request->budget_tahunan;
+            $budget_draft->workorder_id = $request->workorder_id;
+            $budget_draft->no = $budget_tahunan->budget->no."/R".(count($budget_tahunan->budget->draft) + 1 );
+            $budget_draft->created_by = \Auth::user()->id;
+            $budget_draft->save();
+            $budget_draft_id  = $budget_draft->id;
+
+            
+
+        }else{
+            $budget_draft_id = $budget_draft->id;
+        }
+
+        foreach ($request->item_id as $key => $value) {
+            if ( $request->volume_[$key] != "" && $request->nilai_[$key] != "" ){
+                $budget_draft_detail = new BudgetDraftDetail;
+                $budget_draft_detail->budget_draft_id = $budget_draft_id;
+                $budget_draft_detail->itempekerjaan_id = $request->item_id[$key];
+                $budget_draft_detail->volume = str_replace(",", "",$request->volume_[$key]);
+                $budget_draft_detail->satuan = $request->satuan_[$key];
+                $budget_draft_detail->nilai  = str_replace(",", "",$request->nilai_[$key]); 
+                $budget_draft_detail->save();
+            
+
+                $workorder = new WorkorderBudgetDetail;
+                $workorder->workorder_id = $request->workorder_id;
+                $workorder->budget_tahunan_id = $budget_tahunan->id;
+                $workorder->itempekerjaan_id = $request->item_id[$key];
+                $workorder->tahun_anggaran = date('Y');
+                $workorder->volume = str_replace(",", "",$request->volume_[$key]);
+                $workorder->satuan = $request->satuan_[$key];
+                $workorder->nilai = str_replace(",", "", $request->nilai_[$key]);
+                $workorder->save();
+            }
+        }
+
+        $approval = \App\Helpers\Document::make_approval('Modules\BudgetDraft\Entities\BudgetDraft',$budget_draft_id);
+        return redirect("workorder/detail?id=".$request->workorder_id);
+
     }
 }

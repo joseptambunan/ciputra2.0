@@ -7,6 +7,7 @@
   @include("master/header")
   <!-- Select2 -->
   <link rel="stylesheet" href="{{ url('/')}}/assets/bower_components/select2/dist/css/select2.min.css">
+
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
@@ -30,97 +31,54 @@
         <!-- /.box-header -->
         <div class="box-body">
           <div class="row">
-              <a href="{{ url('/')}}/tender/detail/?id={{ $tenderpenawaran->rekanan->tender->id }}" class="btn btn-warning">Kembali</a>
-              <form action="{{ url('/')}}/tender/penawaran-save3" method="post" name="form1">
-              <input type="hidden" name="tender_id" value="{{ $tenderpenawaran->id }}">
+            <div class="col-md-12">
+
+              <form action="{{ url('/')}}/tender/penawaran-save3" method="post" name="form1" enctype="multipart/form-data">
+              <a href="{{ url('/')}}/tender/detail/?id={{ $tenderRekanan->tender->id }}" class="btn btn-warning">Kembali</a>
+              <button type="submit" class="btn btn-primary">Simpan</button><br><input type="file" name="fileupload"><br>
               {{ csrf_field() }}
-              <h3><center>Rekanan : <strong>{{ $tenderpenawaran->rekanan->rekanan->group->name}}</strong></center></h3>
+              <input type="hidden" name="tender_id" value="{{ $tenderpenawaran->id }}">
+              <h3><center>Rekanan : <strong>{{ $tenderRekanan->rekanan->group->name }}</strong></center></h3>
               <hr>
               <table class="table table-bordered">
                <thead class="head_table">
                  <tr>
                   <td>COA Pekerjaan</td>
                   <td>Item Pekerjaan</td>
-                  <td >Volume</td>
-                  <td style="width: 8%;">Satuan</td>
+                  <td>Volume</td>
+                  <td style="width:4%;">Satuan</td>
                   <td>Harga Satuan</td>
                   <td>Subtotal</td>
                  </tr>
-               </thead>
-               @if ( $itempekerjaan != "" )
-               <tbody>                          
-                <tr>
-                  <td><strong>{{ $itempekerjaan->code }}</strong></td>
-                  <td><strong>{{ $itempekerjaan->name }}</strong></td>
-                  <td>&nbsp;</td>
-                  <td>&nbsp;</td>
-                </tr>
-                @php $start = 0; @endphp
-                @foreach ( $itempekerjaan->child_item as $key3 => $value3 )
-                <tr>
-                  <td><strong>{{ $value3->code }}</strong></td>
-                  <td>{{ $value3->name }}</td>
-                  @if ( count(Modules\Rab\Entities\RabPekerjaan::where('rab_unit_id',$rab->id)->where("itempekerjaan_id",$value3->id)->get()) > 0 )          
-                  @php $rab_pekerjaan = Modules\Rab\Entities\RabPekerjaan::where('itempekerjaan_id',$value3->id)->get(); @endphp
-                  @if ( count(Modules\Tender\Entities\TenderPenawaranDetail::where('tender_penawaran_id',$tenderpenawaran->id)->where("rab_pekerjaan_id",$rab_pekerjaan->first()->id)->get()) > 0 )    
-                  <td>
-                    <input type="text" name="input_rab_id_[{{ $start}}]" class="form-control" value="{{ $tender_penawaran_detail->last()->id }}">
-                    <input type="text" name="input_rab_volume_[{{ $start}}[" class="form-control">
-                  </td>
-                  <td><input type="text" name="input_rab_nilai_[{{ $start}}]" class="form-control" readonly></td>
-                  <td><input  type="text" name="input_rab_satuan_[{{ $start}}]" class="form-control" ></td>
-                  @php $start++; @endphp  
-                  @endif                 
-                  @endif
-                </tr>
-                
-                @if ( count($value3->child_item) > 0 )
-                  @foreach ( $value3->child_item as $key4 => $value4 )
-                  
-                    @if ( count(Modules\Rab\Entities\RabPekerjaan::where('rab_unit_id',$rab->id)->where("itempekerjaan_id",$value4->id)->get()) > 0 )          
-                    @php $rab_pekerjaan = Modules\Rab\Entities\RabPekerjaan::where('itempekerjaan_id',$value4->id)->get(); @endphp
-                    @if ( count(Modules\Tender\Entities\TenderPenawaranDetail::where('tender_penawaran_id',$tenderpenawaran->id)->where("rab_pekerjaan_id",$rab_pekerjaan->first()->id)->get()) > 0 ) 
-                    @php $tenderpenawarandetail = Modules\Tender\Entities\TenderPenawaranDetail::where('tender_penawaran_id',$tenderpenawaran->id)->where("rab_pekerjaan_id",$rab_pekerjaan->first()->id)->get(); @endphp   
-                    <tr class="class_{{ $value3->id}}">
-                    <td><strong>{{ $value4->code }}</strong></td>
-                    <td>{{ $value4->name }}</td>
-                    <td>
-                        <input type="hidden" name="input_rab_id_[{{ $start}}]" class="form-control" value="{{ $tenderpenawarandetail->last()->id }}">
-                        <input type="text" name="input_rab_volume_[{{ $start }}]" class="form-control vol" value="{{ $tenderpenawarandetail->last()->volume }}" readonly>
-                    </td>
-                    <td><input  type="text" name="input_rab_satuan_[{{ $start }}]" class="form-control" value="m2" style="width: 90%;" readonly></td>
-                    <td><input type="text" name="input_rab_nilai_[{{ $start }}]" class="form-control vol"></td>
-                    <td><input type="text" name="input_rab_subtotal_[{{ $start }}]" class="form-control vol"></td>
-                    </tr> 
-                    @php $start++; @endphp
-                    @endif                 
-                    @endif
-                                     
-                    @if ( count($value4->child_item) > 0 )
-                      @foreach ( $value4->child_item as $key5 => $value5 )                           
-                      <tr class="class_{{ $value3->id}}">
-                        <td><strong>{{ $value5->code }}</strong></td>
-                        <td>                                    
-                            {{ $value5->name }}                             
-                        </td>
-                        <td>
-                            <input type="hidden" name="input_rab_id_[{{ $start}}]" class="form-control" value="">
-                            <input type="text" name="input_rab_volume_[{{ $start}}]" class="form-control vol" readonly>
-                        </td>
-                        <td><input type="text" name="input_rab_nilai_[{{ $start}}]" class="form-control vol" ></td>
-                        <td><input  type="text" name="input_rab_satuan_[{{ $start}}]" class="form-control" readonly></td>
-                      </tr>
-                      @php $start++; @endphp
-                      @endforeach
+                </thead>
+                <tbody>
+                  @php $start=0; @endphp
+                  @foreach( $tenderRekanan->penawarans as $key => $value )
+                    @if ( $key == (count($tenderRekanan->penawarans) - 1))
+                    @foreach ( $value->details as $key3 => $value3 )
+                    @php
+                      $tender_penawaran_detail = \Modules\Tender\Entities\TenderPenawaranDetail::where("tender_penawaran_id",$penawaran_id)->where("rab_pekerjaan_id",$value3->rab_pekerjaan_id)->get()
+                    @endphp
+                    <tr>
+                      <td>{{ $value3->rab_pekerjaan->itempekerjaan->code }}</td>
+                      <td>{{ $value3->rab_pekerjaan->itempekerjaan->name }}</td>
+                      <td><input type="hidden" name="input_rab_id_[{{ $key3}}]" class="form-control" value="{{ $value3->id }}"><input  type="text" name="input_rab_volume_[{{ $key3}}]" id="input_rab_volume_{{ $key3}}" class="form-control" value="{{ $value3->volume }}" style="width: 100%;text-align: right;" readonly></td>
+                      <td><input  type="text" name="input_rab_satuan_[{{ $key3}}]"  id="input_rab_satuan_{{ $key3}}" class="form-control" value="{{ $value3->rab_pekerjaan->satuan }}" style="width: 100%;" readonly></td>
+                      <td><input type="text" name="input_rab_nilai_[{{ $key3}}]"  id="input_rab_nilai_{{ $key3}}" class="form-control vol" onKeyUp="showSummary('{{ $key3}}')" style="text-align: right;" value="{{ number_format($tender_penawaran_detail->first()->nilai,2) }}"></td>
+                      <td><input type="text"  id="subtotal_{{$key3}}" value="{{ number_format($tender_penawaran_detail->first()->nilai * $tender_penawaran_detail->first()->volume,2) }}"  class="form-control" style="text-align: right;" /></td>
+                    </tr>
+                    @php $start = $key; @endphp
+                    @endforeach
                     @endif
                   @endforeach
-                @endif
-                @endforeach
-              </tbody>
-              @endif
-            </table>
-            <button type="submit" class="btn btn-primary">Simpan</button>
-            </form>
+                  
+                </tbody>
+              </table>
+
+              <h6 style="color:black;"><i><strong>Harap upload dengan tipe .pdf,.doc,.docx,.xls,.xlsx</strong></i></h6>
+              <input type="file" name="fileupload"><br>
+              </form>
+            </div>
           </div>
           <!-- /.row -->
         </div>
@@ -156,6 +114,24 @@
 <script type="text/javascript">
   $(".vol").number(true);
 </script>
-@include("pekerjaan::app")
+@include("tender::app")
+<script type="text/javascript">
+  $(function(){
+    $(".vol").number(true);
+  });
+
+  function showSummary(id){
+    var vla = $("#input_rab_nilai_" + id).val();
+    console.log($("#input_rab_nilai_" + id).val(),vla);
+    var rep = vla.replace(",","");
+    var summary = parseInt($("#input_rab_volume_" + id).val()) * parseInt(rep);
+    if ( summary == "NaN"){
+      $("#subtotal_" + id).val("0");
+    }else{
+      $("#subtotal_" + id).val(summary);
+      $("#subtotal_" + id).number(true);
+    }
+  }
+</script>
 </body>
 </html>

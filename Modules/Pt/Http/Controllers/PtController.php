@@ -33,7 +33,8 @@ class PtController extends Controller
     {
         $user = \Auth::user();
         $pt = Pt::get();
-        return view('pt::index',compact("user","pt"));
+        $project = Project::get();
+        return view('pt::index',compact("user","pt","project"));
     }
 
     /**
@@ -44,7 +45,8 @@ class PtController extends Controller
     {
         $user = \Auth::user();
         $city = City::get();
-        return view('pt::create',compact("user","city"));
+        $project = Project::get();
+        return view('pt::create',compact("user","city","project"));
     }
 
     /**

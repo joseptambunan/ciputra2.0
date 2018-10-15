@@ -31,12 +31,12 @@
         <!-- /.box-header -->
         <div class="box-body">
           <div class="row">
-            <div class="col-md-12"><h3 class="box-title">Detail Data Budget Proyek</h3></div>
+            <div class="col-md-12"><h3 class="box-title">Detail Data Budget Tahunan Proyek</h3></div>
             <div class="col-md-6">             
               <form action="{{ url('/')}}/budget/cashflow/update-cashflow" method="post" name="form1">
                 {{ csrf_field() }}
                 <input type="hidden" name="budget_id" id="budget_id" value="{{ $budget->id }}">
-                <input type="hidden" name="budget_id" id="budget_tahunan_id" value="{{ $budget_tahunan->id }}">
+                <input type="hidden" name="budget_tahunan_id" id="budget_tahunan_id" value="{{ $budget_tahunan->id }}">
                 <div class="form-group">
                   <label>No. Budget Global</label>
                   <input type="text" class="form-control" value="{{ $budget->no }}" readonly>
@@ -45,9 +45,16 @@
                   <label>No. Budget</label>
                   <input type="text" class="form-control" value="{{ $budget_tahunan->no }}" readonly>
                 </div>
+                <div class="form-group">
+                <label>Project / Kawasan</label>
+                <input type="text" class="form-control" value="{{ $budget->project->name }} / {{ $budget->kawasan->name or ''}}" readonly>
+              </div> 
                 <div class="box-footer">
                   <button type="submit" class="btn btn-primary">Simpan</button>
                   <a href="{{ url('/')}}/budget/cashflow/?id={{ $budget_tahunan->budget->id}}" class="btn btn-warning">Kembali</a>
+                  @if ( $budget_tahunan->approval != "" )
+                  <a class="btn btn-info" href="{{ url('/')}}/budget/cashflow/approval?id={{$budget_tahunan->id}}">Lihat History Approval</a><br>
+                  @endif
                 </div>      
              
             </div>
@@ -77,10 +84,35 @@
              </form>
             <!-- /.col -->
             <div class="col-md-12">
-              <h3>Nilai Carry Over : Rp {{ number_format($budget_tahunan->carry_nilai)}}
-              <h3>Nilai Budget Tahun Berjalan : Rp. {{ number_format($budget_tahunan->nilai)}}</h3>
-              <h3>Nilai Total : Rp. {{ number_format($budget_tahunan->nilai + $budget_tahunan->carry_nilai) }}</h3>
-              <br>
+              <table class="table-bordered table">
+                <thead class="head_table">
+                  <tr>
+                    <td>Uraian</td>
+                    <td>Dev Cost</td>
+                    <td>Con Cost</td>
+                    <td>Subtotal</td>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>CarryOver</td>
+                    <td style="text-align: right;">0</td>
+                    <td style="text-align: right;">0</td>
+                    <td>0</td>
+                  </tr>
+                  <tr>
+                    <td> Budget Tahun Berjalan </td>
+                    <td style="text-align: right;"> Rp. {{ number_format($budget_tahunan->total_dev_cost)}}</td>
+                    <td style="text-align: right;"> Rp. {{ number_format($budget_tahunan->total_con_cost)}}</td>
+                    <td style="text-align: right;"> Rp. {{ number_format($budget_tahunan->total_dev_cost + $budget_tahunan->total_con_cost) }}</td>
+                  </tr>
+                  <tr style="background-color: grey;color:white;font-weight: bolder;">
+                    <td colspan="3" style="text-align: right">Total</td>
+                    <td style="text-align: right;;color:white;font-weight: bolder;"> Rp. {{ number_format($budget_tahunan->nilai)}}</td>
+                  </tr>
+                </tbody>
+              </table>
+              
               <div class="nav-tabs-custom">
               
               <ul class="nav nav-tabs">                
@@ -90,37 +122,63 @@
               </ul>
               <div class="tab-content">
                 <div class="tab-pane active" id="tab_1">
+                  @if ( $budget_tahunan->approval != "" )
+                    @if ( $budget_tahunan->approval->approval_action_id == "6")
+                      <span class="label-success">Approved</span>
+                    @elseif ( $budget_tahunan->approval->approval_action_id == "7")
+                      <span class="label-danger">Budget anda ditolak</span><br><br>                      
+                    @endif
+
+                  @else
                   <a class="btn btn-primary" href="{{ url('/')}}/budget/cashflow/newadd-item/?id={{ $budget_tahunan->id }}">Tambah Item Pekerjaan</a>
+                  @endif
                   <table class="table" style="padding: 0" id="example3">
                     <thead class="head_table">
                       <tr>
                         <td>COA</td>
                         <td>Item Pekerjaan</td>
-                        <td>Volume</td>
-                        <td>Satuan</td>
                         <td>Nilai(Rp)</td>
-                        <td>Subtotal(Rp)</td>
                         <td colspan="2">Perubahan Data</td>
                       </tr>
                     </thead>
                     <tbody>
                       @foreach ( $budget_tahunan->total_parent_item as $key => $value )
-                      @if ( count(\Modules\Pekerjaan\Entities\Itempekerjaan::where("code",$value['code'])->get()) > 0 )                       
+                      @if ( count(\Modules\Pekerjaan\Entities\Itempekerjaan::where("code",trim($value['code']))->get()) > 0 )                       
                         <tr>
                           <td>{{ $value['code'] }}</td>
                           <td>{{ \Modules\Pekerjaan\Entities\Itempekerjaan::where("code",$value['code'])->get()->first()->name }}</td>
-                          <td>{{ number_format($value["volume"]) }}</td>
-                          <td>{{ $value["satuan"] }}</td>
+                          
                           <td>{{ number_format($value["nilai"]) }}</td>
-                          <td>{{ number_format($value["nilai"])  }}</td>
                           <td>
                             @if ( $budget_tahunan->approval == "" )
+                              @php $explodecode = explode(".",$value['code']); @endphp
 
-                            @if ( $value["nilai"] == "0" )
-                              <a href="{{ url('/')}}/budget/cashflow/add-item?id={{ $value['code']}}&budget={{ $budget_tahunan->id }}" class="btn btn-warning">Create Cash Flow</a>
+                                  @if ( count($explodecode) > 0 )
+                                    @php $code = $explodecode[0]; @endphp
+                                  @else
+                                    @php $code = $value['code']; @endphp
+                                  @endif
+                              @if ( $value["nilai"] == "0" )
+                                <a href="{{ url('/')}}/budget/cashflow/add-item?id={{ $code }}&budget={{ $budget_tahunan->id }}" class="btn btn-warning">Create Cash Flow</a>
                               @else
-                              <a href="{{ url('/')}}/budget/cashflow/add-item?id={{ $value['code']}}&budget={{ $budget_tahunan->id }}" class="btn btn-warning">Edit Cash Flow</a>
-                            @endif
+                                <a href="{{ url('/')}}/budget/cashflow/add-item?id={{ $code }}&budget={{ $budget_tahunan->id }}" class="btn btn-warning">Edit Cash Flow</a>
+                              @endif
+                            @else
+                              @if ( $budget_tahunan->approval != "" )
+                                @if ( $budget_tahunan->approval->approval_action_id != "6 ")
+                                  @php $explodecode = explode(".",$value['code']); @endphp
+                                  @if ( count($explodecode) > 0 )
+                                    @php $code = $explodecode[0]; @endphp
+                                  @else
+                                    @php $code = $value['code']; @endphp
+                                  @endif
+                                  @if ( $value["nilai"] == "0" )
+                                    <a href="{{ url('/')}}/budget/cashflow/revisi-item?id={{ $code }}&budget={{ $budget_tahunan->id }}" class="btn btn-warning">Create Cash Flow</a>
+                                  @else
+                                    <a href="{{ url('/')}}/budget/cashflow/revisi-item?id={{ $code }}&budget={{ $budget_tahunan->id }}" class="btn btn-warning">Edit Cash Flow</a>
+                                  @endif
+                                @endif
+                              @endif
                             @endif
                           </td>
                         </tr>
@@ -136,7 +194,7 @@
                   <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modal-info">
                     Tambah Data
                   </button><br>
-                  <table  class="table table-responsive" style="padding: 0">
+                  <table  class="table table-responsive table-bordered" style="padding: 0">
                     <thead class="head_table">
                       <tr>
                         <td>COA</td>
@@ -171,51 +229,51 @@
                           <td>{{ number_format((( $value9['januari'] + $value9['februari'] + $value9['maret'] + $value9['april'] + $value9['mei'] + $value9['juni'] + $value9['juli'] + $value9['agustus'] + $value9['september'] + $value9['oktober'] + $value9['november'] + $value9['desember'] )/100) * ( ($budget_tahunan->total_volume($value9['code'],"nilai") * $budget_tahunan->total_volume($value9['code'],"volume"))))  }}</td>
                           <td>
                             <span id="label_januari_{{ $value9['id']}}">{{ number_format(($value9['januari']/100) * ( $budget_tahunan->total_volume($value9['code'],"nilai") * $budget_tahunan->total_volume($value9['code'],"volume"))) }}</span>
-                            <input type="text" id="januari_{{ $value9['id']}}" style="display: none;width: 30%;" value=" {{ $value9['januari'] }} ">
+                            <input type="text" id="januari_{{ $value9['id']}}" style="display: none;width: 80%;" value=" {{ $value9['januari'] }} ">
                           </td>
                           <td>
                             <span id="label_februari_{{ $value9['id']}}">{{ number_format(($value9['februari']/100) * ( $budget_tahunan->total_volume($value9['code'],"nilai") * $budget_tahunan->total_volume($value9['code'],"volume"))) }}</span>
-                            <input type="text" id="februari_{{ $value9['id']}}" style="display: none;width: 30%;" value="{{ $value9['februari'] }}">
+                            <input type="text" id="februari_{{ $value9['id']}}" style="display: none;width: 80%;" value="{{ $value9['februari'] }}">
                           </td>
                           <td>
                             <span id="label_maret_{{ $value9['id']}}">{{ number_format(($value9['maret']/100) * ( $budget_tahunan->total_volume($value9['code'],"nilai") * $budget_tahunan->total_volume($value9['code'],"volume"))) }}</span>
-                            <input type="text" id="maret_{{ $value9['id']}}" style="display: none;width: 30%;" value=" {{ $value9['maret'] }} ">
+                            <input type="text" id="maret_{{ $value9['id']}}" style="display: none;width: 80%;" value=" {{ $value9['maret'] }} ">
                           </td>
                           <td>
                             <span id="label_april_{{ $value9['id']}}">{{ number_format(($value9['april'] / 100) * ( $budget_tahunan->total_volume($value9['code'],"nilai") * $budget_tahunan->total_volume($value9['code'],"volume"))) }}</span>
-                            <input type="text" id="april_{{ $value9['id']}}" style="display: none;width: 30%;" value=" {{ $value9['april'] }} ">
+                            <input type="text" id="april_{{ $value9['id']}}" style="display: none;width: 80%;" value=" {{ $value9['april'] }} ">
                           </td>
                           <td>
                             <span id="label_mei_{{ $value9['id']}}">{{ number_format(($value9['mei'] /100 ) * ( $budget_tahunan->total_volume($value9['code'],"nilai") * $budget_tahunan->total_volume($value9['code'],"volume"))) }}</span>
-                            <input type="text" id="mei_{{ $value9['id']}}" style="display: none;width: 30%;" value=" {{ $value9['mei'] }} ">
+                            <input type="text" id="mei_{{ $value9['id']}}" style="display: none;width: 80%;" value=" {{ $value9['mei'] }} ">
                           </td>
                           <td>
                             <span id="label_juni_{{ $value9['id']}}">{{ number_format(($value9['juni'] /100) * ( $budget_tahunan->total_volume($value9['code'],"nilai") * $budget_tahunan->total_volume($value9['code'],"volume"))) }}</span>
-                            <input type="text" id="juni_{{ $value9['id']}}" style="display: none;width: 30%;" value=" {{ $value9['juni'] }} ">
+                            <input type="text" id="juni_{{ $value9['id']}}" style="display: none;width: 80%;" value=" {{ $value9['juni'] }} ">
                           </td>
                           <td>
                             <span id="label_juli_{{ $value9['id']}}">{{ number_format(($value9['juli'] /100)* ( $budget_tahunan->total_volume($value9['code'],"nilai") * $budget_tahunan->total_volume($value9['code'],"volume"))) }}</span>
-                            <input type="text" id="juli_{{ $value9['id']}}" style="display: none;width: 30%;" value=" {{ $value9['juli'] }} ">
+                            <input type="text" id="juli_{{ $value9['id']}}" style="display: none;width: 80%;" value=" {{ $value9['juli'] }} ">
                           </td>
                           <td>
                             <span id="label_agustus_{{ $value9['id']}}">{{ number_format(($value9['agustus'] /100) *  ( $budget_tahunan->total_volume($value9['code'],"nilai") * $budget_tahunan->total_volume($value9['code'],"volume"))) }}</span>
-                            <input type="text" id="agustus_{{ $value9['id']}}" style="display: none;width: 30%;" value=" {{ $value9['agustus'] }} ">
+                            <input type="text" id="agustus_{{ $value9['id']}}" style="display: none;width: 80%;" value=" {{ $value9['agustus'] }} ">
                           </td>
                           <td>
                             <span id="label_september_{{ $value9['id']}}">{{ number_format(($value9['september'] /100) * ( $budget_tahunan->total_volume($value9['code'],"nilai") * $budget_tahunan->total_volume($value9['code'],"volume"))) }}</span>
-                            <input type="text" id="september_{{ $value9['id']}}" style="display: none;width: 30%;" value=" {{ $value9['september'] }} ">
+                            <input type="text" id="september_{{ $value9['id']}}" style="display: none;width: 80%;" value=" {{ $value9['september'] }} ">
                           </td>
                           <td>
                             <span id="label_oktober_{{ $value9['id']}}">{{ number_format(($value9['oktober'] /100) *  ( $budget_tahunan->total_volume($value9['code'],"nilai") * $budget_tahunan->total_volume($value9['code'],"volume"))) }}</span>
-                            <input type="text" id="oktober_{{ $value9['id']}}" style="display: none;width: 30%;" value=" {{ $value9['oktober'] }} ">
+                            <input type="text" id="oktober_{{ $value9['id']}}" style="display: none;width: 80%;" value=" {{ $value9['oktober'] }} ">
                           </td>
                           <td>
                             <span id="label_november_{{ $value9['id']}}">{{ number_format(($value9['november'] /100) * ( $budget_tahunan->total_volume($value9['code'],"nilai") * $budget_tahunan->total_volume($value9['code'],"volume"))) }}</span>
-                            <input type="text" id="november_{{ $value9['id']}}" style="display: none;width: 30%;" value=" {{ $value9['november'] }} ">
+                            <input type="text" id="november_{{ $value9['id']}}" style="display: none;width: 80%;" value=" {{ $value9['november'] }} ">
                           </td>
                           <td>
                             <span id="label_desember_{{ $value9['id']}}">{{ number_format(($value9['desember'] /100) * ( $budget_tahunan->total_volume($value9['code'],"nilai") * $budget_tahunan->total_volume($value9['code'],"volume"))) }}</span>
-                            <input type="text" id="desember_{{ $value9['id']}}" style="display: none;width: 30%;" value=" {{ $value9['desember'] }} ">
+                            <input type="text" id="desember_{{ $value9['id']}}" style="display: none;width: 80%;" value=" {{ $value9['desember'] }} ">
                           </td>
                           <td>
                             <button class="btn btn-warning" id="btn_edit1_{{ $value9['id']}}" onclick="viewedit('{{ $value9['id']}}')">Edit</button>
@@ -270,7 +328,9 @@
                       @endforeach
                     </tbody>
                   </table>
+                  @if ( count($array_cashflow) > 0  )
                   <button type="submit" class="btn btn-primary">Simpan</button>
+                  @endif
                 </form>
                 </div>
               </div>
@@ -304,78 +364,95 @@
                   {{ csrf_field()}}
                   <input type="hidden" name="budget_tahunan_id" value="{{ $budget_tahunan->id }}">
                   <div class="form-group">
+                                    <button type="submit" class="btn btn-info" id="btn_save_bln">Save changes</button>
                     <label>Item Pekerjaan</label>
-                    <select class="form-control" id="item_id_monthly" name="item_id_monthly">
+                    <select class="form-control" id="item_id_monthly" name="item_id_monthly" required>
                       <option value="">(pilih item pekerjaan)</option>
-                      @foreach ( $budget->total_parent_item as $key2 => $value2 )
-                        @if ( \Modules\Pekerjaan\Entities\Itempekerjaan::where('code',$value2['id'])->count() > 0  )budget_tahunan_monthly
-                          @php
-                            $id = \Modules\Pekerjaan\Entities\Itempekerjaan::where('code',$value2['id'])->first()->id;
-                            $exist = \Modules\Pekerjaan\Entities\Itempekerjaan::find($id)->budget_tahunan_monthly;
-                          @endphp
-                          @if ( $exist == "")
-                          <option value="{{ \Modules\Pekerjaan\Entities\Itempekerjaan::where('code',$value2['id'])->first()->id }}">{{ $exist }}{{ \Modules\Pekerjaan\Entities\Itempekerjaan::where('code',$value2['id'])->first()->name }}</option>
-                          @endif
+                      @foreach ( $budget_tahunan->total_parent_item as $key2 => $value2 )
+                        @if ( \Modules\Pekerjaan\Entities\Itempekerjaan::where('code',$value2['code'])->count() > 0  )                          
+                          <option value="{{ \Modules\Pekerjaan\Entities\Itempekerjaan::where('code',$value2['code'])->first()->id }}"> {{ $value2['code'] }}.00.00 - {{ \Modules\Pekerjaan\Entities\Itempekerjaan::where('code',$value2['code'])->first()->name }}</option>
                         @endif
                       @endforeach
                     </select>
                   </div> 
                   <div class="form-group">
-                    <label>Nilai Budget</label>
-                     @foreach ( $budget->total_parent_item as $key2 => $value2 )
-                        @if ( \Modules\Pekerjaan\Entities\Itempekerjaan::where('code',$value2['id'])->count() > 0  )
-                          <span style="display: none;" class="label_budget" id="label_budget_{{ \Modules\Pekerjaan\Entities\Itempekerjaan::where('code',$value2['id'])->first()->id }}"><strong>{{ number_format($budget_tahunan->total_volume($value2['id'],"nilai") * $budget_tahunan->total_volume($value2['id'],"volume")) }}</strong></span>
+                    <label>Nilai Budget(Rp)</label>
+                      @foreach ( $budget_tahunan->total_parent_item as $key2 => $value2 )
+                        @if ( \Modules\Pekerjaan\Entities\Itempekerjaan::where('code',$value2['code'])->count() > 0  )
+                          <span style="display: none;" class="label_budget" id="label_budget_{{ \Modules\Pekerjaan\Entities\Itempekerjaan::where('code',$value2['code'])->first()->id }}" data-value="{{ $value2['nilai']}} "><br>
+                          <strong>{{ number_format($value2['nilai'],2)}}</strong>
+                          </span>
                         @endif
-                      @endforeach
+                      @endforeach<br>
+                    <label>Sisa(Rp)</label><br>
+                    <span id="sisa_budget"></span>
                   </div> 
-                  <table style="width: 100%;" class="table">                    
+                  <table style="width: 100%;" class="table">    
+                      <tr class="head_table">
+                        <td></td>
+                        <td>% <span id="lbl_percent_text"></span></td>
+                        <td><input type="hidden" id="total_sub"/> Rp. <span id="lbl_budget_text"></span></td>
+
+                      </tr>                
                       <tr>
                         <td style="background-color: grey;color:white;font-weight: bolder;">Januari</td>
-                        <td><input type="text" name="januari" style="width: 20%;">%</td>
+                        <td><input type="text" name="januari" id="januari" style="width: 20%;" onKeyUp="countPercentage('januari')" value="0" autocomplete="off">%</td>
+                        <td><span id="lbl_januari" data-value="0"></span></td>
                       </tr>
                       <tr>
                         <td style="background-color: grey;color:white;font-weight: bolder;">Februari</td>
-                        <td><input type="text" name="februari" style="width: 20%;">%</td>
+                        <td><input type="text" name="februari" id="februari" style="width: 20%;" onKeyUp="countPercentage('februari')" value="0" autocomplete="off">%</td>
+                        <td><span id="lbl_februari" data-value="0"></span></td>
                       </tr>
                       <tr>
                         <td style="background-color: grey;color:white;font-weight: bolder;">Maret</td>
-                        <td><input type="text" name="maret" style="width: 20%;">%</td>
+                        <td><input type="text" name="maret" id="maret" style="width: 20%;" onKeyUp="countPercentage('maret')" value="0" autocomplete="off">%</td>
+                        <td><span id="lbl_maret" data-value="0"></span></td>
                       </tr>
                       <tr>
                         <td style="background-color: grey;color:white;font-weight: bolder;">April</td>
-                        <td><input type="text" name="april" style="width: 20%;">%</td>
+                        <td><input type="text" name="april" id="april" style="width: 20%;" onKeyUp="countPercentage('april')" value="0" autocomplete="off">%</td>
+                        <td><span id="lbl_april" data-value="0"></span></td>
                       </tr>
                       <tr>
                         <td style="background-color: grey;color:white;font-weight: bolder;">Mei</td>
-                        <td><input type="text" name="mei" style="width: 20%;">%</td>
+                        <td><input type="text" name="mei" id="mei" style="width: 20%;" onKeyUp="countPercentage('mei')" value="0" autocomplete="off">%</td>
+                        <td><span id="lbl_mei" data-value="0"></span></td>
                       </tr>
                       <tr>
                         <td style="background-color: grey;color:white;font-weight: bolder;">Juni</td>
-                        <td><input type="text" name="juni" style="width: 20%;">%</td>
+                        <td><input type="text" name="juni" id="juni" style="width: 20%;" onKeyUp="countPercentage('juni')" value="0" autocomplete="off">%</td>
+                        <td><span id="lbl_juni" data-value="0"></span></td>
                       </tr>
                       <tr>
                         <td style="background-color: grey;color:white;font-weight: bolder;">Juli</td>
-                        <td><input type="text" name="juli" style="width: 20%;">%</td>
+                        <td><input type="text" name="juli" id="juli" style="width: 20%;" onKeyUp="countPercentage('juli')" value="0" autocomplete="off">%</td>
+                        <td><span id="lbl_juli" data-value="0"></span></td>
                       </tr>
                       <tr>
                         <td style="background-color: grey;color:white;font-weight: bolder;">Agustus</td>
-                        <td><input type="text" name="agustus" style="width: 20%;">%</td>
+                        <td><input type="text" name="agustus" id="agustus" style="width: 20%;" onKeyUp="countPercentage('agustus')" value="0" autocomplete="off">%</td>
+                        <td><span id="lbl_agustus" data-value="0"></span></td>
                       </tr>
                       <tr>
                         <td style="background-color: grey;color:white;font-weight: bolder;">September</td>
-                        <td><input type="text" name="september" style="width: 20%;">%</td>
+                        <td><input type="text" name="september" id="september" style="width: 20%;" onKeyUp="countPercentage('september')" value="0" autocomplete="off">%</td>
+                        <td><span id="lbl_september" data-value="0"></span></td>
                       </tr>
                       <tr>
                         <td style="background-color: grey;color:white;font-weight: bolder;">Oktober</td>
-                        <td><input type="text" name="oktober" style="width: 20%;">%</td>
+                        <td><input type="text" name="oktober" id="oktober" style="width: 20%;" onKeyUp="countPercentage('oktober')" value="0">%</td>
+                        <td><span id="lbl_oktober" data-value="0"></span></td>
                       </tr>
                       <tr>
-                        <td style="background-color: grey;color:white;font-weight: bolder;">November</td>
-                        <td><input type="text" name="november" style="width: 20%;">%</td>
+                        <td style="background-color: grey;color:white;font-weight: bolder;" >November</td>
+                        <td><input type="text" name="november" id="november" style="width: 20%;" onKeyUp="countPercentage('november')" value="0" autocomplete="off">%</td>
+                        <td><span id="lbl_november" data-value="0"></span></td>
                       </tr>
                       <tr>
                         <td style="background-color: grey;color:white;font-weight: bolder;">Desember</td>
-                        <td><input type="text" name="desember" style="width: 20%;">%</td>
+                        <td><input type="text" name="desember" id="desember" style="width: 20%;" onKeyUp="countPercentage('desember')" value="0" autocomplete="off">%</td>
+                        <td><span id="lbl_desember" data-value="0"></span></td>
                       </tr>
                                           
                   </table>
@@ -383,7 +460,7 @@
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-warning pull-left" data-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-info">Save changes</button>
+
               </div>
                <div class="alert alert-warning alert-dismissible">                    
                 <h4><i class="icon fa fa-warning"></i> Alert!</h4>
@@ -418,6 +495,7 @@
   $("#item_id_monthly").change(function(){
     $(".label_budget").hide();
     $("#label_budget_" + $("#item_id_monthly").val()).show();
+    $("#total_sub").val("0");
   });
 
   function viewedit(id){
@@ -526,6 +604,53 @@ function removecarry(id){
     return false;
   }
 }
+
+function countPercentage(bln){
+  //console.log(bln);
+  var percent = parseInt($("#"+bln).val());
+  var sub2 = parseInt($("#label_budget_" + $("#item_id_monthly").val()).attr("data-value"));
+  var sub = percent * ( parseInt(sub2)) / 100;
+  var total = parseInt($("#total_sub").val());
+
+
+  /*if ( total > sub2 ){
+    alert("Persentase Budget Bulanan sudah 100 %");
+    $("#btn_save_bln").hide();
+    
+  }else{
+    
+  }*/
+
+    if ( sub != "NaN"){    
+      $("#lbl_"+bln).text(sub);
+      $("#lbl_"+bln).attr("data-value",sub);
+      $("#lbl_"+bln).number(true); 
+      $("#sisa_budget").text(sub2 - total);   
+      $("#sisa_budget").number(true);   
+    }
+  
+    $("#total_sub").val( parseInt($("#lbl_januari").attr("data-value")) + parseInt($("#lbl_februari").attr("data-value")) + parseInt($("#lbl_maret").attr("data-value")) + parseInt($("#lbl_april").attr("data-value")) + parseInt($("#lbl_mei").attr("data-value")) + parseInt($("#lbl_juni").attr("data-value")) + parseInt($("#lbl_juli").attr("data-value")) + parseInt($("#lbl_agustus").attr("data-value")) + parseInt($("#lbl_september").attr("data-value")) + parseInt($("#lbl_oktober").attr("data-value")) + parseInt($("#lbl_november").attr("data-value")) + parseInt($("#lbl_desember").attr("data-value")) );
+    $("#lbl_budget_text").text($("#total_sub").val());
+    $("#lbl_budget_text").number(true);
+
+    var totals = ( parseInt($("#januari").val()) + parseInt($("#februari").val()) + parseInt($("#maret").val()) + parseInt($("#april").val()) + parseInt($("#mei").val()) + parseInt($("#juni").val()) + parseInt($("#juli").val()) + parseInt($("#agustus").val()) + parseInt($("#september").val()) + parseInt($("#oktober").val()) + parseInt($("#november").val()) + parseInt($("#desember").val()) );
+    //console.log(totals);
+    if ( totals != "NaN"){
+      $("#lbl_percent_text").text(totals);
+    }
+
+    if ( parseInt($("#lbl_percent_text").text()) > 100 ){
+      alert("Persentase Budget Bulanan sudah 100 %");
+      $("#btn_save_bln").attr("style","display:none");
+      $("#lbl_percent_text").text(parseInt(totals) - $("#" + bln).val());
+      $("#" + bln).val("0");
+    }else{
+      $("#btn_save_bln").show();
+    }
+
+
+}
+
 </script>
 </body>
 </html>

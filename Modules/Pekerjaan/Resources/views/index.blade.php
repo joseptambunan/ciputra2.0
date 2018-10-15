@@ -45,10 +45,10 @@
                 <tr>
                   <td>{{ $value->code }}</td>
                   <td>
-                  	<span class="labels" id="label_{{ $value->id}}">{{ $value->name }}</span>
+                  	<span class="labels" id="label_{{ $value->id}}">{{ $value->name or '' }}</span>
                   </td>
                   <td>
-                    <span class="labels" id="label_{{ $value->id}}">{{ $value->department->name }}</span>
+                    <span class="labels" id="label_{{ $value->id}}">{{ $value->department->name or '' }}</span>
                   </td>                  
                   <td>
                   	<a href="{{ url('/')}}/pekerjaan/detail/?id={{ $value->id }}" class="btn btn-success">Detail COA</a>

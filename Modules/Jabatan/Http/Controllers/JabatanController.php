@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Modules\Jabatan\Entities\UserJabatan;
+use Modules\Project\Entities\Project;
 
 class JabatanController extends Controller
 {
@@ -24,7 +25,8 @@ class JabatanController extends Controller
     {
         $user = \Auth::user();
         $jabatan = UserJabatan::get();
-        return view('jabatan::index',compact("user","jabatan"));
+        $project = Project::get();
+        return view('jabatan::index',compact("user","jabatan","project"));
     }
 
     /**

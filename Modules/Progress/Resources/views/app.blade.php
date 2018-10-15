@@ -6,5 +6,7 @@
             'X-CSRF-Token': $('input[name=_token]').val()
         }
       });
+
+    $(".nilai_budget").number(true,2);
   });
 </script>

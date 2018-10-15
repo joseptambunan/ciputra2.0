@@ -38,7 +38,7 @@
                 <select class="form-control" name="coa_id" id="coa_id">
                   <option>( pilih item pekerjaan)</option>
                   @foreach ( $itempekerjaan as $key => $value )                    
-                      <option value="{{ $value->id }}" selected>{{ $value->name }}</option>                      
+                      <option value="{{ $value->id }}" selected>{{ $value->code }}.00.00 {{ $value->name }}</option>                      
                   @endforeach
                 </select>
               </div>
@@ -116,6 +116,8 @@
      $('#end_date').datepicker({
       "dateFormat" : "yy-mm-dd"
     });
+
+    $(".nilai_budget").number(true);
   });
 
   function setkawasan(){
@@ -140,6 +142,7 @@
     request.done(function(data){
         if ( data.status == "0"){
           $("#itemlist").html(data.html);
+          $(".nilai_budget").number(true);
         }else{
           alert("Tidak ada detail Item Pekerjaan");
         }

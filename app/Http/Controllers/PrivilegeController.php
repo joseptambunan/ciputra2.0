@@ -12,9 +12,34 @@ class PrivilegeController extends Controller
      * Display a listing of the resource.
      * @return Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return redirect("/user");
+        //print_r(\Auth::user());
+        $user = \Modules\User\Entities\User::find(\Auth::user()->id);
+        $jabatan = $user->jabatan;
+        if ( $user->id == "1"){
+            $request->session()->put('level', 'superadmin');
+            return redirect("user");
+        }
+
+        foreach ($jabatan as $key => $value) {
+            if ( $value['level'] == "10"){
+                $request->session()->put('level', '');
+                return redirect("/project/detail?id=".$value['project_id']);
+            }else{
+                $request->session()->put('level', '');
+                return redirect("/access");
+            }
+        }
+        /*if ( $user->is_level == "2"){
+            return redirect("/kontraktor");
+        }elseif ( $user->is_level == "1") {
+            if ( $user->id == "1"){
+                return redirect("/user");
+            }else{
+                return redirect("/access");
+            }
+        }*/
     }
 
     /**
@@ -68,6 +93,8 @@ class PrivilegeController extends Controller
      */
     public function destroy()
     {
+        \Auth::logout();
+        return redirect("/");
     }
 
     

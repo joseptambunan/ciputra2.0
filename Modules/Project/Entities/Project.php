@@ -8,6 +8,7 @@ class Project extends Model
 {
      protected $fillable = ['subholding','contactperson','code','name','luas','address','zipcode','npwp','phone','fax','email','description','city_id'];
 
+
     public function contactperson()
     {
         return $this->belongsTo('Modules\User\Entities\User', 'contactperson');
@@ -25,7 +26,7 @@ class Project extends Model
 
     public function budgets()
     {
-        return $this->hasMany('Modules\Budget\Entities\Budget');
+        return $this->hasMany('Modules\Budget\Entities\Budget')->where("deleted_at",null);
     }
 
     public function budget_tahunans()
@@ -35,11 +36,7 @@ class Project extends Model
 
     public function getWorkordersAttribute()
     {
-        return \Modules\Workorder\Entities\Workorder::whereHas( 'budget_tahunan', function($q){
-            $q->whereHas('budget', function($budget){
-                $budget->where('project_id', $this->id);
-            });
-        } )->get();
+        return \Modules\Workorder\Entities\Workorder::where( 'budget_tahunan_id',  $this->id )->get();
     }
 
     public function getProjectAttribute()
@@ -352,9 +349,11 @@ class Project extends Model
 
         foreach ( $this->budgets as $key => $each ) 
         {
-            foreach ($each->details as $key2 => $value2 ) {
-                # code...
-                $nilai = ( $value2->nilai * $value2->volume ) + $nilai;
+            if ( $each->deleted_at == null ){
+                foreach ($each->details as $key2 => $value2 ) {
+                    # code...
+                    $nilai = ( $value2->nilai * $value2->volume ) + $nilai;
+                }
             }
             
         }
@@ -384,6 +383,7 @@ class Project extends Model
         $nilai = 0;
         foreach ($this->kawasans as $key => $value) {
             # code...
+            //$nilai = $nilai + $value->lahan_sellable;
             $nilai = $nilai + $value->netto_kawasan;
         }
         return $nilai;
@@ -393,4 +393,237 @@ class Project extends Model
         return $this->hasMany("Modules\Project\Entities\UnitType");
     }
 
+    public function getHppDevCostReportAttribute(){
+        foreach ($this->kawasans as $key => $value) {
+            if ( $value->is_kawasan == "1"){
+                $status = $value->budget_awal;
+            }
+        }
+    }
+
+    public function voucher(){
+        return $this->hasMany("Modules\Voucher\Entities\Voucher");
+    }
+
+    public function getBudgetDepartmentAttribute(){
+        $dept = array();
+        foreach ($this->budgets as $key => $value) {
+           $dept[$key] = $value->department->id; 
+        }
+
+        return array_values(array_unique($dept));
+    }
+
+    public function getNilaiTotalBapAttribute(){
+        $nilai = 0;
+        foreach ($this->spks as $key => $value) {
+            $pembayaran = $value->bap * $value->nilai;
+            $nilai = $nilai + $pembayaran;
+        }
+        return $nilai;
+    }
+
+    public function getPercentageBudgetAttribute(){
+        $nilai = 0;
+        if ( $this->nilai_budget_total == 0 ){
+            return $nilai ;
+        }else{
+            $nilai = $this->nilai_total_bap / $this->nilai_budget_total;
+        }
+
+        return $nilai;
+    }
+
+    public function getTotalRekananAttribute(){
+        $nilai = array();
+        foreach($this->spks as $key => $value){
+            $nilai[$key] = $value->rekanan_id;
+        }
+
+        return array_unique($nilai);
+    }
+
+    public function getTotalBapAttribute(){
+        $nilai = 0;
+        foreach ($this->spks as $key => $value) {
+            $nilai = $nilai + $value->baps->count();
+        }
+
+        return $nilai;
+    }
+
+    public function getHppNettoAttribute(){
+        $nilai = 0;
+        if ( $this->netto <= 0 ){
+            return $nilai;
+        }else{
+            return $this->total_budget_dev_cost / $this->netto;
+        }
+    }
+
+    public function getTotalBudgetDevCostAttribute(){
+        $nilai = 0;
+        foreach ($this->budgets as $key => $value) {
+            $nilai = $nilai + $value->total_dev_cost;
+        }
+        return $nilai;
+    }
+
+    public function hpp_update(){
+        return $this->hasMany("Modules\Budget\Entities\HppUpdate");
+    }
+
+    public function getDevCostOnlyAttribute(){
+        $nilai = 0;
+        foreach ($this->spks as $key => $value) {
+            if ( $value->itempekerjaan->group_cost == "1"){
+                if ( $value->itempekerjaan->group_cost == "1" ){
+                    $nilai = $nilai + ( $value->nilai + $value->nilai_vo );
+                }
+            }
+        }
+        
+        return $nilai;
+    }
+
+    public function getDevCostTerbayarAttribute(){
+        $nilai = 0;
+        $devcost = $this->dev_cost_only;
+
+        foreach( $this->spks as $key => $value ){
+            if ( $value->itempekerjaan->group_cost == "1"){
+                $nilai = $nilai + $value->baps->last()->nilai_bap_2;
+            }
+        }
+
+        return $nilai;
+    }
+
+   /* public function getHutangBangunAttribute(){
+        $nilai = 0;
+        return $this->total_budget_dev_cost;
+    }*/
+
+    public function hadap(){
+        return $this->hasMany("Modules\Project\Entities\UnitArah");
+    }
+
+    public function getHppNettoAwalAttribute(){
+        $update = $this->hpp_update;
+        if ( count($update) > 0 ){
+            $hpp = $this->hpp_update->first()->nilai_budget / $this->hpp_update->first()->netto;
+            return $hpp;
+        }else{
+            return 0;
+        }
+    }
+
+    public function getHppNettoAkhirAttribute(){
+        $update = $this->hpp_update;
+        if ( count($update) > 0 ){
+            $hpp = $this->hpp_update->last()->nilai_budget / $this->hpp_update->last()->netto;
+            return $hpp;
+        }else{
+            return 0;
+        }
+    }
+
+    public function summary_kontrak(){
+        return $this->hasMany("Modules\Project\Entities\HppDevCostSummaryReport");
+    }
+
+    public function all_budgets(){
+        return $this->hasMany('Modules\Budget\Entities\Budget');
+    }
+
+    public function getUnitTerjualAttribute(){
+        $nilai = 0;
+        foreach ($this->kawasans as $key => $value) {
+            foreach ($value->bloks as $key2 => $value2) {
+                foreach ($value2->units as $key3 => $value3) {
+                    if ( $value3->is_sellable == 1 ){
+                        $nilai = $value3->tanah_luas + $nilai;
+                    }
+                }
+            }
+        }
+
+        return $nilai;
+    }
+
+    public function getUnitRencanaAttribute(){
+        $nilai = 0;
+        foreach ($this->kawasans as $key => $value) {
+            foreach ($value->bloks as $key2 => $value2) {
+                foreach ($value2->units as $key3 => $value3) {
+                    if ( $value3->is_sellable != 1 ){
+                        $nilai = $value3->tanah_luas + $nilai;
+                    }
+                }
+            }
+        }
+
+        return $nilai;
+    }
+
+    public function getDevCostDibebankanAttribute(){
+        $nilai = 0;
+        foreach ($this->budgets as $key => $value) {
+            if ( $value->deleted_at == null ){
+                $nilai = $value->total_dev_cost + $nilai ;
+            }
+        }
+
+        if ( $this->netto <= 0 ){
+            $hpp_akhir = 0;
+        }else{
+            $hpp_akhir = $nilai / $this->netto;
+        }
+
+        if ( count($this->hpp_update) > 0 ){
+            return $this->hpp_update->last()->luas_book * $hpp_akhir;
+        }else{
+            return 0;
+        }
+    }
+
+    public function getPersediaanDevCostAttribute(){
+        return $this->dev_cost_terbayar - $this->dev_cost_dibebankan;
+    }
+
+    public function getHutangBayarAttribute(){
+        return $this->dev_cost_only - $this->dev_cost_terbayar;
+    }
+
+    public function getHutangBangunAttribute(){
+        return $this->total_budget_dev_cost - ( $this->dev_cost_terbayar + $this->hutang_bayar );
+    }
+
+    public function getTotalDevCostAttribute(){
+        return $this->persediaan_dev_cost + $this->hutang_bayar + $this->hutang_bangun;
+    }
+
+    public function getSalesBackLogAttribute(){
+        if ( count($this->hpp_update) > 0 ){
+            return $this->hpp_update->last()->luas_erem - $this->hpp_update->last()->luas_book;
+        }else{
+            return 0;
+        }
+    }
+
+    public function getTotalStockAttribute(){
+        if ( count($this->hpp_update) > 0 ){
+            return ( $this->hpp_update->last()->luas_erem - $this->hpp_update->last()->luas_book ) + $this->unit_rencana;
+        }else{
+            return 0;
+        }
+    }
+
+    public function getHppDevCostUpdAttribute(){
+        if ( $this->total_stock <= 0 ){
+            return 0;
+        }else{
+            return $this->total_dev_cost / $this->total_stock;
+        }
+    }
 }

@@ -39,4 +39,22 @@ class Pt extends CustomModel
     public function project_pt_users(){
          return $this->hasMany("Modules\Project\Entities\ProjectPtUser");
     }
+
+    public function getDepartementAttribute(){
+        $result = array();
+        foreach ($this->mapping as $key => $value) {
+            $result[$key] = $value->department->id;
+        }
+
+        return array_values(array_unique($result));
+    }
+
+     public function getDivisiAttribute(){
+        $result = array();
+        foreach ($this->mapping as $key => $value) {
+            $result[$key] = $value->division->id;
+        }
+
+        return array_values(array_unique($result));
+    }
 }

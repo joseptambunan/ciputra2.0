@@ -147,7 +147,6 @@
                           <tr>
                             <td>COA Pekerjaan</td>
                             <td style="width: 50%;">Item Pekerjaan</td>
-                            <td>Bobot(%)</td>
                             <td>Termin 1(%)</td>
                             <td>Termin 2(%)</td>
                             <td>Termin 3(%)</td>
@@ -211,17 +210,16 @@
                                       {{ $value4->name }}
                                 @endif
                               </td>
-                              <td>{{ $value4->item_progress->sum('percentage') }}</td>
-                              <td>{{ $value4->item_progress[0]->percentage or '0.00' }}</td>
-                              <td>{{ $value4->item_progress[1]->percentage or '0.00' }}</td>
-                              <td>{{ $value4->item_progress[2]->percentage or '0.00' }}</td>
-                              <td>{{ $value4->item_progress[3]->percentage or '0.00' }}</td>
-                              <td>{{ $value4->item_progress[4]->percentage or '0.00' }}</td>
-                              <td>{{ $value4->item_progress[5]->percentage or '0.00' }}</td>
-                              <td>{{ $value4->item_progress[6]->percentage or '0.00' }}</td>
-                              <td>{{ $value4->item_progress[7]->percentage or '0.00' }}</td>
-                              <td>{{ $value4->item_progress[8]->percentage or '0.00' }}</td>
-                              <td>{{ $value4->item_progress[9]->percentage or '0.00' }}</td>
+                              <td>{{ $value4->item_progress[0]->percentage or '0' }}</td>
+                              <td>{{ $value4->item_progress[1]->percentage or '0' }}</td>
+                              <td>{{ $value4->item_progress[2]->percentage or '0' }}</td>
+                              <td>{{ $value4->item_progress[3]->percentage or '0' }}</td>
+                              <td>{{ $value4->item_progress[4]->percentage or '0' }}</td>
+                              <td>{{ $value4->item_progress[5]->percentage or '0' }}</td>
+                              <td>{{ $value4->item_progress[6]->percentage or '0' }}</td>
+                              <td>{{ $value4->item_progress[7]->percentage or '0' }}</td>
+                              <td>{{ $value4->item_progress[8]->percentage or '0' }}</td>
+                              <td>{{ $value4->item_progress[9]->percentage or '0' }}</td>
                             </tr>
                               @if ( count($value4->child_item) > 0 )
                                 @foreach ( $value4->child_item as $key5 => $value5 )
@@ -233,17 +231,16 @@
                                       {{ $value5->name }}
                                     </a>
                                   </td>
-                                  <td>{{ $value5->item_progress->sum('percentage') }}</td>
-                                  <td>{{ $value5->item_progress[0]->percentage or '0.00' }}</td>
-                                  <td>{{ $value5->item_progress[1]->percentage or '0.00' }}</td>
-                                  <td>{{ $value5->item_progress[2]->percentage or '0.00' }}</td>
-                                  <td>{{ $value5->item_progress[3]->percentage or '0.00' }}</td>
-                                  <td>{{ $value5->item_progress[4]->percentage or '0.00' }}</td>
-                                  <td>{{ $value5->item_progress[5]->percentage or '0.00' }}</td>
-                                  <td>{{ $value5->item_progress[6]->percentage or '0.00' }}</td>
-                                  <td>{{ $value5->item_progress[7]->percentage or '0.00' }}</td>
-                                  <td>{{ $value5->item_progress[8]->percentage or '0.00' }}</td>
-                                  <td>{{ $value5->item_progress[9]->percentage or '0.00' }}</td>
+                                  <td>{{ $value5->item_progress[0]->percentage or '0' }}</td>
+                                  <td>{{ $value5->item_progress[1]->percentage or '0' }}</td>
+                                  <td>{{ $value5->item_progress[2]->percentage or '0' }}</td>
+                                  <td>{{ $value5->item_progress[3]->percentage or '0' }}</td>
+                                  <td>{{ $value5->item_progress[4]->percentage or '0' }}</td>
+                                  <td>{{ $value5->item_progress[5]->percentage or '0' }}</td>
+                                  <td>{{ $value5->item_progress[6]->percentage or '0' }}</td>
+                                  <td>{{ $value5->item_progress[7]->percentage or '0' }}</td>
+                                  <td>{{ $value5->item_progress[8]->percentage or '0' }}</td>
+                                  <td>{{ $value5->item_progress[9]->percentage or '0' }}</td>
                                 </tr>
                                 @endforeach
                               @endif

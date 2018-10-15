@@ -104,4 +104,39 @@ class Tender extends CustomModel
     public function getProjectAttribute(){
         return $this->rab->workorder->project->first();
     }
+
+    public function getTenderApproveAttribute(){
+        $nilai = array();
+        foreach ($this->rekanans as $key => $value) {
+            if( $value->approval != "" ){
+                if ( $value->approval->approval_action_id == "6"){
+                    $nilai[$key] = $value->id;
+                }
+            }
+        }
+
+        return $nilai;
+    }
+
+    public function tender_document(){
+        return $this->hasMany("Modules\Tender\Entities\TenderDocument");
+    }
+
+    public function getCheckRejectedAttribute(){
+        $nilai = 0;
+        $nilai_pending = 0;
+        foreach ($this->tender_document as $key => $value) {
+            if ( $value->rejected > 0 ){
+                $nilai = $nilai + 1;
+            }
+        }
+
+        foreach ($this->tender_document as $key => $value) {
+            # code...
+            if ( $value->pending > 0 ){
+                $nilai_pending = $nilai_pending + 1;
+            }
+        }
+        return $nilai;
+    }
 }

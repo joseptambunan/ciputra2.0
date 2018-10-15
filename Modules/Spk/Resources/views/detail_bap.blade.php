@@ -48,42 +48,16 @@
                 <!-- /.col -->
               </div>
 
-              <!-- Table row -->
-              <div class="row">
-                <div class="col-xs-12 table-responsive">
-                  <table class="table table-striped">
-                    <thead>
-                      <tr>
-                        <td>COA</td>
-                        <td>Item Pekerjaan</td>
-                        <td>Volume</td>
-                        <td>Nilai</td>
-                        <td>Satuan</td>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      @foreach ( $spk->tender_rekanan->menangs->first()->details as $key2 => $value2 )
-                        @php 
-                        $itempekerjaan = \Modules\Pekerjaan\Entities\Itempekerjaan::find($value2->itempekerjaan_id);
-                        @endphp
-                        <tr>
-                          <td>{{ $itempekerjaan->code }}</td>
-                          <td>{{ $itempekerjaan->name }}</td>
-                          <td>{{ $value2->volume }}</td>
-                          <td>{{ number_format($value2->nilai) }}</td>
-                          <td>{{ $value2->satuan or 'ls' }}</td>
-                        </tr>
-                      @endforeach                 
-                    </tbody>
-                  </table>
-                </div>
-                <!-- /.col -->
-              </div>
-              <!-- /.row -->
+
 
               <div class="row">
                 <!-- accepted payments column -->
                 <!-- /.col -->
+                <form action="{{ url('/')}}/spk/save-bap" method="post" name="form1">
+                <input type="hidden" name="spk_bap" value="{{ $spk->id }}">
+                <input type="hidden" name="spk_bap_termin" value="{{ $spk->baps->count() + 1 }}">
+                {{ csrf_field() }}
+                @php $dps = 0; @endphp
                 <div class="col-xs-6">
                   <p class="lead">Detail Nilai</p>
 
@@ -91,157 +65,208 @@
                     <table class="table">
                       <tr>
                         <th style="width:50%">Termin: </th>
-                        <td>{{ $spk->baps->count() + 1 }}</td>
+                        <td style="text-align: right">{{ $bap->termin }}</td>
                       </tr>
                       <tr>
                         <th>Progress Termin Sebelumnya</th>
-                        <td>
-                          @php $total = 0; @endphp
-                          @foreach ( $spk->termyn as $key => $value )
-                            @if ( $value->termin < ($spk->baps->count() + 1) )
-                              {{ $total = $total + $value->progress }} %
-                            @endif
-                          @endforeach
-                          {{ $total }} %
+                        <td style="text-align: right">
+                          {{ number_format($bap->percentage_sebelumnyas ,2)  }} %
                         </td>
                       </tr>
                       <tr>
-                        <th>Progress Termin Minimum</th>
-                        <td>
-                          @foreach ( $spk->termyn as $key => $value )
-                          @if ( $value->termin == ($spk->baps->count() + 1) )
-                            {{ $value->progress }} %
-                          @endif
-                          @endforeach
+                        <th>Progress Termin Dibayar</th>
+                        <td style="text-align: right">
+                         {{ number_format( ($bap->nilai_bap_2 / ($spk->nilai + $bap->nilai_vo) ) * 100  ,2) }} %
                         </td>
                       </tr>
                       <tr>
                         <th>Progress Lapangan</th>
-                        <td>{{ $spk->progresses->sum('progresslapangan_percent') }} %</td>
+                        <td style="text-align: right">{{ number_format($bap->percentage_lapangan,2) }} %</td>
+                      </tr>
+                      <tr>
+                        <td colspan="2"><hr style="border:3px solid;margin-top:0px;margin-bottom:0px !important;"></td>
                       </tr>
                       <tr>
                         <th>Nilai SPK</th>
-                        <td>RP. {{ number_format($spk->nilai,2)}}</td>
+                        <td style="text-align: right">RP. {{ number_format($spk->nilai,2)}}</td>
                       </tr>
                       <tr>
-                        <th>Nilai VO Sampai dengan ke-{{ $spk->vos->count() }}</th>
-                        <td>Rp. {{ number_format($spk->nilai_vo,2) }}</td>
+                        <th>Nilai VO  </th>
+                        <td style="text-align: right">Rp. {{ number_format($bap->nilai_vo,2) }}<br>
+                        <hr style="border:1px solid;margin-top:0px;margin-bottom:0px !important;"></td>
                       </tr>
                       <tr>
                         <th>Nilai SPK + VO</th>
-                        <td>Rp. {{ number_format($spk->nilai_kumulatif,2)}}</td>
+                        <td style="text-align: right">Rp. {{ number_format( $spk->nilai + $bap->nilai_vo,2)}}</td>
                       </tr>
                       <tr>
-                        <th>Nilai PPN SPK + VO</th>
-                        <td>Rp. {{ number_format($ppn_kumulatif = $spk->nilai_kumulatif * 0.1 ,2) }}</td>
+                        <th>Nilai PPN SPK + VO</th>                       
+                        <td style="text-align: right">Rp. {{ number_format($ppn_kumulatif = ( $spk->nilai + $bap->nilai_vo ) * $ppn ,2) }}</td>          
+                      </tr>
+
+                      <tr>
+                        <th>&nbsp;</th>
+                        <td><hr style="border:1px solid;margin-top:0px;margin-bottom:0px !important;"></td>
                       </tr>
 
                       <tr>
                         <th>Total Kontrak</th>
-                        <td>Rp. {{ number_format($spk->nilai_kumulatif + $ppn_kumulatif , 2) }}</td>
+                        <td style="text-align: right">Rp. {{ number_format((  $spk->nilai + $bap->nilai_vo ) + $ppn_kumulatif , 2) }}</td>
+                      </tr>
+
+                       <tr>
+                        <td colspan="2"><hr style="border:3px solid;margin-top:0px;margin-bottom:0px !important;"></td>
                       </tr>
 
                       <tr>
-                        <th>Nilai BAP Sekarang</th>
-                        <td>Rp. {{ number_format($spk->nilai_lapangan ,2) }}</td>
+                        <th>Nilai Kumulatif BAP 1</th>
+                        <td style="text-align: right">Rp. {{ number_format( $bap->nilai_bap_1 ,2) }}</td>
                       </tr>
 
-                      @if(($spk->retensis->count()) AND (!$spk->st1_date))
+                      
                       <tr>
                         <th>Retensi</th>
-                        <td>
-                          <input type='text' class='form-control' style="width:50%" value="{{ number_format($spk->nilai_retensi ,2) }}" readonly="readonly" />
-                        </td>
+                        <td style="text-align: right">Rp. {{ number_format($bap->nilai_retensi,2) }}</td>
                       </tr>
-
+                      <tr>
+                        <td colspan="2"> <hr style="border:3px solid;margin-top:0px;margin-bottom:0px !important;"></td>
+                      </tr>
                       <tr>
                         <th>Nilai Setelah Retensi Dikurangi</th>
-                        <td>
-                          <input type='text' id="nilai_setelah_retensi" class='form-control' style="width:50%" value="{{ number_format(($nilai_setelah_retensi = $spk->nilai_lapangan - $spk->nilai_retensi) ,2) }}" data-value="{{ $nilai_setelah_retensi - ($spk->baps()->latest()->first() ? $spk->baps()->latest()->first()->nilai_sertifikat : 0) }}" readonly="readonly" />
+                        <td style="text-align: right">
+                          <span>Rp. {{ number_format($nilai_setelah_retensi = $bap->nilai_bap_1 - $bap->nilai_retensi ,2) }}</span>
                         </td>
                       </tr>
+                   
+                    @if ( $spk->spk_type_id == "1")
+                    <tr>
+                      <th>Nilai DP Dibayar</th>
+                      <td style="text-align: right">RP. {{ number_format($spk->nilai_dp, 2) }}</td>
+                    </tr>
                     @else
                     <tr>
-                      <th>Retensi</th>
-                      <td>Rp. {{ number_format($spk->nilai_lapangan - $spk->nilai_bap_sertifikat) }}</td>
+                      <th>Nilai DP Dibayar</th>
+                      <td style="text-align: right">RP. {{ number_format(0, 2) }}</td>
                     </tr>
                     @endif
                     <tr>
-                      <th>Nilai DP Dibayar</th>
-                      <td>RP. {{ number_format($spk->nilai_dp, 2) }}</td>
+                      <th>Nilai DP Dikembalikan</th>
+                      <td style="text-align: right">Rp. {{ number_format($bap->nilai_dp,2) }}</td>
+                    </tr>
+                    
+                    <tr>
+                        <td colspan="2"> <hr style="border:3px solid;margin-top:0px;margin-bottom:0px !important;"></td>
+                      </tr>
+                    <tr>
+                      <th>Nilai Kumulatif BAP 2</th>
+                      <td style="text-align: right">Rp. {{ number_format( $bap->nilai_bap_2 ,2) }}
+                      
+                      </td>
                     </tr>
                     <tr>
-                        <th>PPN Setelah Retensi</th>
-                        <td>Rp. {{ number_format( $spk->nilai_ppn + $spk->nilai_ppn_vo ,2) }}</td>
-                      </tr>
+                      <th>PPN Setelah Nilai Kumulatif BAP 2</th>
+                      <td style="text-align: right;">Rp. {{ number_format ( $nilai_kumulatif_ppn_bap2 = $bap->nilai_bap_2 * $ppn  ,2) }}</td>
+                    </tr>
+                     
+                    <tr>
+                      <th>Nilai Sertifikat sampai saat ini </th>
+                      <td style="text-align: right;">Rp. {{ number_format( $pembayaran_saat_ini =  $bap->nilai_bap_2 + ($bap->nilai_bap_2 * $ppn), 2)}}</td>
+                    </tr>
 
-                      <tr>
-                        <th>Total BAP Sekarang</th>
-                        <td>Rp. {{ number_format( ($include_ppn = $spk->nilai_lapangan - ( $spk->st1_date ? 0 : $spk->nilai_retensi) + $spk->nilai_ppn) ,2) }} 
-                          <input type="hidden" id="include_ppn" value="{{ $include_ppn}}">
-                        </td>
-                      </tr>
+                    <tr>
+                      <th>Nilai BAP Sebelumnya</th>
+                      <td style="text-align: right;">Rp. {{  number_format($bap->nilai_sebelumnya,2)}}</td>
+                    </tr>
 
-                      <tr>
-                        <th>Nilai BAP Sebelumnya</th>
-                        <td>Rp. {{ number_format($spk->nilai_bap,2) }}</td>
-                      </tr>
+                    <tr>
+                      <th>Nilai BAP 3</th>
+                      <td style="text-align: right;">Rp. {{  number_format($pembayaran_saat_ini - $bap->nilai_sebelumnya,2)}}</td>
+                    </tr>
 
-                      <tr>
-                        <th>Nilai BAP Sekarang include PPN</th>
-                        <td>Rp. {{ number_format( $sekarang = ($include_ppn - $spk->nilai_bap) ,2) }}</td>
-                      </tr>
+                    @if($spk->rekanan->piutangs->count())
+                    <tr>
+                      <th>Potongan Piutang</th>
+                      <td>
+                        <input type="number" id="piutang" name="piutang" max="{{ $spk->rekanan->piutang }}" class="form-control" placeholder="Max {{ $spk->rekanan->piutang }}" onkeyup="countPph();countTerbayar();" value="0">
+                      </td>
+                    </tr>
+                    @endif
+                    <tr>
+                      <td>Potongan Administrasi</td>
+                      <td>
+                        <input type="text" id="admin" name="admin" class="form-control" onkeyup="countPph();countTerbayar();" value="{{ number_format($bap->nilai_administrasi,2) }}" style="width:50%">
+                      </td>
+                    </tr>
 
-                      @if($spk->rekanan->piutangs->count())
-                      <tr>
-                        <th>Potongan Piutang</th>
-                        <td>
-                          <input type="number" id="piutang" name="piutang" max="{{ $spk->rekanan->piutang }}" class="form-control" placeholder="Max {{ $spk->rekanan->piutang }}" onkeyup="countPph();countTerbayar();" value="0">
-                        </td>
-                      </tr>
-                      @endif
-                      <tr>
-                        <td>Potongan Administrasi</td>
-                        <td>
-                          <input type="number" id="admin" name="admin" class="form-control" onkeyup="countPph();countTerbayar();" value="0" style="width:50%">
-                        </td>
-                      </tr>
+                    <tr>
+                      <td>Potongan Denda</td>
+                      <td>
+                        <input type="text" id="denda" name="denda" class="form-control" onkeyup="countPph();countTerbayar();" value="{{ number_format($bap->nilai_denda,2) }}" style="width:50%">
+                      </td>
+                    </tr>
 
-                      <tr>
-                        <td>Potongan Denda</td>
-                        <td>
-                          <input type="number" id="denda" name="denda" class="form-control" onkeyup="countPph();countTerbayar();" value="0" style="width:50%">
-                        </td>
-                      </tr>
+                    <tr>
+                      <td>Potongan Selisih Debit Kredit</td>
+                      <td>
+                        <input type="text" id="selisih" name="selisih" class="form-control" onkeyup="countPph();countTerbayar();" value="{{ number_format($bap->nilai_selisih,2) }}" style="width:50%">
+                      </td>
+                    </tr>
 
-                      <tr>
-                        <td>Potongan Selisih Debit Kredit</td>
-                        <td>
-                          <input type="number" id="selisih" name="selisih" class="form-control" onkeyup="countPph();countTerbayar();" value="0" style="width:50%">
-                        </td>
-                      </tr>
+                    <tr>
+                      <td>Potongan Dana Talangan</td>
+                      <td>
+                        <input type="text" id="talangan" name="talangan" class="form-control" onkeyup="countPph();countTerbayar();" value="{{ number_format($bap->nilai_talangan,2) }}" style="width:50%">
+                      </td>
+                    </tr>
 
-                      <tr>
-                        <td>Total yang Bisa Dibayar</td>
-                        <td>
-                          <span id="total_dibayar">0.00</span>
-                          <input type="hidden" id="total_total_dibayar" class="form-control" value="{{ number_format( 0 ,2) }}" style="width:50%">
-                        </td>
-                      </tr>
+
+                    <tr>
+                      <td>Total yang Bisa Dibayar</td>
+                      <td style="text-align: right">
+                        <span id="total_dibayar">{{ number_format(  $pembayaran_saat_ini - ( $bap->nilai_administrasi + $bap->nilai_selisih + $bap->nilai_denda + $bap->nilai_sebelumnya) ,2) }}</span>
+                      </td>
+                    </tr>
                     </table>
                   </div>
                 </div>
                 <!-- /.col -->
+                <div class="col-md-6" style="display: none">
+                  <table class="table table-bordered">
+                    <thead class="head_table">
+                      <tr>
+                        <td>Unit</td>
+                        <td>Progress Lapangan</td>
+                        <td>Persentase Dibayar</td>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @foreach ( $spk->details as $key5 => $value5 )
+                      <tr>
+                        <td>{{ $value5->asset->name }}</td>
+                        <td>
+                          {{ $value5->progress }}
+                          <input type="hidden" value="{{ $value5->progress }}" name="progress_summary">
+                          @foreach ( $value5->details_with_vo as $key7 => $value7 )
+                            <li>{{ $value7->unit_progress->itempekerjaan->name }}</li>
+                          @endforeach
+                        </td>
+                        <td>
+                            <span>Input BAP Persentase</span>
+                            @foreach ( $value5->details_with_vo as $key6 => $value6 )
+                            <input type="hidden" class="form-control" name="spkvo_unit_id[{{$key6}}]" value="{{ $value6->unit_progress_id }}">
+                            <input type="hidden" class="form-control" name="terbayar_percent[{{$key6}}]" value="">
+                            @endforeach
+                        </td>
+                      </tr>
+                      @endforeach
+                    </tbody>
+                  </table>
+                </div>
               </div>
               <!-- /.row -->
 
               <!-- this row will not appear when printing -->
-              <div class="row no-print">
-                <div class="col-xs-12">
-                  <button type="submit" class="btn btn-success pull-right"><i class="fa fa-credit-card"></i> Submit BAP
-                  </button>
-                </div>
-              </div>
+              
             </section>
             <!-- /.content -->
             </div>

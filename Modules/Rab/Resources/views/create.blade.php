@@ -38,7 +38,7 @@
                 {{ csrf_field() }}
               <div class="form-group">
                 <label>Nama RAB</label>
-                <input type="text" class="form-control" name="rab_name" required>
+                <input type="text" class="form-control" name="rab_name" autocomplete="off" required>
               </div>
                                
               <div class="box-footer">

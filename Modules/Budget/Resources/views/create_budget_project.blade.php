@@ -44,7 +44,7 @@
                 <label>PT</label>
                 <select class="form-control" name="pt_id">
                   @foreach ( $project->pt_user as $key => $value )
-                  <option value="{{ $value->id }}">{{ $value->pt->name }}</option>
+                  <option value="{{ $value->pt->id }}">{{ $value->pt->name }}</option>
                   @endforeach
                 </select>
               </div>
@@ -69,15 +69,15 @@
               </div>
               <div class="form-group">
                 <label>Start Date</label>
-                <input type="text" class="form-control" name="start_date" id="start_date">
+                <input type="text" class="form-control" name="start_date" id="start_date" autocomplete="off">
               </div>
               <div class="form-group">
                 <label>End Date</label>
-                <input type="text" class="form-control" name="end_date" id="end_date">
+                <input type="text" class="form-control" name="end_date" id="end_date" autocomplete="off">
               </div>
               <div class="form-group">
-                <label>Keterangan Date</label>
-                <input type="text" class="form-control" name="description">
+                <label>Keterangan Budget</label>
+                <input type="text" class="form-control" name="description" autocomplete="off">
               </div>
               <div class="box-footer">
                 <button type="submit" class="btn btn-primary">Simpan</button>
@@ -131,11 +131,15 @@
     $("#luas_brutto").number(true);
     $("#luas_netto").number(true);
     $('#start_date').datepicker({
-      "dateFormat" : "yy-mm-dd"
+      "dateFormat" : "yy-mm-dd",
+      "changeMonth": true,
+      "changeYear": true
     });
 
      $('#end_date').datepicker({
-      "dateFormat" : "yy-mm-dd"
+      "dateFormat" : "yy-mm-dd",
+      "changeMonth": true,
+      "changeYear": true
     });
   });
 

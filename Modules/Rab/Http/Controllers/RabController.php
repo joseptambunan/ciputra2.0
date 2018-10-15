@@ -13,6 +13,9 @@ use Modules\Workorder\Entities\Workorder;
 use Modules\Project\Entities\Project;
 use Modules\Pekerjaan\Entities\Itempekerjaan;
 use Modules\Asset\Entities\Asset;
+use Modules\Budget\Entities\BudgetTahunan;
+use Modules\Budget\Entities\BudgetTahunanDetail;
+use Modules\Workorder\Entities\WorkorderBudgetDetail;
 
 class RabController extends Controller
 {
@@ -59,6 +62,7 @@ class RabController extends Controller
     public function store(Request $request)
     {
         $workorder = Workorder::find($request->rab_wo);
+
         $rab_no = \App\Helpers\Document::new_number('RAB', $workorder->department_from);
         $rab = new Rab;
         $rab->no = $rab_no;
@@ -146,8 +150,8 @@ class RabController extends Controller
                             $html .= "<td><strong>".$value5->code."</strong></td>";
                             $html .= "<td style='background-color: white;color:black;' onclick='showhide(".$value5->id.")' data-attribute='1' id='btn_".$value5->id."'>".$value5->name."</td>";
                             $html .= "<td><input type='hidden' class='form-control' name='item_id[".$start."]' value='".$value5->id."'/><input type='text' class='form-control' name='volume_[".$start."]' value=''  onkeyup='summary(".$start.")'/><input type='hidden' class='form-control' name='code[".$start."]' value='".$value5->code."'/></td>";
-                            $html .= "<td><input type='text' class='form-control' name='satuan_[".$start."]'value='m2'/></td>";
-                            $html .= "<td><input type='text' class='form-control' name='nilai_[".$start."]' value=''  onkeyup='summary(".$start.")'/></td>";
+                            $html .= "<td><input type='text' class='form-control' name='satuan_[".$start."]'value=''/></td>";
+                            $html .= "<td><input type='text' class='form-control nilai_budgets' name='nilai_[".$start."]' value=''  onkeyup='summary(".$start.")'/></td>";
                             $html .= "<td><span id='total_".$start."'></span></td>";
                             $html .= "</tr>";
                             $start++;  
@@ -157,8 +161,8 @@ class RabController extends Controller
                         $html .= "<td><strong>".$value4->code."</strong></td>";
                         $html .= "<td style='background-color: white;color:black;' onclick='showhide(".$value4->id.")' data-attribute='1' id='btn_".$value4->id."'>".$value4->name."</td>";
                         $html .= "<td><input type='hidden' class='form-control' name='item_id[".$start."]' value='".$value4->id."'/><input type='text' class='form-control' name='volume_[".$start."]' id='volume_[".$start."]' value='' onkeyup='summary(".$start.")'/><input type='hidden' class='form-control' name='code[".$start."]' value='".$value4->code."'/></td>";
-                        $html .= "<td><input type='text' class='form-control' name='satuan_[".$start."]'value='m2'/></td>";
-                        $html .= "<td><input type='text' class='form-control' name='nilai_[".$start."]' id='nilai_[".$start."]' value='' onkeyup='summary(".$start.")'/></td>";
+                        $html .= "<td><input type='text' class='form-control' name='satuan_[".$start."]'value=''/></td>";
+                        $html .= "<td><input type='text' class='form-control ' name='nilai_[".$start."]' id='nilai_[".$start."]' value='' onkeyup='summary(".$start.")'/></td>";
                         $html .= "<td><span id='total_".$start."'></span></td>";
                         $html .= "</tr>";
                         $start++;  
@@ -170,9 +174,8 @@ class RabController extends Controller
                 $html .= "<td><strong>".$value3->code."</strong></td>";
                 $html .= "<td style='background-color: white;color:black;' onclick='showhide(".$value3->id.")' data-attribute='1' id='btn_".$value3->id."'>".$value3->name."</td>";
                 $html .= "<td><input type='hidden' class='form-control' name='item_id[".$start."]' value='".$value3->id."'/><input type='hidden' class='form-control' name='code[".$start."]' value='".$value3->code."'/><input type='text' class='form-control' name='volume_[".$start."]' value=''/></td>";
-                $html .= "<td><input type='text' class='form-control' name='satuan_[".$start."]' value='m2'/></td>";
-                $html .= "<td><input type='text' class='form-control' name='nilai_[".$start."]' value=''/></td>";
-                $html .= "<td><input type='text' class='form-control' name='nilai_[".$start."]' value=''/></td>";
+                $html .= "<td><input type='text' class='form-control ' name='satuan_[".$start."]' value='' required/></td>";
+                $html .= "<td><input type='text' class='form-control nilai_budgets' name='nilai_[".$start."]' value=''/></td>";
                 $html .= "<td><span id='total_{{ $start }}'></span></td>";
                 $html .= "</tr>";
                 $start++;  
@@ -208,16 +211,24 @@ class RabController extends Controller
     }
 
     public function savepekerjaan(Request $request){
+        $budget_tahunan_id = BudgetTahunan::find($request->budget_tahunan_id);
         $rab  = Rab::find($request->rab);
+        $no = $rab->no;
+        $rab->budget_tahunan_id = $request->budget_tahunan_id;
+        $rab->no = $no.$budget_tahunan_id->budget->pt->code;
+        $rab->save();
+
         foreach ($request->item_id as $key => $value) {
-            $rabpekerjaan = new RabPekerjaan;
-            $rabpekerjaan->rab_unit_id = $rab->id;
-            $rabpekerjaan->itempekerjaan_id = $request->item_id[$key];
-            $rabpekerjaan->nilai = $request->nilai_[$key];
-            $rabpekerjaan->volume = $request->volume_[$key];
-            $rabpekerjaan->satuan = $request->satuan_[$key];
-            $rabpekerjaan->created_by  = \Auth::user()->id;
-            $rabpekerjaan->save();
+            if ( $request->nilai_[$key] != "" && $request->volume_[$key] != "" ){
+                $rabpekerjaan = new RabPekerjaan;
+                $rabpekerjaan->rab_unit_id = $rab->id;
+                $rabpekerjaan->itempekerjaan_id = $request->item_id[$key];
+                $rabpekerjaan->nilai = str_replace(",", "", $request->nilai_[$key]);
+                $rabpekerjaan->volume = $request->volume_[$key];
+                $rabpekerjaan->satuan = $request->satuan_[$key];
+                $rabpekerjaan->created_by  = \Auth::user()->id;
+                $rabpekerjaan->save();
+            }
         }      
         return redirect("/rab/detail?id=".$rab->id);          
     }
@@ -238,8 +249,83 @@ class RabController extends Controller
 
     public function approval(Request $request){
         $rab = $request->id;
-        $class  = "RAB";
+        $class  = "Rab";
         $approval = \App\Helpers\Document::make_approval('Modules\Rab\Entities\Rab',$rab);
         return response()->json( ["status" => "0"] );
+    }
+
+    public function childcoa(Request $request){
+        $html = "";
+        $budget = 0;
+        $start = 0;
+        $itempekerjaan = Itempekerjaan::find($request->id); 
+        $workorder = Workorder::find($request->workorder);
+        $budget_tahunan_id = "";
+        $budget_tersisa = 0;
+        $workorder_detail = WorkorderBudgetDetail::where("itempekerjaan_id",$request->id)->where("workorder_id",$request->workorder)->get();
+        if ( count($workorder_detail) > 0 ){
+            $budget_tahunan_id = $workorder_detail->first()->budget_tahunan_id;
+            $budget = ($workorder_detail->first()->volume * $workorder_detail->first()->nilai);
+        }
+        $budget_tersisa = $budget - $workorder->rabs->where("budget_tahunan_id",$budget_tahunan_id)->where("parent_id",$request->id)->sum("nilai");
+
+        foreach ( $itempekerjaan->child_item as $key3 => $value3 ){            
+            
+            /*$html .= "<tr>";
+            $html .= 
+            $html .= "<option value='".$value3->id."'>".$value3->code."-".$value3->name."</option>";*/
+            if ( count($value3->child_item) > 0 ){
+                $html .= "<tr>";
+                $html .= "<td><strong>".$value3->code."</strong></td>";
+                $html .= "<td style='background-color: white;color:black;' onclick='showhide(".$value3->id.")' data-attribute='1' id='btn_".$value3->id."'>".$value3->name."</td>";
+                $html .= "<td>&nbsp;</td>";
+                $html .= "<td>&nbsp;</td>";
+                $html .= "<td>&nbsp;</td>";
+                $html .= "</tr>";
+                
+                foreach ($value3->child_item as $key5 => $value5) {
+                    $html .= "<tr>";
+                    $html .= "<td><strong>".$value5->code."</strong></td>";
+                    $html .= "<td style='background-color: white;color:black;' onclick='showhide(".$value5->id.")' data-attribute='1' id='btn_".$value5->id."'>".$value5->name."</td>";
+                    $html .= "<td><input type='hidden' class='form-control' name='item_id[".$start."]' value='".$value5->id."'/><input type='text' class='form-control' name='volume_[".$start."]' onkeyup='summary(".$start.")' value=''/><input type='hidden' class='form-control' name='code[".$start."]' value='".$value5->code."'/></td>";
+                    $html .= "<td><input type='text' class='form-control' name='satuan_[".$start."]'value=''/></td>";
+                    $html .= "<td><input type='text' class='form-control nilai_budgets' name='nilai_[".$start."]' value=''  onkeyup='summary(".$start.")'/></td>";
+                    $html .= "<td><span id='total_".$start."'></span></td>";
+                    $html .= "</tr>";
+                    $start++;  
+                }
+            }else{
+
+                $html .= "<tr>";
+                $html .= "<td><strong>".$value3->code."</strong></td>";
+                $html .= "<td style='background-color: white;color:black;' onclick='showhide(".$value3->id.")' data-attribute='1' id='btn_".$value3->id."'>".$value3->name."</td>";
+                $html .= "<td><input type='hidden' class='form-control' name='item_id[".$start."]' value='".$value3->id."'/><input type='hidden' class='form-control' name='code[".$start."]' value='".$value3->code."'/><input type='text' class='form-control' name='volume_[".$start."]' value=''/></td>";
+                $html .= "<td><input type='text' class='form-control ' name='satuan_[".$start."]' value='' required/></td>";
+                $html .= "<td><input type='text' class='form-control nilai_budget' name='nilai_[".$start."]'value=''/></td>";
+                $html .= "<td><span id='total_{{ $start }}'></span></td>";
+                $html .= "</tr>";
+                $start++;
+            }
+            
+        }
+        return response()->json( ["status" => "0", "html" => $html, "budget" => $budget, "budget_tahunan_id" => $budget_tahunan_id, "budget_tersisa" => $budget_tersisa] );
+    }
+
+    public function deletepekerjaan(Request $request){
+        $rab = Rab::find($request->id);
+        foreach ($rab->pekerjaans as $key => $value) {
+            $rab_pekerjaan = RabPekerjaan::find($value->id);
+            $rab_pekerjaan->delete();
+        }
+
+         return response()->json( ["status" => "0"] );
+    }
+
+    public function approval_history(Request $request){
+        $rab = Rab::find($request->id);
+        $approval = $rab->approval;
+        $project = Project::find($request->session()->get('project_id'));
+        $user = \Auth::user();
+        return view("rab::approval_history",compact("rab","approval","project","user"));
     }
 }

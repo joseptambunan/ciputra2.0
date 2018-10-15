@@ -5,6 +5,11 @@ namespace App;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Modules\Pt\Entities\Pt;
+use Modules\User\Entities\UserJabatan;
+use Modules\Department\Entities\Department;
+use Modules\Division\Entities\Division;
+use Modules\Project\Entities\ProjectPtUser;
 
 class User extends Authenticatable
 {
@@ -123,7 +128,7 @@ class User extends Authenticatable
 
     public function project_pt_users()
     {
-        return $this->hasMany('App\ProjectPtUser');
+        return $this->hasMany('Modules\Project\Entities\ProjectPtUser');
     }
 
     public function details()
@@ -145,7 +150,7 @@ class User extends Authenticatable
 
     public function pts()
     {
-        return $this->belongsToMany('App\Pt', 'project_pt_users');
+        return $this->belongsToMany('Modules\Pt\Entities\Pt', 'project_pt_users');
     }
 
     public function warehouses()
@@ -170,12 +175,12 @@ class User extends Authenticatable
         });
     }
 
-    public function jabatan($pt_id)
+    /*public function jabatan($pt_id)
     {
         $mapping = \App\Mappingperusahaan::where('pt_id', $pt_id)->get(['id']);
 
         return $this->details()->whereIn('mappingperusahaan_id', $mapping )->first()->jabatan;
-    }
+    }*/
 
     public function getDepartmentsAttribute()
     {
@@ -192,4 +197,72 @@ class User extends Authenticatable
     public function project(){
         return $this->hasMany("Modules\Project\Entities\ProjectPtUser");
     }
+
+    public function getJabatanAttribute(){
+        $jabatan = Array();
+        $jabat_pt = array();
+        $tmp = array();
+        $jabatan_list = array();
+        $detail = $this->details;
+        $department = array();
+        $division = array();
+        $level = array();
+        foreach ($detail as $key => $value) {
+            $jabatan[$key] = $value->mappingperusahaan->pt_id;
+        }
+        
+        $pt = array_values(array_unique($jabatan));
+        foreach ($pt as $key => $value) {
+            foreach ($this->details as $key2 => $value2) {
+                if ( $value2->mappingperusahaan->pt_id == $value ){
+                    $tmp[$key2] = $value2->user_jabatan_id;
+                    $level[$key2] = $value2->user_level;
+                    $project[$key2] = $value2->project_pt_id; 
+                    if ( $value2->user_level <= 5 ){
+                        $department[$key2] = "";
+                        $division[$key2] = "";
+                    }else  {
+                        $department[$key2] = $value2->mappingperusahaan->department_id;
+                        $division[$key2]   = $value2->Mappingperusahaan->division_id;
+                    }
+                }
+            }
+            $jabat_pt[$key] = array("pt" => $value, "jabatan" => array_values(array_unique($tmp)), "department" => array_values(array_unique($department)), "division" => array_values(array_unique($division)), "level" => array_values(array_unique($level)), "project" => array_values(array_unique($project)) ) ;
+        }
+        
+        //return $jabat_pt;
+
+        foreach ($jabat_pt as $key => $value) {
+           $pt = Pt::find($value['pt']);            
+           $jabatan = UserJabatan::find($value['jabatan'][0]);
+           
+           if ( $value['project'][0] == null ){
+                $project_id = "";
+           }else{
+                $project_pt_users = ProjectPtUser::find($value['project'][0]);
+                $project_id = $project_pt_users->project->id;
+           }
+
+           if ( $value['level'][0] <= 5 ){
+                $department = "";
+                $division   = "";
+           }else{
+
+                $department = "";
+                $division   = "";
+                if ( $value['department'][0] != "" ) {
+                    $department =  Department::find($value['department'][0])->name;
+                }
+
+                if ( $value['division'][0] != ""){
+                    $division = Division::find($value['division'][0])->name;
+                }
+           }
+
+           $jabatan_list[$key] = array ( "pt" => $pt->name, "jabatan" => $jabatan->name, "department" => $department, "division" => $division, "level" => $value['level'][0], "project_id" => $project_id, "pt_id" => $pt->id , "jabatan_id" => $jabatan->id ) ;
+        }
+        return $jabatan_list;
+    }
+
+    
 }

@@ -189,8 +189,9 @@
                             <span class="{{ $array[$workorder->approval->approval_action_id]['class'] }}">{{ $array[$workorder->approval->approval_action_id]['label'] }}</span>
                             @endif
                           </td>
-                       </tr>
+                        </tr>
                        @endforeach
+                       
                      </tbody>
                    </table> 
                 </div>

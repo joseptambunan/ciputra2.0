@@ -1,3 +1,4 @@
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script type="text/javascript">
 
   $( document ).ready(function() {
@@ -10,6 +11,16 @@
 
   $(function () {
     $("#luas").number(true);
+    $(".number").number(true);
+    $(".nilai_budget").number(true);
+    
+    $('#start_date').datepicker({
+      "dateFormat" : "yy-mm-dd"
+    });
+
+    $('#end_date').datepicker({
+      "dateFormat" : "yy-mm-dd"
+    });
   });
 
   $("#department_from").change(function(){
@@ -29,7 +40,7 @@
   });
 
   $("#budget_tahunan").change(function(){
-    $("#table_item").html("");
+    $("#tdsa").html("");
     var request = $.ajax({
       url : "{{ url('/')}}/workorder/budget-tahunan/item",
       dataType : "json",
@@ -40,7 +51,8 @@
     });
 
     request.done(function(data){
-      $("#table_item").html(data.html);
+      //$("#tdsa").html(data.html);
+      //$(".nilai_budgets").number(true);
     });
   });
 

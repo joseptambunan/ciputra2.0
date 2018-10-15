@@ -43,59 +43,34 @@
                     <label for="exampleInputEmail1">Termin Ke </label>
                     <input type="text" class="form-control" value="{{ $termin_ke}}" readonly>
                 </div>  
+               
                 <div class="form-group">
-                    <label for="exampleInputEmail1">Minggu Ke </label>
-                    <input type="text" class="form-control" value="{{ $spk->details->first()->details_with_vo->last()->unit_progress->details->last()->week + 1 }}" readonly>
-                </div>      
-                <div class="form-group">
-                  <button type="submit" class="btn btn-primary">Buat Progress</button>
+                  <button type="submit" class="btn btn-primary">Simpan</button>
                   <a href="{{ url('/') }}/progress/show?id={{ $spk->id}}" class="btn btn-warning">Kembali</a>
                 </div>   
                 {{ csrf_field() }}                  
                 <input type="hidden" class="form-control" name="spk_id" value="{{ $spk->id}}">
                 <input type="hidden" class="form-control" name="termin_ke" value="{{ $termin_ke}}">
-                <input type="hidden" class="form-control" name="week" value="{{ $spk->details->first()->details_with_vo->last()->unit_progress->details->last()->week }}">
                 <div class="col-md-12">
                 <center><h3>Tambah</h3></center>
                 <hr>
                 <table class="table table-bordered">
                   <thead class="head_table">
                     <tr>
-                      <td>Item Pekerjaan</td>                      
-                      @for ( $i=1; $i <= $minggu; $i++)
-                      <td>Minggu {{ $i }}</td>
-                      @endfor
+                      <td>Item Pekerjaan</td>      
+                      <td>Progress Lapangan</td>        
                     </tr>
                   </thead>
-                  <tbody>                    
-                    @foreach ( $spk->termyn as $key => $value )
-                    @if ( $value->status == "1")
-                      <tr style="background-color: grey;color:white;font-weight: bolder;">
-                        <td>Termin : {{ $value->termin }}</td>
-                        <td colspan="{{ ($minggu)}}"></td>
-                      </tr>
-                      @foreach ( $spk->tender_rekanan->menangs->first()->details as $key2 => $value2 )
-                        @php 
-                        $itempekerjaan = \Modules\Pekerjaan\Entities\Itempekerjaan::find($value2->itempekerjaan_id);
-                        @endphp
-                        <tr>
-                          <td>{{ $itempekerjaan->name }}</td>
-                          @php $start = 0 ; @endphp                         
-                          @for ( $i=1; $i <= $minggu; $i++)
-                          <td>
-                            @if ( $i <= $spk->details->last()->details_with_vo->last()->unit_progress->details->first()->week )
-                            <span></span>
-                            @else
-                            <input type="text" name="progress_minggu_[{{ $itempekerjaan->id }}][{{$start}}]" class="progress form-control" style="width:100%;">
-                            @php $start++; @endphp
-                            @endif
-                          </td>
-                            
-                          @endfor
-                        </tr>
-                      @endforeach
-                    @endif
-                    @endforeach
+                 <tbody>
+                    @foreach ( $spk->detail_units as $key2 => $value2 )
+                   
+                    <tr>                                
+                        <td>{{ $value2->unit_progress->itempekerjaan->name }}</td>    
+                        <td>
+                          <input type="hidden" class="form-control" value="{{ $value2->unit_progress_id}}" name="unit_progress_id[{{$key2}}]"><input type="text" class="form-control progress" name="progress_percentage[{{$key2}}]" ></td>                                      
+                    </tr>   
+                    
+                    @endforeach                        
                   </tbody>
                 </table>
                 <label>Keterangan</label>

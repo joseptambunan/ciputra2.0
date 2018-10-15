@@ -33,7 +33,7 @@
             <div class="col-md-6">              
               <h3 class="box-title">Edit Data Proyek</h3>
               <form action="{{ url('/')}}/project/edit-proyek" method="post" name="form1">
-              <input type="hidden" name="project_id" value="{{ $project->id }}">
+              <input type="hidden" name="project_id" value="{{ $project_detail->id }}">
               {{ csrf_field() }}
               <div class="form-group">
                 <label>Sub Holding</label>
@@ -43,43 +43,55 @@
               </div>
               <div class="form-group">
                 <label>Kode Proyek</label>
-                <input type="text" class="form-control" name="code" value="{{ $project->code }}">
+                <input type="text" class="form-control" name="code" value="{{ $project_detail->code }}">
               </div>
               <div class="form-group">
                 <label>Nama Proyek</label>
-                <input type="text" class="form-control" name="name" value="{{ $project->name }}">
+                <input type="text" class="form-control" name="name" value="{{ $project_detail->name }}">
               </div>
               <div class="form-group">
                 <label>Luas Brutto(m2)</label>
-                <input type="text" class="form-control" name="luas" id="luas" value="{{ number_format($project->luas,2) }}">
+                <input type="text" class="form-control" name="luas" id="luas" value="{{ number_format($project_detail->luas,2) }}">
               </div>
               <div class="form-group">
                 <label>Telepon Proyek</label>
-                <input type="text" class="form-control" name="phone" value="{{ $project->phone }}">
+                <input type="text" class="form-control" name="phone" value="{{ $project_detail->phone }}">
               </div>
               <div class="form-group">
                 <label>Fax Proyek</label>
-                <input type="text" class="form-control" name="fax" value="{{ $project->fax }}">
+                <input type="text" class="form-control" name="fax" value="{{ $project_detail->fax }}">
               </div>
               <div class="form-group">
                 <label>Email Proyek</label>
-                <input type="text" class="form-control" name="email" value="{{ $project->email }}">
+                <input type="text" class="form-control" name="email" value="{{ $project_detail->email }}">
               </div>
               <div class="form-group">
                 <label>Alamat Proyek</label>
-                <textarea class="form-control" name="address" rows="3">{{ $project->address }}</textarea>
+                <textarea class="form-control" name="address" rows="3">{{ $project_detail->address }}</textarea>
               </div>  
               <div class="form-group">
                 <label>Kode Pos Proyek</label>
-                <input type="text" class="form-control" name="zipcode" value="{{ $project->zipcode }}">
+                <input type="text" class="form-control" name="zipcode" value="{{ $project_detail->zipcode }}">
               </div> 
               <div class="form-group">
+                <label>Kota</label>
+                <select class="form-control" name="city_id" required>
+                  @foreach( $cities as $data => $value )
+                  @if ( $value->id == $project_detail->city_id )
+                  <option value="{{ $value->id}}" selected>{{ $value->name}}</option>
+                  @else
+                  <option value="{{ $value->id}}">{{ $value->name}}</option>
+                  @endif
+                  @endforeach
+                </select>
+              </div>
+              <div class="form-group">
                 <label>Keterangan</label>
-                <textarea class="form-control" name="description" rows="3">{{ $project->description }}</textarea>
+                <textarea class="form-control" name="description" rows="3">{{ $project_detail->description }}</textarea>
               </div>        
               <div class="box-footer">
                 <button type="submit" class="btn btn-primary">Simpan</button>
-                <a href="/project/" class="btn btn-warning">Kembali</a>
+                <a href="{{ url('/')}}/project/" class="btn btn-warning">Kembali</a>
               </div>
               </form>
               <!-- /.form-group -->

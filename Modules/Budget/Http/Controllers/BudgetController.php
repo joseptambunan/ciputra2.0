@@ -8,7 +8,8 @@ use Illuminate\Routing\Controller;
 use Modules\Budget\Entities\Budget;
 use Modules\Project\Entities\Project;
 use Modules\Project\Entities\ProjectKawasan;
-use App\Traits\Approval;
+use Modules\Approval\Entities\Approval;
+use Modules\Approval\Entities\ApprovalHistory;
 use Modules\Pekerjaan\Entities\Itempekerjaan;
 use Modules\Budget\Entities\BudgetDetail;
 use Modules\Budget\Entities\BudgetTahunan;
@@ -16,6 +17,9 @@ use Modules\Budget\Entities\BudgetTahunanDetail;
 use Modules\Budget\Entities\BudgetTahunanPeriode;
 use Modules\Budget\Entities\BudgetCarryOver;
 use Modules\Budget\Entities\BudgetHistoryHpp;
+use Modules\Project\Entities\ProjectPtUser;
+use Modules\Department\Entities\Department;
+use Modules\Pt\Entities\Pt;
 
 class BudgetController extends Controller
 {
@@ -45,7 +49,8 @@ class BudgetController extends Controller
     {
         $project = Project::find($request->id);
         $user= \Auth::user();
-        return view('budget::create_budget_project',compact("project","user"));
+        $department = Department::get();
+        return view('budget::create_budget_project',compact("project","user","department"));
     }
 
     /**
@@ -56,19 +61,23 @@ class BudgetController extends Controller
     public function store(Request $request)
     {
         $budget = new Budget;
-        $number = \App\Helpers\Document::new_number('BDG', $request->department);
+        $project_pt = ProjectPtUser::find($request->pt_id);
+        $pt = Pt::find($request->pt_id);
+
+        $number = \App\Helpers\Document::new_number('BDG', $request->department).$pt->code;
         $budget->pt_id = $request->pt_id;
         $budget->department_id = $request->department;
         $budget->project_id = $request->project_id;
         if ( $request->iskawasan == "" ){
             $budget->project_kawasan_id = null;
         }else{
-            $budget->project_kawasan_id = $request->project_kawasan_id;
+            $budget->project_kawasan_id = $request->kawasan;
         }
         $budget->no = $number;
         $budget->start_date = $request->start_date;
         $budget->end_date = $request->end_date;
         $budget->description = $request->description;
+        $budget->created_by = \Auth::user()->id;
         $budget->save();
 
         //$approval = \App\Helpers\Document::make_approval('Modules\Budget\Entities\Budget',$budget->id);
@@ -84,7 +93,8 @@ class BudgetController extends Controller
         $budget = Budget::find($request->id);
         $user   = \Auth::user();
         $project = Project::find($request->session()->get('project_id'));
-        return view('budget::show',compact("user","budget","project"));
+        $department = Department::get();
+        return view('budget::show',compact("user","budget","project","department"));
     }
 
     /**
@@ -105,6 +115,8 @@ class BudgetController extends Controller
         $budget->end_date = $request->end_date;
         $budget->description = $request->description;
         $budget->save();
+
+        
         return redirect("budget/detail/?id=".$budget->id);
     }
 
@@ -129,7 +141,8 @@ class BudgetController extends Controller
         $budget = Budget::find($request->id);
         $user = \Auth::user();
         $itempekerjaan = Itempekerjaan::where("parent_id",null)->get();
-        return view("budget::item",compact("budget","user","itempekerjaan"));
+        $project = Project::find($request->session()->get('project_id'));
+        return view("budget::item",compact("budget","user","itempekerjaan","project"));
     }
 
     public function itemdetail(Request $request){
@@ -139,20 +152,20 @@ class BudgetController extends Controller
         foreach ( $itempekerjaan->child_item as $key3 => $value3 ){            
             if ( count($value3->child_item) > 0 ){
                 $html .= "<tr>";
-                $html .= "<td><strong>".$value3->code."</strong></td>";
+                $html .= "<td><strong>".$value3->code.".00</strong></td>";
                 $html .= "<td style='background-color: white;color:black;' onclick='showhide(".$value3->id.")' data-attribute='1' id='btn_".$value3->id."'>".$value3->name."</td>";
-                 $html .= "<td><input type='hidden' class='form-control item_budget' name='item_id[".$start."]' value='".$value3->id."'/><input type='text' class='form-control' name='volume_[".$start."]' value=''/><input type='hidden' class='form-control' name='code[".$start."]' value='".$value3->code."'/></td>";
+                 $html .= "<td><input type='hidden' class='form-control item_budget nilai_budget' name='item_id[".$start."]' value='".$value3->id."'/><input type='text' class='form-control nilai_budget' name='volume_[".$start."]' value=''/><input type='hidden' class='form-control' name='code[".$start."]' value='".$value3->code."'/></td>";
                     $html .= "<td><input type='text' class='form-control' name='satuan_[".$start."]' value=''/></td>";
                     $html .= "<td><input type='text' class='nilai_budget form-control' name='nilai_[".$start."]' value=''/></td>";
                 $html .= "</tr>";
                 $start++;
             }else{
                 $html .= "<tr>";
-                $html .= "<td><strong>".$value3->code."</strong></td>";
+                $html .= "<td><strong>".$value3->code.".00</strong></td>";
                 $html .= "<td style='background-color: white;color:black;' onclick='showhide(".$value3->id.")' data-attribute='1' id='btn_".$value3->id."'>".$value3->name."</td>";
-                $html .= "<td><input type='hidden' class='form-control' name='item_id[".$start."]' value='".$value3->id."'/><input type='hidden' class='form-control' name='code[".$start."]' value='".$value3->code."'/><input type='text' class='form-control' name='volume_[".$start."]' value=''/></td>";
+                $html .= "<td><input type='hidden' class='form-control ' name='item_id[".$start."]' value='".$value3->id."'/><input type='hidden' class='form-control' name='code[".$start."]' value='".$value3->code."'/><input type='text' class='form-control nilai_budget' name='volume_[".$start."]'/></td>";
                 $html .= "<td><input type='text' class='form-control' name='satuan_[".$start."]' value=''/></td>";
-                $html .= "<td><input type='text' class='form-control' name='nilai_[".$start."]' value=''/></td>";
+                $html .= "<td><input type='text' class='form-control nilai_budget' name='nilai_[".$start."]' value=''/></td>";
                 $html .= "</tr>";
                 $start++;  
             }
@@ -168,21 +181,30 @@ class BudgetController extends Controller
 
     public function itemsave(Request $request){
         foreach ($request->item_id as $key => $value) {
-            $budgetDetail = new BudgetDetail;
-            $budgetDetail->budget_id = $request->budget_id;
-            $budgetDetail->itempekerjaan_id = $request->item_id[$key];
-            $budgetDetail->nilai = $request->nilai_[$key];
-            $budgetDetail->volume = $request->volume_[$key];
-            $budgetDetail->satuan = $request->satuan_[$key];
-            $budgetDetail->save();
+            if ( $request->volume_[$key] != "" && $request->nilai_[$key] != "" ){
+
+                $budgetDetail = new BudgetDetail;
+                $budgetDetail->budget_id = $request->budget_id;
+                $budgetDetail->itempekerjaan_id = $request->item_id[$key];
+                $budgetDetail->nilai = str_replace(",", "", $request->nilai_[$key]);
+                $budgetDetail->volume = str_replace(",", "", $request->volume_[$key]);
+                $budgetDetail->satuan = $request->satuan_[$key];
+                $budgetDetail->save();
+            }
         }
         return redirect("budget/detail/?id=".$request->budget_id);
     }
 
     public function itemupdate(Request $request){
-        $budgetDetail = BudgetDetail::find($request->id);
-        $budgetDetail->nilai = $request->nilai;
-        $budgetDetail->volume = $request->volume;
+        if ( $request->id != ""){
+            $budgetDetail = BudgetDetail::find($request->id);
+        }else{
+            $budgetDetail = new BudgetDetail;
+            $budgetDetail->budget_id = $request->budget_id;
+            $budgetDetail->itempekerjaan_id = $request->itempekerjaan;
+        }
+        $budgetDetail->nilai = str_replace(",", "",$request->nilai);
+        $budgetDetail->volume = str_replace(",", "",$request->volume);
         $status = $budgetDetail->save();
         if ( $status ){
             return response()->json( ["status" => "0"]);
@@ -213,14 +235,16 @@ class BudgetController extends Controller
         $user = \Auth::user();
         $start_date = $budget->start_date->year;
         $end_date = $budget->end_date->year;
-        return view("budget::cashflow",compact("budget","user","start_date","end_date"));
+        $project = Project::find($request->session()->get('project_id'));
+        return view("budget::cashflow",compact("budget","user","start_date","end_date","project"));
     }
 
     public function addcashflow(Request $request){
         $budget = Budget::find( $request->budget_id);
+        $pt = ProjectPtUser::find($budget->pt_id);
         $budget_tahunan                 = new BudgetTahunan;
         $budget_tahunan->budget_id      = $request->budget_id;
-        $budget_tahunan->no             = \App\Helpers\Document::new_number('BDG-T', $budget->department->id);
+        $budget_tahunan->no             = \App\Helpers\Document::new_number('BDG-T', $budget->department->id).$pt->pt->code;
         $budget_tahunan->tahun_anggaran = $request->tahun_anggaran;
         $budget_tahunan->description    = $request->description;
         $status = $budget_tahunan->save();
@@ -228,9 +252,9 @@ class BudgetController extends Controller
             $budgetDetail = new BudgetTahunanDetail;
             $budgetDetail->budget_tahunan_id = $budget_tahunan->id;
             $budgetDetail->itempekerjaan_id = $value->itempekerjaan_id;
-            $budgetDetail->nilai = "0";
-            $budgetDetail->volume = "0";
-            $budgetDetail->satuan = "";
+            $budgetDetail->nilai = $value->nilai;
+            $budgetDetail->volume = str_replace(",", "",$value->volume);
+            $budgetDetail->satuan = str_replace(",", "",$value->satuan);
             $budgetDetail->save();
         }
         return redirect("/budget/cashflow/detail-cashflow?id=".$budget_tahunan->id);
@@ -257,7 +281,7 @@ class BudgetController extends Controller
         }
         foreach ($spk as $key => $value) {
             # code...
-            $spk = \App\Spk::find($value->id);
+            $spk = \Modules\Spk\Entities\Spk::find($value->id);
             $nilai = $spk->nilai;
             if ( ($spk->progresses != "" )) {
                 if ( isset($spk->progresses->first()->itempekerjaan)) {
@@ -296,7 +320,7 @@ class BudgetController extends Controller
             
         }
 
-        return view("budget::detail_cashflow",compact("budget_tahunan","user","budget","start_date","end_date","array_cashflow"));
+        return view("budget::detail_cashflow",compact("budget_tahunan","user","budget","start_date","end_date","array_cashflow","project"));
     }
 
     public function updatecashflow(Request $request){
@@ -311,7 +335,16 @@ class BudgetController extends Controller
         $budget = BudgetTahunan::find($request->budget);
         $itempekerjaan = Itempekerjaan::where("code",$request->id)->first();
         $user = \Auth::user();
-        return view("budget::cashflow_item",compact("budget","itempekerjaan","user"));
+        $project = Project::find($request->session()->get('project_id'));
+        return view("budget::cashflow_item",compact("budget","itempekerjaan","user","project"));
+    }
+
+    public function revitemcashflow(Request $request){
+        $budget = BudgetTahunan::find($request->budget);
+        $itempekerjaan = Itempekerjaan::where("code",$request->id)->first();
+        $user = \Auth::user();
+        $project = Project::find($request->session()->get('project_id'));
+        return view("budget::rev_cashflow_item",compact("budget","itempekerjaan","user","project"));
     }
 
     public function newitemcashflow(Request $request){
@@ -327,19 +360,23 @@ class BudgetController extends Controller
             if ( $request->Volume_[$key] != "" ){
 
                 if ( $request->budgetdetail[$key] != "" ){
-                    $budgetDetail = BudgetTahunanDetail::find($request->budgetdetail[$key]);
-                    $budgetDetail->nilai = str_replace(",", "",$request->nilai_[$key]);
-                    $budgetDetail->volume = $request->Volume_[$key];
-                    $budgetDetail->satuan = $request->satuan_[$key];
-                    $budgetDetail->save();
+                    if ( $request->Volume_[$key] != "" && $request->nilai_[$key] != "" ){
+                        $budgetDetail = BudgetTahunanDetail::find($request->budgetdetail[$key]);
+                        $budgetDetail->nilai = str_replace(",", "",$request->nilai_[$key]);
+                        $budgetDetail->volume = str_replace(",", "",$request->Volume_[$key]);
+                        $budgetDetail->satuan = $request->satuan_[$key];
+                        $budgetDetail->save();
+                    }
                 }else{
-                    $budgetDetail = new BudgetTahunanDetail;
-                    $budgetDetail->budget_tahunan_id = $request->budget_id;
-                    $budgetDetail->itempekerjaan_id = $request->item_id[$key];
-                    $budgetDetail->nilai = str_replace(",", "",$request->nilai_[$key]);
-                    $budgetDetail->volume = $request->Volume_[$key];
-                    $budgetDetail->satuan = $request->satuan_[$key];
-                    $budgetDetail->save();
+                    if ( $request->Volume_[$key] != "" && $request->nilai_[$key] != "" ){
+                        $budgetDetail = new BudgetTahunanDetail;
+                        $budgetDetail->budget_tahunan_id = $request->budget_id;
+                        $budgetDetail->itempekerjaan_id = $request->item_id[$key];
+                        $budgetDetail->nilai = str_replace(",", "",$request->nilai_[$key]);
+                        $budgetDetail->volume = str_replace(",", "",$request->Volume_[$key]);
+                        $budgetDetail->satuan = $request->satuan_[$key];
+                        $budgetDetail->save();
+                    }
                 }
 
             }
@@ -351,7 +388,8 @@ class BudgetController extends Controller
         $budget = BudgetTahunan::find($request->budget);
         $itempekerjaan = Itempekerjaan::where("code",$request->id)->first();
         $user = \Auth::user();
-        return view("budget::cashflow_view_item",compact("budget","itempekerjaan","user"));
+        $project = Project::find($request->session()->get('project_id'));
+        return view("budget::cashflow_view_item",compact("budget","itempekerjaan","user","project"));
     }
 
     public function updateitemcashflow(Request $request){
@@ -438,7 +476,7 @@ class BudgetController extends Controller
 
         foreach ($spk as $key => $value) {
             # code...
-            $spk = \App\Spk::find($value->id);
+            $spk = \Modules\Spk\Entities\Spk::find($value->id);
             $nilai = $spk->nilai;
             if ( ($spk->progresses != "" )) {
                 if ( isset($spk->progresses->first()->itempekerjaan)) {
@@ -471,8 +509,12 @@ class BudgetController extends Controller
 
     public function saverevisi(Request $request){
         $budget_awal = Budget::find($request->budget_id);
+        $budget_awal->deleted_at = date("Y-m-d H:i:s");
+        $budget_awal->save();
+
         $budget = new Budget;
-        $number = \App\Helpers\Document::new_number('BDG-R', $budget_awal->department_id);
+        //$number = \App\Helpers\Document::new_number('BDG-R', $budget_awal->department_id);
+        $number = $budget_awal->no."-R".(Budget::where("parent_id",$budget_awal->id)->count() + 1 );
         $budget->pt_id = $budget_awal->pt_id;
         $budget->department_id = $budget_awal->department_id;
         $budget->project_id = $budget_awal->project_id;        
@@ -632,6 +674,136 @@ class BudgetController extends Controller
             
         }
         return redirect("/budget/cashflow/detail-cashflow?id=".$request->budget_id);
+    }
+
+    public function saverevitem(Request $request){
+        foreach ($request->item_id as $key => $value) {
+            if ( $request->Volume_[$key] != "" ){
+
+                if ( $request->budgetdetail[$key] != "" ){
+                    $budgetDetail = BudgetTahunanDetail::find($request->budgetdetail[$key]);
+                    $budgetDetail->nilai = str_replace(",", "",$request->nilai_[$key]);
+                    $budgetDetail->volume = $request->Volume_[$key];
+                    $budgetDetail->satuan = $request->satuan_[$key];
+                    $budgetDetail->save();
+                }else{
+                    $budgetDetail = new BudgetTahunanDetail;
+                    $budgetDetail->budget_tahunan_id = $request->budget_id;
+                    $budgetDetail->itempekerjaan_id = $request->item_id[$key];
+                    $budgetDetail->nilai = str_replace(",", "",$request->nilai_[$key]);
+                    $budgetDetail->volume = $request->Volume_[$key];
+                    $budgetDetail->satuan = $request->satuan_[$key];
+                    $budgetDetail->save();
+                }
+
+            }
+        }
+
+        $document = BudgetTahunan::find($request->budget_id);
+        $apprival = $document->approval->id;
+        $approval = Approval::find($apprival);
+        if ( $approval != ""){
+            $approval->approval_action_id = "1";
+            $approval->save();
+
+            if ( count($approval->histories) > 0 ){
+                foreach ($approval->histories as $key => $value) {
+                    $histories = ApprovalHistory::find($value->id);
+                    $histories->approval_action_id = "1";
+                    $histories->save();
+                }
+            }else{
+                $approval_references = \Modules\Approval\Entities\ApprovalReference::where('document_type', 'BudgetTahunan')
+                                    ->where('project_id', session('project_id') )
+                                    //->where('pt_id', $pt_id )
+                                    ->where('min_value', '<=', $approval->total_nilai)
+                                    //->where('max_value', '>=', $approval->total_nilai)
+                                    ->orderBy('no_urut','ASC')
+                                    ->get();
+                foreach ($approval_references as $key => $each)  {
+                    /* Departmen ID = 11 is Direksi */
+                    //$department_id = \App\User::find($each->user_id)->details->first()->mappingperusahaan->department_id;
+                    $user_level = \App\User::find($each->user_id)->details->first()->user_level;
+                    if ( /*$department_id == $department_from || */$user_level <= 4 ){
+                        $document->approval_histories()->create([
+                        'no_urut' => $each->no_urut,
+                        'user_id' => $each->user_id,
+                        'approval_action_id' => 1, // open
+                        'approval_id' => $approval->id
+                         ]);
+                    }     
+                }
+            }
+        }else{
+            $budget = $request->id;
+            $class  = "BudgetTahunan";
+            $approval = \App\Helpers\Document::make_approval('Modules\Budget\Entities\BudgetTahunan',$budget);
+        }
+
+       
+        return redirect("budget/cashflow/detail-cashflow/?id=".$request->budget_id);
+    }
+
+    public function edititem(Request $request){
+        $itempekerjaan = Itempekerjaan::find($request->item);
+        $budget = Budget::find($request->id);
+        $user = \Auth::user();
+        $project = Project::find($request->session()->get('project_id'));
+        return view("budget::item_global",compact("user","project","budget","itempekerjaan"));
+    }
+
+    public function saveitem(Request $request){
+        foreach ($request->item_id as $key => $value) {
+            if ( $request->Volume_[$key] != "" ){
+
+                if ( $request->budgetdetail[$key] != "" ){
+                    $budgetDetail = BudgetDetail::find($request->budgetdetail[$key]);
+                    $budgetDetail->nilai = str_replace(",", "",$request->nilai_[$key]);
+                    $budgetDetail->volume = $request->Volume_[$key];
+                    $budgetDetail->satuan = $request->satuan_[$key];
+                    $budgetDetail->save();
+                }else{
+                    $budgetDetail = new BudgetDetail;
+                    $budgetDetail->budget_id = $request->budget_id;
+                    $budgetDetail->itempekerjaan_id = $request->item_id[$key];
+                    $budgetDetail->nilai = str_replace(",", "",$request->nilai_[$key]);
+                    $budgetDetail->volume = $request->Volume_[$key];
+                    $budgetDetail->satuan = $request->satuan_[$key];
+                    $budgetDetail->save();
+                }
+
+            }
+        }
+        return redirect("budget/detail/?id=".$request->budget_id);
+    }
+
+    public function approval_history(Request $request){
+        $budget_tahunan = BudgetTahunan::find($request->id);
+        $user = \Auth::user();
+        $project = Project::find($request->session()->get('project_id'));
+        return view("budget::approval_history",compact("user","project","budget_tahunan"));
+    }
+
+    public function draft(Request $request){
+        $budget = Budget::find($request->id);
+        $budget_draft = $budget->draft;
+        $user = \Auth::user();
+        $project = Project::find($request->session()->get('project_id'));
+        return view("budget::budget_draft",compact("user","project","budget_draft","budget"));
+    }
+
+    public function updateapproval(Request $request){
+        $approval = Approval::find($request->approval_id);
+        $approval->approval_action_id = "1";
+        $approval->save();
+
+        $histories = $approval->histories;
+        foreach ($histories as $key => $value) {
+           $approval_history = ApprovalHistory::find($value->id);
+           $approval_history->approval_action_id = "1";
+           $approval_history->save();
+        }
+        return response()->json( ["status" => "0"]);
     }
 
 }

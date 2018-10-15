@@ -46,27 +46,23 @@
                 <label>PT</label>
                 <select class="form-control" name="department">
                   @foreach ( $budget->project->pt_user as $key => $value )
-                    @foreach ( $value->pt->mapping as $key2 => $value2 )
-                      @if ( $value2->pt->id == $budget->pt_id)
-                        <option value="{{ $value2->department->id }}" selected>{{ $value2->pt->name }}</option>
+                      @if ( $value->pt->id == $budget->pt_id)
+                        <option value="{{ $value->pt->id }}" selected>{{ $value->pt->name }}</option>
                       @else
-                        <option value="{{ $value2->department->id }}">{{ $value2->pt->name }}</option>
+                        <option value="{{ $value->pt->id }}">{{ $value->pt->name }}</option>
                       @endif
-                    @endforeach
                   @endforeach
                 </select>
               </div>
               <div class="form-group">
                 <label>Department</label>
                 <select class="form-control" name="department">
-                  @foreach ( $budget->project->pt_user as $key => $value )
-                    @foreach ( $value->pt->mapping as $key2 => $value2 )
-                       @if ( $value2->department->id == $budget->department_id)
-                          <option value="{{ $value2->department->id }}" selected>{{ $value2->department->name }}</option>
-                       @else
-                          <option value="{{ $value2->department->id }}">{{ $value2->department->name }}</option>
-                       @endif
-                    @endforeach
+                  @foreach ( $department as $key => $value )
+                     @if ( $value->id == $budget->department_id)
+                        <option value="{{ $value->id }}" selected>{{ $value->name }}</option>
+                     @else
+                        <option value="{{ $value->id }}">{{ $value->name }}</option>
+                     @endif
                   @endforeach
                 </select>
               </div>
@@ -75,7 +71,7 @@
                 @if ( $budget->project_kawasan_id == "" )
                   <input type="checkbox" name="iskawasan" id="iskawasan" onClick="setkawasan();">
                   <select class="form-control" name="kawasan" id="kawasan" style="display: none;" >
-                    @foreach ( $budget->project->kawasans as $key2 => $value2 )
+                    @foreach ( $budget->project->kawasans as $key2 => $value2 )                    
                     <option value="{{ $value2->id }}">{{ $value2->name }}</option>
                     @endforeach 
                   </select>
@@ -83,7 +79,11 @@
                   <input type="checkbox" name="iskawasan" id="iskawasan" onClick="setkawasan();" checked>
                   <select class="form-control" name="kawasan" id="kawasan">
                     @foreach ( $budget->project->kawasans as $key2 => $value2 )
+                    @if ( $value2->id == $budget->project_kawasan_id )
+                    <option value="{{ $value2->id }}" selected>{{ $value2->name }}</option>
+                    @else                    
                     <option value="{{ $value2->id }}">{{ $value2->name }}</option>
+                    @endif
                     @endforeach 
                   </select>
                 @endif
@@ -108,32 +108,23 @@
                 <button type="submit" class="btn btn-primary">Simpan</button>                
                 @endif
                 <a class="btn btn-warning" href="{{ url('/')}}/budget/proyek/">Kembali</a>
+                @if ( $budget->draft != "")
+                <a href="{{ url('/')}}/budget/draft?id={{ $budget->id }}" class="btn btn-primary">Draft Budget Tambahan</a>
+                @endif
               </div>
               </form>
               <!-- /.form-group -->
             </div>
             <!-- /.col -->
             <div class="col-md-12">
-              <h3>Nilai : Rp. {{ number_format($budget->nilai)}}</h3>
+              <h3>Nilai Dev Cost : Rp. {{ number_format($budget->total_dev_cost)}}</h3>
+              <h3>Nilai Con Cost : Rp. {{ number_format($budget->total_con_cost)}}</h3>
+              <h3>Nilai Budget   : Rp. {{ number_format($budget->nilai)}}</h3>
               <br>
               <div class="col-m-6">
                 @if ( $budget->approval == "" )
                 <a class="btn btn-primary" href="{{ url('/')}}/budget/item-budget?id={{ $budget->id }}">Tambah Item Pekerjaan</a>
                 @endif
-                <select id="budget_coa_id">
-                  <option value="">(pilih coa )</option>
-                  @foreach ( $budget->parent_ids as $key => $value )
-                    @if ( count(\Modules\Pekerjaan\Entities\Itempekerjaan::where("code",$value)->get()) > 0 )
-                      @php $item = \Modules\Pekerjaan\Entities\Itempekerjaan::where("code",$value)->first(); @endphp;
-                      <option value="{{ $item->id or '' }}">{{ $item->name or '' }}</option>
-                      @if ( count($item->child_item) > 0 )
-                        @foreach ( $item->child_item as $key2 => $value2 )
-                          <option value="{{ $value2->id or '' }}">++ {{ $value2->name or '' }}</option>
-                        @endforeach
-                      @endif
-                    @endif
-                  @endforeach
-                </select>
               </div><br><br>
 
               <table class="table" style="padding: 0" id="example3">
@@ -165,16 +156,38 @@
                       @foreach ( $item_1 as $key2 => $value2 )
                         @if ( count($value2->child_item) > 0 )                          
                            @foreach ( $value2->child_item as $key3 => $value3 )
-                            <tr class="item item_id_{{ $value3->id }}">
-                              <td>&nbsp;&nbsp;&nbsp;&nbsp;{{ $value3->code }}</td>
-                              <td>{{ $value3->name }}</td>
-                              <td>&nbsp;</td>
-                              <td>&nbsp;</td>
-                              <td>&nbsp;</td>
-                              <td>&nbsp;</td>
-                              <td>&nbsp;</td>
-                              <td>&nbsp;</td>
-                            </tr>
+                            @php $budgets = Modules\Budget\Entities\BudgetDetail::where("itempekerjaan_id",$value3->id)->where("budget_id",$budget->id)->first() @endphp
+
+                            @if ( isset($budgets->volume))
+                              @if ( $budgets->nilai != "0")
+                              <tr class="item item_id_{{ $value3->id }}">
+                                <td>&nbsp;&nbsp;&nbsp;&nbsp;{{ $value3->code }}</td>                             
+                                <td>{{ $value3->name }}</td>
+                                <td>
+                                  <span id="label_volume_{{ $value3->id }}">{{ number_format($budgets->volume) }}</span>
+                                  <input type="text" name="item_id_{{ $value3->id }}" id="item_id_{{ $value3->id }}" style="display: none;" class="form-control" value="{{ $budgets->id }}">
+                                  <input type="hidden" name="item_pekerjaan_id_{{ $value3->id }}" id="item_pekerjaan_id_{{ $value3->id }}" style="display: none;" class="form-control" value="{{ $value3->id }}">
+                                  <input type="text" name="volume_{{ $value3->id }}" id="volume_{{ $value3->id }}" style="display: none;" class="form-control" value="{{ $budgets->volume }}">
+                                </td>
+                                <td>
+                                  <span id="label_satuan_{{ $value3->id }}">{{ $budgets->satuan }}</span>
+                                  <input type="text" name="satuan_{{ $value3->id }}" id="satuan_{{ $value3->id }}" style="display: none;" class="form-control" value="{{ $budgets->satuan }}">
+                                </td>
+                                <td>
+                                  <span id="label_nilai{{ $value3->id }}">{{ number_format($budgets->nilai) }}</span>
+                                  <input type="text" name="nilai_{{ $value3->id }}" id="nilai_{{ $value3->id }}" style="display: none;" class="form-control" value="{{ $budgets->nilai }}">
+                                </td>
+                                <td>{{ number_format($budgets->nilai * $budgets->volume) }}</td>
+                                <td>
+                                  <a href="{{ url('/')}}/budget/edit-itembudget?id={{ $budget->id}}&item={{ $value3->parent_id }}" class="btn btn-warning">Edit</a>
+                                  <!--button class="btn btn-warning" id="btn_edit1_{{ $value3->id }}" onclick="editview('{{ $value3->id }}');">Edit</button>
+                                  <button class="btn btn-success" id="btn_edit2_{{ $value3->id }}" onclick="saveedit('{{ $value3->id }}');" style="display: none;">Edit</button>
+                                  <button class="btn btn-danger" id="btn_remove_{{ $value3->id }}" onclick="removeedit('{{ $value3->id }}');">Delete</button-->
+                                </td>
+                                <td>&nbsp;</td>
+                              </tr>
+                              @endif
+                            @endif
                             @if ( count($value3->child_item) > 0 )
                               @foreach ( $value3->child_item as $key4 => $value4 )
                                 @if (count(Modules\Budget\Entities\BudgetDetail::where("itempekerjaan_id",$value4->id)->where("budget_id",$budget->id)->get()) > 0 )
@@ -184,8 +197,8 @@
                                   <td>{{ $value4->name }}</td>
                                   <td>
                                     <span id="label_volume_{{ $value4->id }}">{{ number_format($budgets->volume) }}</span>
-                                    <input type="text" name="item_id_{{ $value4->id }}" id="item_id_{{ $value4->id }}" style="display: none;" class="form-control" value="{{ $budget->id }}">
-                                    <input type="text" name="volume_{{ $value4->id }}" id="volume_{{ $value4->id }}" style="display: none;" class="form-control" value="{{ $budget->volume }}">
+                                    <input type="text" name="item_id_{{ $value4->id }}" id="item_id_{{ $budgets->id }}" style="display: none;" class="form-control" value="{{ $budgets->id }}">
+                                    <input type="text" name="volume_{{ $value4->id }}" id="volume_{{ $budgets->id }}" style="display: none;" class="form-control" value="{{ $budgets->volume }}">
                                   </td>
                                   <td>
                                     <span id="label_satuan_{{ $value4->id }}">{{ $budgets->satuan }}</span>
@@ -193,13 +206,21 @@
                                   </td>
                                   <td>
                                     <span id="label_nilai{{ $value4->id }}">{{ number_format($budgets->nilai) }}</span>
-                                    <input type="text" name="nilai_{{ $value4->id }}" id="nilai_{{ $value4->id }}" style="display: none;" class="form-control" value="{{ $budget->nilai }}">
+                                    <input type="text" name="nilai_{{ $value4->id }}" id="nilai_{{ $budgets->id }}" style="display: none;" class="form-control" value="{{ $budgets->nilai }}">
                                   </td>
                                   <td>{{ number_format($budgets->nilai * $budgets->volume) }}</td>
                                   <td>
-                                    <button class="btn btn-warning" id="btn_edit1_{{ $value4->id }}" onclick="editview('{{ $value4->id }}');">Edit</button>
-                                    <button class="btn btn-success" id="btn_edit2_{{ $value4->id }}" onclick="saveedit('{{ $value4->id }}');" style="display: none;">Edit</button>
-                                    <button class="btn btn-danger" id="btn_remove_{{ $value4->id }}" onclick="removeedit('{{ $value4->id }}');">Delete</button>
+                                    @if ( $budgets->approval == "" )
+                                    <button class="btn btn-warning" id="btn_edit1_{{ $budgets->id }}" onclick="editview('{{ $budgets->id }}');">Edit</button>
+                                    <button class="btn btn-success" id="btn_edit2_{{ $budgets->id }}" onclick="saveedit('{{ $budgets->id }}');" style="display: none;">Edit</button>
+                                    <button class="btn btn-danger" id="btn_remove_{{ $value4->id }}" onclick="removeedit('{{ $budgets->id }}');">Delete</button>
+                                    @else
+                                      @if ( $budgets->approval->approval_action_id != "7")
+                                      <button class="btn btn-warning" id="btn_edit1_{{ $budgets->id }}" onclick="editview('{{ $budgets->id }}');">Edit</button>
+                                      <button class="btn btn-success" id="btn_edit2_{{ $budgets->id }}" onclick="saveedit('{{ $budgets->id }}');" style="display: none;">Edit</button>
+                                      <button class="btn btn-danger" id="btn_remove_{{ $budgets->id }}" onclick="removeedit('{{ $budgets->id }}');">Delete</button>
+                                      @endif
+                                    @endif
                                   </td>
                                   <td>&nbsp;</td>
                                 </tr>

@@ -4,7 +4,7 @@ Route::group(['middleware' => 'web', 'prefix' => 'progress', 'namespace' => 'Mod
 {
     Route::get('/', 'ProgressController@index');
     Route::get('/show', 'ProgressController@show');
-    Route::get('/create', 'ProgressController@update');
+    Route::get('/create', 'ProgressController@create');
     Route::post('/saveprogress','ProgressController@saveprogress');
     Route::post('/updatetermyn','ProgressController@edit');
 });

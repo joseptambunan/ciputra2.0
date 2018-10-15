@@ -42,7 +42,7 @@
                       <input type="hidden" class="form-control" name="country" value="{{ $country->id }}">
                       <div class="form-group">
                           <label for="exampleInputEmail1">Provinsi</label>
-                          <input type="text" class="form-control" name="province">
+                          <input type="text" class="form-control" name="province" autocomplete="off">
                       </div>
                       <div class="box-footer">
                         <button type="submit" class="btn btn-primary">Simpan</button>
@@ -66,7 +66,7 @@
                       </div>
                       <div class="form-group">
                           <label for="exampleInputEmail1">Kota</label>
-                          <input type="text" class="form-control" name="city">
+                          <input type="text" class="form-control" name="city" autocomplete="off">
                       </div>
                       <div class="box-footer">
                         <button type="submit" class="btn btn-primary">Simpan</button>

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Modules\Division\Entities\Division;
+use Modules\Project\Entities\Project;
 
 class DivisionController extends Controller
 {
@@ -23,7 +24,8 @@ class DivisionController extends Controller
     {
         $user = \Auth::user();
         $divisions = Division::orderBy("id","desc")->get();
-        return view('division::index',compact("user","divisions"));
+        $project = Project::get();
+        return view('division::index',compact("user","divisions","project"));
     }
 
     /**

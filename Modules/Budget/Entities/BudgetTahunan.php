@@ -14,9 +14,18 @@ class BudgetTahunan extends Model
 
     public function scopeProject()
     {
-        return $this->whereHas('budget', function($q){
-            $q->where('project_id', session('project'));
-        });
+       /* return $this->whereHas('budget', function($q){
+            $q->where('project_id', session('project_id'));
+        });*/
+        return $this->budget->project->name;
+    }
+
+     public function scopeKawasan()
+    {
+       /* return $this->whereHas('budget', function($q){
+            $q->where('project_id', session('project_id'));
+        });*/
+        return $this->budget->kawasan->name;
     }
 
 
@@ -137,7 +146,14 @@ class BudgetTahunan extends Model
             $bulanan = $this->monthly;
             if ( $bulanan != "" ){
                 foreach ($bulanan as $key2 => $value2) {
-                    if ( $item_id[$i] == $value2->itempekerjaan->code ){
+                    $explode2 = explode(".", $value2->itempekerjaan->code);
+                    if ( count($explode2) > 0 ){
+                        $params = $explode2[0];
+                    }else{
+                        $params = $value2->itempekerjaan->code;
+                    }
+
+                    if ( $item_id[$i] == $params ){
                             $arrayResult[$i] = array(
                             "id" => $value2->id,
                             "code" => $item_id[$i],
@@ -170,7 +186,7 @@ class BudgetTahunan extends Model
         foreach ($this->details as $key => $value) {
             # code...
             $code = explode(".",$value->itempekerjaans->code);
-            $nilai[$key] = $code[0];
+            $nilai[$key] = $code[0].".".$code[1];
         }
         
         $uniqe      = array_unique($nilai);
@@ -181,27 +197,56 @@ class BudgetTahunan extends Model
         $satuan = "";
         $id = "";
         $total = 0;
+        $total_unit_price = 0;
         $arrayResult = array();
         for ( $i=0; $i<count($item_id); $i++ ){
             $total_volume = 0;
             $total_nilai = 0;
             $total = 0;
+            $total_unit_price = 0;
             $id = "";
             $itempekerjaan = \Modules\Pekerjaan\Entities\Itempekerjaan::where("code","like",$item_id[$i]."%")->get();
             foreach ($itempekerjaan as $key => $value) {
                 $budgets = \Modules\Budget\Entities\BudgetTahunanDetail::where("itempekerjaan_id",$value->id)->where("budget_tahunan_id",$this->id)->first();
                 if ( isset($budgets->volume)){
-                    $total_nilai = $total_nilai + $budgets->nilai;
+                    $total_nilai = $total_nilai + ( $budgets->volume * $budgets->nilai); //$budgets->nilai;
                     $total_volume = $total_volume + $budgets->volume;
+                    $total_unit_price = $total_unit_price + $budgets->nilai;
                     $satuan = $budgets->satuan;
                     $id = $value->id;
                 }
             }
-            $arrayResult[$i] = array("code" => $item_id[$i], "nilai" => $total_nilai, "volume" => $total_volume, "satuan" => $satuan, "id" => $id, "total" => "");
+            $arrayResult[$i] = array("code" => $item_id[$i], "nilai" => $total_nilai, "volume" => $total_volume, "satuan" => $satuan, "id" => $id, "total" => $total_unit_price);
         }
         return $arrayResult;
 
         
     }
-   
+
+    public function getProjectAttribute(){
+        return $this->budget->project;
+    }
+    
+    public function getTotalDevCostAttribute(){
+        $nilai = 0;
+        foreach ($this->details as $key => $value) {
+            # code...
+            if ( \Modules\Pekerjaan\Entities\Itempekerjaan::find($value->itempekerjaan_id)->group_cost == "1"){
+                $nilai = $nilai + ( $value->volume * $value->nilai);
+            }
+        }
+        return $nilai ;
+    }
+
+    public function getTotalConCostAttribute(){
+        $nilai = 0;
+        foreach ($this->details as $key => $value) {
+            # code...
+            if ( \Modules\Pekerjaan\Entities\Itempekerjaan::find($value->itempekerjaan_id)->group_cost == "2"){
+                $nilai = $nilai + ( $value->volume * $value->nilai);
+            }
+        }
+        return $nilai ;
+    }
+
 }

@@ -6,6 +6,8 @@
               'X-CSRF-Token': $('input[name=_token]').val()
           }
         });
+
+        $(".nilai_budget").number(true);
     });
 
   function setkawasan(){
@@ -70,7 +72,7 @@
   function removeedit(id){
     if ( confirm("Apakah anda yakin ingin menghapus data ini ? ")){
       var request = $.ajax({
-        url : "/budget/removeitem",
+        url : "/budget/delete-itembudget",
         dataType : "json",
         data : {
           id : id
@@ -111,6 +113,8 @@
         volume : $("#volume_" +id).val(),
         satuan : $("#satuan_" +id).val(),
         nilai : $("#nilai_" +id).val(),
+        itempekerjaan : $("#item_pekerjaan_id_" + id).val(),
+        budget_id : $("#budget_id").val()
       },
       type : "post"
     });

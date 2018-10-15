@@ -45,7 +45,7 @@ class Unit extends CustomModel
 
     public function templatepekerjaan()
     {
-        return $this->belongsTo('Modules\Pekerjaan\Entities\Templatepekerjaan');
+        return $this->belongsTo('Modules\Project\Entities\Templatepekerjaan');
     }
 
     public function pt()

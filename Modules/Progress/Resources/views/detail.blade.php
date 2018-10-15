@@ -41,7 +41,6 @@
                     <input type="text" class="form-control" name="document" value="{{ $spk->name}}" readonly>
                 </div>      
                 <div class="form-group">
-                  <a href="{{ url('/')}}/progress/create?id={{$spk->id}}" class="btn btn-primary">Buat Progress</a>
                   <a href="{{ url('/') }}/progress/" class="btn btn-warning">Kembali</a>
                 </div>         
               </div>
@@ -51,49 +50,30 @@
                 <table class="table table-bordered">
                   <thead class="head_table">
                     <tr>
-                      <td>Item Pekerjaan</td>                      
-                      @for ( $i=1; $i <= $minggu; $i++)
-                      <td>Minggu {{ $i }}</td>
-                      @endfor
-                    </tr>
+                      <td>Unit Name</td>                      
+                      <td>Progress Saat Ini (%)</td>
+                      <td>Tambah Progress</td>
+                    </tr>                   
+
                   </thead>
                   <tbody>
-                    @foreach ( $spk->termyn as $key => $value )
-                    <tr style="background-color: grey;color:white;font-weight: bolder;">
+                    <tr>
+                      <td>Rata2</td>
                       <td>
-                        Termin : {{ $value->termin }}
-                        @php $total_termin = 0 ; @endphp
-                        @foreach ( $spk->tender_rekanan->menangs->first()->details as $key8 => $value8 )
-                        @php 
-                          $itempekerjaan = \Modules\Pekerjaan\Entities\Itempekerjaan::find($value8->itempekerjaan_id);
-                          $unitprogress  = \Modules\Project\Entities\UnitProgress::where("itempekerjaan_id",$itempekerjaan->id)->where("unit_id",$spk->tender_rekanan->menangs->first()->id)->get()->first();
-                        @endphp
-                          @foreach ( \Modules\Project\Entities\UnitProgressDetail::where("termyn",$value->termin)->where("unit_progress_id",$unitprogress->id)->get() as $key5 => $value5 )
-                            @php $total_termin = $total_termin +  $value5->progress_percent; @endphp
-                          @endforeach
+                        @php $nilai=0; @endphp
+                        @foreach ( $spk->tender->units as $key => $value )
+                          @php $nilai = $nilai + ( $value->progress * count($spk->details) ); @endphp
                         @endforeach
-
-                        @if ( $value->status == "1")
-                          @if ( $total_termin > $value->progress)
-                          <button class="btn btn-warning" onClick="updateProgress('{{$spk->id}}','{{ $value->id}}','{{ $value->termin}}')">Set Termin {{ $value->termin }} Selesai</button>
-                          @endif
-                        @endif
-
+                        {{ number_format($nilai / count($spk->tender->units) ,2) }} %
                       </td>
-                      <td colspan="{{ ($minggu)}}"></td>
+                      <td>&nbsp;</td>
                     </tr>
-                    @foreach ( $spk->tender_rekanan->menangs->first()->details as $key2 => $value2 )
-                      @php 
-                      $itempekerjaan = \Modules\Pekerjaan\Entities\Itempekerjaan::find($value2->itempekerjaan_id);
-                      $unitprogress  = \Modules\Project\Entities\UnitProgress::where("itempekerjaan_id",$itempekerjaan->id)->where("unit_id",$spk->tender_rekanan->menangs->first()->id)->get()->first();
-                      @endphp
-                      <tr>
-                        <td>{{ $itempekerjaan->name }}</td>
-                        @foreach ( \Modules\Project\Entities\UnitProgressDetail::where("termyn",$value->termin)->where("unit_progress_id",$unitprogress->id)->get() as $key4 => $value4 )
-                        <td>{{ $value4->progress_percent }} </td>
-                        @endforeach
-                      </tr>
-                    @endforeach
+                    @foreach ( $spk->tender->units as $key => $value )
+                    <tr>
+                      <td>{{ $value->rab_unit->asset->name }}</td>
+                      <td>{{ number_format($value->progress * count($spk->details),2) }}</td>
+                      <td><a class="btn btn-primary" href="{{ url('/')}}/progress/create?id={{ $value->id }}&spk={{ $spk->id }}">Tambah Progress</a></td>
+                    </tr>
                     @endforeach
                   </tbody>
                 </table>

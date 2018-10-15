@@ -8,6 +8,7 @@ use Illuminate\Routing\Controller;
 use Modules\Country\Entities\Country;
 use Modules\Country\Entities\Province;
 use Modules\Country\Entities\City;
+use Modules\Project\Entities\Project;
 
 class CountryController extends Controller
 {
@@ -25,7 +26,8 @@ class CountryController extends Controller
     {
         $user = \Auth::user();
         $country = Country::get();
-        return view('country::index',compact("user","country"));
+        $project = Project::get();
+        return view('country::index',compact("user","country","project"));
     }
 
     /**
@@ -84,7 +86,8 @@ class CountryController extends Controller
     public function detail(Request $request){
         $country = Country::find($request->id);
         $user = \Auth::user();
-        return view('country::detail',compact("user","country"));
+        $project = Project::get();
+        return view('country::detail',compact("user","country","project"));
     }
 
     public function addProvince(Request $request){

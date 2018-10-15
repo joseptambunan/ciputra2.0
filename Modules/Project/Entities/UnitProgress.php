@@ -77,4 +77,34 @@ class UnitProgress extends CustomModel
             $q->whereGroupCost(1); 
         });
     }
+
+    public function getNilaiTotalAttribute(){
+        $nilai = 0;
+        foreach ($this->spkvo_unit as $key => $value) {
+           $nilai = $nilai + $value->nilai_total;
+        }
+        return $nilai;
+    }
+
+    public function getProgresSebelumnyaAttribute(){
+        $nilai = 0;
+        $sebelumnya = strtotime("now");
+
+        foreach ($this->details as $key => $value) {
+            if ( ($key + 1 ) < count($this->details) ){
+                $nilai = $value->progress_percent * 100;
+            }
+            
+        }
+        return $nilai ;
+    }
+
+    public function getBobotRabAttribute(){
+        $nilai = 0;
+        if ( isset($this->spkvo_unit->spk_detail)){            
+            $volume = $this->spkvo_unit->spk_detail->spk->tender->rab->pekerjaans->where("itempekerjaan_id",$this->itempekerjaan_id)->first()->volume;
+            $nilai  = $this->spkvo_unit->spk_detail->spk->tender->rab->pekerjaans->where("itempekerjaan_id",$this->itempekerjaan_id)->first()->nilai;
+            return (( $volume * $nilai ) / $this->spkvo_unit->spk_detail->spk->tender->rab->nilai ) * 100 ;
+        }
+    }
 }

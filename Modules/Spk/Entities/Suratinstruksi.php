@@ -46,4 +46,9 @@ class Suratinstruksi extends CustomModel
     {
         return $this->spk->nilai;
     }
+
+    public function units(){
+        return $this->hasMany("\Modules\Spk\Entities\SuratInstruksiUnit");
+    }
+    
 }

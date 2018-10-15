@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace Modules\Rekanan\Entities;
 
 use App\CustomModel;
 

@@ -44,35 +44,43 @@
               </div>
               <div class="form-group">
                 <label>Kode Proyek</label>
-                <input type="text" class="form-control" name="code">
+                <input type="text" class="form-control" name="code" autocomplete="off">
               </div>
               <div class="form-group">
                 <label>Nama Proyek</label>
-                <input type="text" class="form-control" name="name">
+                <input type="text" class="form-control" name="name" autocomplete="off">
               </div>
               <div class="form-group">
                 <label>Luas Brutto(m2)</label>
-                <input type="text" class="form-control" name="luas" id="luas">
+                <input type="text" class="form-control" name="luas" id="luas" autocomplete="off">
               </div>
               <div class="form-group">
                 <label>Telepon Proyek</label>
-                <input type="text" class="form-control" name="phone">
+                <input type="text" class="form-control" name="phone" autocomplete="off">
               </div>
               <div class="form-group">
                 <label>Fax Proyek</label>
-                <input type="text" class="form-control" name="fax">
+                <input type="text" class="form-control" name="fax" autocomplete="off">
               </div>
               <div class="form-group">
                 <label>Email Proyek</label>
-                <input type="text" class="form-control" name="email">
+                <input type="text" class="form-control" name="email" autocomplete="off">
               </div>
               <div class="form-group">
                 <label>Alamat Proyek</label>
                 <textarea class="form-control" name="address" rows="3"></textarea>
               </div>  
               <div class="form-group">
+                <label>Kota</label>
+                <select class="form-control" name="city_id" required>
+                  @foreach( $cities as $data => $value )
+                  <option value="{{ $value->id}}">{{ $value->name}}</option>
+                  @endforeach
+                </select>
+              </div> 
+              <div class="form-group">
                 <label>Kode Pos Proyek</label>
-                <input type="text" class="form-control" name="zipcode">
+                <input type="text" class="form-control" name="zipcode" autocomplete="off">
               </div> 
               <div class="form-group">
                 <label>Keterangan</label>

@@ -30,74 +30,42 @@
         <!-- /.box-header -->
         <div class="box-body">
           <div class="row">
+            <div class="col-md-12">
               <a href="{{ url('/')}}/tender/detail/?id={{ $tender->id }}" class="btn btn-warning">Kembali</a>
-              <form action="{{ url('/')}}/tender/penawaran-save2" method="post" name="form1">
-              <input type="hidden" name="tender_id" value="{{ $tender->id }}">
-              {{ csrf_field() }}
-              <table class="table table-bordered">
-               <thead class="head_table">
-                 <tr>
-                  <td>COA Pekerjaan</td>
-                  <td>Item Pekerjaan</td>
-                  <td>Volume</td>
-                  <td>Satuan</td>
-                  <td>Nilai</td>
-                 </tr>
-               </thead>
-               @if ( $itempekerjaan != "" )
-               <tbody>                          
-                <tr>
-                  <td><strong>{{ $itempekerjaan->code }}</strong></td>
-                  <td><strong>{{ $itempekerjaan->name }}</strong></td>
-                  <td>&nbsp;</td>
-                  <td>&nbsp;</td>
-                </tr>
-                @php $start = 0; @endphp
-                @foreach ( $itempekerjaan->child_item as $key3 => $value3 )
-                
-                  
-                @if ( count($value3->child_item) > 0 )
-                  @foreach ( $value3->child_item as $key4 => $value4 )
-                    @if ( count(Modules\Rab\Entities\RabPekerjaan::where('itempekerjaan_id',$value4->id)->get()) > 0 )  
-                    <tr class="class_{{ $value4->id}}">
-                      <td><strong>{{ $value4->code }}</strong></td>
-                      <td style="font-size: 15px;">{{ $value4->name }}</td>
+
+              <form action="{{ url('/')}}/tender/penawaran-save2" method="post" name="form1" enctype="multipart/form-data">
+              <button type="submit" class="btn btn-primary">Simpan</button>
+                <input type="hidden" name="tender_id" value="{{ $tender->id }}">
+                {{ csrf_field() }}
+                <table class="table table-bordered">
+                  <thead class="head_table">
+                   <tr>
+                    <td>COA Pekerjaan</td>
+                    <td>Item Pekerjaan</td>
+                    <td>Volume</td>
+                    <td>Satuan</td>
+                    <td>Nilai</td>
+                   </tr>
+                  </thead>
+                  <tbody>
+                    @php $start=0; @endphp
+                    @foreach( $tender->rab->pekerjaans as $key => $value )
+                    <tr>
+                      <td>{{ $value->itempekerjaan->code }}</td>
+                      <td>{{ $value->itempekerjaan->name }}</td>
+                      <td><input type="hidden" name="input_rab_id_[{{ $key}}]" class="form-control" value="{{ $value->id }}"><input  type="text" name="input_rab_volume_[{{ $key}}]" id="input_rab_volume_{{ $key}}" class="form-control" value="{{ $value->volume }}" style="width: 100%;"></td>
                       <td>
-                          <input type="hidden" name="input_rab_id_[{{ $start}}]" class="form-control" value="{{ Modules\Rab\Entities\RabPekerjaan::where('itempekerjaan_id',$value4->id)->get()->first()->id }}">
-                          <input type="text" name="input_rab_volume_[{{ $start }}]" class="form-control vol">
+                        <input  type="hidden" name="input_rab_satuan_[{{ $key}}]"  id="input_rab_satuan_{{ $key}}" class="form-control" value="{{ $value->satuan }}" style="width: 100%;">
+                        <input  type="text" class="form-control" value="{{ $value->satuan }}" style="width: 100%;" readonly>
                       </td>
-                      <td><input  type="text" name="input_rab_satuan_[{{ $start }}]" class="form-control" value="{{ Modules\Rab\Entities\RabPekerjaan::where('itempekerjaan_id',$value4->id)->get()->first()->satuan }}" readonly></td>
-                      <td><input type="text" name="input_rab_nilai_[{{ $start }}]" class="form-control vol" ></td>
+                      <td><input type="text" name="input_rab_nilai_[{{ $key}}]"  id="input_rab_nilai_{{ $key}}" class="form-control vol" onKeyUp="showSummary('{{ $key}}')" readonly></td>
                     </tr>
-                    @endif
-                    @php $start++; @endphp
-                    @if ( count($value4->child_item) > 0 )
-                      @foreach ( $value4->child_item as $key5 => $value5 )  
-                        @if ( count(Modules\Rab\Entities\RabPekerjaan::where('itempekerjaan_id',$value5->id)->get()) > 0 )                         
-                        <tr class="class_{{ $value3->id}}">
-                          <td><strong>{{ $value5->code }}</strong></td>
-                          <td>                                    
-                              {{ $value5->name }}                             
-                          </td>
-                          <td>
-                              <input type="hidden" name="input_rab_id_[{{ $start}}]" class="form-control" value="{{ Modules\Rab\Entities\RabPekerjaan::where('itempekerjaan_id',$value5->id)->get()->first()->id }}">
-                              <input type="text" name="input_rab_volume_[{{ $start}}]" class="form-control vol" >
-                          </td>
-                          <td><input  type="text" name="input_rab_satuan_[{{ $start}}]" class="form-control" value="{{ Modules\Rab\Entities\RabPekerjaan::where('itempekerjaan_id',$value4->id)->get()->first()->satuan }}" readonly></td>
-                          <td><input type="text" name="input_rab_nilai_[{{ $start}}]" class="form-control vol" ></td>
-                        </tr>
-                        @php $start++; @endphp
-                        @endif
-                      @endforeach
-                    @endif
-                  @endforeach
-                @endif
-                @endforeach
-              </tbody>
-              @endif
-            </table>
-            <button type="submit" class="btn btn-primary">Simpan</button>
-            </form>
+                    @php $start = $key; @endphp
+                    @endforeach
+                  </tbody>
+                </table>
+              </form>
+            </div>              
           </div>
           <!-- /.row -->
         </div>

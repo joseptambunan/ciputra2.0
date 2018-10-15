@@ -33,11 +33,11 @@
                   {{ csrf_field() }}                  
                   <div class="form-group">
                       <label for="exampleInputEmail1">Username</label>
-                      <input type="text" class="form-control" name="username" required>
+                      <input type="text" class="form-control" name="username" autocomplete="off" required>
                   </div>
                   <div class="form-group">
                       <label for="exampleInputEmail1">Userlogin</label>
-                      <input type="text" class="form-control" name="userlogin" required>
+                      <input type="text" class="form-control" name="userlogin" autocomplete="off" required>
                   </div>
                   <div class="form-group">
                       <label for="exampleInputEmail1">Rekanan</label>
@@ -48,15 +48,15 @@
                   </div>
                   <div class="form-group">
                       <label for="exampleInputEmail1">Email</label>
-                      <input type="email" class="form-control" name="email">
+                      <input type="email" class="form-control" name="email" autocomplete="off">
                   </div>
                   <div class="form-group">
                       <label for="exampleInputEmail1">Phone</label>
-                      <input type="text" class="form-control" name="phone">
+                      <input type="text" class="form-control" name="phone" autocomplete="off">
                   </div>
                   <div class="form-group">
                       <label for="exampleInputEmail1">Password</label>
-                      <input type="text" class="form-control" name="password">
+                      <input type="text" class="form-control" name="password" autocomplete="off">
                   </div>
                   <div class="form-group">
                       <label for="exampleInputEmail1">Description</label>

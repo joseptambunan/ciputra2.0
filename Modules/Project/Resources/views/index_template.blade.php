@@ -42,7 +42,7 @@
                   </div>
                   <div class="form-group">
                       <label for="exampleInputEmail1">Luas Bangunan(m2)</label>
-                      <input type="text" class="form-control" name="lb" id="lb" max="{{ $unit_type->luas_tanah}}" onKeyup="luasbangunan();">
+                      <input type="text" class="form-control" name="lb" id="lb" max="{{ $unit_type->luas_bangunan}}" onKeyup="luasbangunan();" value="{{ $unit_type->luas_bangunan}}">
                   </div>
                   <div class="form-group">
                       <label for="exampleInputEmail1">Luas Tanah(m2)</label>
@@ -50,7 +50,7 @@
                       <input type="text" class="form-control" value="{{ $unit_type->luas_tanah }}" readonly>
                   </div>
                   <div class="box-footer">
-                    <button type="submit" class="btn btn-primary" id="submitbntn" disabled>Simpan</button>
+                    <button type="submit" class="btn btn-primary" id="submitbntn">Simpan</button>
                     <a class="btn btn-warning" href="{{ url('/')}}/project/unit-type">Kembali</a>
                   </div>
               	</form>

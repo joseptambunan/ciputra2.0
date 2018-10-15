@@ -63,12 +63,12 @@ class SpkvoUnit extends CustomModel
 
     public function getNilaiDpAttribute()
     {
-        return $this->nilai_total * $this->spk_detail->spk->dp_percent;
+        return $this->nilai_total * ( $this->spk_detail->spk->dp_percent / 100 );
     }
 
     public function getNilaiPpnDpAttribute()
     {
-        return $this->nilai_total * $this->spk_detail->spk->dp_percent * $this->ppn;
+        return $this->nilai_total * ( $this->spk_detail->spk->dp_percent / 100)  * ( $this->ppn / 100);
     }
 
    

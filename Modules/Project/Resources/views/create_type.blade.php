@@ -34,19 +34,27 @@
               <h3 class="box-title">Tambah Data Type</h3>
               <form action="{{ url('/')}}/project/save-type" method="post" name="form1">
                 {{ csrf_field() }}
-              <input type="hidden" name="project_id" name="project_id" value="{{ $project->id }}">
-         
+              <input type="hidden" name="project_id" value="{{ $project->id }}">         
+              
               <div class="form-group">
-                <label>Nama</label>
+                <label>Kode Type</label>
+                <input type="text" class="form-control" name="code"  value="" required>
+              </div>
+              <div class="form-group">
+                <label>Nama Type</label>
                 <input type="text" class="form-control" name="name"  value="">
               </div>
               <div class="form-group">
                 <label>Luas Bangunan(m2)</label>
-                <input type="text" class="form-control" name="luas" id="luas">
+                <input type="text" class="form-control" name="luas" id="luas" required>
               </div>
               <div class="form-group">
                 <label>Luas Tanah(m2)</label>
-                <input type="text" class="form-control" name="luas_tanah" id="luas_tanah">
+                <input type="text" class="form-control" name="luas_tanah" id="luas_tanah" required>
+              </div>
+              <div class="form-group">
+                <label>Elektrik(watt)</label>
+                <input type="text" class="form-control" name="elektrik" id="elektrik" required>
               </div>
               <div class="form-group">
                 <label>Keterangan</label>
@@ -100,6 +108,8 @@
 <script type="text/javascript">
   $(function () {
     $("#luas").number(true);
+    $("#luas_tanah").number(true);
+    $("#elektrik").number(true);
   });
 </script>
 @include("pt::app")

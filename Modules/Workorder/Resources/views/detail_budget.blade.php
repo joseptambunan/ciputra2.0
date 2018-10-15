@@ -31,8 +31,12 @@
         <!-- /.box-header -->
         <div class="box-body">
           <div class="row">
-            <div class="col-md-12"><h3 class="box-title">Detail Data Budget Proyek</h3></div>
- 
+            <div class="col-md-12">
+              <h3 class="box-title">Detail Data Budget Proyek</h3>
+              <h4>Project : <strong>{{ $budget_tahunan->budget->project->name }}</strong></h4>
+              <h4>Kawasan :  <strong>{{ $budget_tahunan->budget->kawasan->name or '' }}</strong></h4>
+            </div>
+            
             <!-- /.col -->
             <div class="col-md-12">
               <br>
@@ -61,22 +65,28 @@
                     </thead>
                     <tbody>
                       @foreach ( $budget_tahunan->total_parent_item as $key => $value )
-                      @if ( count(\Modules\Pekerjaan\Entities\Itempekerjaan::where("code",$value['code'])->get()) > 0 )                       
+                      @if ( count(\Modules\Pekerjaan\Entities\Itempekerjaan::where("code",$value['code'])->get()) > 0 )    
+                      @if ( $value["volume"] > 0 )                   
                         <tr>
                           <td>{{ $value['code'] }}</td>
                           <td>{{ \Modules\Pekerjaan\Entities\Itempekerjaan::where("code",$value['code'])->get()->first()->name }}</td>
-                          <td>{{ number_format($value["volume"] * $value["nilai"]) }}</td>
-                          <td><input type="hidden" name="item_id[{{ $key}}]" class="form-control" value="{{ \Modules\Pekerjaan\Entities\Itempekerjaan::where('code',$value['code'])->get()->first()->id }}"><input type="text" name="volume[{{ $key}}]" class="form-control"></td>
-                          <td><input type="text" name="satuan[{{ $key}}]" class="form-control"></td>
-                          <td><input type="text" name="nilai[{{ $key}}]" class="form-control"></td>   
+                          <td>{{ number_format($value["volume"] * $value['total'],2) }}</td>
+                          <td>
+                            <input type="hidden" name="item_id[{{ $key}}]" class="form-control" value="{{ \Modules\Pekerjaan\Entities\Itempekerjaan::where('code',$value['code'])->get()->first()->id }}">
+                            <input type="text" name="volume[{{ $key}}]" class="form-control nilai_budget" value="{{ number_format($value['volume'],2) }}">
+                          </td>
+                          <td><input type="hidden" name="satuan[{{ $key}}]" class="form-control" value="{{ $value['satuan'] }}"><input type="text" class="form-control" value="{{ $value['satuan'] }}" readonly></td>
+                          <td><input type="text" name="nilai[{{ $key}}]" class="form-control nilai_budget" value="{{ number_format($value['total'],2) }}"></td>   
                           <td><span id="">0</span></td>                       
                         </tr>
-                      
+                      @endif
                       @endif
                       @endforeach
                     </tbody>
                   </table>
                   <button type="submit" class="btn btn-primary">Simpan</button>
+                  <a class="btn btn-warning" href="{{ url('/')}}/workorder/detail?id={{ $workorder->id}}">Kembali</a>
+             
                 </div>
               </div>
               <!-- /.tab-content -->

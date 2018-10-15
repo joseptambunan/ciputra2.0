@@ -31,22 +31,26 @@
         <div class="box-body">
           <div class="row">
             <div class="col-md-6">              
-              <h3 class="box-title">Tambah Data Kawasan</h3>
+              <h3 class="box-title">Tambah Data Blok</h3>
               <form action="{{ url('/')}}/project/save-blok" method="post" name="form1">
                 {{ csrf_field() }}
               <input type="hidden" name="project_id" name="project_id" value="{{ $projectkawasan->project->id }}">
               <input type="hidden" name="projectkawasan" name="projectkawasan" value="{{ $projectkawasan->id }}">
               <div class="form-group">
                 <label>Kawasan</label>
-                <input type="text" class="form-control" value="{{ $projectkawasan->name }}" readonly>
+                <input type="text" class="form-control" value="{{ $projectkawasan->name }}" autocomplete="off" readonly>
               </div>
               <div class="form-group">
-                <label>Nama</label>
-                <input type="text" class="form-control" name="name"  value="">
+                <label>Kode Blok</label>
+                <input type="text" class="form-control" name="kode"  value="" autocomplete="off" autocomplete="off" required>
               </div>
               <div class="form-group">
-                <label>Luas(m2)</label>
-                <input type="text" class="form-control" name="luas" id="luas">
+                <label>Nama Blok</label>
+                <input type="text" class="form-control" name="name"  value="" autocomplete="off" autocomplete="off" required>
+              </div>
+              <div class="form-group">
+                <label>Luas Blok(m2)</label>
+                <input type="text" class="form-control" name="luas" id="luas" autocomplete="off" autocomplete="off" required>
               </div>
               
               <div class="form-group">

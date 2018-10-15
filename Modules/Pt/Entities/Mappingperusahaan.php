@@ -27,4 +27,6 @@ class Mappingperusahaan extends Model
     {
         return $this->belongsTo('Modules\Project\Entities\Project');
     }
+
+    
 }

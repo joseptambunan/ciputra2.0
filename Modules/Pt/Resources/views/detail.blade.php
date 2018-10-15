@@ -89,6 +89,7 @@
                 <ul class="nav nav-tabs">
                   <li class="active"><a href="#tab_1" data-toggle="tab">Rekening</a></li>
                   <li><a href="#tab_2" data-toggle="tab">Proyek</a></li>
+                  <li><a href="#tab_3" data-toggle="tab">Department PT</a></li>
                   <!--li><a href="#tab_3" data-toggle="tab">Departemen</a></li-->
                 </ul>
                 <div class="tab-content">
@@ -182,7 +183,7 @@
                           </select>
                       </div>
                       <div class="form-group">
-                          <label for="exampleInputEmail1">Proyek</label>
+                          <label for="exampleInputEmail1">Divisi</label>
                           <select class="form-control" name="divisiion_mapping">
                             @foreach ( $divisi as $key2 => $value2 )
                             <option value="{{ $value2->id }}">{{ $value2->name}}</option>

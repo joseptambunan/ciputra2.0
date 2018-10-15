@@ -101,4 +101,8 @@ class Vo extends CustomModel
     {
         return $this->spk->pt;
     }
+
+   public function unit(){
+    return $this->belongsTo("Modules\Spk\Entities\SuratinstruksiUnit","suratinstruksi_unit_id");
+   }
 }

@@ -29,7 +29,7 @@
               <h3 class="box-title">Data RAB dari WO <strong>{{ $workorder->no }}</strong> </h3>
             </div>
             <!-- /.box-header -->
-            <div class="box-body">
+            <div class="box-body table-responsive">
               <a href="{{ url('/')}}/rab/add?id={{ $workorder->id }}" class="btn-lg btn-primary"><i class="glyphicon glyphicon-plus-sign"></i>Tambah Data RAB</a>
               <table id="example2" class="table table-bordered table-hover">
                 <thead class="head_table">
@@ -46,6 +46,7 @@
                 </thead>
                 <tbody>
                   @foreach ( $workorder->rabs as $key => $value )
+                  @if ( $value->parent_id != "" )
                   <tr>
                     <td>{{ $workorder->no }}</td>
                     <td>{{ $value->no }}</td>
@@ -56,7 +57,11 @@
                     <td><a href="{{ url('/')}}/rab/detail?id={{ $value->id }}" class="btn btn-warning">Detail</td>
                     <td>
                       @if ( $value->approval == "" )
-                      <button onclick="apprioval('{{ $value->id}}')" class="btn btn-primary">Request Approval</button>
+                          @if ( $value->pekerjaans != "" && $value->units != "" )
+                            <button onclick="apprioval('{{ $value->id}}')" class="btn btn-primary">Request Approval</button>
+                          @else
+                          <span>Harap lengkapi unit dan pekerjaan RAB ini</span>
+                        @endif
                       @else
                       @php
                         $array = array (
@@ -70,6 +75,7 @@
                       @endif               
                     </td>
                   </tr>
+                  @endif
                   @endforeach
                 </tbody>
               </table>

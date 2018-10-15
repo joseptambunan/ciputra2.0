@@ -51,7 +51,7 @@
                       <input type="text" class="form-control" value="{{ $template->luas_tanah }}" readonly>
                   </div>
                   <div class="box-footer">
-                    <button type="submit" class="btn btn-primary" id="submitbntn" disabled>Simpan</button>
+                    <button type="submit" class="btn btn-primary" id="submitbntn">Simpan</button>
                     <a class="btn btn-warning" href="{{ url('/')}}/project/templatepekerjaan/?id={{ $template->unit_type_id }}">Kembali</a>
                     <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modal-default">
                       Tambah Item Pekerjaan
@@ -72,9 +72,9 @@
                 <tbody>
                   @foreach ( $template->details as $key => $value )
                   <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                    <td>{{ $value->itempekerjaan->name }}</td>
+                    <td>{{ $value->volume }}</td>
+                    <td>{{ $value->satuan }}</td>
                   </tr>
                   @endforeach
                 </tbody>
@@ -107,11 +107,15 @@
   <div class="control-sidebar-bg"></div>
   <div class="modal fade" id="modal-default">
     <div class="modal-dialog">
+      <form action="{{ url('/')}}/project/add-templatedetail" method="post" name="form1" >
       <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span></button>
+            <span aria-hidden="true">&times;</span>
+          </button>
           <h4 class="modal-title">Item Pekerjaan</h4>
+          <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Save changes</button>
         </div>
         <div class="modal-body">
           <div class="form-group">
@@ -119,14 +123,16 @@
             <select class="form-control" id="itemtemplate" name="idtemplate">
               <option value="">( pilih itempekerjaan )</option>
               @foreach ( $itempekerjaan as $key2 => $value2)
+              @if ( $value2->group_cost == "2")
               <option value="{{ $value2->id }}">{{ $value2->name }}</option>
+              @endif
               @endforeach
             </select>
           </div>
           <div class="form-group">
-            <form action="{{ url('/')}}/project/add-templatedetail" method="post" name="form1" method="post">
+            
               {{ csrf_field()}}
-            <input type="template_id" name="template_id" value="{{ $template->id }}">
+            <input type="hidden" id="template_id" name="template_id" value="{{ $template->id }}">
             <table class="table">
               <tr>
                 <td>Code</td>
@@ -142,8 +148,7 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-primary">Save changes</button>
+          
         </div>
         </form>
       </div>

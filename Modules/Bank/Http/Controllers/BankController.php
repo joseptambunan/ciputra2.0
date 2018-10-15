@@ -7,6 +7,7 @@ use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Modules\Bank\Entities\Bank;
 use Modules\Country\Entities\City;
+use Modules\Project\Entities\Project;
 
 class BankController extends Controller
 {
@@ -25,7 +26,8 @@ class BankController extends Controller
         $user = \Auth::user();
         $bank = Bank::orderBy("name","asc")->get();
         $city = City::get();
-        return view('bank::index',compact("bank","user","city"));
+        $project = Project::get();
+        return view('bank::index',compact("bank","user","city","project"));
     }
 
     /**

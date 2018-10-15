@@ -31,20 +31,20 @@
         <!-- /.box-header -->
         <div class="box-body">
           <div class="row">
-            <div class="col-md-12"><h3 class="box-title">Detail Data Budget Proyek</h3></div>
+            <div class="col-md-12"><h3 class="box-title">Detail Data Budget Tahunan Proyek</h3></div>
             <div class="col-md-6">             
               <div class="form-group">
                 <label>Item Pekerjaan</label>
                 <select class="form-control" name="coa_id" id="coa_id">
                   <option>( pilih item pekerjaan)</option>
-                  @foreach ( $itempekerjaan as $key => $value )                    
-                      <option value="{{ $value->id }}" selected>{{ $value->name }}</option>                      
+                  @foreach ( $budget->total_parent_item as $key => $value )                    
+                      <option value="{{ $value['id']}}" selected>{{ \Modules\Pekerjaan\Entities\Itempekerjaan::find($value['id'])->parent->code }} - {{ \Modules\Pekerjaan\Entities\Itempekerjaan::find($value['id'])->name }}</option>                      
                   @endforeach
                 </select>
               </div>
               <div class="form-group">
                 <button class="btn btn-info" onClick="formsubmit();">Simpan</button>
-                <a class="btn btn-warning" href="{{ url('/')}}/budget/show-budgetrevisi?id={{ $budget->id }}">Kembali</a>
+                <a class="btn btn-warning" href="{{ url('/')}}/budget/cashflow/detail-cashflow?id={{ $budget->id }}">Kembali</a>
               </div>
             </div>
    

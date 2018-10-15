@@ -7,6 +7,7 @@
   @include("master/header")
     <!-- Select2 -->
   <link rel="stylesheet" href="{{ url('/')}}/assets/bower_components/select2/dist/css/select2.min.css">
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
@@ -38,31 +39,28 @@
               <div class="form-group">
                 <label>Department In Charge</label>
                 <select class="form-control" name="department_from">
-                  @foreach ( $project->pt_user as $key => $value )
-                    @foreach ( $value->pt->mapping as $key2 => $value2)
-                      <option value="{{ $value2->department_id}}">{{ $value2->department->name }}</option>
-                    @endforeach
+                  @foreach ( $project->budget_department as $key => $value )                   
+                      <option value="{{ $value}}">{{ \Modules\Department\Entities\Department::find($value)->name }}</option>
                   @endforeach
                 </select>
               </div>  
               <div class="form-group">
                 <label>Department Support</label>
                 <select class="form-control" name="department_to">
-                  @foreach ( $project->pt_user as $key => $value )
-                    @foreach ( $value->pt->mapping as $key2 => $value2)
-                      <option value="{{ $value2->department_id}}">{{ $value2->department->name }}</option>
-                    @endforeach
+                  @foreach ( $project->budget_department as $key => $value )                   
+                      <option value="{{ $value}}">{{ \Modules\Department\Entities\Department::find($value)->name }}</option>
                   @endforeach
                 </select>
               </div>  
               <div class="form-group">
                 <label>Name</label>
-                <input type="text" class="form-control" name="workorder_name" required>
+                <input type="text" class="form-control" name="workorder_name" autocomplete="off" required>
               </div>
-                               
-              <div class="box-footer">
-                <button type="submit" class="btn btn-primary">Simpan</button>
-              </div>
+               <div class="form-group">
+                <label>Keterangan</label>
+                <input type="text" class="form-control" name="workorder_description" autocomplete="off">
+              </div>                
+             
               
               <!-- /.form-group -->
             </div>
@@ -71,12 +69,19 @@
               <h3>&nbsp;</h3>
               <div class="form-group">
                 <label>Durasi Proses WO (Hari Kalender)</label>
-                <input type="text" class="form-control" name="workorder_durasi" required>
+                <input type="text" class="form-control" name="workorder_durasi" id="workorder_durasi" value="0" autocomplete="off" required>
               </div> 
               <div class="form-group">
-                <label>Keterangan</label>
-                <input type="text" class="form-control" name="workorder_description">
+                <label>Start Date</label>
+                <input type="text" class="form-control" name="start_date" id="start_date" autocomplete="off" required>
               </div> 
+              <div class="form-group">
+                <label>End Date</label>
+                <input type="text" class="form-control" name="end_date" id="end_date" autocomplete="off" required>
+              </div> 
+                <div class="box-footer">
+                <button type="submit" class="btn btn-primary">Simpan</button>
+              </div>
             </div>
             </form>
             <!-- /.col -->
@@ -114,10 +119,28 @@
 <script src="{{ url('/')}}/assets/plugins/input-mask/jquery.inputmask.js"></script>
 <script src="{{ url('/')}}/assets/plugins/input-mask/jquery.inputmask.date.extensions.js"></script>
 <script src="{{ url('/')}}/assets/plugins/input-mask/jquery.inputmask.extensions.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script type="text/javascript">
   $(function () {
     $("#luas").number(true);
+
+    $('#start_date').datepicker({
+      "dateFormat" : "yy-mm-dd"
+    });
+
+    $('#end_date').datepicker({
+      "dateFormat" : "yy-mm-dd"
+    });
+
   });
+
+  $("#start_date").change(function(){
+      var date = $('#start_date').datepicker('getDate');
+      date.setTime(date.getTime() + (1000 * 60 * 60 * 24 * $("#workorder_durasi").val()));
+      $('#end_date').datepicker("setDate", date);
+      //$("#end_date").val(tomorrow);
+  });
+
 </script>
 @include("pt::app")
 </body>

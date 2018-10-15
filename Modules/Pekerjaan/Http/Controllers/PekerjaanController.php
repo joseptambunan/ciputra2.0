@@ -11,6 +11,7 @@ use Modules\Pekerjaan\Entities\ItempekerjaanCoa;
 use Modules\Department\Entities\Department;
 use Modules\Budget\Entities\BudgetGroup;
 use Modules\Pekerjaan\Entities\ItempekerjaanProgress;
+use Modules\Project\Entities\Project;
 
 class PekerjaanController extends Controller
 {
@@ -28,7 +29,8 @@ class PekerjaanController extends Controller
     {   
         $user = \Auth::user();
         $itempekerjaan = Itempekerjaan::where("parent_id",null)->get();
-        return view('pekerjaan::index',compact("user","itempekerjaan"));
+        $project = Project::get();
+        return view('pekerjaan::index',compact("user","itempekerjaan","project"));
     }
 
     /**
@@ -40,7 +42,8 @@ class PekerjaanController extends Controller
         $user = \Auth::user();
         $department = Department::get();
         $budgetgroup = BudgetGroup::get();
-        return view('pekerjaan::create',compact("user","department","budgetgroup"));
+        $project = Project::get();
+        return view('pekerjaan::create',compact("user","department","budgetgroup","project"));
     }
 
     /**
@@ -73,7 +76,8 @@ class PekerjaanController extends Controller
         $department = Department::get();
         $budgetgroup = BudgetGroup::get();
         $coa = Coa::get();
-        return view('pekerjaan::detail',compact("itempekerjaan","user","department","budgetgroup","coa"));
+        $project = Project::get();
+        return view('pekerjaan::detail',compact("itempekerjaan","user","department","budgetgroup","coa","project"));
     }
 
     /**
@@ -129,6 +133,7 @@ class PekerjaanController extends Controller
     }
 
     public function addprogress(Request $request){
+
         foreach ($request->item as $key => $value) {
             # code...            
             $check = ItempekerjaanProgress::where("item_pekerjaan_id",$request->item_id)->where("termyn", $key + 1)->get();
@@ -139,7 +144,7 @@ class PekerjaanController extends Controller
             }
             $ItempekerjaanProgress->item_pekerjaan_id = $request->item_id;
             $ItempekerjaanProgress->termyn = $key + 1;
-            $ItempekerjaanProgress->percentage = $request->item[$key];
+            $ItempekerjaanProgress->percentage =  $request->item[$key];
             $ItempekerjaanProgress->save();
         }
         return redirect("/pekerjaan/detail/?id=".$request->coa_id);

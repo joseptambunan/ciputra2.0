@@ -93,7 +93,14 @@
       <ul class="sidebar-menu" data-widget="tree">
 
         <li class="header">MAIN NAVIGATION</li>
-        <li><a href="{{ url('/')}}/home">Master Data</a></li>
+
+        @if ( Session::has('level'))
+          @if ( Session::get('level') == "superadmin")
+          <li><a href="{{ url('/')}}/home">Master Data</a></li>
+          @endif
+        @endif
+
+        <li><a href="{{ url('/')}}/project/detail/?id={{ $project->id }}">Home</a></li>
         <li class="treeview menu-open">
 
           <a href="#">
@@ -114,7 +121,7 @@
 
             <li><a href="{{ url('/')}}/project/unit-type/"><i class="fa fa-circle-o"></i> Unit Type</a></li>
 
-
+            <li><a href="{{ url('/')}}/project/unit-hadap/"><i class="fa fa-circle-o"></i> Unit Hadap</a></li>
 
           </ul>
 
@@ -191,11 +198,10 @@
 
             <li><a href="{{ url('/')}}/tender/"><i class="fa fa-circle-o"></i> Tender</a></li>
 
-            <li><a href="{{ url('/')}}/spk/"><i class="fa fa-circle-o"></i> SPK</a></li>
+            <li><a href="{{ url('/')}}/spk/"><i class="fa fa-circle-o"></i> SPK - BAP</a></li>
 
-            <li><a href="#"><i class="fa fa-circle-o"></i> BAP</a></li>
 
-            <li><a href="#"><i class="fa fa-circle-o"></i> Voucher</a></li>
+            <li><a href="{{ url('/')}}/voucher/"><i class="fa fa-circle-o"></i> Voucher</a></li>
 
           </ul>
 

@@ -34,8 +34,11 @@
               {{ csrf_field() }}              
               <thead class="head_table">
                 <tr>
-                  <td>Unit Type</td>
+                  <td>Kode Type</td>
+                  <td>Nama Type</td>
                   <td>Luas Bangunan(m2)</td>
+                  <td>Luas Tanah(m2)</td>
+                  <td>Elektrik(watt)</td>
                   <td>Template Pekerjaan</td>
                   <td colspan="2">Perubahan Data</td>
                 </tr>
@@ -45,12 +48,24 @@
                 
                  <tr>
                     <td>
+                      <span id="label_{{ $value->id }}">{{ $value->kode }}</span>
+                      <input type="text" name="input_kode{{ $value->id }}" id="input_kode{{ $value->id }}" style="display: none;" value="{{ $value->kode }}">
+                    </td>
+                    <td>
                       <span id="label_{{ $value->id }}">{{ $value->name }}</span>
                       <input type="text" name="input_{{ $value->id }}" id="input_{{ $value->id }}" style="display: none;" value="{{ $value->name }}">
                     </td>
                     <td>
                       <span id="luas_{{ $value->id }}">{{ $value->luas_bangunan }}</span>
                       <input type="text" name="input_luas_{{ $value->id }}" id="input_luas_{{ $value->id }}" style="display: none;" value="{{ $value->luas_bangunan }}">
+                    </td>
+                    <td>
+                      <span id="luastanah_{{ $value->id }}">{{ $value->luas_tanah }}</span>
+                      <input type="text" name="input_luastanah_{{ $value->id }}" id="input_luastanah_{{ $value->id }}" style="display: none;" value="{{ $value->luas_tanah }}">
+                    </td>
+                    <td>
+                      <span id="listrik_{{ $value->id }}">{{ $value->listrik }}</span>
+                      <input type="text" name="input_listrik_{{ $value->id }}" id="input_listrik_{{ $value->id }}" style="display: none;" value="{{ $value->listrik }}">
                     </td>
                     <td><a href="{{ url('/')}}/project/templatepekerjaan/?id={{ $value->id }}" class="btn btn-success">Template Pekerjaan</a></td>
                     <td>
@@ -130,10 +145,14 @@
   function edittype(id){
     $("#label_" + id).hide();
     $("#luas_" + id).hide();
+    $("#luastanah_" + id).hide();
+    $("#listrik_" + id).hide();
     $("#btn_edit1_" + id).hide();
 
     $("#input_" + id).show();
     $("#input_luas_" + id).show();
+    $("#input_luastanah_" + id).show();
+    $("#input_listrik_" + id).show();
     $("#btn_edit2_" + id).show();
   }
 
@@ -144,7 +163,9 @@
       data : {
         id : id,
         name : $("#input_" + id).val(),
-        luas : $("#input_luas_" +id).val()
+        luas : $("#input_luas_" +id).val(),
+        luas_tanah : $("#input_luastanah_" +id).val(),
+        listrik : $("#input_listrik_" +id).val()
       },
       type : "post"
     });

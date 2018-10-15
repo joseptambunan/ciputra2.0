@@ -38,13 +38,15 @@
               <input type="hidden" name="projectkawasan" name="projectkawasan" value="{{ $blok->kawasan->id }}">
               <input type="hidden" name="blok" name="blok" value="{{ $blok->id }}">
 
-              <div class="form-group">
-                <label>Jumlah</label>
-                <input type='number' id='quantity' name='quantity' class='form-control' required style="widht:30%" value='1' min="1" />
-              </div>
+              
               <div class="form-group">
                 <label>Starting Number</label>
-                <input type='number' id='starting_number' name='starting_number' class='form-control' required style="widht:30%" value='1' min="1" />
+                <input type='hidden' id='starting_number' name='starting_number' class='form-control' required style="widht:30%" value='{{ count($blok->units) + 1 }}' min="1" />
+                <input type='number' class='form-control' required style="widht:30%" value='{{ $start}}{{ count($blok->units) + 1 }}' min="1" />
+              </div>
+              <div class="form-group">
+                <label>Jumlah Unit</label>
+                <input type='number' id='quantity' name='quantity' class='form-control' required style="widht:30%" value='1' min="1"  autocomplete="off" />
               </div>
               <div class="form-group">
                 <label>PT</label>
@@ -54,13 +56,23 @@
                   @endforeach
                 </select>
               </div>
+
+              <div class="form-group">
+                <label>Unit Type</label>
+                <select class="form-control" name="unit_type" id="unit_type">
+                  <option>Pilih Type</option>
+                  @foreach ( $unittype as $key5 => $value5 )
+                  <option value="{{ $value5->id }}">{{ $value5->name }}</option>
+                  @endforeach
+                </select>
+              </div>
               <div class="form-group">
                 <label>Luas Tanah(m2)</label>
-                <input type="text" class="form-control" name="luas_tanah" id="luas_tanah">
+                <input type="text" class="form-control" name="luas_tanah" id="luas_tanah"  autocomplete="off">
               </div>
               <div class="form-group">
                 <label>Luas Bangunan(m2)</label>
-                <input type="text" class="form-control" name="luas_bangunan" id="luas_bangunan">
+                <input type="text" class="form-control" name="luas_bangunan" id="luas_bangunan"  autocomplete="off">
               </div>
               <div class="form-group">
                 <label>Arah Bangunan</label>
@@ -73,6 +85,14 @@
                   <option value='6'>Barat Daya</option>
                   <option value='7'>Barat</option>
                   <option value='8'>Barat Laut</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Hadap Bangunan</label>
+                <select class='form-control select2' name='unit_hadap' id='unit_hadap'>
+                  @foreach ( $project->hadap as $key3 => $value3 )
+                  <option value='{{ $value3->id }}'>{{ $value3->name }}</option>
+                  @endforeach
                 </select>
               </div>
 
@@ -88,24 +108,6 @@
                 <select class='form-control' name='is_sellable' id='is_sellable'>
                   <option value='1'>Ya</option>
                   <option value='0'>Tidak</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Unit Type</label>
-                <select class="form-control" name="unit_type" id="unit_type">
-                  @foreach ( $unittype as $key5 => $value5 )
-                  <option value="{{ $value5->id }}">{{ $value5->name }}</option>
-                  @endforeach
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Template Pekerjaan</label>
-                <select class="form-control" name="unit_template" id="unit_template">
-                  @foreach ( $unittype as $key5 => $value5 )
-                    @foreach ( $value5->templates as $key6 => $value6 )
-                      <option value="{{ $value6->id }}">{{ $value6->name }}</option>
-                    @endforeach
-                  @endforeach
                 </select>
               </div>
               <div class="form-group">
@@ -158,9 +160,40 @@
 <script src="{{ url('/')}}/assets/plugins/input-mask/jquery.inputmask.date.extensions.js"></script>
 <script src="{{ url('/')}}/assets/plugins/input-mask/jquery.inputmask.extensions.js"></script>
 <script type="text/javascript">
+
+  $( document ).ready(function() {
+      $.ajaxSetup({
+          headers: {
+              'X-CSRF-Token': $('input[name=_token]').val()
+          }
+        });
+    });
+
+
+
   $(function () {
     $("#luas").number(true);
   });
+
+  $("#unit_type").change(function(){
+    var request = $.ajax({
+        url : "{{ url('/')}}/project/getluas",
+        data : {
+          id : $("#unit_type").val()
+        },
+        type : "post",
+        dataType : "json"
+    });
+
+    request.done(function(data){
+      $("#luas_tanah").val(data.luas_tanah);
+      $("#luas_bangunan").val(data.luas_bangunan);
+      $("#luas_tanah").number(true,2);
+      $("#luas_bangunan").number(true,2);
+    });
+  });
+
+
 </script>
 @include("pt::app")
 </body>

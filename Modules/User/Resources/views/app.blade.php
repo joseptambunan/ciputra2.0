@@ -87,4 +87,21 @@
         return false;
       }
     }
+
+    $("#jabatan").change(function(){
+      if ( $("#jabatan").val() <= 5 ){
+        $("#input_dept").hide();
+      }else{
+        $("#input_dept").show();
+      }
+
+      $(".pt").hide();
+      $(".pt_" + $("#project_pt").val()).show();
+
+      if ( $("#jabatan").val() == "10" ){
+        $(".pt").attr("checked","checked");
+      }else{
+        $(".pt").removeAttr("checked");
+      }
+    })
 </script>

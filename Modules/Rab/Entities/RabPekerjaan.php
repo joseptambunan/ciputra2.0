@@ -31,6 +31,7 @@ class RabPekerjaan extends Model
     public function itempekerjaan()
     {
         return $this->belongsTo('Modules\Pekerjaan\Entities\Itempekerjaan');
+        //return $this->belongsTo('Modules\Workorder\Entities\WorkorderBudgetDetail',"itempekerjaan_id");
     }
 
     public function itempekerjaan_detail()
@@ -57,5 +58,8 @@ class RabPekerjaan extends Model
         });
     }
 
+    public function getTenderDetailAttribute($penawaranid){
+        return $penawaranid;
+    }
     
 }

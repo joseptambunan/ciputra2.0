@@ -1,0 +1,16 @@
+{
+    "name": "Voucher",
+    "alias": "voucher",
+    "description": "",
+    "keywords": [],
+    "active": 1,
+    "order": 0,
+    "providers": [
+        "Modules\\Voucher\\Providers\\VoucherServiceProvider"
+    ],
+    "aliases": {},
+    "files": [
+        "start.php"
+    ],
+    "requires": []
+}

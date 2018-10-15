@@ -63,7 +63,7 @@ class Rab extends Model
 
     public function getPtAttribute()
     {
-        return $this->workorder->pt;
+        return $this->budget_tahunan->budget->pt;
     }
 
     public function getTemplatePekerjaanAttribute(){
@@ -113,14 +113,19 @@ class Rab extends Model
                 //echo $value->itempekerjaan->code;
                 //echo "\n";
                 $id_code = explode(".",$value->itempekerjaan->code);
-                $code[$key] = $id_code[0];
+                $code[$key] = $id_code[0].".".$id_code[1];
             }
             $unique = array_unique($code);
             $val = array_values($unique);
+           
             $id = \Modules\Pekerjaan\Entities\Itempekerjaan::where("code",$val[0])->get()->first()->id;
         }
         
         return $id;
+    }
+
+    public function budget_tahunan(){
+        return $this->belongsTo("\Modules\Budget\Entities\BudgetTahunan");
     }
 
     

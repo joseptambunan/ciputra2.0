@@ -12,9 +12,27 @@ class Bap extends CustomModel
     protected $fillable = ['spk_id','date','no','termin','nilai_administrasi','nilai_denda','nilai_selisih'];
     protected $dates = ['date'];
 
+    public $termin_terpilih;
+
     public function spk()
     {
         return $this->belongsTo('Modules\Spk\Entities\Spk');
+    }
+
+    public function getProjectAttribute()
+    {
+        return $this->spk->project;
+    }
+    public function scopeFilterProject()
+    {
+        return $this->whereHas('spk', function($q){
+            $q->where('project_id', session('project'));
+        });
+    }
+
+    public function spk_retensi()
+    {
+        return $this->hasOne('Modules\Spk\Entities\SpkRetensi');
     }
 
     public function vouchers()
@@ -39,7 +57,7 @@ class Bap extends CustomModel
 
     public function detail_itempekerjaans()
     {
-        return $this->hasManyThrough('Modules\Spk\Entities\BapDetailItempekerjaan', 'App\BapDetail');
+        return $this->hasManyThrough('Modules\Spk\Entities\BapDetailItempekerjaan', 'Modules\Spk\Entities\BapDetail');
     }
 
     public function getRekananAttribute()
@@ -48,14 +66,13 @@ class Bap extends CustomModel
     }
     public function getDepartmentAttribute()
     {
-        return $this->spk->tender->rab->workorder->departmentFrom;
+        return $this->spk->tender->rab->workorder->budget_tahunan->budget->department;
     }
     public function getPtAttribute()
     {
-        return $this->spk->tender->rab->workorder->pt;
+        return $this->spk->tender->rab->workorder->budget_tahunan->budget->pt;
     }
-
-    public function getPercentageKumulatifAttribute()
+   public function getPercentageKumulatifAttribute()
     {
         $total = array();
         $bobot = array();
@@ -63,7 +80,7 @@ class Bap extends CustomModel
         foreach ($this->detail_itempekerjaans as $key => $each) 
         {
             if ( $each->spkvo_unit ){
-            $total[$key] = $each->terbayar_percent * $each->spkvo_unit->nilai * $each->spkvo_unit->volume;
+            $total[$key] = ($each->terbayar_percent / 100) * ( $each->spkvo_unit->nilai * $each->spkvo_unit->volume );
             $bobot[$key] = $each->spkvo_unit->nilai * $each->spkvo_unit->volume;
             }
         }
@@ -201,18 +218,20 @@ class Bap extends CustomModel
 
         foreach ($itempekerjaans as $key => $each) 
         {
-            $nilai_terbayar = $each->spkvo_unit->volume * $each->spkvo_unit->nilai * $each->terbayar_percent;
+     
+                $nilai_terbayar = $each->spkvo_unit->volume * $each->spkvo_unit->nilai * ( $each->terbayar_percent / 100 );
 
-            // termin retensi tidak ada retensi
+                // termin retensi tidak ada retensi
+                
+                if ($this->percentage_sebelumnya >= 1) 
+                {
+                    $nilai_setelah_retensi = $nilai_terbayar;
+                }else{
+                    $nilai_setelah_retensi = $nilai_terbayar * (1 - $percent_retensi);
+                }
+
+                $total[$key] = $nilai_setelah_retensi * $each->spkvo_unit->ppn ;
             
-            if ($this->percentage_sebelumnya >= 1) 
-            {
-                $nilai_setelah_retensi = $nilai_terbayar;
-            }else{
-                $nilai_setelah_retensi = $nilai_terbayar * (1 - $percent_retensi);
-            }
-
-            $total[$key] = $nilai_setelah_retensi * $each->spkvo_unit->ppn ;
         }
 
         return array_sum($total);
@@ -230,11 +249,16 @@ class Bap extends CustomModel
 
     public function getNilaiSebelumnyaAttribute()
     {
-        if ($this->bap_sebelumnya == null) 
+        /*if ($this->bap_sebelumnya == null) 
         {
             return 0;
         }else{
-            return $this->bap_sebelumnya->nilai_bap_termin;
+            return $this->bap_sebelumnya->nilai_kumulatif;
+        }*/
+        if ( isset( $this->spk->baps()->orderBy('id','DESC')->where('id','<',$this->id)->first()->nilai_bap_3 )){
+            return $this->spk->baps()->orderBy('id','DESC')->where('id','<',$this->id)->first()->nilai_bap_3;
+        }else{
+            return 0 ;
         }
     }
 
@@ -245,8 +269,35 @@ class Bap extends CustomModel
 
     public function getNilaiSertifikatAttribute()
     {
-        return $this->nilai_kumulatif - array_sum($this->nilai_retensis);
+        if ( $this->nilai_sebelumnya == "0"){
+            return 0;
+        }else{
+            return $this->nilai_kumulatif - array_sum($this->nilai_retensis);
+        }
     }
     
-    
+    public function getNilaiPengembalianAttribute(){
+        $nilai = 0;
+        $total_termun = 0;
+        $total_progress = $this->detail_itempekerjaans->sum('lapangan_percent') * 100 ;
+        
+        foreach ($this->spk->termyn as $key => $value) {
+            $total_termun = $total_termun + $value->progress;
+            if ( $total_termun > $total_progress){
+               $start = $key - 1;
+               foreach ( $this->spk->dp_pengembalians as $key2 => $value2 ){
+                
+                    if ( $key2 < $start ){
+                        $nilai = $nilai + $value2->percent;                        
+                    }
+               }
+               return $nilai / 100 * ( ($this->spk->dp_percent / 100 ) * $this->spk->nilai) ;
+            }
+        }
+        
+    }
+
+    public function getTotalNilaiSebelumnyaAttribute(){
+        
+    }
 }

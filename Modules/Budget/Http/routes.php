@@ -16,6 +16,8 @@ Route::group(['middleware' => 'web', 'prefix' => 'budget', 'namespace' => 'Modul
     Route::post('/item-saveedit','BudgetController@itemupdate');
     Route::post('/delete-itembudget/','BudgetController@deletebudget');
     Route::post('/update-itembudget','BudgetController@itemupdate');
+    Route::get('/edit-itembudget','BudgetController@edititem');
+    Route::post('/save-itembudget','BudgetController@saveitem');
 
     Route::post("/approval-add",'BudgetController@approval');
 
@@ -49,4 +51,10 @@ Route::group(['middleware' => 'web', 'prefix' => 'budget', 'namespace' => 'Modul
     Route::get('/createrobot','BudgetController@createrobot');
     Route::get('/createhpp','BudgetController@createhpp');
     
+    Route::get("/cashflow/revisi-item/","BudgetController@revitemcashflow");
+    Route::post("/cashflow/save-revitem","BudgetController@saverevitem");
+    Route::get("/cashflow/approval","BudgetController@approval_history");
+
+    Route::get("/draft","BudgetController@draft");
+    Route::post("/approval-update","BudgetController@updateapproval");
 });

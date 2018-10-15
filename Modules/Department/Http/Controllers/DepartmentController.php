@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Modules\Department\Entities\Department;
+use Modules\Project\Entities\Project;
 
 class DepartmentController extends Controller
 {
@@ -25,7 +26,8 @@ class DepartmentController extends Controller
     {
         $user = \Auth::user();
         $department = Department::orderBy("id","desc")->get();
-        return view('department::index',compact("user","department"));
+        $project = Project::get();
+        return view('department::index',compact("user","department","project"));
     }
 
     /**

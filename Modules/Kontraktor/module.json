@@ -1,0 +1,16 @@
+{
+    "name": "Kontraktor",
+    "alias": "kontraktor",
+    "description": "",
+    "keywords": [],
+    "active": 1,
+    "order": 0,
+    "providers": [
+        "Modules\\Kontraktor\\Providers\\KontraktorServiceProvider"
+    ],
+    "aliases": {},
+    "files": [
+        "start.php"
+    ],
+    "requires": []
+}

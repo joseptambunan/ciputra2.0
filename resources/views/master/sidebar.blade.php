@@ -60,8 +60,9 @@
             <li><a href="{{ url('/')}}/jabatan/"><i class="fa fa-circle-o"></i> Jabatan</a></li>
             <li><a href="{{ url('/')}}/department/"><i class="fa fa-circle-o"></i> Departemen</a></li>
             <li><a href="{{ url('/')}}/division/"><i class="fa fa-circle-o"></i> Divisi</a></li>
-            <li><a href="{{ url('/')}}/pt/"><i class="fa fa-circle-o"></i> PT</a></li>
-            <li><a href="{{ url('/')}}/project/"><i class="fa fa-circle-o"></i> Proyek</a></li>
+            <li><a href="{{ url('/')}}/pt/"><i class="fa fa-circle-o"></i> PT</a></li>   
+            <li><a href="{{ url('/')}}/project/"><i class="fa fa-circle-o"></i>Tambah Project</a></li>         
+            <li><a href="{{ url('/')}}/escrow/"><i class="fa fa-circle-o"></i>Escrows</a></li>
             <li><a href="{{ url('/')}}/pekerjaan/"><i class="fa fa-circle-o"></i> Item Pekerjaan</a></li>
             <li><a href="{{ url('/')}}/user/master"><i class="fa fa-circle-o"></i> User</a></li>
             <li><a href="{{ url('/')}}/document/"><i class="fa fa-circle-o"></i> Dokumen</a></li>
@@ -70,7 +71,22 @@
             <li><a href="{{ url('/')}}/logout/"><i class="fa fa-circle-o"></i>Logout</a></li>
           </ul>
         </li>
-       
+        <li class="treeview menu-open">
+          <a href="#">
+            <i class="fa fa-pie-chart"></i>
+            <span>Proyek</span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+          </a>
+          <ul class="treeview-menu" style="display: block;">
+            @foreach ( $project as $key => $value )
+            @if ( $value->deleted_at == null )
+            <li><a href="{{ url('/')}}/project/detail/?id={{ $value->id }}"><i class="fa fa-circle-o"></i> {{ $value->name }}</a></li>
+            @endif
+            @endforeach
+          </ul>
+        </li>       
       </ul>
     </section>
     <!-- /.sidebar -->

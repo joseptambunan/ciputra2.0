@@ -13,4 +13,7 @@ Route::group(['middleware' => 'web', 'prefix' => 'rab', 'namespace' => 'Modules\
     Route::post('/save-pekerjaan','RabController@savepekerjaan');
     Route::post('/saveedit','RabController@updateitem');
     Route::post('/approval','RabController@approval');
+    Route::post('/childcoa','RabController@childcoa');
+    Route::post('/delete-pekerjaan','RabController@deletepekerjaan');
+    Route::get('/approval_history','RabController@approval_history');
 });

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Modules\Document\Entities\DocumentType;
+use Modules\Project\Entities\Project;
 
 class DocumentController extends Controller
 {
@@ -23,7 +24,8 @@ class DocumentController extends Controller
     {
         $user = \Auth::user();
         $document = DocumentType::get();
-        return view('document::index',compact("user","document"));
+        $project = Project::get();
+        return view('document::index',compact("user","document","project"));
     }
 
     /**

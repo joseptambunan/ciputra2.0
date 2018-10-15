@@ -37,7 +37,7 @@ class Workorder extends Model
 
     public function rabs()
     {
-        return $this->hasMany('Modules\Rab\Entities\Rab');
+        return $this->hasMany('Modules\Rab\Entities\Rab')->whereNotNull("budget_tahunan_id");
     }
 
     public function tenders()
@@ -116,12 +116,16 @@ class Workorder extends Model
     public function getParentIdAttribute(){
         $nilai = array();
         $detailworkorder = array();
-
+        $satuan = "";
         foreach ($this->detail_pekerjaan as $key => $value) {
             # code...
             //if ( isset($value->itempekerjaan->parent_id)){
                 $explode = explode(".",$value->itempekerjaan->code);
-                $nilai[$key] = $explode[0];                
+                if ( count($explode) > 1 ){                    
+                    $nilai[$key] = $explode[0].".".$explode[1];  
+                }else{
+                    $nilai[$key] = $explode[0];
+                }
             //}
 
         }
@@ -152,8 +156,9 @@ class Workorder extends Model
                     $budget_tahunan = $detail_pekerjaan_workorder->budget_tahunan->no;
                     $total_budget = 0;
                     foreach ($detail_pekerjaan_workorder->budget_tahunan->total_parent_item as $key7 => $value7) {
-                       if ( $value7['id'] == $coa_code ){
-                            $total_budget = $value7['nilai'] * $value7['volume'];
+                       if ( $value7['code'] == $coa_code ){
+                            $total_budget = $value7['total'] * $value7['volume'];
+                            $coa_code."<>".$total_budget;
                        }
                     }
                 }
@@ -218,7 +223,7 @@ class Workorder extends Model
         $array = array();
         $array_coa = array();
         foreach ($this->details as $key => $value) {
-            if ( RabUnit::where("asset_id",$value->asset_id)->count() <= 0 ){
+            if ( \Modules\Rab\Entities\RabUnit::where("asset_id",$value->asset_id)->count() <= 0 ){
                 if ( $value->asset_type == "App\Unit") {
                     $array[$key] = $value->unit->unit_type_id;
                 }   
@@ -237,6 +242,15 @@ class Workorder extends Model
             );
         }
         return $array_coa;
+    }
+
+    public function getBudgetParentAttribute(){
+        $nilai = array();
+        foreach ($this->detail_pekerjaan as $key => $value) {
+            $nilai[$key] = $value->budget_tahunan_id;
+        }
+
+        return array_values(array_unique($nilai));
     }
     
 }

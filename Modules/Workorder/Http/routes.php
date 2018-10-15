@@ -13,6 +13,9 @@ Route::group(['middleware' => 'web', 'prefix' => 'workorder', 'namespace' => 'Mo
     Route::post('/delete-unit','WorkorderController@deleteunit');
     Route::post('/update','WorkorderController@update');
     Route::post('/approve','WorkorderController@approve');
-
+    Route::get('/approval_history','WorkorderController@approval_history');
     Route::post('/choose-budget','WorkorderController@choosebudget');
+    Route::get('/non-budget','WorkorderController@nonbudget');
+    
+    
 });

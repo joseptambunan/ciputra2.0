@@ -80,9 +80,18 @@
               <div class="form-group">
                 <label>Tipe Kawasan</label>
                 <select class='form-control select2' name='project_type_id' id='project_type_id'>
-                  <option value="1">Ruko</option>
-                  <option value="2">Perumahan</option>
-                  <option value="3">Gudang</option>
+                  @php
+                    $array = array("1" => "Ruko", "2" => "Perumahan", "3" => "Gudang");
+                  @endphp
+
+                  @for($i=1; $i < 4 ; $i++ )
+                    @if ( $i == $project_kawasan->project_type_id )
+                    <option value="{{ $i }}" selected>{{ $array[$i]}}</option>
+                    @else
+                    <option value="{{ $i }}">{{ $array[$i]}}</option>
+                    @endif
+                  @endfor
+                  
                 </select>
               </div>
               <div class="form-group">

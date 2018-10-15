@@ -8,6 +8,7 @@ Route::group(['middleware' => 'web', 'prefix' => 'project', 'namespace' => 'Modu
     Route::get('/detail','ProjectController@show');
     Route::get('/detail-update','ProjectController@edit');
     Route::post('/edit-proyek','ProjectController@updateproject');
+    Route::post('/getluas','ProjectController@getluas');
 
     Route::get('/unit-type/','ProjectController@unittype');
     Route::get('/add-type/','ProjectController@addtype');
@@ -38,8 +39,14 @@ Route::group(['middleware' => 'web', 'prefix' => 'project', 'namespace' => 'Modu
     Route::get('/units','ProjectController@units');
     Route::get('/add-unit','ProjectController@addunit');
     Route::post("/save-unit","ProjectController@saveunit");
-    
+    Route::get('/edit-unit','ProjectController@viewunit');
+    Route::post('/update-unit','ProjectController@updateunit');
 
     Route::post('/itempekerjaan/','ProjectController@itempekerjaan');
 
+    Route::post('/save-hppupdate','ProjectController@savehppupdate');
+
+    Route::get('/unit-hadap','ProjectController@unithadap');
+    Route::post('/save-hadap','ProjectController@savehadap');
+    Route::post('/delete-hadap','ProjectController@deletehadap');
 });

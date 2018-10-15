@@ -1,0 +1,16 @@
+{
+    "name": "Escrow",
+    "alias": "escrow",
+    "description": "",
+    "keywords": [],
+    "active": 1,
+    "order": 0,
+    "providers": [
+        "Modules\\Escrow\\Providers\\EscrowServiceProvider"
+    ],
+    "aliases": {},
+    "files": [
+        "start.php"
+    ],
+    "requires": []
+}

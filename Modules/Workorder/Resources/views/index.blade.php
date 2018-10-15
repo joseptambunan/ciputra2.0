@@ -34,6 +34,7 @@
                 <thead class="head_table">
                 <tr>
                   <th>No. Workorder </th>
+                  <th>Nilai</th>
                   <th>Departemen</th>
                   <th>Dibuat oleh</th>
                   <th>Tanggal Dibuat</th>
@@ -45,13 +46,14 @@
                 <tbody>
                   @foreach ( $workorder as $key => $value )
                   <tr>
-                    <td>{{ $value->workorder->no }}</td>
-                    <td>{{ $value->workorder->departmentFrom->name }}</td>
-                    <td>{{ \App\User::find($value->workorder->created_by)->user_name }}</td>
+                    <td>{{ $value->no }}</td>
+                    <td>{{ number_format($value->nilai) }}</td>
+                    <td>{{ $value->departmentFrom->name }}</td>
+                     <td>{{ \App\User::find($value->created_by)->user_name }}</td>
                     <td>{{ $value->created_at }}</td>
                     <td><a href="{{ url('/')}}/workorder/detail/?id={{ $value->id }}" class="btn btn-warning">Detail</a></td>
                     <td>
-                      @if ( $value->workorder->approval != "" )
+                      @if ( $value->approval != "" )
                       @php
                         $array = array (
                           "6" => array("label" => "Disetujui", "class" => "label label-success"),
@@ -60,12 +62,14 @@
                           "" => array("label" => "","class" => "")
                         )
                       @endphp
-                      <span class="{{ $array[$value->workorder->approval->approval_action_id]['class'] }}">{{ $array[$value->workorder->approval->approval_action_id]['label'] }}</span>
+                      <span class="{{ $array[$value->approval->approval_action_id]['class'] }}">{{ $array[$value->approval->approval_action_id]['label'] }}</span>
                       @endif               
                     </td>
                     <td>
-                      @if ( $value->workorder->approval->approval_action_id == "6" )
-                      <a class="btn btn-warning" href="{{ url('/')}}/rab/?workorder_id={{ $value->workorder->id }}">Buat RAB</a>
+                      @if ( $value->approval != "" )
+                        @if ( $value->approval->approval_action_id == "6" )
+                        <a class="btn btn-warning" href="{{ url('/')}}/rab/?workorder_id={{ $value->id }}">{{ $value->rabs->count() }}RAB</a>
+                        @endif
                       @endif
                     </td>
                   </tr>

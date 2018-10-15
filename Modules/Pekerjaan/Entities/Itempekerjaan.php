@@ -52,25 +52,25 @@ class Itempekerjaan extends Model
 
     public function rab_pekerjaans()
     {
-        return $this->hasManyThrough('App\RabPekerjaan', 'App\TemplatepekerjaanDetail');
+        return $this->hasMany('\Modules\Rab\Entities\RabPekerjaan');
     }
 
     public function bap_details()
     {
-        return $this->belongsToMany('App\BapDetail', 'bap_detail_itempekerjaans');
+        return $this->belongsToMany('\Modules\Rab\Entities\BapDetail', 'bap_detail_itempekerjaans');
     }
 
     public function budget_tahunan(){
-        return $this->hasMany('App\BudgetTahunanDetail');
+        return $this->hasMany('Modules\Budget\Entities\BudgetTahunanDetail');
     }
 
     public function unitprogress(){
-        return $this->hasMany('App\UnitProgress');
+        return $this->hasMany('Modules\Project\Entities\UnitProgress');
     }
 
     public function unitprogressbyyear($year){
         $nilai = 0;
-        $items = $this->hasMany('App\UnitProgress')->whereYear('created_at',$year)->get();
+        $items = $this->hasMany('Modules\Project\Entities\UnitProgress')->whereYear('created_at',$year)->get();
         foreach ( $items as $key => $value ) {
              $nilai = $nilai + $value->nilai;
         }
@@ -102,7 +102,7 @@ class Itempekerjaan extends Model
     }
 
     public function workorder_budget(){
-        return $this->hasMany("App\WorkorderBudgetDetail");
+        return $this->hasMany("\Modules\Workorder\Entities\WorkorderBudgetDetail");
     }
 
     public function subtotal_workorder($parent_id){
@@ -319,5 +319,105 @@ class Itempekerjaan extends Model
 
     public function progress_termyn(){
         return $this->hasMany("\Modules\Spk\Entities\SpkTermynDetail","item_pekerjaan_id");
+    }
+
+    public function escrow(){
+        return $this->belongsTo("Modules\Escrow\Entities\Escrow","escrow_id");
+    }
+
+    public function getNilaiLowestAttribute(){
+        $nilai = 0;
+        $start = 0;
+        $result = array();
+        $code  = Itempekerjaan::find($this->id)->code;
+        $all_item = Itempekerjaan::where("code","like",$code."%")->get();
+        $spk = "";
+        if ( count($all_item) > 0 ){
+            foreach ($all_item as $key => $value) {
+                $id = $value->id;
+                $unitprogress = \Modules\Project\Entities\UnitProgress::where("itempekerjaan_id",$id)->get();
+                if ( count($unitprogress) > 0 ){
+                    foreach ($unitprogress as $key2 => $value2) {
+                        if ( isset($value2->spkvo_unit->spk_detail->spk->id)) {
+                            if ( $value2->spkvo_unit->spk_detail->spk->project != ""){
+                                $project_name = $value2->spkvo_unit->spk_detail->spk->project->name;
+                            }else{
+                                $project_name = "";
+                            }
+                            
+                            if ( $value2->spkvo_unit->spk_detail->spk->id == $spk ){
+                                $nilai = ( $value2->nilai * $value2->volume ) + $nilai;
+                                $result[$start] = array("nilai" => $nilai, "project" => $project_name);
+                            }else{
+                                $start++;
+                                $spk = $value2->spkvo_unit->spk_detail->spk->id;
+                                $nilai  = 0;
+                                $nilai = ( $value2->nilai * $value2->volume ) + $nilai;
+                                $result[$start] = array("nilai" => $nilai, "project" => $project_name );                  
+                            }
+                        }
+                        //$start++;
+                    }
+                }
+            }
+        }
+        
+        if ( count($result) > 0 ){
+            $now =(array_values(array_sort($result)));
+            return reset($now);            
+        }else{
+            $result[0] = array("nilai" => "0", "project" => "" );
+            $now =(array_values(array_sort($result)));
+            return reset($now);
+        }
+    }
+
+    public function getNilaiMaximumAttribute(){
+        $nilai = 0;
+        $start = 0;
+        $result = array();
+        $code  = Itempekerjaan::find($this->id)->code;
+        $all_item = Itempekerjaan::where("code","like",$code."%")->get();
+        $spk = "";
+        if ( count($all_item) > 0 ){
+            foreach ($all_item as $key => $value) {
+                $id = $value->id;
+                $unitprogress = \Modules\Project\Entities\UnitProgress::where("itempekerjaan_id",$id)->get();
+                if ( count($unitprogress) > 0 ){
+                    foreach ($unitprogress as $key2 => $value2) {
+                        if ( isset($value2->spkvo_unit->spk_detail->spk->id)) {
+                            
+                            if ( $value2->spkvo_unit->spk_detail->spk->project != ""){
+                                $project_name = $value2->spkvo_unit->spk_detail->spk->project->name;
+                            }else{
+                                $project_name = "";
+                            }
+                            
+                            if ( $value2->spkvo_unit->spk_detail->spk->id == $spk ){                               
+                                $nilai = ( $value2->nilai * $value2->volume ) + $nilai;                               
+                                $result[$start] = array("nilai" => $nilai, "project" => $project_name );
+                            }else{
+                                $start++;
+                                $spk = $value2->spkvo_unit->spk_detail->spk->id;
+                                $nilai  = 0;
+                                $nilai = ( $value2->nilai * $value2->volume ) + $nilai;
+                                $result[$start] = array("nilai" => $nilai, "project" => $project_name );                 
+                            }
+                        }
+                        //$start++;
+                    }
+                }
+            }
+        }
+
+        if ( count($result) > 0 ){
+            $now =(array_values(array_sort($result)));
+            return end($now);       
+        }else{
+            $result[0] = array("nilai" => "0", "project" => "" );
+            $now =(array_values(array_sort($result)));
+            return reset($now);
+        }
+        
     }
 }

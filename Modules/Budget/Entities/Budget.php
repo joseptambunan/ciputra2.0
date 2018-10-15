@@ -33,7 +33,7 @@ class Budget extends Model
 
     public function pt()
     {
-        return $this->belongsTo('Modules\Pt\Entities\Pt');
+        return $this->belongsTo('Modules\Pt\Entities\Pt',"pt_id");
     }
 
     public function parent()
@@ -86,7 +86,7 @@ class Budget extends Model
 
     public function itempekerjaans()
     {
-        return \App\Itempekerjaan::whereHas('budget_details', function($q) 
+        return \Modules\Pekerjaan\Entities\Itempekerjaan::whereHas('budget_details', function($q) 
         {
             $q->whereHas('budget', function($r)
             {
@@ -163,7 +163,7 @@ class Budget extends Model
         $nilai = 0;
         foreach ($this->details as $key => $value) {
             # code...
-            if ( Itempekerjaan::find($value->itempekerjaan_id)->group_cost == "1"){
+            if ( \Modules\Pekerjaan\Entities\Itempekerjaan::find($value->itempekerjaan_id)->group_cost == "1"){
                 $nilai = $nilai + ( $value->volume * $value->nilai);
             }
         }
@@ -174,7 +174,7 @@ class Budget extends Model
         $nilai = 0;
         foreach ($this->details as $key => $value) {
             # code...
-            if ( Itempekerjaan::find($value->itempekerjaan_id)->group_cost == "2"){
+            if ( \Modules\Pekerjaan\Entities\Itempekerjaan::find($value->itempekerjaan_id)->group_cost == "2"){
                 $nilai = $nilai + ( $value->volume * $value->nilai);
             }
         }
@@ -212,12 +212,18 @@ class Budget extends Model
                     $total_nilai = $total_nilai + $budgets->nilai;
                     $total_volume = $total_volume + $budgets->volume;
                     $satuan = $budgets->satuan;
-                    $id .= $value->id."<>".$budgets->volume.",";
+                    $id = $value->id;
                     $total = $total + ( $budgets->nilai * $budgets->volume );
                 }
             }
-            $arrayResult[$i] = array("id" => $item_id[$i], "nilai" => $total_nilai, "volume" => $total_volume, "satuan" => $satuan, "isdasd" => $id, "total" => $total);
+            $arrayResult[$i] = array("id" => $item_id[$i], "nilai" => $total_nilai, "volume" => $total_volume, "satuan" => $satuan, "id" => $id, "total" => $total);
         }
         return $arrayResult;
     }
+
+    public function draft(){
+        return $this->hasMany("Modules\BudgetDraft\Entities\BudgetDraft","budget_parent_id");
+    }
+
+   
 }

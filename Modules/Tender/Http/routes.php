@@ -6,6 +6,7 @@ Route::group(['middleware' => 'web', 'prefix' => 'tender', 'namespace' => 'Modul
     Route::get('/add','TenderController@create');
     Route::post('/save','TenderController@store');
     Route::get('/detail','TenderController@show');
+    Route::post('/update','TenderController@update');
 
     Route::post('/save-rekanans','TenderController@saverekanan');
     Route::post('/remove-rekanan','TenderController@removerekanan');
@@ -23,6 +24,15 @@ Route::group(['middleware' => 'web', 'prefix' => 'tender', 'namespace' => 'Modul
     Route::post('/penawaran-save3','TenderController@updatepenawaran3');
     Route::get('/penawaran-step3','TenderController@step3');
 
+    Route::get('/penawaran-edit/','TenderController@editpenawaran');
+    Route::post('/penawaran-saveedit/','TenderController@saveeditpenawaran');
+    Route::get('/download/','TenderController@download');
+
     Route::post('/ispemenang','TenderController@ispemenang');
-    
+    Route::get('/detail-penawaran','TenderController@rekaptender');
+
+    Route::get('/approval_history','TenderController@approval_history');
+
+    Route::post('/update-document','TenderController@updatedocument');
+
 });

@@ -11,4 +11,11 @@ Route::group(['middleware' => 'web', 'prefix' => 'user', 'namespace' => 'Modules
     Route::post('/add-user','UserController@addUser');
     Route::post('/update-user','UserController@updateUser');
     Route::post('/delete-user','UserController@destroy');
+
+    Route::post('/save-project_pt','UserController@projectpt');
+    Route::post('/save-detail','UserController@saveuserdetail');
+    Route::post('/delete-detail','UserController@removedetail');
+
+    Route::get('/approval/user_detail','UserController@approvaldetail');
+    Route::post('/approval/save-detail/','UserController@saveapprovaldetail');
 });

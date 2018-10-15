@@ -42,8 +42,12 @@
                 <input type="text" class="form-control" value="{{ $budget->no }}" readonly>
               </div>
               <div class="form-group">
-                <label>Nilai(Rp)</label>
-                <input type="text" class="form-control" value="{{ number_format($budget->nilai) }}" readonly>
+                <label>Nilai Dev Cost(Rp)</label>
+                <input type="text" class="form-control" value="{{ number_format($budget->total_dev_cost) }}" readonly>
+              </div> 
+              <div class="form-group">
+                <label>Project / Kawasan</label>
+                <input type="text" class="form-control" value="{{ $budget->project->name }} / {{ $budget->kawasan->name or ''}}" readonly>
               </div> 
               <div class="form-group">
                 <label>Tahun Anggaran</label>
@@ -55,7 +59,7 @@
               </div>
               <div class="form-group">
                 <label>Keterangan</label>
-                <input type="text" name="description" id="description" class="form-control">
+                <input type="text" name="description" id="description" class="form-control" autocomplete="off">
               </div>
               <div class="box-footer">
                 <button type="submit" class="btn btn-primary">Simpan</button>
@@ -95,6 +99,9 @@
                     <td>
                       @if ( $value->approval != "" )
                        <span class="{{ $array[$value->approval->approval_action_id]['class'] }}">{{ $array[$value->approval->approval_action_id]['label'] }}</span>
+                        @if ( $value->approval->approval_action_id == "7") 
+                        <button class="btn btn-info" href="{{ url('/')}}/budget/approval" onclick="updateapproval('{{ $value->id }}','{{ $value->approval->id }}')">Request Approval</button>
+                        @endif
                       @else
                       <button class="btn btn-success" onclick="requestapprove('{{ $value->id }}')">Request Approve</button>
                       @endif
@@ -136,6 +143,32 @@
 
 @include("master/footer_table")
 @include("budget::app")
+<script type="text/javascript">
+  function updateapproval(id,approval_id){
+    if ( confirm("Apakah anda yakin ingin merilis budget ini ? ")){
+      var request = $.ajax({
+        url : "{{ url('/')}}/budget/approval-update",
+        data : {
+          id : id,
+          approval_id : approval_id
+        },
+        type : "post",
+        dataType : "json"
+      });
 
+      request.done(function(data){
+        if ( data.status == "0" ){
+          alert("Budget telah dirilis ");
+          window.location.reload();
+        }else{
+          return false;
+        }
+      });
+
+    }else{
+      return false;
+    }
+  }
+</script>
 </body>
 </html>

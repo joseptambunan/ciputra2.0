@@ -38,20 +38,19 @@
                 <div class="form-group">
                   <label>No. RAB</label>
                   <select class="form-control" name="tender_rab">
+                    <option value="">(pilih nama tender)</option>
                     @foreach ( $workorder as $key2 => $value2  )
                       @foreach ( $value2->rabs as $key => $value )
+                        @if ( $value->parent_id != "")
                         @if ( count(Modules\Tender\Entities\Tender::where("rab_id",$value->id)->get()) <= 0 )
                         <option value="{{ $value->id }}">{{ $value->no }} / {{ \Modules\Pekerjaan\Entities\Itempekerjaan::find($value->parent_id)->code }} - {{ \Modules\Pekerjaan\Entities\Itempekerjaan::find($value->parent_id)->name }}</option>
+                        @endif
                         @endif
                       @endforeach
                     @endforeach
                   </select>
                 </div>
-                <div class="form-group">
-                  <label>Nama Tender</label>
-                  <input type="text" class="form-control" name="tender_name" value="" required>
-                </div>
-                               
+                    
               <div class="box-footer">
                 <button type="submit" class="btn btn-primary">Simpan</button>
               </div>

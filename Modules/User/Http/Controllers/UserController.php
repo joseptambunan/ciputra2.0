@@ -12,6 +12,8 @@ use Modules\Project\Entities\ProjectPtUser;
 use Modules\Pt\Entities\Pt;
 use Modules\Document\Entities\DocumentType;
 use Modules\Approval\Entities\ApprovalReference;
+use Modules\Jabatan\Entities\UserJabatan;
+use Modules\User\Entities\UserDetail;
 
 class UserController extends Controller
 {
@@ -56,7 +58,8 @@ class UserController extends Controller
     {
         $user = \Auth::user();
         $usermaster = User::get();
-        return view('user::show',compact("user","usermaster"));
+        $project = Project::get();
+        return view('user::show',compact("user","usermaster","project"));
     }
 
     /**
@@ -71,7 +74,8 @@ class UserController extends Controller
         $project = Project::get();
         $pt = Pt::get();
         $document = DocumentType::get();
-        return view('user::detail',compact("user","project_pt_user","project","pt","document","users"));
+        $jabatan = UserJabatan::get();
+        return view('user::detail',compact("user","project_pt_user","project","pt","document","users","jabatan"));
     }
 
     /**
@@ -98,7 +102,7 @@ class UserController extends Controller
      */
     public function destroy(Request $request)
     {
-        $user = User::find($request->id);
+        $user = ProjectPtUser::find($request->id);
         $status = $user->delete();
         if ( $status ){
             return response()->json( ["status" => "0"] );
@@ -107,26 +111,6 @@ class UserController extends Controller
         }
     }
 
-    public function saveapproval(Request $request){
-        //print_r($request->min_value_);die;
-        $start = 0;
-        foreach ($request->document_ as $key => $value) {
-            if ( isset($request->check_[$start]) ){
-                $approval_reference = new ApprovalReference;
-                $approval_reference->user_id = \Auth::user()->id;
-                $approval_reference->project_id = $request->project_name;
-                $approval_reference->pt_id = $request->pt_name;
-                $approval_reference->document_type = $request->document_[$key];
-                $approval_reference->no_urut = $request->urut[$start];
-                $approval_reference->min_value = $request->min_value_[$start];
-                $status = $approval_reference->save();                
-            }
-            $start++;
-        }
-
-        return redirect("/user/detail/?id=".\Auth::user()->id);
-       
-    }
 
     public function deleteApproval(Request $request){
         $user = ApprovalReference::find($request->id);
@@ -162,5 +146,118 @@ class UserController extends Controller
         $user->description = $request->description;
         $user->save();
         return redirect("/user/detail?id=".$request->userid);
+    }
+
+    public function projectpt(Request $request){
+        $project = new ProjectPtUser;
+        $project->user_id = $request->userid;
+        $project->project_id = $request->project_s;
+        $project->pt_id = $request->pt_s;
+        $status = $project->save();
+        return redirect("/user/detail?id=".$request->userid);
+    }
+
+    public function saveuserdetail(Request $request){
+        $user_detail = new UserDetail;
+        $jabatan = UserJabatan::find($request->jabatan);
+        $project_pt = ProjectPtUser::find($request->project_pt);
+        if ( $request->jabatan > 5 ){
+            if ( $request->dept != "" ) {
+                foreach ($request->dept as $key => $value) {
+                    $user_jabatan = new UserDetail;
+                    $user_jabatan->user_id = $request->user_id;
+                    $user_jabatan->mappingperusahaan_id = $request->dept[$key];
+                    $user_jabatan->user_jabatan_id = $request->jabatan;
+                    if ( $request->is_approve != "" ){
+                        $user_jabatan->can_approve = 1;
+                    }
+                    $user_jabatan->created_by = \Auth::user()->id;
+                    $user_jabatan->user_level = $jabatan->id;
+                    $user_jabatan->project_pt_id = $request->project_pt;
+                    $user_jabatan->save();
+                }
+            }else{
+                $user_jabatan = new UserDetail;
+                $user_jabatan->user_id = $request->user_id;
+                $user_jabatan->mappingperusahaan_id = $request->dept[$key];
+                $user_jabatan->user_jabatan_id = $request->jabatan;
+                if ( $request->is_approve != "" ){
+                    $user_jabatan->can_approve = 1;
+                }
+                $user_jabatan->created_by = \Auth::user()->id;
+                $user_jabatan->user_level = $jabatan->id;
+                $user_jabatan->project_pt_id = $request->project_pt;
+                $user_jabatan->save();
+            }
+        }else{
+            foreach ($project_pt->pt->mapping as $key => $value) {
+                $user_jabatan = new UserDetail;
+                $user_jabatan->user_id = $request->user_id;
+                $user_jabatan->mappingperusahaan_id = $value->id;
+                $user_jabatan->user_jabatan_id = $request->jabatan;
+                if ( $request->is_approve != "" ){
+                    $user_jabatan->can_approve = 1;
+                }
+                $user_jabatan->created_by = \Auth::user()->id;
+                $user_jabatan->user_level = $jabatan->id;
+                $user_jabatan->project_pt_id = $request->project_pt;
+                $user_jabatan->save();
+            }
+        }
+
+        return redirect("/user/detail?id=".$request->user_id);
+    }
+
+    public function approvaldetail(Request $request){
+        $project_pt = ProjectPtUser::find($request->id);
+        $user = User::find($project_pt->user_id);
+        $project = Project::get();
+        $document = DocumentType::get();
+        $user_detail = $user->details;
+        $level = array();
+        foreach ($user_detail as $key => $value) {
+            $level[$key] = $value->user_level;
+        }
+        $uniq = array_values(array_unique($level));
+
+        return view("user::approval_detail",compact("user","project_pt","project","document","uniq"));
+    }
+
+    public function saveapprovaldetail(Request $request){
+
+        foreach ($request->document_ as $key => $value) {
+            if ( isset($request->document_[$key]) ){
+                if ( $request->document_[$key] != ""){                    
+                    $approval_reference = new ApprovalReference;
+                    $approval_reference->user_id = $request->user_id;
+                    $approval_reference->project_id = $request->project_id;
+                    $approval_reference->pt_id = $request->pt_id;
+                    $approval_reference->document_type = $request->document_[$key];
+                    $approval_reference->no_urut = $request->urut[0];
+                    $approval_reference->min_value = 0;
+                    $approval_reference->max_value =0;
+                    $status = $approval_reference->save();  
+                }              
+            }
+            
+        }
+
+        return redirect("/user/detail/?id=".$request->user_id);
+    }
+
+    public function removedetail(Request $request){
+        $pt = Pt::find($request->pt);
+        $user = User::find($request->user_id);
+        foreach ($user->details as $key => $value) {
+            foreach ($pt->mapping as $key2 => $value2) {
+                if ( $value2->id == $value->mappingperusahaan_id ){
+                    if ( $value->user_jabatan_id == $request->jabatan_id ){
+                        $user_detail = UserDetail::find($value->id);
+                        $user_detail->delete();
+                    }
+                }
+            }
+        }
+         return response()->json( ["status" => "0"] );
     }
 }

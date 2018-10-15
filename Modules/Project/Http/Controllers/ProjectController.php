@@ -13,6 +13,11 @@ use Modules\Pekerjaan\Entities\Itempekerjaan;
 use Modules\Project\Entities\Templatepekerjaan;
 use Modules\Project\Entities\TemplatepekerjaanDetail;
 use Modules\Project\Entities\Unit;
+use Modules\Globalsetting\Entities\Globalsetting;
+use Modules\Budget\Entities\HppUpdate;
+use Modules\Budget\Entities\HppUpdateDetail;
+use Modules\Project\Entities\UnitArah;
+use Modules\Country\Entities\City;
 
 class ProjectController extends Controller
 {
@@ -44,7 +49,9 @@ class ProjectController extends Controller
     public function create()
     {
         $user = \Auth::user();
-        return view('project::create',compact("user"));
+        $project = Project::get();
+        $cities = City::get();
+        return view('project::create',compact("user","project","cities","cities"));
     }
 
     /**
@@ -65,6 +72,7 @@ class ProjectController extends Controller
         $project->fax    = $request->fax ;
         $project->email = $request->email;
         $project->description = $request->description;
+        $project->city_id = $request->city_id;
         $project->save();
 
         return redirect("project/detail/?id=".$project->id);
@@ -79,7 +87,11 @@ class ProjectController extends Controller
         $user = \Auth::user();
         $project = Project::find($request->id);
         $request->session()->put('project_id', $request->id);
-        return view('project::show',compact("project","user"));
+        $level = "" ;
+        if ( ($request->session()->get('level'))) {
+            $level = "superadmin";
+        }
+        return view('project::show',compact("project","user","level"));
     }
 
     /**
@@ -88,9 +100,11 @@ class ProjectController extends Controller
      */
     public function edit(Request $request)
     {
-        $project = Project::find($request->id);
+        $project_detail = Project::find($request->id);
         $user = \Auth::user();
-        return view('project::edit_project',compact("project","user"));
+        $project = Project::get();
+        $cities = City::get();
+        return view('project::edit_project',compact("project","user","project_detail","cities"));
     }
 
     /**
@@ -164,8 +178,10 @@ class ProjectController extends Controller
         $project_kawasan->name                   = $request->nama_kawasan;
         $project_kawasan->lahan_status           = $request->lahan_status;
         $project_kawasan->lahan_luas             = str_replace(",","",$request->luas_brutto);
-        $project_kawasan->lahan_sellable        = str_replace(",","",$request->luas_netto);
-        $project_kawasan->is_kawasan            = $request->is_kawasan;
+        $project_kawasan->lahan_sellable         = str_replace(",","",$request->luas_netto);
+        $project_kawasan->is_kawasan             = $request->is_kawasan;
+        $project_kawasan->project_type_id        = $request->project_type_id;
+        $project_kawasan->save();
         return redirect("/project/kawasan/");
     }
 
@@ -173,17 +189,20 @@ class ProjectController extends Controller
         $user = \Auth::user();
         $projectkawasan = ProjectKawasan::find($request->id);
         $bloks = $projectkawasan->bloks;
-        return view("project::blok_kawasan",compact("projectkawasan","bloks","user"));
+        $project = $projectkawasan->project;
+        return view("project::blok_kawasan",compact("projectkawasan","bloks","user","project"));
     }
 
     public function addblok(Request $request){
         $user = \Auth::user();
         $projectkawasan = ProjectKawasan::find($request->id);
-        return view("project::create_blok",compact("user","projectkawasan"));
+        $project = $projectkawasan;
+        return view("project::create_blok",compact("user","projectkawasan","project"));
     }
 
     public function saveblok(Request $request){
         $blok = new Blok;
+        $blok->kode = $request->kode;
         $blok->project_id = $request->project_id;
         $blok->project_kawasan_id = $request->projectkawasan;
         $blok->name = $request->name;
@@ -195,7 +214,8 @@ class ProjectController extends Controller
     public function editblok(Request $request){
         $blok = Blok::find($request->id);
         $user = \Auth::user();
-        return view("project::edit_blok",compact("user","blok"));
+        $project = $blok->kawasan->project;
+        return view("project::edit_blok",compact("user","blok","project"));
     }
 
     public function updateblok(Request $request){
@@ -220,7 +240,8 @@ class ProjectController extends Controller
         $blok = Blok::find($request->id);
         $user = \Auth::user();
         $projectkawasan = $blok->kawasan;
-        return view("project::unit_kawasan",compact("user","blok","projectkawasan"));
+        $project = $projectkawasan->project;
+        return view("project::unit_kawasan",compact("user","blok","projectkawasan","project"));
     }
 
     public function addunit(Request $request){
@@ -228,8 +249,14 @@ class ProjectController extends Controller
         $blok = Blok::find($request->id);
         $project = $blok->project_kawasan->project;
         $unittype = $project->unittype;
+        $units = $blok->units;
         $pt = $project->pts;
-        return view("project::create_unit",compact("user","blok","project","unittype"));
+        $global_setting = Globalsetting::where("parameter","length_number")->first()->value;
+        $start = "";
+        for ( $i=0;  $i < ( $global_setting - (strlen(count($units)))) ; $i++ ){
+            $start .= "0";
+        }
+        return view("project::create_unit",compact("user","blok","project","unittype","start"));
     }
 
     public function unittype(Request $request){
@@ -247,11 +274,13 @@ class ProjectController extends Controller
 
     public function savetype(Request $request){
         $unit_type = new UnitType;
+        $unit_type->kode = $request->code;
         $unit_type->project_id = $request->project_id;
         $unit_type->name = $request->name;
         $unit_type->luas_bangunan = $request->luas;
-        $unit_type->luas_tanah = $request->luas_tanah;
+        $unit_type->luas_tanah = str_replace(",", "", $request->luas_tanah);
         $unit_type->description = $request->description;
+        $unit_type->listrik = str_replace(",", "", $request->elektrik);
         $unit_type->save();
         return redirect("project/unit-type");
     }
@@ -270,6 +299,8 @@ class ProjectController extends Controller
         $unit_type = UnitType::find($request->id);
         $unit_type->name = $request->name;
         $unit_type->luas_bangunan = $request->luas;
+        $unit_type->luas_tanah = $request->luas_tanah;
+        $unit_type->listrik = $request->listrik;
         $status = $unit_type->save();
         if ( $status ){
             return response()->json( ["status" => "0"] );
@@ -287,7 +318,7 @@ class ProjectController extends Controller
 
     public function addtemplate(Request $request){
         $template = new Templatepekerjaan;
-        $template->name = $request->name;
+        $template->name = $request->nama;
         $template->code = $request->code;
         $template->luasbangunan = $request->lb;
         $template->luas_tanah = $request->lt;
@@ -299,7 +330,7 @@ class ProjectController extends Controller
     public function detailtemplate(Request $request){
         $template = Templatepekerjaan::find($request->id);
         $user = \Auth::user();
-        $project = Project::find($template->unit_type->project->id);
+        $project = Project::find(($request->session()->get('project_id')));
         $itempekerjaan = Itempekerjaan::where("parent_id",null)->get();
         return view("project::detail_template",compact("template","user","project","itempekerjaan"));
     }
@@ -333,8 +364,8 @@ class ProjectController extends Controller
                         $html .= "<tr>";
                         $html .= "<td><strong>".$value5->code."</strong></td>";
                         $html .= "<td style='background-color: white;color:black;' onclick='showhide(".$value5->id.")' data-attribute='1' id='btn_".$value5->id."'>".$value5->name."</td>";
-                        $html .= "<td><input type='hidden' class='form-control' name='item_id_[".$start."]' value='".$value5->id."'/><input type='text' class='form-control' name='volume_[".$start."]' value=''/></td>";
-                        $html .= "<td><input type='text' class='form-control' name='satuan_[".$start."]' value=''/></td>";
+                        $html .= "<td><input type='hidden' class='form-control' name='item_id_[".$start."]' value='".$value5->id."'/><input type='text' class='form-control' name='volume_[".$start."]' value='".rand(1,500)."'/></td>";
+                        $html .= "<td><input type='text' class='form-control' name='satuan_[".$start."]' value='m2'/></td>";
                         $html .= "</tr>";
                         $start++;
                     }
@@ -362,7 +393,7 @@ class ProjectController extends Controller
 
     public function savetemplatedetail(Request $request){
         //print_r($request->item_id);die;
-        foreach ($request->item_id as $key => $value) {
+        foreach ($request->item_id_ as $key => $value) {
             if ( $request->volume_[$key] != "" && $request->satuan_[$key] != "" ){
                 $TemplatepekerjaanDetail = new TemplatepekerjaanDetail;
                 $TemplatepekerjaanDetail->templatepekerjaan_id = $request->template_id;
@@ -388,31 +419,41 @@ class ProjectController extends Controller
         $project->fax    = $request->fax ;
         $project->email = $request->email;
         $project->description = $request->description;
+        $project->city_id = $request->city_id;
         $project->save();
 
         return redirect("project/detail-update/?id=".$request->project_id);
     }
 
     public function saveunit(Request $request){
+        $start = "";
         for ($i=1; $i <= $request->quantity ; $i++) 
         { 
             $blok = Blok::find($request->blok);
-            
+            $units = $blok->units;
+            $global_setting = Globalsetting::where("parameter","length_number")->first()->value;
+
+            $start = "";
+            for ( $j=0;  $j < ( $global_setting - (strlen(count($units) + 1) )) ; $j++ ){
+                $start .= "0";
+            }
+
+            $unit_no = str_replace(" ","",$blok->kode) .'/'. $start.($request->starting_number - 1 +$i);
             $project_units                         = new Unit;
             $project_units->blok_id                = $blok->id;
             $project_units->peruntukan_id          = $request->peruntukan_id;
             $project_units->pt_id                  = $request->pt_id;
-            $project_units->name                   = $blok->name .'/'. ($request->starting_number -1 +$i);
-            $project_units->code                   = $blok->units->count() +1;
+            $project_units->name                   = $unit_no;
+            $project_units->code                   = $unit_no;
             $project_units->tag_kategori           = $request->tag_kategori;
 
             $project_units->templatepekerjaan_id   = $request->unit_template;
-            $project_units->bangunan_luas          = $request->luas_bangunan;
+            $project_units->bangunan_luas          = str_replace(",", "", $request->luas_bangunan);
 
-            $project_units->tanah_luas             = $request->luas_tanah;
+            $project_units->tanah_luas             = str_replace(",", "", $request->luas_tanah);
             $project_units->unit_arah_id           = $request->unit_arah_id;
             $project_units->unit_type_id           = $request->unit_type;
-            $project_units->unit_hadap_id          = "1";
+            $project_units->unit_hadap_id          = $request->unit_hadap;
             if ($request->is_sellable) 
             {
                 $project_units->is_sellable = TRUE;
@@ -423,6 +464,103 @@ class ProjectController extends Controller
             $status = $project_units->save();
         }
         return redirect("project/units/?id=".$request->blok);
+    }
+
+    public function getluas(Request $request){
+        $type = UnitType::find($request->id);
+        $data['luas_tanah'] = $type->luas_tanah;
+        $data['luas_bangunan'] = $type->luas_bangunan;
+        json_encode($data);
+        return response()->json( ["status" => "0", "data" => $data, "luas_tanah" => $type->luas_tanah, "luas_bangunan" => $type->luas_bangunan] );
+    }
+
+    public function viewunit(Request $request ){
+        $unit = Unit::find($request->id);
+        $project = Project::find($request->session()->get('project_id'));
+        $user = \Auth::user();
+        if ( count($unit->progresses) > 0  ){
+            $readonly = "disabled";
+        }else{
+            $readonly = "";
+        }
+        return view("project::view_unit",compact("project","user","unit","readonly"));
+    }
+
+    public function updateunit(Request $request){
+        $unit = Unit::find($request->unit);
+        $unit->pt_id = $request->pt_id;
+        $unit->unit_arah_id = $request->unit_arah_id;
+        $unit->unit_type_id = $request->unit_type;
+        $unit->name = $request->unit_nomor;
+        $unit->tanah_luas = $request->luas_tanah;
+        $unit->bangunan_luas = $request->luas_bangunan;
+        $unit->is_sellable = $request->is_sellable;
+        $unit->tag_kategori = $request->tag_kategori;
+        $unit->save();
+        return redirect("/project/units/?id=".$unit->blok->id);
+    }
+
+    public function savehppupdate(Request $request){
+        $project = Project::find($request->project_id);
+        /*$hpp = $project->hpp_update;
+        $hpp = HppUpdate::find($hpp->last()->id);
+        $hpp->luas_book = str_replace(",", "", $request->luas_book);
+        $hpp->save();*/
+        $hpp = new HppUpdate;
+        $hpp->project_id = $project->id;
+        $hpp->nilai_budget = $project->total_budget_dev_cost;
+        $hpp->luas_book = $request->luas_book;
+        $hpp->luas_erem = $request->luas_erem;
+        $hpp->netto = $project->netto;
+        $hpp->save();
+        $nilai = 0;
+
+        foreach ($project->budgets as $key => $value) {
+                
+        }
+
+        return redirect("/project/detail?id=".$project->id);
+    }
+
+    public function getDevCostTerbayarAttribute(){
+        $nilai = 0;
+        foreach ($this->spks as $key => $value) {
+            $nilai = ( $value->bap * $spk->nilai ) + $nilai;
+        }
+        return $nilai;
+    }
+
+    public function getHutangBayarAttribute(){
+        $nilai = 0;
+        foreach ($this->spks as $key => $value) {
+            $nilai = ( $value->bap * $spk->nilai ) + $nilai;
+        }
+        return $nilai;
+    }
+
+    public function unithadap(Request $request){
+        $user = \Auth::user();
+        $project = Project::find($request->session()->get('project_id'));
+        $hadap = $project->hadap;
+        return view('project::unit_arah',compact("user","project","hadap"));
+    }
+
+    public function savehadap(Request $request){
+        $unitarah = new UnitArah;
+        $unitarah->name = $request->arah;
+        $unitarah->project_id = $request->project_id;
+        $unitarah->save();
+        return redirect("/project/unit-hadap");
+    }
+
+    public function deletehadap(Request $request){
+        $unitarah = UnitArah::find($request->id);
+        $status = $unitarah->delete();
+        if ( $status ){
+            return response()->json( ["status" => "0"] );
+        }else{
+            return response()->json( ["status" => "1"] );
+        }
     }
 
 }

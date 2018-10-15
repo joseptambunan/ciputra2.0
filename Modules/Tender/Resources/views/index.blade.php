@@ -56,16 +56,18 @@
                     <td><a href="{{ url('/')}}/tender/detail/?id={{ $value->id }}" class="btn btn-warning">Detail</a></td>
                     <td>
                       @if ( count($value->menangs) > 0 )
-                        @foreach ( $value->menangs as $key2 => $value2 )
-                        <strong>{{ $value2->tender_rekanan->rekanan->group->name }}</strong><br>
-                        @if ( $value2->approval->approval_action_id == "6")
-                          @if ( count($value->spks) <=0 )
-                            <a href="{{ url('/')}}/spk/create/?id={{ $value2->id }}" class="btn btn-info">Buat SPK</a>
+                        {{ $value->menangs->first()->rekanan->group->name }}                      
+                        @if ( count($value->spks) <= 0 )
+                          @if ( $value->approval->approval_action_id == "6")
+                          <a href="{{ url('/')}}/spk/create/?id={{ $value->id }}" class="btn btn-info">Buat SPK</a>
                           @else
-                          <a href="{{ url('/')}}/spk/detail/?id={{ $value->spks->first()->id }}" class="btn btn-info">Detail SPK</a>
+                          Menunggu Approval
                           @endif
+                        @else                      
+                          <a href="{{ url('/')}}/spk/detail/?id={{ $value->spks->first()->id }}" class="btn btn-info">Detail SPK</a>            
                         @endif
-                        @endforeach
+                      @else
+                        Dalam Proses Tender
                       @endif
                     </td>
                   </tr>

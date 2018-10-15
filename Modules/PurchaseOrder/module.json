@@ -1,0 +1,16 @@
+{
+    "name": "PurchaseOrder",
+    "alias": "purchaseorder",
+    "description": "",
+    "keywords": [],
+    "active": 1,
+    "order": 0,
+    "providers": [
+        "Modules\\PurchaseOrder\\Providers\\PurchaseOrderServiceProvider"
+    ],
+    "aliases": {},
+    "files": [
+        "start.php"
+    ],
+    "requires": []
+}

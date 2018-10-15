@@ -25,12 +25,12 @@ class ProjectKawasan extends CustomModel
     
 	public function budgets()
     {
-        return $this->hasMany('Modules\Budget\Entities\Budget',"project_kawasan_id");
+        return $this->hasMany('Modules\Budget\Entities\Budget',"project_kawasan_id")->where("deleted_at",null);
     }
 
     public function units()
     {
-        return $this->hasManyThrough('App\Unit', 'App\Blok');
+        return $this->hasManyThrough('Modules\Project\Entities\Unit', 'Modules\Project\Entities\Blok');
     }
 
     public function workorder_details()
@@ -571,7 +571,7 @@ class ProjectKawasan extends CustomModel
                 $HppDevCostSummaryReport->save();
             }
         } else {
-            $HppDevCostSummaryReport = new HppDevCostSummaryReport;
+            $HppDevCostSummaryReport = new \App\HppDevCostSummaryReport;
             $HppDevCostSummaryReport->project_id = $this->project->id;
             $HppDevCostSummaryReport->project_kawasan_id = $this->id;
             if ( $this->lahan_sellable == "0.0"){

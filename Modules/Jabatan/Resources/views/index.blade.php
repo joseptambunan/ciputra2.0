@@ -32,15 +32,15 @@
                   
                   <div class="form-group">
                       <label for="exampleInputEmail1">Kode Jabatan</label>
-                      <input type="text" class="form-control" name="code">
+                      <input type="text" class="form-control" name="code" autocomplete="off">
                   </div>
                   <div class="form-group">
                       <label for="exampleInputEmail1">Nama Jabatan</label>
-                      <input type="text" class="form-control" name="jabatan">
+                      <input type="text" class="form-control" name="jabatan" autocomplete="off">
                   </div>
                   <div class="form-group">
                       <label for="exampleInputEmail1">Keterangan</label>
-                      <input type="text" class="form-control" name="keterangan">
+                      <input type="text" class="form-control" name="keterangan" autocomplete="off">
                   </div>
                   <div class="box-footer">
                     <button type="submit" class="btn btn-primary">Simpan</button>

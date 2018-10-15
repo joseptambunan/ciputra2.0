@@ -36,7 +36,7 @@
                   <th>No. SPK </th>
                   <th>Pekerjaan</th>
                   <th>Department From</th>
-                  <th>Nilai</th>
+                  
                   <th>Tanggal</th>
                   <th>Detail</th>
                   <th>Status Approval</th>
@@ -49,8 +49,7 @@
                     <td>{{ $value->no }}</td>
                     <td>{{ $value->name }}</td>
                     <td>{{ $value->tender->rab->workorder->departmentFrom->name or '' }}</td>
-                    <td>{{ number_format($value->nilai) }}</td>
-                    <td>{{ $value->created_at }}</td>
+                    <td>{{ $value->finish_date->format('d/m/y') }}</td>
                     <td><a href="{{ url('/')}}/progress/show?id={{ $value->id }}" class="btn btn-warning">Detail</td>
                     <td>
                       @if ( $value->approval == "" )

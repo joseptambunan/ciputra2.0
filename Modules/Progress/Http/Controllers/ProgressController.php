@@ -13,6 +13,7 @@ use Modules\Spk\Entities\SpkDetail;
 use Modules\Spk\Entities\SpkTermyn;
 use Modules\Spk\Entities\SpkTermynDetail;
 use Modules\Project\Entities\UnitProgressDetail;
+use Modules\Tender\Entities\TenderUnit;
 
 class ProgressController extends Controller
 {
@@ -37,9 +38,19 @@ class ProgressController extends Controller
      * Show the form for creating a new resource.
      * @return Response
      */
-    public function create()
+    public function create(Request $request)
     {
-        return view('progress::create');
+        $unitprogress = UnitProgress::where("unit_id",$request->id)->get();
+        $user = \Auth::user();
+        $project = Project::find($request->session()->get('project_id'));
+        $unit = TenderUnit::find($request->id);
+        $spk = Spk::find($request->spk);
+        $arrayEscrow = array(
+            "1" => array("label" => "Escrow : Pondasi", "style" => "background-color:grey;color:white;font-weight:bolder"),
+            "2" => array("label" => "Escrow : Atap", "style" => "background-color:#d58512;color:white;font-weight:bolder"),
+            ""  => array("label" => "", "style" => "")
+        );
+        return view('progress::create_progress',compact("user","unitprogress","unit","project","spk","arrayEscrow"));
     }
 
     /**
@@ -142,37 +153,26 @@ class ProgressController extends Controller
     }
 
     public function saveprogress(Request $request){
-        //print_r($request->progress_minggu_);die;
-        
-        //print_r($request->progress_minggu_);
-    
-        $spk = Spk::find($request->spk_id);       
-        foreach ($spk->details as $key => $value) {
-            
-            foreach ($value->details_with_vo as $key2 => $value2) {
-                $start = 0;
-                //if( count($value2->unit_progress->details) < $request->termin_ke ){
-                    foreach ($spk->termyn as $key3 => $value3) {
-                        if ( $request->progress_minggu_[$value2->unit_progress->itempekerjaan_id][$start] != "" ){
-                            $newProgress = new UnitProgressDetail;
-                            $newProgress->unit_progress_id = $value2->unit_progress->id;
-                            $newProgress->progress_date = date("Y-m-d");
-                            $newProgress->progress_percent = $request->progress_minggu_[$value2->unit_progress->itempekerjaan_id][$start];
-                            $newProgress->termyn = $request->termin_ke;
-                            $newProgress->created_by = \Auth::user()->id;
-                            $newProgress->description = $request->description;
-                            $newProgress->week = $request->week + 1 ;
-                            $newProgress->save();
-                        }             
-                            
-                        $start++;
-                    }
-
-                    
-                    //$newProgress->save();
-                //}
+        foreach ($request->unit_progress_id as $key => $value) {
+            # code...
+            if ( $request->progress_saat_ini_[$key] != "" ){                
+                $UnitProgress = UnitProgress::find($request->unit_progress_id[$key]);
+                $UnitProgress->progresslapangan_percent = str_replace(",", "", $request->progress_saat_ini_[$key]) / 100  ;
+                $UnitProgress->termin = $request->termin_ke;
+                $UnitProgress->save();
             }
+
+            if ( $request->progress_saat_ini_[$key] != "" ){
+                $UnitProgressDetail = new UnitProgressDetail;
+                $UnitProgressDetail->unit_progress_id = $request->unit_progress_id[$key];
+                $UnitProgressDetail->progress_date = date("Y-m-d");
+                $UnitProgressDetail->progress_percent = str_replace(",", "", $request->progress_saat_ini_[$key]) / 100 ;
+                $UnitProgress->termin = $request->termyn;
+                $UnitProgressDetail->save();
+            }
+
+            
         }
-        return redirect("/progress/show/?id=".$request->spk_id);      
+        return redirect("/progress/create/?id=".$request->unit_id."&spk=".$request->spk_id);      
     }
 }

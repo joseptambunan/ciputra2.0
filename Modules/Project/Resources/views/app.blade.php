@@ -6,6 +6,9 @@
               'X-CSRF-Token': $('input[name=_token]').val()
           }
         });
+
+        $("#lb").number(true,2);
+        $("#lt").number(true,2);
     });
 
   $('#example3').DataTable({

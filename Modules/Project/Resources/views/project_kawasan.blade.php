@@ -41,24 +41,19 @@
                   <td rowspan="3">#</td>
                   <td rowspan="3">Project</td>
                   <td rowspan="3">Kawasan</td>
-                  <td rowspan="3">Luas Lahan</td>
+                  <td rowspan="3">Luas Lahan Brutto</td>
+                  <td rowspan="3">Luas Lahan Netto</td>
                   <td rowspan="3">Status Lahan</td>
-                  <td colspan="9"><center>Dev Cost</center></td>
+                  <td colspan="5"><center>Dev Cost</center></td>
                   <td rowspan="3">Edit</td>
                   <td rowspan="3">Delete</td>
                 </tr>
                 <tr>
                   <td colspan="3">Budget</td>
-                  <td colspan="3">SPK</td>
-                  <td colspan="3">Realisasi</td>
+                  <td rowspan="2">SPK</td>
+                  <td rowspan="2">Realisasi</td>
                 </tr>
                 <tr>
-                  <td>Total(Rp)</td>
-                  <td>HPP Bruto(Rp/m2)</td>
-                  <td>HPP Netto(Rp/m2)</td>
-                  <td>Total(Rp)</td>
-                  <td>HPP Bruto(Rp/m2)</td>
-                  <td>HPP Netto(Rp/m2)</td>
                   <td>Total(Rp)</td>
                   <td>HPP Bruto(Rp/m2)</td>
                   <td>HPP Netto(Rp/m2)</td>
@@ -66,7 +61,13 @@
               </thead>
                 <tbody>
                  @foreach ( $project->kawasans as $key => $value )
-                 @php $arrlabel = array ( "0" => array("class" => "label-success", "label" => "Open"), "1" => array("class" => "label-danger", "label", ""), "" => array("class" => "label-success", "label" => "Open")); @endphp
+                 @php 
+                  $arrlabel = array ( 
+                   "0" => array("class" => "label-success", "label" => "Open"), 
+                   "1" => array("class" => "label-danger", "label", ""), 
+                   "2" => array("class" => "label-success", "label" => "Open")
+                  ); 
+                 @endphp
                  <tr>
                     <td>&nbsp;</td>
                     <td><a href="{{ url('/')}}/project/bloks/?id={{ $value->id }}" class="btn btn-primary">{{ count($value->bloks) }} Blok</a></td>
@@ -74,13 +75,10 @@
                     <td>{{ $value->project->name }}</td>
                     <td>{{ $value->name }}</td>
                     <td>{{ number_format($value->lahan_luas) }}</td>
+                    <td>{{ number_format($value->netto_kawasan) }}</td>
                     <td><span class="label {{ $arrlabel[$value->lahan_status]['class'] }}">{{ $arrlabel[$value->lahan_status]['label'] }}</span></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                    <td>{{ number_format($value->budgets->sum('nilai'),2)}}</td>
+                    <td>{{ number_format($value->budgets->sum('nilai') / $value->lahan_luas,2)}}</td>
                     <td></td>
                     <td></td>
                     <td></td>

@@ -53,6 +53,7 @@ class SpkDetail extends CustomModel
     {
         return $this->hasMany('Modules\Spk\Entities\SpkvoUnit')->where('head_type','Modules\Spk\Entities\Spk');
     }
+
     public function details_with_vo()
     {
         return $this->hasMany('Modules\Spk\Entities\SpkvoUnit');
@@ -83,5 +84,21 @@ class SpkDetail extends CustomModel
             # code...
         }
         return $nilai;
+    }
+
+     public function getProgressAttribute(){
+        $total = 0;
+        
+        foreach ($this->details_with_vo as $key => $value) {
+            $prg = $value->unit_progress->progresslapangan_percent;
+            $total = $total + $prg;
+
+        }
+        return $total;
+    }
+
+    public function details_vo()
+    {
+        return $this->hasMany('Modules\Spk\Entities\SpkvoUnit')->where('head_type','Modules\Spk\Entities\Vo');
     }
 }

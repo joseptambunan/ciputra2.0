@@ -40,7 +40,7 @@
                 <tr>
                   <td>Progress</td>
                   <td>#</td>
-                  <td>Nama</td>
+                  <td>Unit No.</td>
                   <td>Project</td>
                   <td>Kawasan</td>
                   <td>Luas Tanah(m2)</td>
@@ -64,10 +64,10 @@
                     <td>{{ $value->name }}</td>
                     <td>{{ $value->blok->project_kawasan->project->name }}</td>
                     <td>{{ $value->blok->project_kawasan->name }}</td>
-                    <td>{{ number_format($value->tanah_luas) }}</td>
+                    <td>{{ number_format($value->tanah_luas,2) }}</td>
                     <td>{{ number_format($value->bangunan_luas) }}</td>
                     <td>{{ $value->is_sellable ? 'Ya' : 'Tidak' }}</td>
-                    <td>{{ $value->tag_kategori == 'b' ? 'Bangunan' : 'Kavling'}}</td>
+                    <td>{{ $value->tag_kategori == 'B' ? 'Bangunan' : 'Kavling'}}</td>
                     <td>{{ $value->type->name }}</td>
                     <td>{{ $arrayAngin[$value->unit_arah_id] }}</td>
                     <td>
@@ -87,7 +87,7 @@
                     </td>
                     <td>{{ $value->st1_date }}</td>
                     <td>{{ $value->st2_date }}</td>
-                    <td><button class="btn btn-danger">Edit</button></td>
+                    <td><a class="btn btn-danger" href="{{ url('/')}}/project/edit-unit?id={{ $value->id }}">Edit</a></td>
                  </tr>
                  @endforeach
                 </tbody>
