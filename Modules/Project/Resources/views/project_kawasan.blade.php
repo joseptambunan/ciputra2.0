@@ -30,9 +30,9 @@
               </ol>
             </div>
             <!-- /.box-header -->
-            <div class="box-body">
+            <div class="box-body table-responsive">
               <a href="{{ url('/')}}/project/add-kawasan" class="btn-lg btn-primary"><i class="glyphicon glyphicon-plus-sign"></i>Tambah Kawasan</a>
-              <table id="example2" class="table table-bordered table-hover">   
+              <table id="example2" class="table table-bordered table-hover ">   
               {{ csrf_field() }}              
               <thead style="background-color: greenyellow;">
                 <tr>
@@ -76,9 +76,9 @@
                     <td>{{ $value->name }}</td>
                     <td>{{ number_format($value->lahan_luas) }}</td>
                     <td>{{ number_format($value->netto_kawasan) }}</td>
-                    <td><span class="label {{ $arrlabel[$value->lahan_status]['class'] }}">{{ $arrlabel[$value->lahan_status]['label'] }}</span></td>
-                    <td>{{ number_format($value->budgets->sum('nilai'),2)}}</td>
-                    <td>{{ number_format($value->budgets->sum('nilai') / $value->lahan_luas,2)}}</td>
+                    <td></td>
+                    <td>{{ number_format($value->total_budget,2)}}</td>
+                    <td>{{ number_format($value->total_budget / $value->lahan_luas,2)}}</td>
                     <td></td>
                     <td></td>
                     <td></td>

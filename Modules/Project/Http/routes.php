@@ -9,6 +9,8 @@ Route::group(['middleware' => 'web', 'prefix' => 'project', 'namespace' => 'Modu
     Route::get('/detail-update','ProjectController@edit');
     Route::post('/edit-proyek','ProjectController@updateproject');
     Route::post('/getluas','ProjectController@getluas');
+    Route::get('/data-umum','ProjectController@dataumum');
+    Route::post('/updatedata-umum','ProjectController@updatedataumum');
 
     Route::get('/unit-type/','ProjectController@unittype');
     Route::get('/add-type/','ProjectController@addtype');

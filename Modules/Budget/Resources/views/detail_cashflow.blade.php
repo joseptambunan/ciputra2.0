@@ -101,14 +101,26 @@
                     <td>0</td>
                   </tr>
                   <tr>
-                    <td> Budget Tahun Berjalan </td>
+                    <td> Budget SPK Tahun Berjalan </td>
                     <td style="text-align: right;"> Rp. {{ number_format($budget_tahunan->total_dev_cost)}}</td>
                     <td style="text-align: right;"> Rp. {{ number_format($budget_tahunan->total_con_cost)}}</td>
                     <td style="text-align: right;"> Rp. {{ number_format($budget_tahunan->total_dev_cost + $budget_tahunan->total_con_cost) }}</td>
                   </tr>
                   <tr style="background-color: grey;color:white;font-weight: bolder;">
-                    <td colspan="3" style="text-align: right">Total</td>
+                    <td colspan="3" style="text-align: right">Total SPK + CO </td>
                     <td style="text-align: right;;color:white;font-weight: bolder;"> Rp. {{ number_format($budget_tahunan->nilai)}}</td>
+                  </tr>
+                  <tr style="background-color: grey;color:white;font-weight: bolder;">
+                    <td colspan="3" style="text-align: right">Total Cash Flow Budget SPK Tahun Berjalan</td>
+                    <td style="text-align: right;;color:white;font-weight: bolder;"> Rp. {{ number_format(0)}}</td>
+                  </tr>
+                  <tr style="background-color: grey;color:white;font-weight: bolder;">
+                    <td colspan="3" style="text-align: right">Total Cash Flow Carry Over</td>
+                    <td style="text-align: right;;color:white;font-weight: bolder;"> Rp. {{ number_format(0)}}</td>
+                  </tr>
+                  <tr style="background-color: grey;color:white;font-weight: bolder;">
+                    <td colspan="3" style="text-align: right">Total Cash Flow</td>
+                    <td style="text-align: right;;color:white;font-weight: bolder;"> Rp. {{ number_format(0)}}</td>
                   </tr>
                 </tbody>
               </table>
@@ -117,8 +129,9 @@
               
               <ul class="nav nav-tabs">                
                 <li class="active"><a href="#tab_1" data-toggle="tab">Item Pekerjaan</a></li>
-                <li><a href="#tab_2" data-toggle="tab">Bulanan</a></li>
+                <li><a href="#tab_2" data-toggle="tab">Cash Flow</a></li>
                 <li><a href="#tab_3" data-toggle="tab">Budget Carry Over</a></li>
+                <li><a href="#tab_4" data-toggle="tab">CF Carry Over</a></li>
               </ul>
               <div class="tab-content">
                 <div class="tab-pane active" id="tab_1">
@@ -137,7 +150,9 @@
                       <tr>
                         <td>COA</td>
                         <td>Item Pekerjaan</td>
-                        <td>Nilai(Rp)</td>
+                        <td>Total Unit</td>
+                        <td>Total Volume</td>
+                        <td>Total Nilai(Rp)</td>
                         <td colspan="2">Perubahan Data</td>
                       </tr>
                     </thead>
@@ -147,7 +162,8 @@
                         <tr>
                           <td>{{ $value['code'] }}</td>
                           <td>{{ \Modules\Pekerjaan\Entities\Itempekerjaan::where("code",$value['code'])->get()->first()->name }}</td>
-                          
+                          <td>0</td>
+                          <td>{{ number_format($value["volume"]) }}</td>
                           <td>{{ number_format($value["nilai"]) }}</td>
                           <td>
                             @if ( $budget_tahunan->approval == "" )
@@ -189,7 +205,7 @@
                   </table>
                 </div>
                 <!-- /.tab-pane -->
-                <div class="tab-pane" id="tab_2">
+                <div class="tab-pane table-responsive" id="tab_2">
                   {{ csrf_field()}}
                   <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modal-info">
                     Tambah Data
@@ -199,8 +215,8 @@
                       <tr>
                         <td>COA</td>
                         <td>Item Pekerjaan</td>
-                        <td>Total Budget(Rp)</td>
-                        <td>Total Bulanan(Rp)</td>
+                        <td>Total Budget SPK(Rp)</td>
+                        <td>Total Cash Flow(Rp)</td>
                         <td>Jan</td>
                         <td>Feb</td>
                         <td>Mar</td>
@@ -290,6 +306,7 @@
                 </div>
                 <!-- /.tab-pane -->
                 <div class="tab-pane" id="tab_3">
+                  <h3>Total Carry Over : {{ number_format($carry_over)}}</h3>
                   <form action="{{ url('/')}}/budget/save-carryover" method="post">
                   <input type="hidden" name="carryover_budget_id" value="{{ $budget_tahunan->id }}">
                   {{ csrf_field() }}
@@ -315,6 +332,7 @@
                         <td>{{ number_format($value4['bap'])}}</td>
                         <td>{{ number_format($value4['sisa'])}}</td>
                         <td>
+                          <a href="{{ url('/') }}/spk/detail?id={{ $value4['id']}}" target="_blank" class="btn btn-info">Detail SPK</a> 
                           @if ( count(\Modules\Budget\Entities\BudgetCarryOver::where("spk_id",$value4['id'])->get()) > 0 )
                           @php
                             $id = \Modules\Budget\Entities\BudgetCarryOver::where("spk_id",$value4['id'])->get()->first();
@@ -332,6 +350,11 @@
                   <button type="submit" class="btn btn-primary">Simpan</button>
                   @endif
                 </form>
+                </div>
+
+                <div class="tab-pane" id="tab_4">
+                  <center><h4>Cash Flow Carry Over</h4></center>
+                  <i>(Under Development)</i>
                 </div>
               </div>
               <!-- /.tab-content -->

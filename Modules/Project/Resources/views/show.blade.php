@@ -240,17 +240,21 @@
 
               @endforeach
 
-              <h3>Luas Brutto   : {{ number_format($project->luas)}} m2 </h3>
-
+              <h3>Luas Brutto ( yang belum bisa dikembangkan )   : {{ number_format($project->luas_nonpengembangan,2) }} m2 </h3>
+              <h3>Luas Brutto ( yang bisa dikembangkan )   : {{ number_format($project->luas)}} m2 </h3>
               <h3>Luas Netto    : {{ number_format($project->netto)}} m2</h3>
 
+              @if ( $project->luas > 0 )
               <h3>Sellable      : {{ number_format(($project->netto / $project->luas) * 100 ,2) }} %</h3>
-
-              <h3>Total Budget  : Rp. {{ number_format($total,2) }} </h3>
+              @else
+              <h3>Sellable      : {{ number_format(0 ,2) }} %</h3>
+              @endif
+              <h3>Total Budget  : Rp. {{ number_format($project->total_budget,2) }} </h3>
+              <h3>Total Kontrak  : Rp. {{ number_format($project->total_nilai_kontrak,2) }} </h3>
 
               <h3>Total BAP     : Rp. {{ number_format($project->nilai_total_bap,2) }} </h3>
 
-              <h3>Tersisa       : Rp. {{ number_format( $total - $project->nilai_total_bap,2)}}
+              <h3>Sisa Budget       : Rp. {{ number_format( $project->total_budget - $project->nilai_total_bap,2)}}
 
               @if ( $project->netto <= 0 )
 
@@ -258,12 +262,33 @@
               <h3>HPP Dev Cost  : Rp. {{ number_format(0,2) }} / m2</h3>
               @else
 
-              <h3>HPP Dev Cost  : Rp. {{ number_format($hpp_akhir = $total/ $project->netto,2) }} / m2</h3>
+              <h3>HPP Dev Cost  : Rp. {{ number_format($hpp_akhir = ( $project->total_budget )/ $project->netto,2) }} / m2</h3>
               @endif
 
-              <h3>HPP Con Cost  : Rp. {{ number_format(0,2)}} / m2</h3>
-
-             
+              <h3>HPP Con Cost </h3>
+              <table class="table table-bordered">
+                <thead class="head_table">
+                  <tr>
+                    <td>Tipe Bangunan (LB/LT)</td>
+                    <td>Kategori Bangunan</td>
+                    <td>HPP(Rp/m2)</td>
+                  </tr>
+                </thead>
+                <tbody>
+                  @foreach ( $project->unittype as $key => $value )
+                  <tr>
+                    <td>{{ $value->name or ''}} &nbsp;{{ $value->luas_bangunan}} / {{ $value->luas_tanah }}</td>
+                    <td>{{ $value->category->category_project->category_detail->category->name or ''}} / {{ $value->category->category_project->category_detail->sub_type or ''}}</td>
+                    @if ( $value->category != "" )
+                    <td>{{ number_format($value->category->nilai,2)}}</td>
+                    @else
+                    <td>{{ number_format(0,2)}}</td>
+                    @endif
+                  </tr>
+                  @endforeach
+                </tbody>
+              </table>
+              
 
             </div>
 
@@ -273,7 +298,7 @@
 
 
 
-         \
+         
 
 
 
@@ -373,7 +398,7 @@
               <div class="form-group">
                 <button class="btn-primary btn" type="submit">Simpan</button>
               </div>
-            </form>
+            
             <h3>HPP Update</h3>
 
             <table class="table table-borderd">
@@ -387,21 +412,39 @@
               <tbody>
 
               @if ( count($project->hpp_update) > 0 )
+                @if ( $project->hpp_update->first()->netto > 0 )
                 <tr>
-                  <td>Awal</td>
+                  <td>HPP Awal</td>
                   <td>{{ number_format($project->hpp_update->first()->nilai_budget,2)}}</td>
-                  <td>{{ number_format( $project->hpp_netto_awal,2)}}</td>
+                  <td>{{ number_format( $project->hpp_update->first()->nilai_budget / $project->hpp_update->first()->netto ,2) }}</td>
                 </tr>
                 <tr>
-                  <td>Revisi</td>
+                  <td>HPP Update QS</td>
                   <td>{{ number_format($project->hpp_update->last()->nilai_budget,2)}}</td>
                   <td>{{ number_format( $project->hpp_netto_akhir,2)}}</td>
                 </tr>
                 <tr>
-                  <td>Analisa</td>
+                  <td>HPP Update Accounting</td>
                   <td><span id="budget_update"></span></td>
                   <td><span id="hpp_update"></span></td>
                 </tr>
+                @else
+                <tr>
+                  <td>HPP Awal</td>
+                  <td>{{ number_format($project->hpp_update->first()->nilai_budget,2)}}</td>
+                  <td>{{ number_format(0,2) }}</td>
+                </tr>
+                <tr>
+                  <td>HPP Update QS</td>
+                  <td>{{ number_format($project->hpp_update->last()->nilai_budget,2)}}</td>
+                  <td>{{ number_format( 0,2)}}</td>
+                </tr>
+                <tr>
+                  <td>HPP Update Accounting</td>
+                  <td><span id="budget_update"></span></td>
+                  <td><span id="hpp_update"></span></td>
+                </tr>
+                @endif
               @endif
               </tbody>
             </table>
@@ -434,11 +477,11 @@
                 </tr>
                 <tr>
                   <td>Luas Gross (m2)</td>
-                  <td style="text-align: right;">{{ number_format($project->unit_rencana,2)}} </td>
+                  <td style="text-align: right;">{{ number_format($project->luas_gross_hpp,2)}} </td>
                 </tr>
                  <tr>
                   <td>Luas Rencana Netto (m2)</td>
-                  <td style="text-align: right;">{{ number_format($project->unit_rencana,2)}}</td>
+                  <td style="text-align: right;">{{ number_format($project->luas_rencana_netto_hpp,2)}}</td>
                 </tr>
                 <tr>
                   <td>Luas yang belum dibukukan ( Sales backlog ) (m2)</td>
@@ -451,12 +494,12 @@
                 <tr>
                   <td>Nilai Analisa HPP Devcost</td>
                   <td style="text-align: right;">{{ number_format( $project->hpp_devcost_upd ,2 ) }}</td>
-                  <input type="hidden" id="tmp_hpp" value="{{ number_format($project->hpp_devcost_upd,2) }}">
+                  <input type="hidden" id="tmp_hpp" name="tmp_hpp" value="{{ number_format($project->hpp_devcost_upd,2) }}">
                   <input type="hidden" id="tmp_budget" value="{{ number_format($project->total_devcost,2) }}">
                 </tr>
               </thead>
             </table>
-
+            </form>
           </div>
 
         </section>

@@ -119,6 +119,7 @@
 
           <ul class="treeview-menu" style="display: block;">
 
+            <li><a href="{{ url('/')}}/project/data-umum/"><i class="fa fa-circle-o"></i> Data Umum Proyek</a></li>
             <li><a href="{{ url('/')}}/project/unit-type/"><i class="fa fa-circle-o"></i> Unit Type</a></li>
 
             <li><a href="{{ url('/')}}/project/unit-hadap/"><i class="fa fa-circle-o"></i> Unit Hadap</a></li>

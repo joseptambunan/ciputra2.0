@@ -35,7 +35,7 @@
             <div class="col-md-6">             
               <div class="form-group">
                 <label>Item Pekerjaan</label>
-                <select class="form-control" name="coa_id" id="coa_id">
+                <select class="form-control select2" name="coa_id" id="coa_id">
                   <option>( pilih item pekerjaan)</option>
                   @foreach ( $itempekerjaan as $key => $value )                    
                       <option value="{{ $value->id }}" selected>{{ $value->code }}.00.00 {{ $value->name }}</option>                      
@@ -100,10 +100,7 @@
 @include("pt::app")
 <!-- Select2 -->
 <script src="{{ url('/')}}/assets/bower_components/select2/dist/js/select2.full.min.js"></script>
-<script src="{{ url('/')}}/assets/plugins/input-mask/jquery.inputmask.js"></script>
-<script src="{{ url('/')}}/assets/plugins/input-mask/jquery.inputmask.date.extensions.js"></script>
-<script src="{{ url('/')}}/assets/plugins/input-mask/jquery.inputmask.extensions.js"></script>
-  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script type="text/javascript">
   $(function () {
     $("#luas").number(true);
@@ -118,6 +115,7 @@
     });
 
     $(".nilai_budget").number(true);
+    $('.select2').select2();
   });
 
   function setkawasan(){

@@ -9,6 +9,7 @@
 
         $("#lb").number(true,2);
         $("#lt").number(true,2);
+        $(".nilai_budget").number(true);
     });
 
   $('#example3').DataTable({

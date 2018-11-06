@@ -54,9 +54,11 @@
                   <table class="table" style="padding: 0" id="example3">
                     <thead class="head_table">
                       <tr>
+                        <td>Set to WO</td>
                         <td>COA</td>
                         <td>Item Pekerjaan</td>
-                        <td>Total Budget Tahunan</td>
+                        <td>Total Budget Spk</td>
+                        <td>Sisa Total Terpakai</td>
                         <td>Volume</td>
                         <td>Satuan</td>
                         <td>Nilai(Rp)</td>
@@ -68,9 +70,11 @@
                       @if ( count(\Modules\Pekerjaan\Entities\Itempekerjaan::where("code",$value['code'])->get()) > 0 )    
                       @if ( $value["volume"] > 0 )                   
                         <tr>
+                          <td><input type="checkbox" name="setwo[{{ $key}}]" value="{{ $key}}"></td>
                           <td>{{ $value['code'] }}</td>
                           <td>{{ \Modules\Pekerjaan\Entities\Itempekerjaan::where("code",$value['code'])->get()->first()->name }}</td>
                           <td>{{ number_format($value["volume"] * $value['total'],2) }}</td>
+                          <td>{{ number_format($value["nilai_terpakai"],2) }}</td>
                           <td>
                             <input type="hidden" name="item_id[{{ $key}}]" class="form-control" value="{{ \Modules\Pekerjaan\Entities\Itempekerjaan::where('code',$value['code'])->get()->first()->id }}">
                             <input type="text" name="volume[{{ $key}}]" class="form-control nilai_budget" value="{{ number_format($value['volume'],2) }}">
@@ -84,9 +88,11 @@
                       @endforeach
                     </tbody>
                   </table>
-                  <button type="submit" class="btn btn-primary">Simpan</button>
+
+                  <i class="fa fa-refresh ld ld-spin submitbtn" id="loading" style="display: none;"></i>
+                  <button type="submit" class="btn btn-primary submitbtn" id="btn_submit">Simpan</button>
                   <a class="btn btn-warning" href="{{ url('/')}}/workorder/detail?id={{ $workorder->id}}">Kembali</a>
-             
+                  <!--a href="{{ url('/')}}/workorder/non-budget?id={{ $workorder->id }}&budget={{ $budget_tahunan->id}}" class="btn btn-info">Draft Budget Tambahan</a-->
                 </div>
               </div>
               <!-- /.tab-content -->
@@ -125,6 +131,11 @@
 
 @include("master/footer_table")
 @include("workorder::app")
-
+<script type="text/javascript">
+  $("#btn_submit").click(function(){
+    $(".submitbtn").hide();
+    $("#loading").show();
+  });
+</script>
 </body>
 </html>

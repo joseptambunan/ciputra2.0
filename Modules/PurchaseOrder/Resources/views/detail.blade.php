@@ -15,87 +15,98 @@
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <section class="content-header">
-      <h1>Data Purchase Request Detail</h1>
+      <h1>Data Purchase Order</h1>
 
     </section>
 
     <!-- Main content -->
     <section class="content">
       <div class="row">
-        <div class="col-xs-12">
-          <div class="box">
-            
-            <!-- /.box-header -->
-            <div class="box-body">
-              <div class="col-md-6"><br>
-                <a href="{{ url('/')}}/purchaserequest/add" class="btn-lg btn-primary"><i class="glyphicon glyphicon-plus-sign"></i>Tambah Data Purchase Request</a>
-              </div>
-              <div class="col-md-12">
-            	<table id="example3" class="table table-bordered table-hover">
-                <thead>
-                <tr style="background-color: greenyellow;">
-                  <th>No</th>
-                  <th>Item Pekerjaan Id</th>
-                  <th>Item</th>
-                  <th>Item Satuan Id</th>
-                  <th>Brand Id</th>
-                  <th>Kuantitas</th>
-                  <th>Jumlah Recomended Supplier</th>
-                  <th>Supplier 1</th>
-                  <th>Supplier 2</th>
-                  <th>Supplier 3</th>
-                  <th>Deskripsi</th>
-                  <th>Status</th>
-                  @if($approve)
-                  <th>Action</th>
-                  @endif
-                </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    ?>
-                    @php ($i = 0)
-                    @foreach($PRS as $key => $value )
-                    @php ($i++)
-                    <tr>
-                        <td>{{$i}}</td>
-                        <td>{{$value->itempekerjaan_id}}</td>
-                        <td>{{\App\item::select('name')->where('id',$value->item_id)->limit(1)->get()[0]->name}}</td>
-                        <td>{{\App\item_satuan::select('name')->where('id',$value->item_satuan_id)->limit(1)->get()[0]->name}}</td>
-                        <td>{{\App\brand::select('name')->where('id',$value->brand_id)->limit(1)->get()[0]->name}}</td>
-                        <td>{{$value->quantity}}</td>
-                        <td>{{$value->recomended_supplier}}</td>
-                        <td>{{\App\rekanan_group::select('name')->where('id',$value->rec_1)->limit(1)->get()[0]->name}}</td>
-                        <td>
-                            {{(isset(\App\rekanan_group::select('name')->where('id',$value->rec_2)->limit(1)->get()[0]->name)?\App\rekanan_group::select('name')->where('id',$value->rec_2)->limit(1)->get()[0]->name:"")}}
-                        </td>
-                        <td>
-                            {{(isset(\App\rekanan_group::select('name')->where('id',$value->rec_3)->limit(1)->get()[0]->name)?\App\rekanan_group::select('name')->where('id',$value->rec_3)->limit(1)->get()[0]->name:"")}}
-                        </td>
-                        <td>{{$value->description}}</td>
-                        <td>{{strtoupper($status[$i-1])}}</td>
-                        @if($approve)
-                          @if(strtoupper($status[$i-1])=="APPROVED")
-                            <td><a href="http://localhost:81/purchaserequest/approve/?id={{$value->id}}&type=cancel&pr_id={{$value->purchaserequest_id}}" class="btn btn-danger col-md-12">Cancel</a></td>
-                          @elseif((strtoupper($status[$i-1])=="OPEN"))
-                            <td><a href="http://localhost:81/purchaserequest/approve/?id={{$value->id}}&type=approve&pr_id={{$value->purchaserequest_id}}" class="btn btn-success col-md-12">Approve</a></td>
-                          @elseif((strtoupper($status[$i-1])=="CANCELED"))
-                            <td><a href="http://localhost:81/purchaserequest/approve/?id={{$value->id}}&type=approve&pr_id={{$value->purchaserequest_id}}" class="btn btn-success col-md-12">Approve</a></td>
-                          @endif
-                        @endif
-                    </tr>
-                    @endforeach
-                </table>
-              </div>
+        <div class="col-md-12">
+            <div class="box box-primary">
+                <div class="box-header with-border" data-widget="collapse">
+                <h3 class="box-title">
+                    Data Purchase Order Detail
+                </h3>
+                <div class="box-tools pull-right">
+                    <button type="button" class="btn btn-box-tool" data-widget="collapse">
+                    <i class="fa fa-minus"></i>
+                    </button>
+                </div>
+                </div>
+                <div class="box-body" style="">
+                    <div class="left col-md-12">
+                        <div class="form-group">
+                            <div class="col-md-12 input-group">
+                                <div class="input-group-addon" style="width: 50%;text-align: right;">
+                                    Id
+                                </div>
+                                <input type="text" class="form-control" style="width:100%" value="{{$PO_POD->id}}" disabled="">
+                            </div>
+                            <!-- /.input group -->  
+                        </div>
+                        <br>
+                    </div>
+                    
+                    <div class="left col-md-4">
+                        <div class="form-group">
+                            <div class="col-md-12 input-group">
+                                <div class="input-group-addon" style="width: 19%;text-align: right;">
+                                    Item
+                                </div>
+                                <input type="text" class="form-control" style="width:100%" value="{{$PO_POD->name}}" disabled="">
+                            </div>
+                            <!-- /.input group -->
+                        </div>
+                        <br><br>
+                        <div class="form-group">
+                            <div class="col-md-12 input-group">
+                                <div class="input-group-addon" style="width: 19%;text-align: right;">
+                                    Brand
+                                </div>
+                                <input type="text" class="form-control" style="width:100%" value="{{$PO_POD->bName}}" disabled="">
+                            </div>
+                            <!-- /.input group -->
+                        </div>
+                    </div>
+                    <div class="right col-md-4">
+                        <div class="form-group">
+                            <div class="col-md-12 input-group">
+                                <div class="input-group-addon" style="width: 19%;text-align: right;">
+                                    Quantity
+                                </div>
+                                <input type="text" class="form-control" style="width:100%" value="{{$PO_POD->quantity}}" disabled="">
+                            </div>
+                            <!-- /.input group -->
+                        </div>
+                        <br><br>
+                        <div class="form-group">
+                            <div class="col-md-12 input-group">
+                                <div class="input-group-addon" style="width: 19%;text-align: right;">
+                                    Satuan
+                                </div>
+                                <input type="text" class="form-control" style="width:100%" value="{{$PO_POD->isName}}" disabled="">
+                            </div>
+                            <!-- /.input group -->
+                        </div>
+                        
+                    </div>
+                    <div class="right col-md-4">
+                        <div class="form-group">
+                            <div class="col-md-12 input-group">
+                                <div class="input-group-addon" style="width: 19%;text-align: right;">
+                                    Description
+                                </div>
+                                <textarea type="text" class="form-control" style="width:100%" rows="6" disabled="">
+                                    {{$PO_POD->description}}
+                                </textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <!-- /.box-body -->
-          </div>
-          <!-- /.box -->
-
         </div>
-        <!-- /.col -->
-      </div>
-      <!-- /.row -->
+    </div>
     </section>
     <!-- /.content -->
   </div>

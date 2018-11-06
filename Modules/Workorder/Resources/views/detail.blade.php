@@ -77,16 +77,20 @@
                 <button type="submit" class="btn btn-primary">Simpan</button>
                 <button type="button" class="btn btn-info" onclick="woapprove('{{ $workorder->id }}')">Request Approve</button>
                 @else
-                @php
-                  $array = array (
-                    "6" => array("label" => "Disetujui", "class" => "label label-success"),
-                    "7" => array("label" => "Ditolak", "class" => "label label-danger"),
-                    "1" => array("label" => "Dalam Proses", "class" => "label label-warning")
-                  )
-                @endphp
-                <span class="{{ $array[$workorder->approval->approval_action_id]['class'] }}">{{ $array[$workorder->approval->approval_action_id]['label'] }}</span>
-                <a href="{{ url('/')}}/workorder/approval_history/?id={{ $workorder->id}}" class="btn btn-primary">Histroy Approval</a>
+                  @php
+                    $array = array (
+                      "6" => array("label" => "Disetujui", "class" => "label label-success"),
+                      "7" => array("label" => "Ditolak", "class" => "label label-danger"),
+                      "1" => array("label" => "Dalam Proses", "class" => "label label-warning")
+                    )
+                  @endphp
+                  <span class="{{ $array[$workorder->approval->approval_action_id]['class'] }}">{{ $array[$workorder->approval->approval_action_id]['label'] }}</span>
+                  <a href="{{ url('/')}}/workorder/approval_history/?id={{ $workorder->id}}" class="btn btn-primary">Histroy Approval</a>
+                  @if ( $workorder->approval->approval_action_id == "7")
+                    <button type="button" class="btn btn-info" onclick="woupdapprove('{{ $workorder->id }}')">Request Approve</button>
+                  @endif
                 @endif
+                
                 <a href="{{ url('')}}/workorder" class="btn btn-warning">Kembali</a>
               </div>
               
@@ -124,6 +128,12 @@
                     <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modal-default">
                       Tambah Item Pekerjaan
                     </button>
+                    @else
+                      @if ( $workorder->approval->approval_action_id == "7")
+                         <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modal-default">
+                            Tambah Item Pekerjaan
+                          </button>
+                      @endif
                     @endif<br>
                     <table class="table table-bordered">
                      <thead class="head_table">
@@ -136,6 +146,7 @@
                         <td>Satuan</td>
                         <td>Nilai(Rp)</td>
                         <td>Subtotal(Rp)</td>
+                        <td>Delete</td>
                        </tr>
                      </thead>
                      <tbody id="detail_item">
@@ -161,6 +172,9 @@
                           <td>{{ $value['satuan'] }}</td>
                           <td>{{ number_format($value['unitprice']) }}</td>
                           <td>{{ number_format($value['subtotal']) }}</td>
+                          <td>
+                            <button type="button" class="btn btn-danger" onclick="removepekerjaan('{{ $value['workorder_budget_id']}}')">Hapus Pekerjaan</button>
+                          </td>
                        </tr>
                        @endif
                        @endforeach
@@ -171,11 +185,17 @@
                 <div class="tab-pane" id="tab_2">
                   @if ( $workorder->approval == "" )
                     @if ( count($workorder->budget_parent) > 0 )
-                    <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modal-info">
+                    <a class="btn btn-info" href="{{ url('/')}}/workorder/unit?id={{ $workorder->id}}">
                         Tambah Unit
-                    </button>
+                    </a>
                     @else
                     <h4>Silahkan pilih budget tahunan terlebih dahulu</h4>
+                    @endif
+                  @else
+                    @if ( $workorder->approval->approval_action_id == "7")
+                      <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modal-info">
+                          Tambah Unit
+                      </button>
                     @endif
                   @endif<br>
                   <table class="table table-bordered">
@@ -306,38 +326,46 @@
               </thead>
               <tbody id="table_item">
                 @php $start=0; @endphp
+
                 @for ( $i=0; $i < count($workorder->budget_parent); $i++)
-                  @if ( \Modules\Budget\Entities\BudgetTahunan::find($workorder->budget_parent[$i])->budget->kawasan == null )
-                  <tr>
-                    <td>{{ $start + 1 }}</td>                 
-                    <td>{{ \Modules\Budget\Entities\BudgetTahunan::find($workorder->budget_parent[$i])->budget->project->name }}</td>
-                    <td><input type="checkbox" name="asset[{{ $start}}]" value="{{ \Modules\Budget\Entities\BudgetTahunan::find($workorder->budget_parent[$i])->project->id }}"></td>
-                  </tr>                  
-                  @else
-                  @php
-                      $budgettahunan = \Modules\Budget\Entities\BudgetTahunan::find($workorder->budget_parent[$i]);
-                  @endphp
-                  <tr>
-                    <td>{{ $start + 1 }}</td>                 
-                    <td>{{ $budgettahunan->budget->kawasan->name }}</td>
-                    <td><input type="checkbox" name="asset[{{ $start}}]" value="{{ $budgettahunan->budget->kawasan->id }}"></td>
-                  </tr>
-                  @php 
-                    $units_list = \Modules\Project\Entities\ProjectKawasan::find($budgettahunan->budget->kawasan->id)->units;
-                  @endphp
+                  @if ( $workorder->budget_parent[$i] != null )
+                    @if ( \Modules\Budget\Entities\BudgetTahunan::find($workorder->budget_parent[$i])->budget == null )
+                    <tr>
+                      <td>{{ $start + 1 }}</td>                 
+                      <td>{{ \Modules\Budget\Entities\BudgetTahunan::find($workorder->budget_parent[$i])->budget->project->name }}</td>
+                      <td><input type="checkbox" class="disable_unit" name="asset[{{ $start}}]" value="{{ \Modules\Budget\Entities\BudgetTahunan::find($workorder->budget_parent[$i])->project->id }}" onClick="disablebtn('{{ \Modules\Budget\Entities\BudgetTahunan::find($workorder->budget_parent[$i])->project->id }}')"></td>
+                    </tr>                  
+                    @else
+                    @php
+                        $budgettahunan = \Modules\Budget\Entities\BudgetTahunan::find($workorder->budget_parent[$i]);
+                    @endphp
 
-                  @foreach ( $units_list as $key3 => $value3 )                  
-                  @php $start++; @endphp
-                  <tr>
-                    <td>{{ $start + 1 }}</td>                 
-                    <td>{{ $value3->name }}</td>
-                    <td><input type="checkbox" name="asset[{{ $start}}]" value="Unit_{{ $value3->id }}"></td>
-                  </tr>
-                  @php $start++; @endphp
-                  @endforeach
+                    @if ( $budgettahunan->budget->kawasan !=  null)
+                      <tr>
+                        <td>{{ $start + 1 }}</td>                 
+                        <td>{{ $budgettahunan->budget->kawasan->name or '' }}</td>
+                        <td><input type="checkbox"  class="disable_unit" name="asset[{{ $start}}]" value="{{ $budgettahunan->budget->kawasan->id }}"  onClick="disablebtn('{{ $budgettahunan->budget->kawasan->id }}')"></td>
+                      </tr>
+                      @php 
+                        $units_list = \Modules\Project\Entities\ProjectKawasan::find($budgettahunan->budget->kawasan->id)->units;
+                      @endphp
 
+                      @foreach ( $units_list as $key3 => $value3 )                  
+                        @php $start++; @endphp
+                        <tr>
+                          <td>{{ $start + 1 }}</td>                 
+                          <td>{{ $value3->name }}</td>
+                          <td><input class="disable_unit" type="checkbox" name="asset[{{ $start}}]" value="Unit_{{ $value3->id }}" onClick="disablebtn('{{ $value3->id }}')"></td>
+                        </tr>
+                        @php $start++; @endphp
+                      @endforeach
+                    @endif
+
+                    
+
+                    @endif
+                    @php $start++; @endphp
                   @endif
-                  @php $start++; @endphp
                 @endfor
                 
                 
@@ -347,7 +375,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-primary">Save changes</button>
+          <button type="submit" class="btn btn-primary" id="btn_submit" disabled>Save changes</button>
         </div>
       </form>
       </div>
@@ -367,5 +395,45 @@
 <script src="{{ url('/')}}/assets/plugins/input-mask/jquery.inputmask.date.extensions.js"></script>
 <script src="{{ url('/')}}/assets/plugins/input-mask/jquery.inputmask.extensions.js"></script>
 
+<script type="text/javascript">
+  function disablebtn(id){
+    var valor = [];
+    $('input.disable_unit[type=checkbox]').each(function () {
+        if (this.checked)
+          valor.push($(this).val());
+    });
+
+    console.log(valor.length);
+
+    if (valor.length < 1 ) {
+      $("#btn_submit").attr("disabled","disabled");
+    }else{
+      $("#btn_submit").removeAttr("disabled");
+    }
+  }
+
+  function removepekerjaan(id){
+    if ( confirm("Apakah anda yakin ingin menghapus data ini ? ")){
+      var request = $.ajax({
+        url : "{{ url('/')}}/workorder/deletepekerjaan",
+        data : {
+          id : id
+        },
+        dataType : "json",
+        type : "post"
+      });
+
+      request.done(function(data){
+        if ( data.status == "0"){
+          alert("Data telah dihapus");
+        }
+
+        window.location.reload();
+      })
+    }else{
+      return false;
+    }
+  }
+</script>
 </body>
 </html>

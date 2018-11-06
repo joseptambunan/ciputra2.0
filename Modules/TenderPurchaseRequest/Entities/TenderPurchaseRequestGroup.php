@@ -9,7 +9,7 @@ use App\CustomModel;
 class TenderPurchaseRequestGroup extends CustomModel
 {
     public $table = "tender_purchase_request_groups";
-    protected $fillable = ['id','quantity','satuan_id','description'];
+    protected $fillable = ['id','no','quantity','satuan_id','description'];
     
 
 

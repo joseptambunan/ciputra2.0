@@ -22,4 +22,6 @@ class UserDetail extends CustomModel
     {
         return $this->belongsTo('Modules\User\Entities\Mappingperusahaan');
     }
+
+    
 }

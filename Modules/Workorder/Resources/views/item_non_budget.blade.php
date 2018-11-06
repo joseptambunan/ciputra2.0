@@ -52,7 +52,8 @@
    
             <!-- /.col -->
             <div class="col-md-12">
-              <form action="{{ url('/')}}/workorder/save-nonbudget/" method="post" name="form1" id="form1">  
+              <form action="{{ url('/')}}/workorder/savenonbudget/" method="post" name="form1" id="form1">
+
                 {{ csrf_field() }}
                 <input type="hidden" name="budget_tahunan" id="budget_tahunan" value="{{ $budget_tahunan->id }}">
                 <input type="hidden" name="workorder_id" id="workorder_id" value="{{ $workorder->id }}">

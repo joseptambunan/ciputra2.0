@@ -49,7 +49,7 @@
                     <td>{{ $value->no }}</td>
                     <td>{{ $value->name }}</td>
                     <td>{{ $value->tender->rab->workorder->departmentFrom->name or '' }}</td>
-                    <td>{{ $value->finish_date->format('d/m/y') }}</td>
+                    <td>{{ $value->finish_date }}</td>
                     <td><a href="{{ url('/')}}/progress/show?id={{ $value->id }}" class="btn btn-warning">Detail</td>
                     <td>
                       @if ( $value->approval == "" )

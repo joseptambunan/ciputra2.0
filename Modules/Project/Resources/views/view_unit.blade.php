@@ -61,7 +61,7 @@
               <div class="form-group">
                 <label>Unit Type</label>
                 <select class="form-control" name="unit_type" id="unit_type" {{ $readonly }}>
-                  <option value="">Pilih Type {{ $unit }}</option>
+                  <option value="">Pilih Type</option>
                   @foreach ( $project->unittype as $key5 => $value5 )
                   @if ( $value5->id  == $unit->unit_type_id)
                   <option value="{{ $value5->id }}" selected>{{ $value5->name }}</option>
@@ -122,6 +122,14 @@
                 <select class='form-control' name='is_sellable' id='is_sellable' {{ $readonly }}>
                   <option value='1'>Ya</option>
                   <option value='0'>Tidak</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Status Unit</label>
+                <select class='form-control' name='is_status' id='is_status'>
+                  <option value='1'>Planning</option>
+                  <option value='0'>Ready for Sale</option>
                 </select>
               </div>
               <div class="form-group">

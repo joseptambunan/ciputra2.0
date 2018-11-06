@@ -3,6 +3,7 @@
 namespace Modules\Project\Entities;
 
 use App\CustomModel;
+use Modules\Budget\Entities\Budget;
 
 class ProjectKawasan extends CustomModel
 {
@@ -30,7 +31,7 @@ class ProjectKawasan extends CustomModel
 
     public function units()
     {
-        return $this->hasManyThrough('Modules\Project\Entities\Unit', 'Modules\Project\Entities\Blok');
+        return $this->hasManyThrough('Modules\Project\Entities\Unit', 'Modules\Project\Entities\Blok')->orderBy("status","desc");
     }
 
     public function workorder_details()
@@ -397,12 +398,15 @@ class ProjectKawasan extends CustomModel
         }
 
         /* Budget Faskot Proporsional */
-        $budget = $this->project->budgets->where("project_kawasan_id",null);
-        if ( $budget->first()->id ){
-            $budget_faskot = Budget::find($budget->first()->id)->nilai;
-            $nilai_faskot = $budget_faskot * (  $this->lahan_luas / $this->project->luas );
-            return $nilai_faskot + $nilai;
+        if ( count($this->project->budgets) > 0 ){
+            $budget = $this->project->budgets->where("project_kawasan_id",null);
+            if ( $budget->first()->id ){
+                $budget_faskot = Budget::find($budget->first()->id)->nilai;
+                $nilai_faskot = $budget_faskot * (  $this->lahan_luas / $this->project->luas );
+                return $nilai_faskot + $nilai;
+            }
         }
+        
         return number_format($nilai);
     }
 

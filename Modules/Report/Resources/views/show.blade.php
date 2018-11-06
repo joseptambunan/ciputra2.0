@@ -146,17 +146,17 @@
 
               @if ( count($project->hpp_update) > 0 )
                 <tr>
-                  <td>Awal</td>
+                  <td>HPP Awal</td>
                   <td>{{ number_format($project->hpp_update->first()->nilai_budget,2)}}</td>
-                  <td>{{ number_format( $project->hpp_netto_awal,2)}}</td>
+                  <td>{{ number_format( $project->hpp_update->first()->nilai_budget / $project->hpp_update->first()->netto ,2) }}</td>
                 </tr>
                 <tr>
-                  <td>Revisi</td>
+                  <td>HPP Update QS</td>
                   <td>{{ number_format($project->hpp_update->last()->nilai_budget,2)}}</td>
                   <td>{{ number_format( $project->hpp_netto_akhir,2)}}</td>
                 </tr>
                 <tr>
-                  <td>Analisa</td>
+                  <td>HPP Update Accounting</td>
                   <td><span id="budget_update"></span></td>
                   <td><span id="hpp_update"></span></td>
                 </tr>
@@ -192,11 +192,11 @@
                 </tr>
                 <tr>
                   <td>Luas Gross (m2)</td>
-                  <td style="text-align: right;">{{ number_format($project->unit_rencana,2)}} </td>
+                  <td style="text-align: right;">{{ number_format($project->luas_gross_hpp,2)}} </td>
                 </tr>
                  <tr>
                   <td>Luas Rencana Netto (m2)</td>
-                  <td style="text-align: right;">{{ number_format($project->unit_rencana,2)}} </td>
+                  <td style="text-align: right;">{{ number_format($project->luas_rencana_netto_hpp,2)}} </td>
                 </tr>
                 <tr>
                   <td>Luas yang belum dibukukan ( Sales backlog ) (m2)</td>

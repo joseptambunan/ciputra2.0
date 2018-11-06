@@ -34,8 +34,9 @@
               <h3 class="box-title">Tambah Data Kawasan</h3>
               <form action="{{ url('/')}}/project/save-kawasan" method="post" name="form1">
                 {{ csrf_field() }}
-              <input type="hidden" name="project_id" name="project_id" value="{{ $project->id }}">
-              <input type="hidden" name="sub_holding" name="sub_holding" value="{{ $project->subholding }}">
+              <input type="hidden" name="project_id" id="project_id" value="{{ $project->id }}">
+              <input type="hidden" name="sub_holding" id="sub_holding" value="{{ $project->subholding }}">
+              <input type="hidden" name="project_limit" id="project_limit" value="{{ $limit }}">
               <div class="form-group">
                 <label>Project</label>
                 <input type="text" class="form-control" value="{{ $project->name }}" readonly>
@@ -47,15 +48,15 @@
               <hr style="border:2px solid;width: 200%;">
               <div class="form-group">
                 <label>Kode Kawasan</label>
-                <input type="text" class="form-control" name="kode_kawasan" id="kode_kawasan" autocomplete="off">
+                <input type="text" class="form-control" name="kode_kawasan" id="kode_kawasan" autocomplete="off" required>
               </div>
               <div class="form-group">
                 <label>Nama Kawasan</label>
-                <input type="text" class="form-control" name="nama_kawasan" id="nama_kawasan" autocomplete="off">
+                <input type="text" class="form-control" name="nama_kawasan" id="nama_kawasan" autocomplete="off" required>
               </div>
               <div class="form-group">
                 <label>Luas Brutto Kawasan(m2)</label>
-                <input type="text" class="form-control" name="luas_brutto" id="luas_brutto" max="{{ $project->luas}}" autocomplete="off">
+                <input type="text" class="form-control" name="luas_brutto" id="luas_brutto" max="{{ $project->luas}}" autocomplete="off" required>
               </div>
               <div class="form-group">
                 <label>Luas Netto Kawasan(m2)</label>
@@ -96,8 +97,10 @@
                   <option value="0">Tidak</option>
                 </select>
               </div>    
-              <div class="box-footer">
-                <button type="submit" class="btn btn-primary">Simpan</button>
+              <div class="box-footer">                
+                <i class="fa fa-refresh ld ld-spin" id="loading" style="display: none;"></i>
+                <button type="submit" class="submitbtn btn btn-primary" id="btn_submit">Simpan</button>
+                <a href="{{ url('/')}}/project/kawasan" class="submitbtn btn btn-warning">Kembali</a>
               </div>
               </form>
               <!-- /.form-group -->
@@ -145,6 +148,31 @@
     $("#luas").number(true);
     $("#luas_brutto").number(true);
     $("#luas_netto").number(true);
+  });
+
+  $("#btn_submit").click(function(){
+    $(".submitbtn").hide();
+    $("#loading").show();
+  });
+
+  $("#luas_brutto").keyup(function(){
+    var luas_proyek = parseInt($("#project_limit").val());
+    var brutto = $("#luas_brutto").val();
+    var values = brutto.replace(",","");
+    var limit = parseInt(values);
+    if ( limit > luas_proyek ){
+      alert("Luas Kawasan sudah melebihi luas proyek");
+      $("#luas_brutto").val(0);
+    }
+  });
+
+  $("#luas_netto").keyup(function(){
+    var brutto = parseInt($("#luas_brutto").val());
+    var netto = parseInt($("#luas_netto").val());
+    if ( netto > brutto ){
+      alert("Luas Netto Kawasan ini melebihi Luas Brutto Kawasan ini ");
+      $("#luas_netto").val(0);
+    }
   });
 </script>
 @include("pt::app")

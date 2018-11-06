@@ -60,7 +60,7 @@
                   </div>
                   <div class="form-group">
                     <span>PT</span>
-                    <input type="text" class="form-control" value="{{ $voucher->bap->spk->tender->rab->pekerjaans->first()->itempekerjaan->budget_tahunan->budget->pt->name }}" readonly>
+                    <input type="text" class="form-control" value="{{ $voucher->bap->spk->tender->rab->budget_tahunan->budget->pt->name }}" readonly>
                   </div>
                   <div class="form-group">
                     <span>Dibayarkan kepada</span>
@@ -117,7 +117,7 @@
                             Project
                             @endif
                           </td>
-                          <td>Rp. {{ number_format($voucher->bap->nilai_bap_2,2)}}</td>
+                          <td>Rp. {{number_format($voucher->details->sum('nilai') / count($voucher->bap->spk->details ) ) }}</td>
                         </tr>
                       @endforeach
                     </tbody>

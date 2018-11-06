@@ -14,4 +14,7 @@ Route::group(['middleware' => 'web', 'prefix' => 'pt', 'namespace' => 'Modules\P
     Route::post('/add-proyek','PtController@addproject');
     Route::post('/add-mapping','PtController@addmapping');
     Route::post('/delete-mapping','PtController@deletemapping');
+
+    Route::post("/add-proyek","PtController@proyekpt");
+    
 });

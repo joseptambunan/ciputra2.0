@@ -48,10 +48,10 @@
                   @foreach ( $tenders as $key => $value )
                   <tr>
                     <td>{{ $value->no }}</td>
-                    <td>{{ $value->rab->no }}</td>
+                    <td>{{ $value->rab->no or '-' }}</td>
                     <td>{{ \Modules\Pekerjaan\Entities\Itempekerjaan::find($value->rab->parent_id)->name }}</td>
-                    <td>{{ number_format($value->rab->nilai) }}</td>
-                    <td>{{ \App\User::find($value->created_by)->user_name }}</td>
+                    <td>{{ number_format($value->rab->nilai)}}</td>
+                    <td>{{ \App\User::find($value->created_by)->user_name or '-' }}</td>
                     <td>{{ $value->created_at }}</td>
                     <td><a href="{{ url('/')}}/tender/detail/?id={{ $value->id }}" class="btn btn-warning">Detail</a></td>
                     <td>

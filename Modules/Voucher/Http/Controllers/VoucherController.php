@@ -231,9 +231,9 @@ class VoucherController extends Controller
                         $voucher_detail->voucher_id = $voucher->id;
                         $voucher_detail->coa_id = "11.41.".$bap->spk->itempekerjaan->code;  
                         if ( $bap->spk->rekanan->ppn / 100 != null ){          
-                            $voucher_detail->nilai = $bap->nilai_bap_dibayar / 1.1;
+                            $voucher_detail->nilai = $bap->nilai_bap_dibayar - ( $bap->nilai_administrasi + $bap->nilai_selisih + $bap->nilai_denda + $bap->nilai_sebelumnya) / 1.1;
                         }else{
-                            $voucher_detail->nilai = $bap->nilai_bap_dibayar;
+                            $voucher_detail->nilai = $bap->nilai_bap_dibayar - ( $bap->nilai_administrasi + $bap->nilai_selisih + $bap->nilai_denda + $bap->nilai_sebelumnya);
                         }
                         $voucher_detail->type = $dpp_string_new;
                         $voucher_detail->mata_uang =  $bap->spk->mata_uang;
@@ -249,7 +249,7 @@ class VoucherController extends Controller
                     $voucher_detail = new VoucherDetail;
                     $voucher_detail->voucher_id = $voucher->id;
                     $voucher_detail->coa_id = $bap->spk->itempekerjaan->coa_ppn ;       
-                    $voucher_detail->nilai = ( $bap->nilai_bap_dibayar / 1.1 ) * $bap->spk->rekanan->ppn / 100;
+                    $voucher_detail->nilai = ( $bap->nilai_bap_dibayar - ( $bap->nilai_administrasi + $bap->nilai_selisih + $bap->nilai_denda + $bap->nilai_sebelumnya) / 1.1 ) * $bap->spk->rekanan->ppn / 100;
                     $voucher_detail->type = $substring_ppn;
                     $voucher_detail->mata_uang =  $bap->spk->mata_uang;
                     $voucher_detail->kurs = $bap->spk->nilai_tukar;

@@ -5,6 +5,11 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Admin QS | Dashboard</title>
   @include("master/header")
+  <style type="text/css">
+    .table-align-right{
+      text-align: right;
+    }
+  </style>
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
@@ -19,6 +24,16 @@
       <h1 style="text-align:center">Data Pengelompokan Tender Purchase Request</h1>
 
     </section>
+    <section class="content-header">
+      <div class="" style="float: none">
+        <button class="col-md-1 col-sm-2 btn btn-primary" onclick="location.href='{{ url('/')}}/'" style="float: none; border-radius: 20px; padding-left: 0" disabled>
+        <i class="fa fa-fw fa-arrow-left"></i>&nbsp;&nbsp;Back
+        </button>
+        <button class="col-md-1 col-sm-2 btn btn-primary" onclick="window.location.reload()" style="float: right; border-radius: 20px; padding-left: 0;">
+          <i class="fa fa-fw fa-refresh"></i>&nbsp;&nbsp;Refresh
+        </button>  
+      </div>
+    </section>
     <section class="content">
       <!-- Info boxes -->
       <div class="row">
@@ -27,7 +42,7 @@
           <div class="box box-primary">
             <div class="box-header with-border" data-widget="collapse">
               <h3 class="box-title">
-                List Siap Di Kelompokkan &nbsp;	&nbsp;	
+                List Belum Di Kelompokkan &nbsp;	&nbsp;	
                 <span class="pull-right-container">
                   <small class="label pull-right bg-yellow">{{count($itemSiapKelompok)}}</small>
                 </span>
@@ -36,8 +51,7 @@
                 <button type="button" class="btn btn-box-tool" data-widget="collapse">
                   <i class="fa fa-plus"></i>
                 </button>
-              </div>
-              
+              </div>         
             </div>
             <!-- /.box-header -->
             <div class="box-header with-border" style="background-color:white">
@@ -53,13 +67,13 @@
                 <table id="ListSiapKelompok" class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
                     <thead>
                       <tr style="background-color: greenyellow;">
-                        <th>No</th>
-                        <th>No PR</th>
-                        <th>Id PR Detail</th>
+                        <th class="table-align-right">No</th>
+                        <th class="table-align-right">No PR</th>
                         <th>Departemen</th>
                         <th>Item</th>
                         <th>Brand</th>
-                        <th>Quantity</th> 
+                        <th class="table-align-right">Quantity</th>
+                        <th>Satuan</th> 
                       </tr>
                       </thead>
                       <tbody>
@@ -68,13 +82,13 @@
                         @php($i++)
 
                         <tr>
-                          <td>{{$i}}</td>
-                          <td>{{$v->prNo}}</td>
-                          <td>{{$v->prdId}}</td>
+                          <td class="table-align-right">{{$i}}</td>
+                          <td class="table-align-right">{{$v->prNo}}</td>
                           <td>{{$v->departmentName}}</td>
                           <td>{{$v->itemName}}</td>
                           <td>{{$v->brandName}}</td>
-                          <td>{{$v->quantity}}</td>
+                          <td class="table-align-right">{{$v->quantity}}</td>
+                          <td>{{$v->satuanName}}</td>
                         </tr>
                         @endforeach
       
@@ -89,11 +103,7 @@
       
       <div class="row">
           <div class="col-md-12">
-            @if(strcmp($user->user_login,"administrator")==0)
-            <div class="box box-primary collapsed-box">
-            @else
             <div class="box box-primary">
-            @endif
               <div class="box-header with-border" data-widget="collapse">
                 <h3 class="box-title">
                   List Telah Dikelompokkan &nbsp;	&nbsp;	
@@ -103,26 +113,18 @@
                 </h3>
                 <div class="box-tools pull-right">
                   <button type="button" class="btn btn-box-tool" data-widget="collapse">
-                    @if(strcmp($user->user_login,"administrator")==0)
-                    <i class="fa fa-plus"></i>
-                    @else
                     <i class="fa fa-minus"></i>
-                    @endif
                   </button>
                 </div>
               </div>
-              @if(strcmp($user->user_login,"administrator")==0)
-              <div class="box-body" style="display: none;">
-              @else
               <div class="box-body">
-              @endif
                   <table id="ListTelahKelompok" class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
                       <thead>
                         <tr style="background-color: greenyellow;">
-                          <th>No</th>
+                          <th class="table-align-right">No</th>
                           <th>Item</th>
                           <th>Brand</th>
-                          <th>Quantity</th>
+                          <th class="table-align-right">Quantity</th>
                           <th>Satuan</th>
                           <th>Desc</th>
                           <th>Status</th>
@@ -138,29 +140,25 @@
                           @php($i++)
   
                           <tr>
-                            <td>{{$i}}</td>
+                            <td class="table-align-right">{{$i}}</td>
                             <td>{{$v->itemName}}</td>
                             <td>{{$v->brandName}}</td>
-                            <td>{{$v->quantity}}</td>
+                            <td class="table-align-right">{{$v->quantity}}</td>
                             <td>{{$v->satuanName}}</td>
                             <td>{{$v->description}}</td>
                             <td>{{ucfirst($v->approvDescription)}}</td>
                             @if(strcmp($user->user_login,"approval1")==0)
                             <td>
-                              <button type="button" class="btn btn-block btn-primary" onclick="location.href='http://localhost:81/tenderpurchaserequest/approve-pengelompokan/?id={{$v->id}}&approve=@if(strtoupper($v->approvDescription)=="OPEN") 1 @else 2 @endif'" style="padding-left:0px">
+                              <button type="button" class="btn btn-block btn-primary" onclick="location.href='{{ url('/')}}/tenderpurchaserequest/approve-pengelompokan/?id={{$v->id}}&approve=@if(strtoupper($v->approvDescription)=="OPEN") 1 @else 2 @endif'" style="padding-left:0px"@if(strtoupper($v->approvDescription)!="OPEN") disabled @endif>
                               <i class="fa fa-fw fa-book"></i>
                                 &nbsp;
-                                @if(strtoupper($v->approvDescription)=="OPEN")
                                 Approve
-                                @else
-                                Cancel 
-                                @endif
                               </button>  
                             </td>
                             @endif
 
                             <td>
-                                <button type="button" class="btn btn-block btn-primary" onclick="location.href='http://localhost:81/tenderpurchaserequest/pengelompokanDetail/?id={{$v->id}}'" style="padding-left:0px">
+                                <button type="button" class="btn btn-block btn-primary" onclick="location.href='{{ url('/')}}/tenderpurchaserequest/pengelompokanDetail/?id={{$v->id}}'" style="padding-left:0px">
                                   <i class="fa fa-fw fa-book"></i>
                                   &nbsp;
                                   Detail

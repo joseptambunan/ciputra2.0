@@ -199,6 +199,8 @@ class BudgetTahunan extends Model
         $total = 0;
         $total_unit_price = 0;
         $arrayResult = array();
+        $nilai_terpakai = 0;
+
         for ( $i=0; $i<count($item_id); $i++ ){
             $total_volume = 0;
             $total_nilai = 0;
@@ -215,8 +217,20 @@ class BudgetTahunan extends Model
                     $satuan = $budgets->satuan;
                     $id = $value->id;
                 }
+
+                $terpakai = \Modules\Workorder\Entities\WorkorderBudgetDetail::where("itempekerjaan_id",$value->id)->where("budget_tahunan_id",$this->id)->get();
+
+                if ( count($terpakai) > 0 ){
+                    foreach ($terpakai as $key2 => $value2) {
+                        $nilai_terpakai = $nilai_terpakai + ( $value2->volume * $value2->nilai);
+                    }
+                }
             }
-            $arrayResult[$i] = array("code" => $item_id[$i], "nilai" => $total_nilai, "volume" => $total_volume, "satuan" => $satuan, "id" => $id, "total" => $total_unit_price);
+
+
+
+            $arrayResult[$i] = array("code" => $item_id[$i], "nilai" => $total_nilai, "volume" => $total_volume, "satuan" => $satuan, "id" => $id, "total" => $total_unit_price, "nilai_terpakai" => $nilai_terpakai);
+            $nilai_terpakai = 0;
         }
         return $arrayResult;
 

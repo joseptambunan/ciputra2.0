@@ -31,8 +31,9 @@
               </ol>
             </div>
             <!-- /.box-header -->
-            <div class="box-body">
-              <a href="{{ url('/')}}/project/add-blok?id={{ $projectkawasan->id }}" class="btn-lg btn-primary"><i class="glyphicon glyphicon-plus-sign"></i>Tambah Blok</a><br><br>
+            <div class="box-body table-responsive">
+              <a href="{{ url('/')}}/project/add-blok?id={{ $projectkawasan->id }}" class="btn btn-primary"><i class="glyphicon glyphicon-plus-sign"></i>Tambah Blok</a>
+              <a href="{{ url('/')}}/project/kawasan/" class="btn btn-warning">Kembali</a><br><br>
               <table id="example2" class="table table-bordered table-hover">   
               {{ csrf_field() }}              
               <thead style="background-color: greenyellow;">

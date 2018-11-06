@@ -15,7 +15,7 @@
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <section class="content-header">
-      <h1>Data Proyek {{ $project->name }}</h1>
+      <h1>Data Tipe Bangunan</h1>
 
     </section>
 
@@ -27,58 +27,105 @@
    
             <!-- /.box-header -->
             <div class="box-body">
-              <div class="col-md-6">
-                <h3 class="header">Edit Template Pekerjaan <strong>{{ $template->name }}</strong></h3>
-            	   <form action="{{ url('/')}}/project/update-template" method="post" name="form1">
-                  <input type="hidden" name="unit_type" value="{{ $template->unit_type_id }}">
-                  <input type="hidden" name="template_id" value="{{ $template->id }}">
-                  {{ csrf_field() }}                  
-                  <div class="form-group">
-                      <label for="exampleInputEmail1">Kode Template Pekerjaan</label>
-                      <input type="text" class="form-control" name="code" value="{{ $template->code }}">
-                  </div>
-                  <div class="form-group">
-                      <label for="exampleInputEmail1">Nama Template Pekerjaan</label>
-                      <input type="text" class="form-control" name="nama" value="{{ $template->name }}">
-                  </div>
-                  <div class="form-group">
-                      <label for="exampleInputEmail1">Luas Bangunan(m2)</label>
-                      <input type="text" class="form-control" name="lb" id="lb" max="{{ $template->luas_tanah}}" onKeyup="luasbangunan();" value="{{ $template->luasbangunan }}">
-                  </div>
-                  <div class="form-group">
-                      <label for="exampleInputEmail1">Luas Tanah(m2)</label>
-                      <input type="hidden" class="form-control" name="lt" id="lt" value="{{ $template->luas_tanah }}">
-                      <input type="text" class="form-control" value="{{ $template->luas_tanah }}" readonly>
-                  </div>
-                  <div class="box-footer">
-                    <button type="submit" class="btn btn-primary" id="submitbntn">Simpan</button>
-                    <a class="btn btn-warning" href="{{ url('/')}}/project/templatepekerjaan/?id={{ $template->unit_type_id }}">Kembali</a>
-                    <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modal-default">
-                      Tambah Item Pekerjaan
-                    </button>
-                  </div>
-              	</form>
-              </div>
+
               <div class="col-md-12">
-              
-            	<table id="example3" class="table table-bordered table-hover">
-                <thead>
-                <tr style="background-color: greenyellow;">
-                  <th>Item Pekerjaan </th>
-                  <th>Volume</th>
-                  <th>Satuan</th>
-                </tr>
-                </thead>
-                <tbody>
-                  @foreach ( $template->details as $key => $value )
-                  <tr>
-                    <td>{{ $value->itempekerjaan->name }}</td>
-                    <td>{{ $value->volume }}</td>
-                    <td>{{ $value->satuan }}</td>
+              <h4><strong>Kategori : {{ $unit_category->category_project->category_detail->category->name or '-'}} {{ $unit_category->category_project->category_detail->sub_type or '-'}}</strong></h4>
+              @if ( $unit_category != "" )
+                <strong>HPP Con Cost : Rp.</strong> <span id="concost"> {{ number_format( $unit_category->nilai,2) }} </span>   /m2
+              @endif            
+              <form action="{{ url('/')}}/project/update-template" method="post" name="form1">
+                <a href="{{ url('/')}}/project/templatepekerjaan/?id={{ $unit_category->unit_type->id }}" class="submitbtn btn btn-warning">Kembali</a>
+                <button type="submit" class="btn btn-info" id="btn_submit">Simpan</button>   
+                <input type="hidden" name="luas_bangunan" id="luas_bangunan" value="{{ $unit_category->unit_type->luas_bangunan }}"> 
+                <input type="hidden" name="unit_category" value="{{ $unit_category->unit_type->id }}"> 
+                {{ csrf_field() }}               
+                <table id="example3" class="table table-bordered table-hover table-responsive">
+                  <thead>
+                  <tr style="background-color: greenyellow;">
+                    <th>Kode</th>
+                    <th>Item Pekerjaan</th>
+                    <th>Volume</th>
+                    <th>Satuan</th>
+                    <th>Nilai(Rp)</th>
+                    <th>Subtotal(Rp)</th>
+                    <th>Rp/ m2</th>
                   </tr>
-                  @endforeach
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    @if ( $unit_category != null )
+                      @foreach ( $unit_category->details as $key => $value )
+                      <tr>
+                        <td>
+                          @if ( $value->satuan != "%")
+                          {{ $value->itempekerjaan->code or '-'}}
+                          @endif
+                        </td>
+                        <td>
+                          @if ( $value->satuan == "%")
+                            <span><strong>Persentase Kenaikan Harga</strong></span>
+                            <input type="hidden" class="form-control" name="id_[{{ $value->id }}]" value="{{ $value->id }}">
+                          @else
+                          <input type="hidden" class="form-control" name="id_[{{ $value->id }}]" value="{{ $value->id }}">
+                          {{ $value->itempekerjaan->name or '-' }}
+                          @endif
+                        </td>
+                        <td>
+                          @if ( $value->itempekerjaan->code == "100" || $value->itempekerjaan->code == "200")
+                            {{ $value->volume or '0'}}
+                            <input type="hidden" class="form-control" id="volume_{{ $value->id }}" name="volume_[{{ $value->id }}]" value="{{ $value->volume }}" autocomplete="off">
+                          @else
+                            <input type="text" class="form-control" id="volume_{{ $value->id }}" name="volume_[{{ $value->id }}]" value="{{ $value->volume }}" autocomplete="off" required>
+                          @endif
+                        </td>
+                        <td>
+                          @if ( $value->itempekerjaan->code == "100" || $value->itempekerjaan->code == "200" )
+                            
+                            @if ( $value->satuan == "%")
+                              <input type="hidden" class="percent form-control" id="volume_{{ $value->id }}" name="volume_[{{ $value->id }}]" value="{{ $value->volume }}" autocomplete="off">
+                                %
+                              <input type="hidden" class="form-control" name="satuan_[{{ $value->id }}]" value="{{ $value->satuan }}" autocomplete="off">
+                            @else
+                            {{ $value->satuan or '-'}}
+                            <input type="hidden" class="form-control" name="satuan_[{{ $value->id }}]" value="{{ $value->satuan }}" autocomplete="off">
+                            @endif
+                          @else
+                            <input type="text" class="form-control" name="satuan_[{{ $value->id }}]" value="{{ $value->satuan }}" autocomplete="off" required>
+                          @endif
+                        </td>
+                        <td>
+                          @if ( $value->satuan != "%")
+                          <input type="text" class="nilai_budget form-control" name="nilai_[{{ $value->id }}]" id="nilai_{{ $value->id }}" value="{{ number_format($value->nilai,2) }}" autocomplete="off" onKeyUp="calculcate('{{ $value->id}}','{{ $value->itempekerjaan->code }}')" required>
+                          @else
+                          <input type="hidden" class="nilai_percentage_val nilai_budget form-control" name="nilai_[{{ $value->id }}]" id="nilai_{{ $value->id }}" value="{{ number_format($value->nilai,2) }}" autocomplete="off" onKeyUp="calculcate('{{ $value->id}}','{{ $value->itempekerjaan->code }}')" required>
+                          <input type="hidden" class="nilai_percentage form-control"  value="{{ number_format($value->nilai,2) }}" autocomplete="off" onKeyUp="calculcate('{{ $value->id}}','{{ $value->itempekerjaan->code }}')" required>
+                          <span id="nilai_percentage"></span>
+                          @endif
+                        </td>
+                        <td>
+                          @if ( $value->satuan == "%")
+                            <span class="sub_percentage" id="sub_total_{{ $value->id}}">{{ number_format($value->volume * $value->nilai ,2) }}</span>
+                          @else
+                            <span id="sub_total_{{ $value->id}}">{{ number_format($value->volume * $value->nilai ,2) }}</span>
+                          @endif
+                        </td>    
+                        <td>
+                          
+                          @if ( $value->satuan == "%")
+                            <input type="hidden" class="nilai_percentage_m2 sub_totalm2_" id="sub_totalm2_{{ $value->id}}" value="{{ ($value->volume * $value->nilai) }}">
+                            <span class="subm2_percentage" id="subm2_{{ $value->id}}">{{ number_format($value->volume * $value->nilai ,2) }}</span>
+                          @else
+                          <input type="hidden" class="sub_totalm2_" id="sub_totalm2_{{ $value->id}}" value="{{ ( ($value->volume * $value->nilai ) / $unit_category->unit_type->luas_bangunan) }}">
+                          <span id="subm2_{{ $value->id}}">{{ number_format( ($value->volume * $value->nilai ) / $unit_category->unit_type->luas_bangunan ,2) }}</span>
+                          @endif
+                        </td>                
+                      </tr>
+                      @endforeach
+                    @endif
+                  </tbody>
+                </table>
+                <i class="fa fa-refresh ld ld-spin" id="loading" style="display: none;"></i>
+              </form>
+
               </div>
             </div>
             <!-- /.box-body -->
@@ -105,58 +152,6 @@
   <!-- Add the sidebar's background. This div must be placed
        immediately after the control sidebar -->
   <div class="control-sidebar-bg"></div>
-  <div class="modal fade" id="modal-default">
-    <div class="modal-dialog">
-      <form action="{{ url('/')}}/project/add-templatedetail" method="post" name="form1" >
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-          <h4 class="modal-title">Item Pekerjaan</h4>
-          <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-primary">Save changes</button>
-        </div>
-        <div class="modal-body">
-          <div class="form-group">
-            <label for="exampleInputEmail1">Kode Template Pekerjaan</label>
-            <select class="form-control" id="itemtemplate" name="idtemplate">
-              <option value="">( pilih itempekerjaan )</option>
-              @foreach ( $itempekerjaan as $key2 => $value2)
-              @if ( $value2->group_cost == "2")
-              <option value="{{ $value2->id }}">{{ $value2->name }}</option>
-              @endif
-              @endforeach
-            </select>
-          </div>
-          <div class="form-group">
-            
-              {{ csrf_field()}}
-            <input type="hidden" id="template_id" name="template_id" value="{{ $template->id }}">
-            <table class="table">
-              <tr>
-                <td>Code</td>
-                <td>Nama Pekerjaan</td>
-                <td>Volume</td>
-                <td>Satuan</td>
-              </tr>
-              <tbody id="table_item">
-                
-              </tbody>
-            </table>
-            
-          </div>
-        </div>
-        <div class="modal-footer">
-          
-        </div>
-        </form>
-      </div>
-      <!-- /.modal-content -->
-    </div>
-    <!-- /.modal-dialog -->
-  </div>
-  <!-- /.modal -->
 </div>
 <!-- ./wrapper -->
 
@@ -174,20 +169,56 @@
     }
   }
 
-  $("#itemtemplate").change(function(){
-    var request = $.ajax({
-      url : "{{ url('/')}}/project/itempekerjaan",
-      dataType : "json",
-      data : {
-        id : $("#itemtemplate").val()
-      },
-      type : "post"
-    });
-
-    request.done(function(data){
-      $("#table_item").html(data.html);
-    })
+  $("#btn_submit").click(function(){
+    $(".submitbtn").hide();
+    $("#loading").show();
   });
+
+  function calculcate(id,code){
+    var volume = parseInt($("#volume_" + id).val());
+    var nilai = parseInt($("#nilai_" + id).val());
+    var subtotal = parseInt(volume * nilai);
+    var m2 = parseInt($("#luas_bangunan").val());
+    var hpp = parseInt(subtotal / m2 );
+    var hpp_total = parseInt(0);
+    $("#sub_total_" + id).text(subtotal);
+    $("#sub_total_" +id).number(true,2);
+
+    $("#subm2_" + id).text(hpp);    
+    $("#subm2_" +id).number(true,2);
+    $("#sub_totalm2_" + id).val(hpp);
+
+    if ( code == 100 ){
+      $("#nilai_percentage").text(subtotal); 
+      $("#nilai_percentage").number(true,2); 
+      $(".nilai_percentage_val").val(subtotal);
+
+      var percent = parseInt($(".percent").val());
+      var nilai_percent = parseInt(percent * subtotal ) / 100 ;
+      var nilai_percent_m2 = parseInt(nilai_percent / m2);
+
+      $(".nilai_percentage").val(nilai_percent);
+      $(".sub_percentage").text(nilai_percent);
+      $(".sub_percentage").number(true,2);
+
+      $(".nilai_percentage_m2").val(nilai_percent_m2);
+      $(".subm2_percentage").text(nilai_percent_m2);
+      $(".subm2_percentage").number(true,2);
+    }
+
+    $( ".sub_totalm2_" ).each(function( index ) {
+      console.log( $(this).val());
+      if ( $(this).val() != "NaN"){        
+        var tmp_hpp_total = parseInt(parseInt($(this).val()) + parseInt(hpp_total));
+        hpp_total = tmp_hpp_total;
+        
+      }
+    });
+    console.log(hpp_total);
+
+    $("#concost").text(hpp_total);
+    $("#concost").number(true,2);
+  }
 </script>
 </body>
 </html>

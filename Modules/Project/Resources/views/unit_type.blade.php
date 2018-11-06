@@ -34,12 +34,13 @@
               {{ csrf_field() }}              
               <thead class="head_table">
                 <tr>
+                  <td>No.</td>
                   <td>Kode Type</td>
                   <td>Nama Type</td>
                   <td>Luas Bangunan(m2)</td>
                   <td>Luas Tanah(m2)</td>
                   <td>Elektrik(watt)</td>
-                  <td>Template Pekerjaan</td>
+                  <td>Detail</td>
                   <td colspan="2">Perubahan Data</td>
                 </tr>
               </thead>
@@ -47,12 +48,14 @@
                  @foreach ( $type as $key => $value )
                 
                  <tr>
+                    <td>{{ $key + 1 }}</td>
                     <td>
                       <span id="label_{{ $value->id }}">{{ $value->kode }}</span>
                       <input type="text" name="input_kode{{ $value->id }}" id="input_kode{{ $value->id }}" style="display: none;" value="{{ $value->kode }}">
                     </td>
                     <td>
-                      <span id="label_{{ $value->id }}">{{ $value->name }}</span>
+                      <span id="label_{{ $value->id }}">{{ $value->name }}</span><br>                      
+                      Kategori : <strong>{{ $value->category->category_project->category_detail->category->name or '-'}} {{ $value->category->category_project->category_detail->sub_type or '-'}}</strong><br>
                       <input type="text" name="input_{{ $value->id }}" id="input_{{ $value->id }}" style="display: none;" value="{{ $value->name }}">
                     </td>
                     <td>
@@ -67,7 +70,7 @@
                       <span id="listrik_{{ $value->id }}">{{ $value->listrik }}</span>
                       <input type="text" name="input_listrik_{{ $value->id }}" id="input_listrik_{{ $value->id }}" style="display: none;" value="{{ $value->listrik }}">
                     </td>
-                    <td><a href="{{ url('/')}}/project/templatepekerjaan/?id={{ $value->id }}" class="btn btn-success">Template Pekerjaan</a></td>
+                    <td><a href="{{ url('/')}}/project/templatepekerjaan/?id={{ $value->id }}" class="btn btn-success">Detail</a></td>
                     <td>
                       <button href="{{ url('/')}}/project/edit-blok?id={{ $value->id }}" class="btn btn-warning" id="btn_edit1_{{ $value->id }}" onclick="edittype('{{ $value->id }}')">Edit</button>
                        <button href="{{ url('/')}}/project/edit-blok?id={{ $value->id }}" class="btn btn-success" id="btn_edit2_{{ $value->id }}" onclick="savetype('{{ $value->id }}','{{ $value->name }}')" style="display: none;">Edit</button>

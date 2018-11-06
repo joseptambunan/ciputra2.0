@@ -5,6 +5,11 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Admin QS | Dashboard</title>
   @include("master/header")
+  <style type="text/css">
+    .table-align-right{
+      text-align: right;
+    }
+  </style>
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
@@ -17,7 +22,16 @@
     
     <section class="content-header">
       <h1 style="text-align:center">Data Tender Purchase Request</h1>
-
+    </section>
+    <section class="content-header">
+      <div class="" style="float: none">
+        <button class="col-md-1 col-sm-2 btn btn-primary" onclick="location.href='{{ url('/')}}/'" style="float: none; border-radius: 20px; padding-left: 0" disabled>
+        <i class="fa fa-fw fa-arrow-left"></i>&nbsp;&nbsp;Back
+        </button>
+        <button class="col-md-1 col-sm-2 btn btn-primary" onclick="window.location.reload()" style="float: right; border-radius: 20px; padding-left: 0;">
+          <i class="fa fa-fw fa-refresh"></i>&nbsp;&nbsp;Refresh
+        </button>  
+      </div>
     </section>
     <section class="content">
       <!-- Info boxes -->
@@ -27,14 +41,14 @@
           <div class="box box-primary">
             <div class="box-header with-border" data-widget="collapse">
               <h3 class="box-title">
-                List Siap Di Tenderkan &nbsp; &nbsp;  
+                List Belum Di Tenderkan &nbsp; &nbsp;  
                 <span class="pull-right-container">
                   <small class="label pull-right bg-yellow"></small>
                 </span>
               </h3>
               <div class="box-tools pull-right">
                 <button type="button" class="btn btn-box-tool" data-widget="collapse">
-                  <i class="fa fa-plus"></i>
+                  <i class="fa fa-minus"></i>
                 </button>
               </div>
               
@@ -53,10 +67,10 @@
                 <table id="ListSiapKelompok" class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
                     <thead>
                       <tr style="background-color: greenyellow;">
-                        <th>No</th>
+                        <th class="table-align-right">No</th>
                         <th>Item</th>
                         <th>Brand</th>
-                        <th>Quantity</th>
+                        <th class="table-align-right">Quantity</th>
                         <th>Satuan</th>
                         <th>Desc</th>
                         <th>Action</th> 
@@ -68,14 +82,14 @@
                           @php($i++)
   
                           <tr>
-                            <td>{{$i}}</td>
+                            <td class="table-align-right">{{$i}}</td>
                             <td>{{$v->itemName}}</td>
                             <td>{{$v->brandName}}</td>
-                            <td>{{$v->quantity}}</td>
+                            <td class="table-align-right">{{$v->quantity}}</td>
                             <td>{{$v->satuanName}}</td>
                             <td>{{$v->description}}</td>                            
                             <td>
-                                <button type="button" class="btn btn-block btn-primary" onclick="location.href='http://localhost:81/tenderpurchaserequest/pengelompokanDetail/?id={{$v->id}}'" style="padding-left:0px">
+                                <button type="button" class="btn btn-block btn-primary" onclick="location.href='{{ url('/')}}/tenderpurchaserequest/pengelompokanDetail/?id={{$v->id}}&back=tenderpurchaserequest'" style="padding-left:0px">
                                   <i class="fa fa-fw fa-book"></i>
                                   &nbsp;
                                   Detail
@@ -96,11 +110,7 @@
       
       <div class="row">
           <div class="col-md-12">
-            @if(strcmp($user->user_login,"administrator")==0)
-            <div class="box box-primary collapsed-box">
-            @else
             <div class="box box-primary">
-            @endif
               <div class="box-header with-border" data-widget="collapse">
                 <h3 class="box-title">
                   List Telah Di Tenderkan &nbsp; &nbsp;  
@@ -109,31 +119,20 @@
                   </span>
                 </h3>
                 <div class="box-tools pull-right">
-                  <button type="button" class="btn btn-box-tool" data-widget="collapse">
-                    @if(strcmp($user->user_login,"administrator")==0)
-                    <i class="fa fa-plus"></i>
-                    @else
+                  <button type="button" class="btn btn-box-tool" data-widget="collapse">  
                     <i class="fa fa-minus"></i>
-                    @endif
                   </button>
                 </div>
               </div>
-              @if(strcmp($user->user_login,"administrator")==0)
-              <div class="box-body" style="display: none;">
-              @else
               <div class="box-body">
-              @endif
                   <table id="ListTelahKelompok" class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
                       <thead>
                         <tr style="background-color: greenyellow;">
-                           <th>No</th>
-                          <th>No Tender</th>
+                          <th class="table-align-right">No</th>
+                          <th class="table-align-right">No Tender</th>
                           <th>Nama Tender</th>
-                          <th>Tanggal Ambil Dokumen</th>
-                          <th>Final Date</th>
-                          <th>Harga Dokumen</th>
-                          <th>Sumber</th> 
-                          <th>Deskripsi</th> 
+                          <th class="table-align-right">Final Date</th>
+                          <th>Pemenang</th> 
                           <th>Status</th> 
                           @if(strcmp($user->user_login,"approval1")==0)
                           <th>Aksi</th> 
@@ -148,19 +147,16 @@
   
                           <tr>
                             @if($v->approval_action_id !=2)
-                            <td>{{$i}}</td>
-                            <td>{{$v->no}}</td>
+                            <td class="table-align-right">{{$i}}</td>
+                            <td class="table-align-right">{{$v->no}}</td>
                             <td>{{$v->name}}</td>
-                            <td>{{$v->ambil_doc_date}}</td>
-                            <td>{{$v->final_date}}</td>
-                            <td>{{$v->harga_dokumen}}</td>                            
-                            <td>{{$v->sumber}}</td>                            
+                            <td class="table-align-right">{{$v->final_date}}</td>
                             <td>{{$v->description}}</td>                            
                             <td>{{ucwords($v->status)}}</td>                            
 
                               @if(strcmp($user->user_login,"approval1")==0)
                               <td>
-                                <button type="button" class="btn btn-block btn-primary" onclick="location.href='http://localhost:81/tenderpurchaserequest/approve-tender/?id={{$v->id}}'" style="padding-left:0px">
+                                <button type="button" class="btn btn-block btn-primary" onclick="location.href='{{ url('/')}}/tenderpurchaserequest/approve-tender/?id={{$v->id}}'" style="padding-left:0px">
                                   <i class="fa fa-fw fa-book"></i>
                                   &nbsp;
                                   Approve
@@ -169,7 +165,7 @@
                               @endif
                               
                               <td>
-                                <button type="button" class="btn btn-block btn-primary" onclick="location.href='http://localhost:81/tenderpurchaserequest/detail/?id={{$v->id}}'" style="padding-left:0px">
+                                <button type="button" class="btn btn-block btn-primary" onclick="location.href='{{ url('/')}}/tenderpurchaserequest/detail/?id={{$v->id}}'" style="padding-left:0px">
                                   <i class="fa fa-fw fa-book"></i>
                                   &nbsp;
                                   Detail

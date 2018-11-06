@@ -27,7 +27,14 @@ class PurchaseRequestController extends Controller
         $user = \Auth::user();
         $approve = DB::table("user_details")->where("user_id",$user->id)->select("can_approve")->first()->can_approve;
         $project = Project::find($request->session()->get('project_id'));
-        $PR = purchaseRequest::get();
+        $PR =   DB::table("purchaserequests")
+                ->join("budget_tahunans","budget_tahunans.id","purchaserequests.budget_tahunan_id")
+                ->join("budgets","budgets.id","budget_tahunans.budget_id")
+                ->join("departments","departments.id","purchaserequests.department_id")
+                ->select("purchaserequests.id","departments.name as dName","purchaserequests.no","purchaserequests.date","purchaserequests.butuh_date")
+                ->where("budgets.project_id",$request->session()->get('project_id'))
+                ->get();
+
         //$status_approval tidak efisien
         $status_approval = [];
         foreach ($PR as $v) {
@@ -73,22 +80,31 @@ class PurchaseRequestController extends Controller
                         ->join("mappingperusahaans","mappingperusahaans.id","user_details.mappingperusahaan_id")
                         ->join("departments","departments.id","mappingperusahaans.department_id")
                         ->select("departments.name","departments.id")->first();
-        $coa = Itempekerjaan::get();
-        $rekanan_group = \App\rekanan_group::get();
+        // $coa = Itempekerjaan::get();
+        $coa = DB::table("coas")->get();
+        // $rekanan_group = \App\rekanan_group::get();
+        $rekanan_group = DB::table("rekanan_groups")->get();
         $test = new Budget();
         date_default_timezone_set('asia/jakarta');
         $date = date("Y-m-d");
-        $item = \App\item::select('id','name','stock_min')->get();
-        $item_satuan = \App\item_satuan::select('id','item_id','name')->get();
-        $brand = \App\brand::get();
-        $itempekerjaan = \App\itempekerjaan::select('id','department_id','name')->get();
+        // $item = \App\item::select('id','name','stock_min')->get();
+        $item = DB::table("items")->get();
+        // $item_satuan = \App\item_satuan::select('id','item_id','name')->get();
+        $item_satuan = DB::table("item_satuans")->get();
+        // $brand = \App\brand::get();
+        $brand = DB::table("brands")->get();
+        // $itempekerjaan = \App\itempekerjaan::select('id','department_id','name')->get();
+        $itempekerjaan = DB::table("itempekerjaans")->get();
 
         $project = Project::find($request->session()->get('project_id'));        
 
-        $budget = \App\budget::select("id")->where("department_id",$department->id)->where("project_id",$request->session()->get('project_id'))->get();
-        $budget_tahunan = \App\budget_tahunan::select("id","budget_id")->get();
+        // $budget = \App\budget::select("id")->where("department_id",$department->id)->where("project_id",$request->session()->get('project_id'))->get();
+        $budget = DB::table("budgets")->select("id")->where("department_id",$department->id)->where("project_id",$request->session()->get('project_id'))->get();
+        // $budget_tahunan = \App\budget_tahunan::select("id","budget_id")->get();
+        $budget_tahunan = DB::table("budget_tahunans")->select("id","budget_id")->get();
 
-        $budget_tahunan_detail = \App\budget_tahunan_detail::select("id","budget_tahunan_id","itempekerjaan_id")->get();
+        // $budget_tahunan_detail = \App\budget_tahunan_detail::select("id","budget_tahunan_id","itempekerjaan_id")->get();
+        $budget_tahunan_detail = DB::table("budget_tahunan_details")->select("id","budget_tahunan_id","itempekerjaan_id")->get();
         
         $budget =   DB::table("budget_tahunan_details")
                     ->join("budget_tahunans","budget_tahunans.id","budget_tahunan_details.budget_tahunan_id")
@@ -129,7 +145,6 @@ class PurchaseRequestController extends Controller
         // var_dump($tmp->haha);
 
         $input_budget_tahunan = DB::table("budgets")->select("budgets.id","budgets.project_id","budgets.department_id","budget_tahunans.id as id_budget_tahunan","budget_tahunans.no")->join("budget_tahunans","budgets.id","budget_tahunans.budget_id")->get();
-        
         return view('purchaserequest::create',compact("user","department","coa","rekanan_group","date","brand","item","item_satuan","itempekerjaan","budget","budget_no","budget_tahunan","budget_tahunan_detail","input_budget_tahunan","project","approve"));
     }
     /**
@@ -170,7 +185,7 @@ class PurchaseRequestController extends Controller
         
         // $PR->budget_tahunan_id = \App\budget::select('id')->where('department_id',$prePR->department)->limit(1)->get()[0]->id;
         $PR->budget_tahunan_id = $request->budget_tahunan;
-        $PR->pt_id = \App\budget::select('pt_id')->where('department_id',$prePR->department)->limit(1)->get()[0]->pt_id;
+        $PR->pt_id = DB::table("budgets")->select('pt_id')->where('department_id',$prePR->department)->first()->pt_id;
         
         $PR->department_id = $prePR->department;
         
@@ -183,7 +198,7 @@ class PurchaseRequestController extends Controller
         $PR->description = $prePR->deskripsi_umum;
         $status = $PR->save();
         for($i=0;$i<$prePR->jumlah_item;$i++){
-            $PRD = new \App\PurchaseRequestDetail;
+            $PRD = new \Modules\PurchaseRequest\Entities\PurchaseRequestDetail;
             $PRD->purchaserequest_id = $PR->id;
             $PRD->itempekerjaan_id = $prePR->coa[$i];
             $PRD->item_id = $prePR->item[$i];
@@ -248,9 +263,22 @@ class PurchaseRequestController extends Controller
     public function detail(Request $request)
     {
         $user = \Auth::user();
+        $project = Project::find($request->session()->get('project_id'));
         $approve = DB::table("user_details")->where("user_id",$user->id)->select("can_approve")->first()->can_approve;
         $PR = purchaseRequest::get();
-        $PRS = \App\PurchaseRequestDetail::where("purchaserequest_id",$request->id)->get();
+        $PRS =  DB::table("purchaserequest_details")
+                ->where("purchaserequest_id",$request->id)
+                ->join("items","items.id","purchaserequest_details.item_id")
+                ->join("item_satuans","item_satuans.id","purchaserequest_details.item_satuan_id")
+                ->join("brands","brands.id","purchaserequest_details.brand_id")
+                ->join("itempekerjaans","itempekerjaans.id","purchaserequest_details.itempekerjaan_id")
+                ->leftJoin("rekanans as r1","r1.id","purchaserequest_details.rec_1")
+                ->leftJoin("rekanans as r2","r2.id","purchaserequest_details.rec_2")
+                ->leftJoin("rekanans as r3","r3.id","purchaserequest_details.rec_3")
+                ->select("purchaserequest_details.id","purchaserequest_details.purchaserequest_id","items.name as itemName","item_satuans.name as itemSatuanName","brands.name as brandName",
+                        "purchaserequest_details.quantity","itempekerjaans.name as itemPekerjaanName","purchaserequest_details.recomended_supplier","r1.name as r1Name","r2.name as r2Name","r3.name as r3Name","purchaserequest_details.description")
+                ->get();
+
         $status = [];
         foreach($PRS as $v){
             $approval_action_id =  DB::table("approvals")->select("approval_action_id")
@@ -264,8 +292,9 @@ class PurchaseRequestController extends Controller
                 $status_approval = "open";
             array_push($status,$status_approval);
         }
+        $pr_id = $request->id;
 
-        return view('purchaserequest::detail',compact("user","PR","PRS","status","approve"));
+        return view('purchaserequest::detail',compact("user","project","PR","PRS","status","approve","pr_id"));
         //return view('purchaserequest::index');
     }
     public function approve(Request $request){

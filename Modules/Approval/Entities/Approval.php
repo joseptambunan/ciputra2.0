@@ -20,7 +20,7 @@ class Approval extends CustomModel
 
     public function histories()
     {
-    	return $this->hasMany('Modules\Approval\Entities\ApprovalHistory', 'approval_id');
+    	return $this->hasMany('Modules\Approval\Entities\ApprovalHistory', 'approval_id')->orderBy("no_urut","ASC");
     }
 
     public function document()

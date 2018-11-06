@@ -58,12 +58,13 @@ class SpkController extends Controller
     {   
 
         $tender = Tender::find($request->id);
+        $project = Project::find($request->session()->get('project_id'));
         if ($tender->rab->flow === 0) 
         {
-            $no =  \App\Helpers\Document::new_number('IL', $tender->rab->workorder->department_from);
+            $no =  \App\Helpers\Document::new_number('IL', $tender->rab->workorder->department_from,$project->id);
             $is_instruksilangsung = TRUE;
         }else{
-            $no = \App\Helpers\Document::new_number('SPK', $tender->rab->workorder->department_from);
+            $no = \App\Helpers\Document::new_number('SPK', $tender->rab->workorder->department_from,$project->id);
             $is_instruksilangsung = FALSE;
         }
 
@@ -202,22 +203,42 @@ class SpkController extends Controller
         }
 
         if ( $spk->approval != "" ){
-            $ttd_pertama = $spk->approval->histories->min("no_urut");
-            foreach ($spk->approval->histories as $key => $value) {
-                $user = User::find($value->user_id);
-                $max = $user->approval_reference;
-                foreach ($user->approval_reference as $key2 => $value2) {
-                    if ( $value2->max_value <= $spk->nilai && $value2->project_id == $spk->project->id && $value2->document_type == "Spk"){
-                        $tmp_ttd_pertama[$value2->user_id] = array( "level" => $value2->no_urut, "user_name" => ucwords($value2->user->user_name), "user_jabatan" => ucwords($value2->user->jabatan[0]["jabatan"]) );
-                        $start++;
+            if ( $spk->approval->histories->count() > 0 ){
+                $ttd_pertama = $spk->approval->histories->min("no_urut");
+                foreach ($spk->approval->histories as $key => $value) {
+                    $user = User::find($value->user_id);
+                    $max = $user->approval_reference;
+                    foreach ($user->approval_reference as $key2 => $value2) {
+                        if ( $value2->max_value <= $spk->nilai && $value2->project_id == $spk->project->id && $value2->document_type == "Spk"){
+                            $tmp_ttd_pertama[$start] = array( "level" => $value2->no_urut, "user_name" => ucwords($value2->user->user_name), "user_jabatan" => ucwords($value2->user->jabatan[0]["jabatan"]) );
+                            $start++;
+                        }
                     }
+                }            
+                $ttd_pertama = min($tmp_ttd_pertama);
+            
+
+                if ( $ttd_pertama["level"] < 5 ){
+                    $list_ttd[0] = array("user_name" => $ttd_pertama["user_name"], "user_jabatan" => $ttd_pertama["user_jabatan"]);            
+                    $list_ttd[1] = array("user_name" => $tmp_ttd_pertama[1]["user_name"], "user_jabatan" => $tmp_ttd_pertama[1]["user_jabatan"]);
+                    foreach ($tmp_ttd_pertama as $key => $value) {
+                        if ( $value["level"] == 5 ){
+                            $list_ttd[2] = array("user_name" => $tmp_ttd_pertama[$key]["user_name"], "user_jabatan" => $tmp_ttd_pertama[$key]["user_jabatan"]);
+                        }
+                    }  
+                }else{
+                    $list_ttd[0] = array("user_name" => $ttd_pertama["user_name"], "user_jabatan" => $ttd_pertama["user_jabatan"]);  
+                    $start = 1;          
+                    foreach ($tmp_ttd_pertama as $key => $value) {
+                        if ( $value["level"] > 5 ){
+                            $list_ttd[$start] = array("user_name" => $tmp_ttd_pertama[$start]["user_name"], "user_jabatan" => $tmp_ttd_pertama[$start]["user_jabatan"]);
+                            $start++;
+                        }
+                    } 
                 }
             }
-            $ttd_pertama = min($tmp_ttd_pertama);
         }
-
-
-        return view('spk::create',compact("itempekerjaan","tender_menang","project","user","spk","spktype","termyn","ttd_pertama","tmp_ttd_pertama"));
+        return view('spk::create',compact("itempekerjaan","tender_menang","project","user","spk","spktype","termyn","list_ttd","ttd_pertama"));
     }
 
     /**
@@ -246,6 +267,7 @@ class SpkController extends Controller
         $spk->start_date = $request->start_date;
         $spk->finish_date = $request->end_date;
         $spk->st_1 = $request->end_date;
+        $spk->name = $request->spk_name;
         $spk->save();
         return redirect("/spk/detail?id=".$spk->id);
     }
@@ -565,7 +587,7 @@ class SpkController extends Controller
 
     public function storesik(Request $request){        
         $spk = Spk::find($request->spk_id);
-        $number = \App\Helpers\Document::new_number('SIK', $spk->tender->rab->workorder->department_from).$spk->tender->rab->budget_tahunan->budget->pt->code;
+        $number = \App\Helpers\Document::new_number('SIK', $spk->tender->rab->workorder->department_from,$spk->project_id).$spk->tender->rab->budget_tahunan->budget->pt->code;
         $suratinstruksi = new Suratinstruksi;
         $suratinstruksi->spk_id = $request->spk_id;
         $suratinstruksi->no = $number;
@@ -580,11 +602,57 @@ class SpkController extends Controller
     }
 
     public function showsik(Request $request){
+        $ttd_pertama = "";
+        $ttd_kedua = "";
+        $tmp_ttd_pertama = array();
+        $start = 0;
+
         $suratinstruksi = Suratinstruksi::find($request->id);
         $user = \Auth::user();
         $project = Project::find($request->session()->get('project_id'));
         $arrayparam = array("+" => array("label" => "Pekerjaan Tambah", "class" => "label label-success"), "-" => array("label" => "Pekerjaan Kurang", "class" => "label label-danger"));
-        return view("spk::show_sik",compact("user","project_id","suratinstruksi","user","project","arrayparam"));
+        $asset = "";
+        foreach ($suratinstruksi->spk->details as $key => $value) {
+            $asset .= $value->asset->name .",";
+        }
+        $asset = trim($asset,",");
+
+        if ( $suratinstruksi->spk->approval != "" ){
+            $ttd_pertama = $suratinstruksi->spk->approval->histories->min("no_urut");
+            foreach ($suratinstruksi->spk->approval->histories as $key => $value) {
+                $user = User::find($value->user_id);
+                $max = $user->approval_reference;
+                foreach ($user->approval_reference as $key2 => $value2) {
+                    if ( $value2->max_value <= $suratinstruksi->spk->nilai && $value2->project_id == $suratinstruksi->spk->project->id && $value2->document_type == "Spk"){
+                        $tmp_ttd_pertama[$start] = array( "level" => $value2->no_urut, "user_name" => ucwords($value2->user->user_name), "user_jabatan" => ucwords($value2->user->jabatan[0]["jabatan"]) );
+                        $start++;
+                    }
+                }
+            }            
+            $ttd_pertama = min($tmp_ttd_pertama);
+        
+
+            if ( $ttd_pertama["level"] < 5 ){
+                $list_ttd[0] = array("user_name" => $ttd_pertama["user_name"], "user_jabatan" => $ttd_pertama["user_jabatan"]);            
+                $list_ttd[1] = array("user_name" => $tmp_ttd_pertama[1]["user_name"], "user_jabatan" => $tmp_ttd_pertama[1]["user_jabatan"]);
+                foreach ($tmp_ttd_pertama as $key => $value) {
+                    if ( $value["level"] == 5 ){
+                        $list_ttd[2] = array("user_name" => $tmp_ttd_pertama[$key]["user_name"], "user_jabatan" => $tmp_ttd_pertama[$key]["user_jabatan"]);
+                    }
+                }  
+            }else{
+                $list_ttd[0] = array("user_name" => $ttd_pertama["user_name"], "user_jabatan" => $ttd_pertama["user_jabatan"]);  
+                $start = 1;          
+                foreach ($tmp_ttd_pertama as $key => $value) {
+                    if ( $value["level"] > 5 ){
+                        $list_ttd[$start] = array("user_name" => $tmp_ttd_pertama[$start]["user_name"], "user_jabatan" => $tmp_ttd_pertama[$start]["user_jabatan"]);
+                        $start++;
+                    }
+                } 
+            }
+        }
+
+        return view("spk::show_sik",compact("user","project_id","suratinstruksi","user","project","arrayparam","asset","list_ttd"));
     }
 
     public function createvo(Request $request){

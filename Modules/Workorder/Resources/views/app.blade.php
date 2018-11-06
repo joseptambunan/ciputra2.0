@@ -100,5 +100,29 @@
   	}
   }
 
+  function woupdapprove(id){
+    if ( confirm("Apakah anda yakin ingin merilis data ini ? ")){
+      var request = $.ajax({
+        url : "{{ url('/')}}/workorder/updapprove",
+        dataType : "json",
+        data : {
+          id : id
+        },
+        type : "post"
+      });
+
+      request.done(function(data){
+        if ( data.status == "0"){
+          alert("Workorder telah dirilis");
+        }
+        window.location.reload();
+      });
+
+    }else{
+      return false;
+    }
+  
+  }
+
  
 </script>

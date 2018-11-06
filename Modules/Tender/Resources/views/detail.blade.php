@@ -163,9 +163,9 @@
                       @if ( $tender->ambil_doc_date == "" || $tender->aanwijzing_date == "" || $tender->penawaran1_date == "")
                         <h3><i>Data Tanggal Penawaran belum diisi</i></h3>
                         @else
-                        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modal-default">
+                        <a class="btn btn-info" href="{{ url('/')}}/tender/rekanan/referensi?id={{ $tender->id}}">
                           Tambah Rekanan
-                        </button><br><br>                      
+                        </a><br><br>                      
                       @endif
                     @endif
 
@@ -235,7 +235,7 @@
                           </tbody>
                         </table>
                         @if ( count($tender->spks)<= 0  )
-                          @if ( $tender->rekanans != "" )
+                          @if ( count($tender->rekanans) > 0 )
                             <button type="submit" class="btn btn-primary" id="btn_approval_rekanan" disabled>Submit</button><br>
                             <i>Harap pastikan kelengkapan dokumen dan checklist status approval sebelulmnya</i>
                           @endif
@@ -269,6 +269,7 @@
                     </table>
                   </div>
                   <div class="tab-pane" id="tab_4">
+                    {{ $tanggal_sekarang}}
                     @if ( count($tender->tender_approve) > 0 )
                       @if ( (count($tender->tender_approve)) == count($tender->penawarans))
                       <a type="button" class="btn btn-info" href="{{ url('/')}}/tender/penawaran-addstep2?id={{ $tender->id}}">
@@ -284,7 +285,7 @@
                     <table class="table table-bordered ">
                       <thead class="head_table">                          
                         <tr>
-                          <td>Item Pekerjaan</td>
+                          <td>sdsdffsdfItem Pekerjaan</td>
                           <td></td>
                           <td>Penawaran 1</td>
                           <td>Penawaran 2</td>
@@ -296,13 +297,19 @@
                           <td>Item Pekerjaan</td>
                           <td></td>
                           <td>
+                            @if ( count($tender->spks) > 0 )
                             <a href="{{ url('/')}}/tender/detail-penawaran?id={{$tender->id}}&step=1" class="btn btn-warning">Detail</a>
+                            @endif
                           </td>
                           <td>
+                            @if ( count($tender->spks) > 0 )
                             <a href="{{ url('/')}}/tender/detail-penawaran?id={{$tender->id}}&step=2" class="btn btn-warning">Detail</a>
+                            @endif
                           </td>
                           <td>
+                            @if ( count($tender->spks) > 0 )
                             <a href="{{ url('/')}}/tender/detail-penawaran?id={{$tender->id}}&step=3" class="btn btn-warning">Detail</a>
+                            @endif
                           </td>
                         </tr>
                         @foreach( $tender->rekanans as $key2 => $value2)
@@ -310,32 +317,11 @@
                         @if ( $value2->approval->approval_action_id != "" )
                         @if ( $value2->approval->approval_action_id == "6")
                           <tr>
-                            <td>{{ $value2->rekanan->group->name }} {{ $value2->id }}</td>
-                             <td>
-                              @if ( count($tender->menangs) <= 0 )
-                                @if ( count($value2->penawarans) <= 0 )
-                                  <a href="{{ url('/')}}/tender/penawaran-add?id={{$value2->id}}" class="btn btn-primary">Tambah Penawaran</a>
-                                @elseif ( count($value2->penawarans) == 2 && $value2->penawarans[1]->nilai == "0" )
-                                  <a href="{{ url('/')}}/tender/penawaran-step2?id={{$value2->penawarans[1]->id}}" class="btn btn-primary">Tambah Penawaran</a>
-                                @elseif ( count($value2->penawarans) == 3 && $value2->penawarans[2]->nilai == "0" )
-                                  <a href="{{ url('/')}}/tender/penawaran-step3?id={{$value2->penawarans[2]->id}}" class="btn btn-primary">Tambah Penawaran</a>                                  
-
-                                @elseif ( count($value2->penawarans) == 3 && $value2->penawarans[2]->nilai > 0 )
-                                <a class="btn btn-primary" onclick="setpemenang('{{ $value2->id }}','{{ $value2->rekanan->group->name }}')">Jadikan Pemenang</a>
-                                @endif
-                            
-                              @else
-                                @if ( $value2->is_pemenang == "1")
-                                  Diajukan Sebagai Pemenang
-                                @endif
-                              @endif
-                             </td>
+                            <td>{{ $value2->rekanan->group->name }}</td>
+                            <td>&nbsp;</td>
                             @foreach ( $value2->penawarans as $key3 => $value3)
                             <td>
-                              <span style="font-size: 14px;">{{ number_format($value3->nilai) }}</span>
-                              @if ( $value3->nilai > 0 )
-                              <a class="btn btn-info" href="{{ url('/')}}/tender/penawaran-edit?id={{$value3->id}}">Edit</a>
-                              @endif
+                              <span style="font-size: 14px;">&nbsp;</span>                              
                             </td>
                             @endforeach
                             <td></td>
@@ -440,7 +426,7 @@
   <div id="dvContents" style="display: none;">
     <table width="100%" style="border-collapse:collapse" class='table' id='undangan_tender'>
       <tr>
-        <td>@include("print.logo",['pt' => $tender->rab->budget_tahunan->budget->pt ] )</td>
+        <td></td>
       </tr>
       <tr>
         <td>

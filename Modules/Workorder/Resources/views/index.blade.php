@@ -68,7 +68,11 @@
                     <td>
                       @if ( $value->approval != "" )
                         @if ( $value->approval->approval_action_id == "6" )
-                        <a class="btn btn-warning" href="{{ url('/')}}/rab/?workorder_id={{ $value->id }}">{{ $value->rabs->count() }}RAB</a>
+                          @if ( $value->details->count() > 0 && $value->detail_pekerjaan->count() > 0 )
+                            <a class="btn btn-warning" href="{{ url('/')}}/rab/?workorder_id={{ $value->id }}">{{ $value->rabs->count() }}RAB</a>
+                          @else
+                          <span>Workorder ini belum memiliki Unit / Pekerjaan</span>
+                          @endif
                         @endif
                       @endif
                     </td>

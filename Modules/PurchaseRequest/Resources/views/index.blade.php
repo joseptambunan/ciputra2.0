@@ -5,6 +5,11 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Admin QS | Dashboard</title>
   @include("master/header")
+  <style type="text/css">
+    .table-align-right{
+      text-align: right;
+    }
+  </style>
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
@@ -15,10 +20,18 @@
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <section class="content-header">
-      <h1>Data Purchase Request</h1>
-
+      <h1 style="text-align:center">Data Purchase Request</h1>
     </section>
-
+    <section class="back-button content-header">
+      <div class="" style="float: none">
+        <button class="col-md-1 col-sm-2 btn btn-primary" onclick="location.href='{{ url('/')}}/purchaserequest'" style="float: none; border-radius: 20px; padding-left: 0" disabled>
+        <i class="fa fa-fw fa-arrow-left"></i>&nbsp;&nbsp;Back
+        </button>
+        <button class="col-md-1 col-sm-2 btn btn-primary" onclick="window.location.reload()" style="float: right; border-radius: 20px; padding-left: 0;">
+          <i class="fa fa-fw fa-refresh"></i>&nbsp;&nbsp;Refresh
+        </button>  
+      </div>
+    </section>
     <!-- Main content -->
     <section class="content">
       <div class="row">
@@ -26,7 +39,7 @@
           <div class="box">
             <!-- /.box-header -->
             <div class="box-body">
-              @if($isDepartment!=0)
+              @if($isDepartment!=0 and strcmp($user->user_login,"approval1")!=0)
               <div class="col-md-6"><br>
                 <a href="{{ url('/')}}/purchaserequest/add" class="btn-lg btn-primary"><i class="glyphicon glyphicon-plus-sign"></i>Tambah Data Purchase Request</a>
               </div>
@@ -35,19 +48,16 @@
             	<table id="example3" class="table table-bordered table-hover">
                 <thead>
                 <tr style="background-color: greenyellow;">
-                  <th>Id</th>
-                  <!-- <th>Budget Tahunan Id</th> -->
-                  <!-- <th>PT</th> -->
+                  <th>No</th>
                   <th>Department</th>
-                  <th>No. PR</th>
-                  <th>Tanggal Transaksi</th>
-                  <th>Tanggal Butuh</th>
+                  <th class="table-align-right" >No. PR</th>
+                  <th class="table-align-right">Tanggal Transaksi</th>
+                  <th class="table-align-right">Tanggal Butuh</th>
                   <th>Status</th>
-                  <!-- <th>Deskripsi</th> -->
-                  @if($approve)
+                  <!-- @if($approve)
                   <th>Approve All</th>
                   <th>Cancel All</th>
-                  @endif
+                  @endif -->
                   <th>Detail</th>
                 </tr>
                 </thead>
@@ -55,23 +65,17 @@
                     @php($i=0)
                     @foreach($PR as $key => $value )
                     <tr>
-                        <td>{{$value->id}}</td>
-                        <!-- <td>{{$value->budget_tahunan_id}}</td> -->
-                        <!-- <td>{{\App\Pt::select('name')->where('id',$value->pt_id)->limit(1)->get()[0]->name}}</td> -->
-                        <td>{{\App\Department::select('name')->where('id',$value->department_id)->limit(1)->get()[0]->name}}</td>
-                        <td>{{$value->no}}</td>
-                        <td>{{$value->date}}</td>
-                        <td>{{$value->butuh_date}}</td>
+                        <td>{{$i+1}}</td>
+                        <td>{{$value->dName}}</td>
+                        <td class="table-align-right">{{$value->no}}</td>
+                        <td class="table-align-right">{{$value->date}}</td>
+                        <td class="table-align-right">{{$value->butuh_date}}</td>
                         <td>{{$status_approval[$i]}}</td>
-                        <!-- <td>{{$value->description}}</td> -->
-                        @if($approve)
-                        <td style="text-align: center;"><a href="http://localhost:81/purchaserequest/approve/?id={{$value->id}}&type=approveAll" class="btn btn-success">Approve</a></td>
-                        <td style="text-align: center;"><a href="http://localhost:81/purchaserequest/approve/?id={{$value->id}}&type=cancelAll" class="btn btn-danger ">Cancel</a></td>
-                        @endif
-                        <td style="text-align: center;"><a href="http://localhost:81/purchaserequest/detail/?id={{$value->id}}" class="btn btn-success">Detail</a></td>
-                        <?php
-                        
-                        ?>
+                        <!-- @if($approve)
+                        <td style="text-align: center;"><a href="{{ url('/')}}/purchaserequest/approve/?id={{$value->id}}&type=approveAll" class="btn btn-success">Approve</a></td>
+                        <td style="text-align: center;"><a href="{{ url('/')}}/purchaserequest/approve/?id={{$value->id}}&type=cancelAll" class="btn btn-danger ">Cancel</a></td>
+                        @endif -->
+                        <td style="text-align: center;"><a href="{{ url('/')}}/purchaserequest/detail/?id={{$value->id}}" class="btn btn-success">Detail</a></td>
                     </tr>
                     @php($i++)
                     @endforeach

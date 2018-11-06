@@ -34,5 +34,8 @@ Route::group(['middleware' => 'web', 'prefix' => 'tender', 'namespace' => 'Modul
     Route::get('/approval_history','TenderController@approval_history');
 
     Route::post('/update-document','TenderController@updatedocument');
+    Route::get('/rekanan/referensi','TenderController@referensi');
+    Route::post('/rekanan/all','TenderController@searchreferensi');
+    Route::post('/rekanan/cari','TenderController@searchreferensi');
 
 });

@@ -5,6 +5,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Admin QS | Dashboard </title>
   @include("master/header")
+  
     <!-- Select2 -->
   <link rel="stylesheet" href="{{ url('/')}}/assets/bower_components/select2/dist/css/select2.min.css">
   <link rel="stylesheet" href="{{ url('/')}}/assets/selectize/selectize.bootstrap3.css">
@@ -93,7 +94,16 @@
     <section class="content-header">
       <h1>Tambah Tender Purchase Request</h1>
     </section>
-
+    <section class="content-header">
+      <div class="" style="float: none">
+        <button class="col-md-1 col-sm-2 btn btn-primary" onclick="location.href='{{ url('/')}}/tenderpurchaserequest/pengelompokan'" style="float: none; border-radius: 20px; padding-left: 0">
+        <i class="fa fa-fw fa-arrow-left"></i>&nbsp;&nbsp;Back
+        </button>
+        <button class="col-md-1 col-sm-2 btn btn-primary" onclick="window.location.reload()" style="float: right; border-radius: 20px; padding-left: 0;">
+          <i class="fa fa-fw fa-refresh"></i>&nbsp;&nbsp;Refresh
+        </button>  
+      </div>
+    </section>
     <section class="content">
       
       <div class="box box-default">
@@ -208,13 +218,12 @@
 <script src="{{ url('/')}}/assets/plugins/input-mask/jquery.inputmask.js"></script>
 <script src="{{ url('/')}}/assets/plugins/input-mask/jquery.inputmask.date.extensions.js"></script>
 <script src="{{ url('/')}}/assets/plugins/input-mask/jquery.inputmask.extensions.js"></script>
-<script src="{{ url('/')}}/assets/selectize/selectize.min.js"></script>
 <script type="text/javascript">
 
 
   var jumlah_rekan_old = 0;
   
-  $('.form-selectize-item1').selectize();
+  $('.form-selectize-item1').select2();
   $("#item_per_description").select2({
     placeholder: "Pilih Item",
     //closeOnSelect: false
@@ -233,7 +242,7 @@
                 tmp = tmp.replace('banyak_komparasi(1','banyak_komparasi('+i);
                 tmp = tmp.replace('form-selectize-item1','form-selectize-item'+i);
                 $("#list_t_pr_p_d").append(tmp);
-                $(".form-selectize-item"+i).selectize();
+                $(".form-selectize-item"+i).select2();
 
             }
         }else if(jumlah_item_new < jumlah_item_old){

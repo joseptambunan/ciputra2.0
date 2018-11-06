@@ -16,4 +16,14 @@ class RekananGroup extends CustomModel
     public function spks(){
     	return $this->hasMany("Modules\Spk\Entities\Spk","rekanan_id");
     }
+
+    public function spesifikasi(){
+    	return $this->hasMany("Modules\Rekanan\Entities\RekananSpecification");
+    }
+
+    public function user_rekanan(){
+    	return $this->hasOne("Modules\Rekanan\Entities\UserRekanan");
+    }
+
+   
 }

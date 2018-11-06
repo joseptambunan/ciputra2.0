@@ -117,6 +117,6 @@ class TenderUnit extends CustomModel
         $vo_percent   = ( ( $vo_bobot * ( ( $vo_nilai / $nilai ) * 100 )) / 100 ) ;
         $sum_percent  = $main_percent + $vo_percent;
         
-        return $vo_bobot;
+        return $sum_percent;
     }
 }

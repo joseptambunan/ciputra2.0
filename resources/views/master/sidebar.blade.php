@@ -60,14 +60,15 @@
             <li><a href="{{ url('/')}}/jabatan/"><i class="fa fa-circle-o"></i> Jabatan</a></li>
             <li><a href="{{ url('/')}}/department/"><i class="fa fa-circle-o"></i> Departemen</a></li>
             <li><a href="{{ url('/')}}/division/"><i class="fa fa-circle-o"></i> Divisi</a></li>
-            <li><a href="{{ url('/')}}/pt/"><i class="fa fa-circle-o"></i> PT</a></li>   
-            <li><a href="{{ url('/')}}/project/"><i class="fa fa-circle-o"></i>Tambah Project</a></li>         
+            <li><a href="{{ url('/')}}/pt/"><i class="fa fa-circle-o"></i> PT</a></li>          
             <li><a href="{{ url('/')}}/escrow/"><i class="fa fa-circle-o"></i>Escrows</a></li>
             <li><a href="{{ url('/')}}/pekerjaan/"><i class="fa fa-circle-o"></i> Item Pekerjaan</a></li>
             <li><a href="{{ url('/')}}/user/master"><i class="fa fa-circle-o"></i> User</a></li>
             <li><a href="{{ url('/')}}/document/"><i class="fa fa-circle-o"></i> Dokumen</a></li>
             <li><a href="{{ url('/')}}/bank/"><i class="fa fa-circle-o"></i> Bank</a></li>
-            <li><a href="{{ url('/')}}/globalsetting/"><i class="fa fa-circle-o"></i>Global Setting</a></li>
+            <li><a href="#"><i class="fa fa-circle-o"></i>Global Setting</a></li>            
+            <li><a href="{{ url('/')}}/category/"><i class="fa fa-circle-o"></i>Kategori Bangunan</a></li>
+            <li><a href="{{ url('/')}}/rekanan/"><i class="fa fa-circle-o"></i>Rekanan</a></li>
             <li><a href="{{ url('/')}}/logout/"><i class="fa fa-circle-o"></i>Logout</a></li>
           </ul>
         </li>
@@ -80,11 +81,8 @@
             </span>
           </a>
           <ul class="treeview-menu" style="display: block;">
-            @foreach ( $project as $key => $value )
-            @if ( $value->deleted_at == null )
-            <li><a href="{{ url('/')}}/project/detail/?id={{ $value->id }}"><i class="fa fa-circle-o"></i> {{ $value->name }}</a></li>
-            @endif
-            @endforeach
+            
+            <li><a href="{{ url('/')}}/project/"><i class="fa fa-circle-o"></i>Project</a></li>  
           </ul>
         </li>       
       </ul>

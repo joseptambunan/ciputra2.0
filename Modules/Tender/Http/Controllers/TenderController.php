@@ -23,6 +23,7 @@ use Modules\Pekerjaan\Entities\Itempekerjaan;
 use Modules\Project\Entities\Unit;
 use Modules\Globalsetting\Entities\Globalsetting;
 use Modules\User\Entities\User;
+use Modules\Rekanan\Entities\RekananGroup;
 
 class TenderController extends Controller
 {
@@ -66,9 +67,9 @@ class TenderController extends Controller
         $rab = Rab::find($request->tender_rab);
         $itempekerjaan = Itempekerjaan::find($rab->parent_id);
         $department_from = $rab->workorder->department_from;
-
+        $project = Project::find($request->session()->get('project_id'));
         $tender = new Tender;
-        $tender_no = \App\Helpers\Document::new_number('TENDER', $department_from).$rab->budget_tahunan->budget->pt->code;
+        $tender_no = \App\Helpers\Document::new_number('TENDER', $department_from,$project->id).$rab->budget_tahunan->budget->pt->code;
         $tender->rab_id = $request->tender_rab;
         $tender->name = "Tender-".$itempekerjaan->code."-".$itempekerjaan->name;
         $tender->no = $tender_no;
@@ -129,7 +130,7 @@ class TenderController extends Controller
             foreach ($value->korespondensis as $key2 => $value2) {
                 if ( $value2->no == "" ){
                     $tenderkorespondensi = TenderKorespondensi::find($value2->id);
-                    $tenderkorespondensi->no = \App\Helpers\Document::new_number( (strtoupper($value2->type)) , $tender->rab->workorder->department_from).$tender->rab->budget_tahunan->budget->pt->code;
+                    $tenderkorespondensi->no = \App\Helpers\Document::new_number( (strtoupper($value2->type)), $tender->rab->workorder->department_from, $project->id).$tender->rab->budget_tahunan->budget->pt->code;
                     $tenderkorespondensi->save();
                 }
             }
@@ -149,18 +150,22 @@ class TenderController extends Controller
         }
 
         $ttd = array();
-        $tender_apprroval = $tender->approval->histories;
-        $start = 0;
-        foreach ($tender_apprroval as $key => $value) {
-            foreach ($value->user->jabatan as $key2 => $value2) {
-                if ( $value2['jabatan'] == "General Manager" || $value2['jabatan'] == "Kepala Departemen" || $value2['jabatan'] == "Kepala Divisi"){
-                    $ttd[$start] = array("nama" => $value->user->user_name, "jabatan" => $value2["jabatan"] );
-                    $start++;
+        if ( $tender->approval != "" ){            
+            $tender_apprroval = $tender->approval->histories;
+            $start = 0;
+            foreach ($tender_apprroval as $key => $value) {
+                foreach ($value->user->jabatan as $key2 => $value2) {
+                    if ( $value2['jabatan'] == "General Manager" || $value2['jabatan'] == "Kepala Departemen" || $value2['jabatan'] == "Kepala Divisi"){
+                        $ttd[$start] = array("nama" => $value->user->user_name, "jabatan" => $value2["jabatan"] );
+                        $start++;
+                    }
                 }
             }
         }
 
-        return view('tender::detail',compact("tender","user","project","rekanan","itempekerjaan","data","dokumen","ttd"));
+        $tanggal_sekarang = date("Y-m-d H:i:s");
+
+        return view('tender::detail2',compact("tender","user","project","rekanan","itempekerjaan","data","dokumen","ttd","tanggal_sekarang"));
     }
 
     /**
@@ -182,16 +187,16 @@ class TenderController extends Controller
         $tender = Tender::find($request->tender_id);
         $tender->durasi = $request->tender_durasi;
         $tender->name = $request->tender_name;
-        $tender->ambil_doc_date = date_format(date_create($request->ambil_doc_date),"Y-m-d H:i:s");
-        $tender->aanwijzing_date = date_format(date_create($request->aanwijzing_date),"Y-m-d H:i:s");
-        $tender->penawaran1_date = date_format(date_create($request->penawaran1_date),"Y-m-d H:i:s");
-        $tender->klarifikasi1_date = date_format(date_create($request->klarifikasi1_date),"Y-m-d H:i:s");
+        $tender->ambil_doc_date = date("Y-m-d H:i:s",strtotime($request->ambil_doc_date));
+        $tender->aanwijzing_date = date("Y-m-d H:i:s",strtotime($request->aanwijzing_date));
+        $tender->penawaran1_date = date("Y-m-d H:i:s",strtotime($request->penawaran1_date));
+        $tender->klarifikasi1_date = date("Y-m-d H:i:s",strtotime($request->klarifikasi1_date));
 
-        $tender->penawaran2_date = date_format(date_create($request->penawaran2_date),"Y-m-d H:i:s");
-        $tender->klarifikasi2_date = date_format(date_create($request->klarifikasi2_date),"Y-m-d H:i:s");
-        $tender->pengumuman_date = date_format(date_create($request->pengumuman_date),"Y-m-d H:i:s");
-        $tender->penawaran3_date = date_format(date_create($request->pengumuman_date),"Y-m-d H:i:s");
-        $tender->recommendation_date = date_format(date_create($request->recommendation_date),"Y-m-d H:i:s");
+        $tender->penawaran2_date = date("Y-m-d H:i:s",strtotime($request->penawaran2_date));
+        $tender->klarifikasi2_date = date("Y-m-d H:i:s",strtotime($request->klarifikasi2_date));
+        $tender->pengumuman_date = date("Y-m-d H:i:s",strtotime($request->pengumuman_date));
+        $tender->penawaran3_date = date("Y-m-d H:i:s",strtotime($request->pengumuman_date));
+        $tender->recommendation_date = date("Y-m-d H:i:s",strtotime($request->recommendation_date));
         $tender->harga_dokumen = str_replace(",", "", $request->harga_dokumen);
         $tender->sifat_tender = $request->jenis_kontrak;
         $tender->save();
@@ -208,18 +213,21 @@ class TenderController extends Controller
 
     public function saverekanan(Request $request){
         //print_r($request->rekanan);die;
-        foreach ($request->rekanan as $key => $value) {
-            if ( $request->rekanan[$key] != "" ){
-                $tender_rekanan = new TenderRekanan;
-                $tender_rekanan->tender_id = $request->tender_id;
-                $tender_rekanan->rekanan_id = $request->rekanan[$key];
-                $tender_rekanan->save();
-            }           
-            
+        if ( $request->rekanan != "" ){
+            foreach ($request->rekanan as $key => $value) {
+                if ( $request->rekanan[$key] != "" ){
+                    $tender_rekanan = new TenderRekanan;
+                    $tender_rekanan->tender_id = $request->tender_id;
+                    $tender_rekanan->rekanan_id = $request->rekanan[$key];
+                    $tender_rekanan->save();
+                }           
+                
+            }
         }
+        
 
-
-        return redirect("/tender/detail?id=".$request->tender_id);
+        $tanggal_sekarang = date("Y-m-d H:i:s");
+        return redirect("/tender/rekanan/referensi?id=".$request->tender_id);
     }
 
     public function removerekanan(Request $request){
@@ -280,7 +288,7 @@ class TenderController extends Controller
                             $tender_dokumen_approval = new TenderDocumentApproval;
                             $tender_dokumen_approval->tender_document_id = $tender_dokumen->id;
                             $tender_dokumen_approval->user_id = $each2->user->id;
-                            $tender_dokumen_approval->status =  null;
+                            $tender_dokumen_approval->status =  1;
                             $tender_dokumen_approval->created_by = \Auth::user()->id;
                             $tender_dokumen_approval->level = $value3['jabatan_id'];
                             $tender_dokumen_approval->save();
@@ -592,21 +600,86 @@ class TenderController extends Controller
     }
 
     public function updatedocument(Request $request){
-        foreach ($request->check as $key => $value) {
-            if ( $request->check[$key] != "" ){
-                $tender = TenderDocument::find($request->dokumen[$key]);
-                foreach ($tender->document_approval as $key2 => $value2) {   
-                    if ( $value2->tender_document_id == $request->dokumen[$key] ){
-                        if ( $value2->status == "7" ){
-                            $tender_approval = TenderDocumentApproval::find($value2->id);
-                            $tender_approval->status = "1";
-                            $tender_approval->save();
-                        }
-                    }              
-                }  
+        if ( $request->check != "" ){
+            foreach ($request->check as $key => $value) {
+                if ( $request->check[$key] != "" ){
+                    $tender = TenderDocument::find($request->dokumen[$key]);
+                    foreach ($tender->document_approval as $key2 => $value2) {   
+                        if ( $value2->tender_document_id == $request->dokumen[$key] ){
+                            if ( $value2->status == "7" ){
+                                $tender_approval = TenderDocumentApproval::find($value2->id);
+                                $tender_approval->status = "1";
+                                $tender_approval->save();
+                            }
+                        }              
+                    }  
+                }
             }
         }
-
+        
         return redirect("/tender/detail/?id=".$request->tender_docs);
+    }
+
+    public function referensi(Request $request){
+        $tender = Tender::find($request->id);
+        $user   = \Auth::user();
+        $project = Project::find($request->session()->get('project_id'));
+        $rekanan_group = RekananGroup::get();
+        $itempekerjaan = $tender->rab->pekerjaans->first()->itempekerjaan->parent;
+        if ( $itempekerjaan->parent == null ){
+            $itemkerjan = Itempekerjaan::find($itempekerjaan->id);
+        }else{
+            $itemkerjan = Itempekerjaan::find($itempekerjaan->parent->id);
+
+        }
+
+        $pekerjaan = Itempekerjaan::get();
+        return view("tender::tender_referensi",compact("tender","user","project","rekanan_group","itemkerjan","pekerjaan"));
+    }
+
+    public function searchreferensi(Request $request){
+        $html = "";
+        $start = 0;
+        $itempekerjaan = Itempekerjaan::find($request->itempekerjaan);
+        if ( $request->itempekerjaan == "all"){
+            $rekanan_group = RekananGroup::get();
+            foreach ($rekanan_group as $key => $value) {
+                foreach ($value->rekanans as $key2 => $value2) {
+                    $html .= "<tr>";
+                    $html .= "<td>".$value2->name."</td>";
+                    $html .= "<td>";
+                    foreach ($value->spesifikasi as $key3 => $value3) {
+                        $html .= "<li>".$value3->itempekerjaan->name."</li>";
+                    }
+                    $html .= "</td>";
+                    $html .= "<td><input type='checkbox' name='rekanan[".$start."]' value='".$value2->id."'></td>";
+                    $html .= "</tr>";
+                    $start++;
+                }         
+            }
+        }else{
+            $itemkerjan = Itempekerjaan::find($itempekerjaan->id);
+            $rekanan_group = RekananGroup::get();
+            foreach ($rekanan_group as $key => $value) {
+                foreach ( $value->spesifikasi as $key3 => $value3 ){
+                    if ( $value3->itempekerjaan->id == $itemkerjan->id ){
+                        foreach ($value->rekanans as $key4 => $value4) {
+                            $html .= "<tr>";
+                            $html .= "<td>".$value4->name."</td>";
+                            $html .= "<td>";
+                            foreach ($value->spesifikasi as $key3 => $value3) {
+                                $html .= "<li>".$value3->itempekerjaan->name."</li>";
+                            }
+                            $html .= "</td>";
+                            $html .= "<td><input type='checkbox' name='rekanan[".$start."]' value='".$value4->id."'></td>";
+                            $html .= "</tr>";
+                            $start++;
+                        }    
+                    }
+                }
+                     
+            }
+        }
+        return response()->json( ["status" => "0", "html" => $html]);
     }
 }

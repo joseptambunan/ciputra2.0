@@ -54,17 +54,17 @@
                 </thead>
                 <tbody>
                 @foreach ( $project as $key => $value )
-                @php $detail = \Modules\Project\Entities\Project::find($value->project_id) @endphp
+                @php $detail = $value->project_pts->project; @endphp
                 <tr>
                   <td>{{ $detail->name }}</td>
                   <td>{{ number_format($detail->efisiensi * 100,2 ) }} %</td>  
                   <td>{{ number_format($detail->netto,2 ) }}</td>  
                   <td>{{ number_format($detail->luas,2 ) }}</td> 
-                  @if ( count($detail->hpp_update) > 0 ) 
+                  @if ( count($detail->hpp_update) > 0 && $detail->hpp_netto_awal > 0 ) 
                   <td>{{ number_format($detail->hpp_update->first()->nilai_budget,2 ) }}</td> 
                   <td>{{ number_format($detail->total_devcost,2 ) }}</td>
 
-                  <td>{{ number_format($detail->hpp_update->first()->nilai_budget / $detail->hpp_netto_awal,2 ) }}</td> 
+                  <td>{{ number_format($detail->hpp_update->first()->nilai_budget / $detail->netto,2 ) }}</td> 
                   <td>{{ number_format($detail->hpp_update->first()->nilai_budget / $detail->luas,2 ) }}</td>
 
                   <td>{{ number_format($detail->hpp_devcost_upd,2 ) }}</td> 
@@ -81,7 +81,7 @@
                   <td>{{ number_format($detail->summary_kontrak->sum("total_kontrak"),2 ) }}</td> 
                   <td>{{ number_format($detail->summary_kontrak->sum("total_kontrak_terbayar"),2 ) }}</td>              
                   <td>
-                    <a href="{{ url('/')}}/report/project/detail/?id={{ $value['project_id'] }}" class="btn btn-info">Dashboard</a>
+                    <a href="{{ url('/')}}/report/project/detail/?id={{ $detail->id}}" class="btn btn-info">Dashboard</a>
                   </td>
                 </tr>
                 @endforeach

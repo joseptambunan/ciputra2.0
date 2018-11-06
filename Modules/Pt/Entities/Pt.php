@@ -57,4 +57,8 @@ class Pt extends CustomModel
 
         return array_values(array_unique($result));
     }
+
+    public function project(){
+         return $this->hasMany("Modules\Project\Entities\ProjectPt");
+    }
 }

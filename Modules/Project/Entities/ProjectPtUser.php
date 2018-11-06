@@ -22,4 +22,8 @@ class ProjectPtUser extends Model
     {
         return $this->belongsTo('Modules\User\Entities\User', 'user_id');
     }
+
+    public function project_pts(){
+        return $this->belongsTo('Modules\Project\Entities\ProjectPt', 'project_pt');
+    }
 }

@@ -76,5 +76,6 @@ Route::group(['middleware' => 'web', 'prefix' => 'access', 'namespace' => 'Modul
 
 	Route::get("/tender/detail-penawaran",'AccessController@rekaptender');
 	Route::post("/tender/document/save/","AccessController@approvedeoc");
+	Route::post("/tender/setpemenang/","AccessController@ispemenang");
 /* Budget Unit Type*/
 });

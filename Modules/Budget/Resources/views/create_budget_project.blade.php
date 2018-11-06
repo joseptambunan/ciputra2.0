@@ -43,7 +43,7 @@
               <div class="form-group">
                 <label>PT</label>
                 <select class="form-control" name="pt_id">
-                  @foreach ( $project->pt_user as $key => $value )
+                  @foreach ( $project->pt as $key => $value )
                   <option value="{{ $value->pt->id }}">{{ $value->pt->name }}</option>
                   @endforeach
                 </select>
@@ -51,7 +51,7 @@
               <div class="form-group">
                 <label>Department</label>
                 <select class="form-control" name="department">
-                  @foreach ( $project->pt_user as $key => $value )
+                  @foreach ( $project->pt as $key => $value )
                     @foreach ( $value->pt->mapping as $key2 => $value2 )
                       <option value="{{ $value2->department->id }}">{{ $value2->department->name }}</option>
                     @endforeach

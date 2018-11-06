@@ -161,7 +161,7 @@
                           <td>Proyek</td>
                           <td>Hapus</td>
                         </tr>
-                        @foreach ( $pt->project_pt_users as $key3 => $value3 )
+                        @foreach ( $pt->project as $key3 => $value3 )
                         <tr>
                           <td>{{ $value3->project->name }}</td>
                           <td><button onclick="removeproject('{{ $value3->id }}')" class="btn btn-danger">Hapus</button></td>

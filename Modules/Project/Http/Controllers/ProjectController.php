@@ -18,6 +18,12 @@ use Modules\Budget\Entities\HppUpdate;
 use Modules\Budget\Entities\HppUpdateDetail;
 use Modules\Project\Entities\UnitArah;
 use Modules\Country\Entities\City;
+use Modules\Project\Entities\ProjectHistory;
+use Modules\Category\Entities\Category;
+use Modules\Category\Entities\CategoryDetail;
+use Modules\Category\Entities\CategoryProject;
+use Modules\Project\Entities\UnitTypeCategory;
+use Modules\Project\Entities\UnitTypeCategoryDetail;
 
 class ProjectController extends Controller
 {
@@ -140,14 +146,20 @@ class ProjectController extends Controller
     public function addKawasan(Request $request){
         $user = \Auth::user();
         $project = Project::find($request->session()->get('project_id'));
-        return view('project::create_kawasan',compact("project","user"));
+        $limit = 0;
+        foreach ($project->kawasans as $key => $value) {
+            $limit = $value->lahan_luas + $limit;
+        }
+
+        $limit = $project->luas - $limit;
+        return view('project::create_kawasan',compact("project","user","limit"));
     }
 
     public function saveKawasan(Request $request){
         $project_kawasan                         = new ProjectKawasan;
         $project_kawasan->project_id             = $request->project_id;
-        $project_kawasan->code                   = $request->kode_kawasan;
-        $project_kawasan->name                   = $request->nama_kawasan;
+        $project_kawasan->code                   = strtoupper($request->kode_kawasan);
+        $project_kawasan->name                   = strtoupper($request->nama_kawasan);
         $project_kawasan->lahan_status           = $request->lahan_status;
         $project_kawasan->lahan_luas             = str_replace(",","",$request->luas_brutto);
         $project_kawasan->lahan_sellable        = str_replace(",","",$request->luas_netto);
@@ -282,7 +294,7 @@ class ProjectController extends Controller
         $unit_type->description = $request->description;
         $unit_type->listrik = str_replace(",", "", $request->elektrik);
         $unit_type->save();
-        return redirect("project/unit-type");
+        return redirect("project/templatepekerjaan?id=".$unit_type->id);
     }
 
     public function deletetype(Request $request){
@@ -310,40 +322,124 @@ class ProjectController extends Controller
     }
 
     public function template(Request $request){
+        $project = Project::find($request->session()->get('project_id'));
         $unit_type = UnitType::find($request->id);
-        $template = $unit_type->template;
+       // $template = $unit_type->category;
         $user = \Auth::user();
-        return view("project::index_template",compact("user","template","unit_type"));
+        $category = Category::get();
+        $unit_category = $unit_type->category;
+        return view("project::index_template",compact("user","unit_type","project","category","unit_category"));
     }
 
     public function addtemplate(Request $request){
-        $template = new Templatepekerjaan;
-        $template->name = $request->nama;
-        $template->code = $request->code;
-        $template->luasbangunan = $request->lb;
-        $template->luas_tanah = $request->lt;
-        $template->unit_type_id = $request->unit_type;
-        $template->save();
-        return redirect("/project/detail-template/?id=".$template->id);
+        $satuan = "";
+        $unit_type = UnitType::find($request->unit_type);
+        $category_detail = CategoryDetail::find($request->tipe);
+
+        $category_project = new CategoryProject;
+        $category_project->category_detail_id = $request->tipe;
+        $category_project->project_id = $request->project_id;
+        $category_project->unit_type_id = $request->unit_type;
+        $category_project->created_by = \Auth::user()->id;
+        $category_project->save();
+
+        $unit_category = new UnitTypeCategory;
+        $unit_category->unit_type_id = $request->unit_type;
+        $unit_category->category_project_id = $category_project->id;
+        $unit_category->type = $request->tipe;
+        $unit_category->created_by = \Auth::user()->id;
+        $unit_category->save();
+
+        $itempekerjaan = Itempekerjaan::get();
+        foreach ($itempekerjaan as $key => $value) {
+            if ( $value->parent_id == null && $value->group_cost == "2"){
+                if ( $value->code == "100" || $value->code == "200" ){
+                    $luas = $unit_type->luas_bangunan;
+                }else{
+                    $luas = 0;
+                }
+
+                if ( $value->code == 100 ){ 
+
+                    $unit_category_detail = new UnitTypeCategoryDetail;
+                    $unit_category_detail->unit_type_category_id = $unit_category->id;
+                    $unit_category_detail->itempekerjaan_id = $value->id;
+                    $unit_category_detail->volume = $luas;
+                    $unit_category_detail->satuan = 'm2';
+                    $unit_category_detail->nilai = 0;
+                    $unit_category_detail->created_by = \Auth::user()->id;
+                    $unit_category_detail->save();
+
+                    $unit_category_detail = new UnitTypeCategoryDetail;
+                    $unit_category_detail->unit_type_category_id = $unit_category->id;
+                    $unit_category_detail->itempekerjaan_id = $value->id;
+                    $unit_category_detail->volume = $category_detail->percentage ;
+                    $unit_category_detail->satuan = '%';
+                    $unit_category_detail->nilai = 0;
+                    $unit_category_detail->created_by = \Auth::user()->id;
+                    $unit_category_detail->save();
+
+                } else if ( $value->code == 200 ){
+
+                    $unit_category_detail = new UnitTypeCategoryDetail;
+                    $unit_category_detail->unit_type_category_id = $unit_category->id;
+                    $unit_category_detail->itempekerjaan_id = $value->id;
+                    $unit_category_detail->volume = $luas;
+                    $unit_category_detail->satuan = 'm2';
+                    $unit_category_detail->nilai = 0;
+                    $unit_category_detail->created_by = \Auth::user()->id;
+                    $unit_category_detail->save();
+                }
+
+                elseif ( $value->code == 300 ){
+                    foreach ($value->child_item as $key2 => $value2) {
+                        if ( $value2->code == "300.01" ||  $value2->code == "300.02" || $value2->code == "300.03" || $value2->code == "300.04"){ 
+                            if ( $value->name == "Biaya SR (  Air, KWH Meter )"){
+                                $satuan = "unit";
+                            } elseif ( $value->name == "Biaya SR ( Telp, TV, Internet )"){
+                                $satuan = "unit";
+                            } else if ( $value->name == "Biaya SR (  Listrik  )"){
+                                $satuan = "va";
+                            } else if ( $value->name == "Biaya SR ( Gas )"){
+                                $satuan = "unit";
+                            }   
+
+                            $unit_category_detail = new UnitTypeCategoryDetail;
+                            $unit_category_detail->unit_type_category_id = $unit_category->id;
+                            $unit_category_detail->itempekerjaan_id = $value2->id;
+                            $unit_category_detail->volume = 0;
+                            $unit_category_detail->satuan = $satuan;
+                            $unit_category_detail->nilai = 0;
+                            $unit_category_detail->created_by = \Auth::user()->id;
+                            $unit_category_detail->save();
+                        }
+                    }
+                }
+            }          
+
+        }
+
+        return redirect("/project/templatepekerjaan/?id=".$request->unit_type);
     }
 
     public function detailtemplate(Request $request){
-        $template = Templatepekerjaan::find($request->id);
+        $unit_category = UnitTypeCategory::find($request->id);
         $user = \Auth::user();
         $project = Project::find(($request->session()->get('project_id')));
-        $itempekerjaan = Itempekerjaan::where("parent_id",null)->get();
-        return view("project::detail_template",compact("template","user","project","itempekerjaan"));
+        return view("project::detail_template",compact("unit_category","user","project"));
     }
 
     public function updatetemplate(Request $request){
-        $template = Templatepekerjaan::find($request->template_id);
-        $template->name = $request->nama;
-        $template->code = $request->code;
-        $template->luasbangunan = $request->lb;
-        $template->luas_tanah = $request->lt;
-        $template->unit_type_id = $request->unit_type;
-        $template->save();
-        return redirect("/project/detail-template/?id=".$template->id);
+
+        foreach ($request->id_ as $key => $value) {
+            $unit_category_detail = UnitTypeCategoryDetail::find($request->id_[$key]);
+            $unit_category_detail->volume = str_replace(",", "", $request->volume_[$key]);
+            $unit_category_detail->satuan = $request->satuan_[$key];
+            $unit_category_detail->nilai =  str_replace(",","", $request->nilai_[$key]);
+            $unit_category_detail->save();
+        }
+        
+        return redirect("/project/templatepekerjaan/?id=".$request->unit_category);
     }
 
     public function itempekerjaan(Request $request){
@@ -427,6 +523,14 @@ class ProjectController extends Controller
 
     public function saveunit(Request $request){
         $start = "";
+        /* Status Unit */
+        $array = array(
+            "0" => "Ready for Stock",
+            "1" => "Planning",
+            "2" => "Ready for Sale ( from Erem )",
+            "3" => "Sold(from Erem)" 
+        );
+
         for ($i=1; $i <= $request->quantity ; $i++) 
         { 
             $blok = Blok::find($request->blok);
@@ -460,7 +564,7 @@ class ProjectController extends Controller
             }else{
                 $project_units->is_sellable = FALSE;
             }
-
+            $project_units->status = $request->is_status;
             $status = $project_units->save();
         }
         return redirect("project/units/?id=".$request->blok);
@@ -496,6 +600,7 @@ class ProjectController extends Controller
         $unit->bangunan_luas = $request->luas_bangunan;
         $unit->is_sellable = $request->is_sellable;
         $unit->tag_kategori = $request->tag_kategori;
+        $unit->status = $request->is_status;
         $unit->save();
         return redirect("/project/units/?id=".$unit->blok->id);
     }
@@ -506,12 +611,26 @@ class ProjectController extends Controller
         $hpp = HppUpdate::find($hpp->last()->id);
         $hpp->luas_book = str_replace(",", "", $request->luas_book);
         $hpp->save();*/
+        if ( $project->total_nilai_kontrak > 0 ){
+            $budget = ( $project->total_budget - $project->total_nilai_kontrak ) + $project->total_nilai_kontrak;
+        }else{
+            $budget = $project->total_budget;
+        }
+
+        if ( $project->netto > 0 ){
+            $hpp_akhir = $project->total_budget / $project->netto;
+        }else{
+            $hpp_akhir = 0;
+        }
+
+
         $hpp = new HppUpdate;
         $hpp->project_id = $project->id;
-        $hpp->nilai_budget = $project->total_budget_dev_cost;
+        $hpp->nilai_budget = $budget;
         $hpp->luas_book = $request->luas_book;
         $hpp->luas_erem = $request->luas_erem;
         $hpp->netto = $project->netto;
+        $hpp->hpp_book = $hpp_akhir;
         $hpp->save();
         $nilai = 0;
 
@@ -562,5 +681,38 @@ class ProjectController extends Controller
             return response()->json( ["status" => "1"] );
         }
     }
+
+    public function dataumum(Request $request) {
+        $user = \Auth::user();
+        $project = Project::find($request->session()->get('project_id'));  
+        $cities = City::get();  
+        return view('project::data_umum',compact("project","user","level","cities"));
+    }
+
+    public function updatedataumum(Request $request)
+    {
+        $project = Project::find($request->session()->get('project_id'));
+        $project->luas = str_replace(",","",$request->luas);
+        $project->address = $request->address;
+        $project->zipcode = $request->zipcode;
+        $project->phone = $request->phone;
+        $project->fax    = $request->fax ;
+        $project->email = $request->email;
+        $project->description = $request->description;
+        $project->city_id = $request->city_id;
+        $project->luas_nonpengembangan = str_replace(",","",$request->luas_nonpengembangan);
+        $project->save();
+
+        $project_history = new ProjectHistory;
+        $project_history->project_id = $request->session()->get('project_id');
+        $project_history->luas_dikembangkan = str_replace(",","",$request->luas);
+        $project_history->luas_non_pengembangan  = str_replace(",","",$request->luas_nonpengembangan);
+        $project_history->created_at = date("Y-m-d H:i:s");
+        $project_history->created_by = \Auth::user()->id;
+        $project_history->save();
+
+        return redirect("project/data-umum/");
+    }
+
 
 }

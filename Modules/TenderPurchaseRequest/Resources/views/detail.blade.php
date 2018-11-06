@@ -23,6 +23,9 @@
     .optionItem{
       width:24.5%;
     }
+    .table-align-right{
+      text-align: right;
+    }
   </style>
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
@@ -35,10 +38,17 @@
     <!-- Content Header (Page header) -->
     <section class="content-header">
       <h1>Tender Purchase Request Detail</h1>
-
     </section>
-
-    <!-- Modal -->
+    <section class="content-header">
+      <div class="" style="float: none">
+        <button class="col-md-1 col-sm-2 btn btn-primary" onclick="location.href='@if(isset($back)){{ url('/')}}/{{$back}}@else{{ url('/')}}/tenderpurchaserequest/@endif'" style="float: none; border-radius: 20px; padding-left: 0">
+        <i class="fa fa-fw fa-arrow-left"></i>&nbsp;&nbsp;Back
+        </button>
+        <button class="col-md-1 col-sm-2 btn btn-primary" onclick="window.location.reload()" style="float: right; border-radius: 20px; padding-left: 0;">
+          <i class="fa fa-fw fa-refresh"></i>&nbsp;&nbsp;Refresh
+        </button>  
+      </div>
+    </section>    <!-- Modal -->
   <div class="modal fade" id="TPRMore" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
@@ -293,6 +303,7 @@
   <div class="modal fade" id="tambahPenawaran" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
       
         <div class="modal-dialog" role="document">
+          <form action="{{url('/')}}/tenderpurchaserequest/tambah-penawaran" method="get">
           <div class="modal-content">
             <div class="modal-header">
               <h3 class="col-md-6">Tambah Penawaran</h3>
@@ -312,47 +323,50 @@
                           <input type="text" class="col-md-6 form-control" name="tpr_id" value="{{$TPR->id}}" readonly="">
                         </div>
                           @php($i=0)
+                          <div class="col-md-3 text-center">
+                            Rekanan
+                          </div>
+                          <div class="col-md-3 text-center">
+                            Penawaran 1
+                          </div>
+                          <div class="col-md-3 text-center">
+                            Penawaran 2
+                          </div>
+                          <div class="col-md-3 text-center">
+                            Penawaran 3
+                          </div>
+                          @php($j=0)
                           @foreach($rekanan as $v)
-                            <form action="{{url('/')}}/tenderpurchaserequest/tambah-penawaran" method="get">
+
                               <div class="col-md-3">
-                                <input type="text" class="col-md-2 form-control" name="name" value="{{$v->name}}">
+                                <input type="text" class="col-md-2 form-control" name="name[]" value="{{$v->name}}" disabled>
                               </div>
                               <div class="col-md-3 hidden">
-                                <input type="text" class="col-md-2 form-control" name="id_rekanan" value="{{$v->id}}">
-                              </div>
-                              <div class="col-md-3 hidden">
-                                <input type="text" class="col-md-2 form-control" name="tpr_id" value="{{$TPR->id}}">
-                              </div>
-                              @php($j=0)
-                              <div class="col-md-2">
-                                <input type="number" class="col-md-2 form-control" name="nilai{{++$j}}" value="{{$penawaran[$i++]->nilai}}">
-                              </div>
-
-                              <div class="col-md-2">
-                                <input type="number" class="col-md-2 form-control" name="nilai{{++$j}}" value="{{$penawaran[$i++]->nilai}}" @if($penawaran[$i-2]->nilai==0) disabled @endif>
-
-                              </div>
-                              <div class="col-md-2">
-                                <input type="number" class="col-md-2 form-control" name="nilai{{++$j}}" value="{{$penawaran[$i++]->nilai}}"
-                                @if($penawaran[$i-2]->nilai==0) disabled @endif>
+                                <input type="text" class="col-md-2 form-control" name="id_rekanan[]" value="{{$v->tprrId}}">
                               </div>
                               <div class="col-md-3">
-                                <button type="submit" class="btn btn-info col-md-11 form-control">Submit</button>
+                                <input type="number" class="col-md-2 form-control" name="penawaran1[]" value="{{$penawaran[$j]->nilai1}}" style="text-align: right">
                               </div>
-                            </form>
-                          @endforeach
+                              <div class="col-md-3">
+                                <input type="number" class="col-md-2 form-control" name="penawaran2[]" value="{{$penawaran[$j]->nilai2}}" style="text-align: right" @if($penawaran[$j]->nilai1 == null) disabled @endif>
+                              </div>
+                              <div class="col-md-3">
+                                <input type="number" class="col-md-2 form-control" name="penawaran3[]" value="{{$penawaran[$j]->nilai3}}" style="text-align: right" @if($penawaran[$j]->nilai2 == null) disabled @endif>
+                              </div>
+                              @php($j++)
+                          @endforeach   
                       </div>
                     </div>
                   </div>
                 </div>       
             </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-              <button type="submit" class="btn btn-success">Add</button>
+            <div class="modal-footer row">
+              <button type="submit" class="btn btn-info col-md-1 col-md-offset-9">Add</button>
+              <button type="button" class="btn btn-secondary col-md-1 col-md-offset-1" data-dismiss="modal" style="float:right;margin-right: 90px">Close</button>
             </div>
           </div>
+          </form>
         </div>
-      </form>
     </div>
 
 
@@ -367,30 +381,30 @@
                     <div class="panel-body" style="padding-top: 0px;">
                       <div class="col-md-6">
                         <div class="form-group">
-                            <label>Id</label>
-                            <input type="text" class="col-md-6 form-control" name="rab_id" value="{{$TPR->id}}" readonly="">
-                        </div>
-                        <div class="form-group">
                             <label>No. Tender Purchase Request</label>
                             <input type="text" class="col-md-6 form-control" name="rab_id" value="{{$TPR->no}}" readonly="">
                         </div>
                         <div class="form-group">
-                            <label>Jumlah PR terikat</label>
-                            <input type="text" class="col-md-6 form-control" name="rab_id" value="{{$jumlahPR}}" readonly="">
+                            <label>Nama Item</label>
+                            <input type="text" class="col-md-6 form-control" name="rab_id" value="{{$PRD[0]->itemName}}" readonly="">
+                        </div>
+                        <div class="form-group">
+                            <label>Brand</label>
+                            <input type="text" class="col-md-6 form-control" name="rab_id" value="{{$PRD[0]->brandName}}" readonly="">
                         </div>
                       </div>
                       <div class="col-md-6">
                         <div class="form-group">
-                            <label>Name Tender</label>
+                            <label>Nama Tender</label>
                             <input type="text" class="col-md-6 form-control" name="rab_id" value="{{$TPR->name}}" readonly="">
                         </div>
                         <div class="form-group">
-                            <label>Harga Dokumen</label>
-                            <input type="text" class="col-md-6 form-control" name="rab_id" value="{{$TPR->harga_dokumen}}" readonly="">
+                            <label>Kuantitas</label>
+                            <input type="text" class="col-md-6 form-control" name="rab_id" value="{{$TPRItem->quantity.' '.$TPRItem->satuanName}}" readonly="">
                         </div>
                         <div class="form-group">
-                            <label>Sumber</label>
-                            <input type="text" class="col-md-6 form-control" name="rab_id" value="{{$TPR->sumber}}" readonly="">
+                            <label>Jumlah PR terikat</label>
+                            <input type="text" class="col-md-6 form-control" name="rab_id" value="{{$jumlahPR}}" readonly="">
                         </div>
                       </div>
                       <div class="col-md-12" style="margin-top:10px">
@@ -412,11 +426,13 @@
                   <div class="tab-content">
                     <div id="rekanan" class="tab-pane fade in active">
                         <div class="row" style="margin-bottom:15px">
+                          @if(strcmp($user->user_login,"approval1")!=0)
                           <div class="col-md-2">
-                              @if(strcmp($apporve->status,"approved")!=0 && $tender_approve == 6)
+                              @if(strcmp($apporve->status,"approved")!=0 && $tender_approve == 6 and strcmp($user->user_login,"approval1")!=0 && $idPemenang==0)
                               <button class="btn btn-info col-md-12" data-toggle="modal" data-target="#tambahRekanan">Tambah Rekanan</button>  
                               @endif
-                          </div>  
+                          </div>
+                          @endif  
                           <div class="col-md-2">
                             @if(strcmp($apporve->status,"approved")!=0)
                             @if($pemenang != 0 and strcmp($user->user_login,"approval1")==0)
@@ -470,7 +486,7 @@
                     <div id="penawaran" class="tab-pane fade">
                       <div class="row" style="margin-bottom:15px">
                         <div class="col-md-2">
-                            @if(strcmp($apporve->status,"approved")!=0  && $tender_approve == 6 && strcmp($user->user_login,"administrator")==0)
+                            @if(strcmp($apporve->status,"approved")!=0  && $tender_approve == 6 && strcmp($user->user_login,"administrator")==0 && $idPemenang==0)
                             <button class="btn btn-info col-md-12" data-toggle="modal" data-target="#tambahPenawaran">Tambah Penawaran</button> 
                             @endif
                         </div>
@@ -480,9 +496,9 @@
                         <thead>
                           <tr class="info">
                             <td>Rekanan</td>
-                            <td>Penawaran 1</td>
-                            <td>Penawaran 2</td>
-                            <td>Penawaran 3</td>
+                            <td class="table-align-right">Penawaran 1 (Rp.)</td>
+                            <td class="table-align-right">Penawaran 2 (Rp.)</td>
+                            <td class="table-align-right">Penawaran 3 (Rp.)</td>
                             <td>Action</td>
                           </tr>
                         </thead>
@@ -491,17 +507,21 @@
                           @foreach($rekanan as $v)
                           <tr>
                             <td class="col-md-5">{{$v->name}}</td>
-                            <td class="col-md-2">{{$penawaran[$i++]->nilai}}</td>
-                            <td class="col-md-2">{{$penawaran[$i++]->nilai}}</td>
-                            <td class="col-md-2">{{$penawaran[$i++]->nilai}}</td>
+                            <td class="col-md-2 table-align-right">{{number_format($penawaran[$i]->nilai1,2)}}</td>
+                            <td class="col-md-2 table-align-right">{{number_format($penawaran[$i]->nilai2,2)}}</td>
+                            <td class="col-md-2 table-align-right">{{number_format($penawaran[$i]->nilai3,2)}}</td>
                             <td class="col-md-4">
                             <form action="{{ url('/')}}/tenderpurchaserequest/add-pemenang">
                                 <input name="id" value="{{$v->tprrId}}" hidden>
                                 <input name="tpr_id" value="{{$TPR->id}}" hidden>
-                                <button type="submit" class="btn btn-info form-control" @if($penawaran[$i-1]->nilai=="" or ($pemenang != 0) )disabled style="background: #5bc0de"@endif>Tunjuk Sebagai Pemenang</button>
+
+                                <button type="submit" class="btn btn-info form-control" @if($penawaran[$i]->nilai3==null or $idPemenang!=0 or $tender_approve != 6 or strcmp($user->user_login,"administrator")!=0))
+                                disabled @endif>Tunjuk Sebagai Pemenang</button>
+                               
                             </form>
                             </td>
                           </tr>
+                          @php($i++)
                           @endforeach  
                         </tbody>
                       </table>  

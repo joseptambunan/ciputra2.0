@@ -12,6 +12,8 @@ use Modules\TenderPurchaseRequest\Entities\PurchaseOrder;
 use Modules\TenderPurchaseRequest\Entities\PurchaseOrderDetail;
 use Modules\Rab\Entities\RabPekerjaan;
 use Modules\Approval\Entities\Approval;
+use Modules\Project\Entities\Project;
+
 
 use DB;
 
@@ -25,24 +27,34 @@ class TenderPurchaseRequestController extends Controller
     {
         $this->middleware('auth');
     }
-    public function index()
+    public function index(Request $request)
     {
         //\App\Helpers\Document::make_approval('Modules\PurchaseRequest\Entities\PurchaseRequest',2);
         $user = \Auth::user();
-        $TPR =  TenderPurchaseRequest::
-                join("approvals","approvals.document_id","tender_purchase_requests.id")
+        $project = Project::find($request->session()->get('project_id'));
+
+        $TPR =  DB::table("tender_purchase_requests")
+                ->join("approvals","approvals.document_id","tender_purchase_requests.id")
                 ->where("approvals.document_type","Modules\TenderPurchaseRequest\Entities\TenderPurchaseRequest")
                 ->join("approval_actions","approval_actions.id","approvals.approval_action_id")
-                ->select("tender_purchase_requests.id",
+                ->join("tender_purchase_request_rekanans","tender_purchase_request_rekanans.tender_purchase_request_id","tender_purchase_requests.id")
+                ->leftJoin("rekanans","rekanans.id","tender_purchase_request_rekanans.rekanan_id");
+        $pemenang = $TPR->select(
+                            "tender_purchase_requests.id",
+                            "tender_purchase_request_rekanans.is_pemenang",
+                            "rekanans.name as rekananName")
+                    ->get();
+        $TPR = $TPR->select("tender_purchase_requests.id",
                         "tender_purchase_requests.name",
-                        "tender_purchase_requests.ambil_doc_date",
+                        "tender_purchase_requests.no",
                         "tender_purchase_requests.final_date",
-                        "tender_purchase_requests.harga_dokumen",
-                        "tender_purchase_requests.sumber",
                         "tender_purchase_requests.description",
                         "approval_actions.description as status",
                         "approvals.approval_action_id")
+                ->distinct()
                 ->get();
+        
+
         $itemSiapTender =   DB::table("tender_purchase_request_groups")
                             ->join("tender_purchase_request_group_details","tender_purchase_request_group_details.tender_purchase_request_groups_id","tender_purchase_request_groups.id")
                             ->distinct()
@@ -55,27 +67,33 @@ class TenderPurchaseRequestController extends Controller
                             ->where('approvals.document_type',"Modules\TenderPurchaseRequest\Entities\TenderPurchaseRequestPengelompokan")
                             ->where('approvals.approval_action_id',6)
                             ->join("approval_actions","approval_actions.id","=","approvals.approval_action_id")
+                            ->leftJoin("tender_purchase_requests","tender_purchase_requests.tender_pr_groups_id","tender_purchase_request_groups.id")
+                            ->where("tender_purchase_requests.tender_pr_groups_id",NULL)
+
                             ->get();
-        return view('tenderpurchaserequest::index',compact("user","TPR","itemSiapTender"));
+        return view('tenderpurchaserequest::index',compact("user","project","TPR","itemSiapTender","pemenang"));
     }
-    public function pengelompokan(){
+    public function pengelompokan(Request $request){
         $user = \Auth::user();
+        $project = Project::find($request->session()->get('project_id'));
+
         $TPR = TenderPurchaseRequest::get();
         //$item = item yang siap di kelompokkan
         $itemSiapKelompok = DB::table("purchaserequest_details")
-                ->select("purchaserequest_details.id as prdId","items.name as itemName","purchaserequests.no as prNo","departments.name as departmentName","brands.name as brandName","purchaserequest_details.quantity")
-                ->orderBy("prdId","desc")
+                ->select("items.name as itemName","purchaserequests.no as prNo","departments.name as departmentName","brands.name as brandName","purchaserequest_details.quantity", "item_satuans.name as satuanName")
+                ->orderBy("purchaserequest_details.id","desc")
                 ->distinct()
                 ->join("approvals","purchaserequest_details.id","=","approvals.document_id")
                 ->where('approvals.document_type','=',"Modules\PurchaseRequest\Entities\PurchaseRequestDetail")
                 ->where('approvals.approval_action_id','=',6)
                 ->join("items","purchaserequest_details.item_id","items.id")
-                ->orderBy("item_id","asc")
+                ->orderBy("purchaserequest_details.item_id","asc")
                 ->leftJoin("tender_purchase_request_group_details","purchaserequest_details.id","tender_purchase_request_group_details.id_purchase_request_detail")
                 ->whereNull("tender_purchase_request_group_details.id_purchase_request_detail")
                 ->join("purchaserequests","purchaserequests.id","purchaserequest_details.purchaserequest_id")
                 ->join("departments","departments.id","purchaserequests.department_id")
                 ->join("brands","brands.id","purchaserequest_details.brand_id")
+                ->join("item_satuans","item_satuans.id","purchaserequest_details.item_satuan_id")
                 ->get();
         $itemSiapTender =   DB::table("tender_purchase_request_groups")
                             ->join("tender_purchase_request_group_details","tender_purchase_request_group_details.tender_purchase_request_groups_id","tender_purchase_request_groups.id")
@@ -90,27 +108,16 @@ class TenderPurchaseRequestController extends Controller
                             ->join("approval_actions","approval_actions.id","=","approvals.approval_action_id")
                             ->get();
 
-        return view('tenderpurchaserequest::pengelompokan',compact("user","TPR","itemSiapKelompok","itemSiapTender"));
+        return view('tenderpurchaserequest::pengelompokan',compact("user","project","TPR","itemSiapKelompok","itemSiapTender"));
         
     }public function pengelompokanDetail(Request $request){
         $id = $request->id;
+        $project = Project::find($request->session()->get('project_id'));
+
         $user = \Auth::user();
         $TPR = TenderPurchaseRequest::get();
         //$item = item yang siap di kelompokkan
-        $itemSiapKelompok = DB::table("purchaserequest_details")
-                ->select("purchaserequest_details.id as prdId","items.name as itemName","purchaserequests.no as prNo","departments.name as departmentName","brands.name as brandName","purchaserequest_details.quantity")
-                ->distinct()
-                ->join("approvals","purchaserequest_details.id","=","approvals.document_id")
-                ->where('approvals.document_type','=',"Modules\PurchaseRequest\Entities\PurchaseRequestDetail")
-                ->where('approvals.approval_action_id','=',6)
-                ->join("items","purchaserequest_details.item_id","items.id")
-                ->orderBy("item_id","asc")
-                ->leftJoin("tender_purchase_request_group_details","purchaserequest_details.id","tender_purchase_request_group_details.id_purchase_request_detail")
-                ->whereNull("tender_purchase_request_group_details.id_purchase_request_detail")
-                ->join("purchaserequests","purchaserequests.id","purchaserequest_details.purchaserequest_id")
-                ->join("departments","departments.id","purchaserequests.department_id")
-                ->join("brands","brands.id","purchaserequest_details.brand_id")
-                ->get();
+
         $itemUmum =   DB::table("tender_purchase_request_groups")
                             ->where("tender_purchase_request_groups.id",$id)
                             ->join("tender_purchase_request_group_details","tender_purchase_request_group_details.tender_purchase_request_groups_id","tender_purchase_request_groups.id")
@@ -143,10 +150,17 @@ class TenderPurchaseRequestController extends Controller
             array_push($tmp,$quantity2);
         }
         $itemQuantity = (object)$tmp;
-        return view('tenderpurchaserequest::pengelompokanDetail',compact("user","TPR","itemUmum","itemDetil","id","itemQuantity","itemSatuanTerkecil"));
+        $status_approve =   DB::table("approvals")
+                            ->where("document_id",$id)
+                            ->where("document_type","Modules\TenderPurchaseRequest\Entities\TenderPurchaseRequestPengelompokan")
+                            ->first()
+                            ->approval_action_id;
+        $back = $request->back;
+        return view('tenderpurchaserequest::pengelompokanDetail',compact("user","project","TPR","itemUmum","itemDetil","id","itemQuantity","itemSatuanTerkecil","status_approve","back"));
     }
     public function pengelompokanAdd(Request $request){
         $user = \Auth::user();
+        $project = Project::find($request->session()->get('project_id'));
         $TPR = TenderPurchaseRequest::get();
         $idTender = $request->id;
         if(isset($idTender)){
@@ -171,7 +185,7 @@ class TenderPurchaseRequestController extends Controller
                 ->get();
             $description = DB::table("tender_purchase_request_groups")->select("description")->where("id",$idTender)->first()->description;
             $itemBrand = DB::table("brands")->where("id",$itemTender->brand_id)->first()->name;
-            return view('tenderpurchaserequest::pengelompokanAdd',compact("user","item","itemBrand","itemTender","idTender","description"));
+            return view('tenderpurchaserequest::pengelompokanAdd',compact("user","project","item","itemBrand","itemTender","idTender","description"));
         }else{
             $item = DB::table("purchaserequest_details")
                     ->select("purchaserequest_details.item_id","items.name")
@@ -184,58 +198,71 @@ class TenderPurchaseRequestController extends Controller
                     ->leftJoin("tender_purchase_request_group_details","purchaserequest_details.id","tender_purchase_request_group_details.id_purchase_request_detail")
                     ->whereNull("tender_purchase_request_group_details.id_purchase_request_detail")
                     ->get();
-            return view('tenderpurchaserequest::pengelompokanAdd',compact("user","item"));
+            return view('tenderpurchaserequest::pengelompokanAdd',compact("user","project","item"));
         }
     }
     public function pengelompokanStore(Request $request){
         $tender_purchase_request_groups = new TenderPurchaseRequestGroup;
-        if(isset($request->idTender)){
-            $tenderprg_now =    DB::table("tender_purchase_request_groups")
-                                ->where("id",$request->idTender)->first();
-            if($tenderprg_now->satuan_id == (int)$request->satuan)
-                $tender_purchase_request_groups->quantity = $request->jumlah + $tenderprg_now->quantity;
-            else{
-                $konversi_now = DB::table("item_satuans")->select("konversi")->where("id",$tenderprg_now->satuan_id)->first()->konversi;
-                $konversi_new = DB::table("item_satuans")->select("konversi")->where("id",(int)$request->satuan)->first()->konversi;
-                $tender_purchase_request_groups->quantity =  $request->jumlah + ($tenderprg_now->quantity*$konversi_new/$konversi_now);
-            }
-            TenderPurchaseRequestGroup::where("id",$request->idTender)->update([
-                "quantity" => $tender_purchase_request_groups->quantity,
-                "satuan_id" => $tenderprg_now->satuan_id,
-                ]);
-            $url = "/tenderpurchaserequest/pengelompokanDetail/?id=$request->idTender";
-        }else{
-            $tender_purchase_request_groups->quantity = $request->jumlah;
-            $tender_purchase_request_groups->satuan_id = (int)$request->satuan;
-            $tender_purchase_request_groups->description = $request->description ."\n". $request->descriptionSpec;
-            $tender_purchase_request_groups->save();
-            $url = "/tenderpurchaserequest/pengelompokan/";
-        }
-        foreach($request->item_per_description as $v){
-            $tender_purchase_request_group_details = new TenderPurchaseRequestGroupDetail;
-            if(isset($request->idTender))
-                $tender_purchase_request_group_details->tender_purchase_request_groups_id = $request->idTender;
-            else
-                $tender_purchase_request_group_details->tender_purchase_request_groups_id = $tender_purchase_request_groups->id;
-            $tender_purchase_request_group_details->id_purchase_request_detail = $v;
-            $tender_purchase_request_group_details->save();
+        $cek_data_sama = 0;
+        foreach ($request->item_per_description as $v) {
+            $tmp = DB::table("tender_purchase_request_group_details")->where("id_purchase_request_detail",$v)->count();
+            if($tmp>0)
+                $cek_data_sama++;
+        } 
+        if(isset($request->idTender))   $url = "/tenderpurchaserequest/pengelompokanDetail/?id=$request->idTender";
+        else                            $url = "/tenderpurchaserequest/pengelompokan/";
 
-        }
+        if($cek_data_sama == 0){
+            if(isset($request->idTender)){
+                $tenderprg_now =    DB::table("tender_purchase_request_groups")
+                                    ->where("id",$request->idTender)->first();
+                if($tenderprg_now->satuan_id == (int)$request->satuan)
+                    $tender_purchase_request_groups->quantity = $request->jumlah + $tenderprg_now->quantity;
+                else{
+                    $konversi_now = DB::table("item_satuans")->select("konversi")->where("id",$tenderprg_now->satuan_id)->first()->konversi;
+                    $konversi_new = DB::table("item_satuans")->select("konversi")->where("id",(int)$request->satuan)->first()->konversi;
+                    $tender_purchase_request_groups->quantity =  $request->jumlah + ($tenderprg_now->quantity*$konversi_new/$konversi_now);
+                }
+                TenderPurchaseRequestGroup::where("id",$request->idTender)->update([
+                    "quantity" => $tender_purchase_request_groups->quantity,
+                    "satuan_id" => $tenderprg_now->satuan_id,
+                    ]);
+            }else{
+                $tender_purchase_request_groups->quantity = $request->jumlah;
+                $tender_purchase_request_groups->no = \App\Helpers\Document::new_number('TPRG', 2);
+                $tender_purchase_request_groups->satuan_id = (int)$request->satuan;
+                $tender_purchase_request_groups->description = $request->description ."\n". $request->descriptionSpec;
+                $tender_purchase_request_groups->save();
+            }
+            foreach($request->item_per_description as $v){
+
+                $tender_purchase_request_group_details = new TenderPurchaseRequestGroupDetail;
+                if(isset($request->idTender))
+                    $tender_purchase_request_group_details->tender_purchase_request_groups_id = $request->idTender;
+                else
+                    $tender_purchase_request_group_details->tender_purchase_request_groups_id = $tender_purchase_request_groups->id;
+                $tender_purchase_request_group_details->id_purchase_request_detail = $v;
+                $tender_purchase_request_group_details->save();
+
+            }
+                
         //\App\Helpers\Document::make_approval('Modules\TenderPurchaseRequest\Entities\TenderPurchaseRequestPengelompokan',$tender_purchase_request_groups->id);
-        $approval = new Approval;
-        $approval->approval_action_id   = 1;
-        $approval->document_id          = $tender_purchase_request_groups->id;
-        $approval->document_type        = "Modules\TenderPurchaseRequest\Entities\TenderPurchaseRequestPengelompokan";
-        $approval->save();
+            $approval = new Approval;
+            $approval->approval_action_id   = 1;
+            $approval->document_id          = $tender_purchase_request_groups->id;
+            $approval->document_type        = "Modules\TenderPurchaseRequest\Entities\TenderPurchaseRequestPengelompokan";
+            $approval->save();
+        }
        return redirect($url);
     }
         /**
      * Show the form for creating a new resource.
      * @return Response
      */
-    public function create()
+    public function create(Request $request)
     {
         $user = \Auth::user();
+        $project = Project::find($request->session()->get('project_id'));
         $id_approve = DB::table("approvals")
                         ->where("document_type","Modules\PurchaseRequest\Entities\PurchaseRequestDetail")
                         ->where("approval_action_id","6")
@@ -246,7 +273,7 @@ class TenderPurchaseRequestController extends Controller
             if(!in_array($tmp,$id_prs))
                 array_push($id_prs,$tmp);
         }
-        $rekanan_group = \App\rekanan_group::get();
+        $rekanan_group = DB::table("rekanan_groups")->get();
         $rab_pekerjaan = DB::table("rab_pekerjaans")->select("rab_pekerjaans.id","rab_pekerjaans.itempekerjaan_id","itempekerjaans.name")->join("itempekerjaans","rab_pekerjaans.itempekerjaan_id","=","itempekerjaans.id")->get();
         $pengelompokanTender =  DB::table("tender_purchase_request_groups")
                                 ->select("tender_purchase_request_groups.id","tender_purchase_request_groups.quantity","item_satuans.name as itemSatuanName","tender_purchase_request_groups.description","items.name as itemName","brands.name as brandName","tender_purchase_request_groups.description as description")
@@ -259,8 +286,15 @@ class TenderPurchaseRequestController extends Controller
                                 ->where("approvals.document_type","Modules\TenderPurchaseRequest\Entities\TenderPurchaseRequestPengelompokan")
                                 ->where("approvals.approval_action_id","6")
                                 ->distinct()
+                                ->leftJoin("tender_purchase_requests","tender_purchase_requests.tender_pr_groups_id","tender_purchase_request_groups.id")
+                                ->where("tender_purchase_requests.tender_pr_groups_id",NULL)
                                 ->get();
-        return view('tenderpurchaserequest::create',compact("user","rekanan_group","rab_pekerjaan","pengelompokanTender"));
+        $auto_date_create_tender = DB::table("globalsettings")->where("parameter","auto_date_create_tender")->first();
+        if(isset($auto_date_create_tender))
+            $auto_date_create_tender = $auto_date_create_tender->value;
+        $auto_date_create_tender = (int)$auto_date_create_tender;
+        echo($auto_date_create_tender);
+        return view('tenderpurchaserequest::create',compact("user","project","rekanan_group","rab_pekerjaan","pengelompokanTender","auto_date_create_tender"));
     }
 
     /**
@@ -276,7 +310,6 @@ class TenderPurchaseRequestController extends Controller
             "tender_pr_groups_id" => (int)$request->t_pr_groups_id,
             "rab_id"            => (int)$request->t_pr_rab,
             "name"              => $request->t_pr_name,
-            "ambil_doc_date"    => $request->t_pr_ambil_doc_date,
             "aanwijzing_type"   => $request->t_pr_aanwijzing_type,
             "aanwijzing_date"   => $request->t_pr_aanwijzing_date,
             "penawaran1_date"   => $request->t_pr_penawaran1_date,
@@ -287,7 +320,6 @@ class TenderPurchaseRequestController extends Controller
             "final_date"        => $request->t_pr_final_date,
             "recommendation_date" => $request->t_pr_recommendation_date,
             "pengumuman_date"   => $request->t_pr_pengumuman_date,
-            "harga_dokumen"     => $request->t_pr_harga_dokumen,
             "sumber"            => $request->t_pr_sumber,
             "description"       => $request->t_pr_description,
             "kelas"             => 1,
@@ -303,7 +335,6 @@ class TenderPurchaseRequestController extends Controller
         $TPR->kelas_id          = $preData->kelas;
         $TPR->no                = \App\Helpers\Document::new_number('TPR', 2);
         $TPR->name              = $preData->name;
-        $TPR->ambil_doc_date    = $preData->ambil_doc_date;
         $TPR->aanwijzing_type   = $preData->aanwijzing_type;
         $TPR->aanwijzing_date   = $preData->aanwijzing_date;
         $TPR->penawaran1_date   = $preData->penawaran1_date;
@@ -314,13 +345,9 @@ class TenderPurchaseRequestController extends Controller
         $TPR->final_date        = $preData->final_date;
         $TPR->recommendation_date = $preData->recommendation_date;
         $TPR->pengumuman_date   = $preData->pengumuman_date;
-        $TPR->harga_dokumen     = $preData->harga_dokumen;
         $TPR->sumber            = $preData->sumber;
         $TPR->description       = $preData->description;
         $TPR->save();
-        echo("<pre>");
-            print_r($TPR);
-        echo("</pre>");
         $rekomendasi_rekanan = DB::table("tender_purchase_request_groups")
                                 ->select(
                                         "purchaserequest_details.rec_1",
@@ -345,12 +372,7 @@ class TenderPurchaseRequestController extends Controller
             //array_push($rekanan,$t_pr_r_rekanan->rec_1,$t_pr_r_rekanan->rec_2,$t_pr_r_rekanan->rec_3);
         }
 
-        echo("<pre>");
-            print_r($rekomendasi_rekanan);
-        echo("</pre>");
-        echo("<pre>");
-            print_r($rekanan);
-        echo("</pre>");
+
         //input ke table TenderPurchaseRequestRekanan
         // $t_pr_r_rekanan = DB::table("purchaserequest_details")->select("rec_1","rec_2","rec_3")->where("id","=",$request->t_pr_item)->first();
         // $rekanan = [];
@@ -367,13 +389,12 @@ class TenderPurchaseRequestController extends Controller
                 $TPRP->no   = \App\Helpers\Document::new_number('TPRP', 2);
                 $TPRP->date   = date("Y-m-d");            
                 $TPRP->save();
-                for($j=1;$j<=3;$j++){
+                //for($j=1;$j<=3;$j++){
                     $TPRPD                      = new \Modules\TenderPurchaseRequest\Entities\TenderPurchaseRequestPenawaranDetail;
                     $TPRPD->tender_penawaran_id = $TPRP->id;
-                    $TPRPD->rab_pekerjaan_id    = $TPR->rab_id;
-                    $TPRPD->keterangan          = "Penawaran ".$j;
+                    //$TPRPD->keterangan          = "Penawaran ".$j;
                     $TPRPD->save();
-                }
+                //}
             }
         }
         // $TPRD = new \Modules\TenderPurchaseRequest\Entities\TenderPurchaseRequestDetail;
@@ -403,25 +424,10 @@ class TenderPurchaseRequestController extends Controller
      * Show the specified resource.
      * @return Response
      */
-
-    public function test2(Request $request){
-        if ($request->hasFile('testfile')){
-            var_dump("yuhuu");
-            $file = $request->testfile;
-            var_dump("$file");
-            $file->store('files');
-        }else{
-            var_dump("yah");
-        }
-    }
     public function rekanan(Request $request){
         $user = \Auth::user();
         //auth,
         date_default_timezone_set("Asia/Jakarta");
-        var_dump($request->rab_id);
-        $rab_id = TenderPurchaseRequest::select('rab_id')->where("id","=",$request->rab_id)->first()->rab_id;
-        var_dump($rab_id);
-
         foreach($request->rekanan as $value){
             $tmp = DB::table('tender_purchase_request_rekanans')->select('id')->where('tender_purchase_request_id','=',$request->id)->where('rekanan_id','=',$value)->first();
             if(!isset($tmp)){
@@ -439,7 +445,6 @@ class TenderPurchaseRequestController extends Controller
                 for($j=1;$j<=3;$j++){
                     $TPRPD                      = new \Modules\TenderPurchaseRequest\Entities\TenderPurchaseRequestPenawaranDetail;
                     $TPRPD->tender_penawaran_id = $TPRP->id;
-                    $TPRPD->rab_pekerjaan_id    = $rab_id;
                     $TPRPD->keterangan          = "Penawaran ".$j;
                     $TPRPD->save();
                 }
@@ -449,6 +454,7 @@ class TenderPurchaseRequestController extends Controller
     }
     public function detail(Request $request){
         $user = \Auth::user();
+        $project = Project::find($request->session()->get('project_id'));
         $TPR  = TenderPurchaseRequest::where("id",$request->id)->first();
         $jumlahPR = DB::table("tender_purchase_request_group_details")->where("tender_purchase_request_groups_id",$TPR->tender_pr_groups_id)->count();
         //kurang optimal PRD
@@ -483,8 +489,9 @@ class TenderPurchaseRequestController extends Controller
         $penawaran =    $TMPrekanan
                         ->join("tender_purchase_request_penawarans","tender_purchase_request_penawarans.tender_rekanan_id","tender_purchase_request_rekanans.id")
                         ->join("tender_purchase_request_penawarans_details","tender_purchase_request_penawarans_details.tender_penawaran_id","tender_purchase_request_penawarans.id")
-                        ->select("tender_purchase_request_penawarans_details.nilai")
+                        ->select("tender_purchase_request_penawarans_details.nilai1","tender_purchase_request_penawarans_details.nilai2","tender_purchase_request_penawarans_details.nilai3","tender_purchase_request_rekanans.id as tprrId")
                         ->get();
+
         // $rekananList =  DB::table("rekanans")
         //                 ->join()
         $rekananArray = [];
@@ -496,9 +503,15 @@ class TenderPurchaseRequestController extends Controller
                 $idPemenang = $v->id;
         }
 
-
-        
-
+        $idPemenang = DB::table("tender_purchase_request_rekanans")
+                            ->where("rekanan_id",$idPemenang)
+                            ->where("tender_purchase_request_id",$request->id)
+                            ->first();
+        if($idPemenang != null)
+            $idPemenang = $idPemenang->id;
+        else
+            $idPemenang = 0;
+            
         $rekananList = DB::table("rekanans")->get();
         $apporve =  DB::table("approvals")
                     ->where("document_id",$idPemenang)
@@ -567,15 +580,11 @@ class TenderPurchaseRequestController extends Controller
         // }
         // $nilaiVolume = (object)$tmp3;
         // $a = (array)$nilaiVolume;
-        return view('tenderpurchaserequest::detail',compact("user","TPR","jumlahPR","PRD","TPRItem","rekanan","pemenang","penawaran","rekananList","rekananArray","idPemenang","apporve","tender_approve"));    
+        if(isset($request->back))
+            $back = $request->back;
+        return view('tenderpurchaserequest::detail',compact("user","project","TPR","jumlahPR","PRD","TPRItem","rekanan","pemenang","penawaran","rekananList","rekananArray","idPemenang","apporve","tender_approve","back"));    
     }
     public function ubahVolume(Request $request){
-        echo "<pre>";
-        print_r($request->volume1);
-        print_r($request->volume2);
-        print_r($request->volume3);
-        print_r($request->tpr_id);
-        echo "</pre>";
         $tprp_id     = DB::table("tender_purchase_request_penawarans")
                     ->join("tender_purchase_request_rekanans","tender_purchase_request_penawarans.tender_rekanan_id","=","tender_purchase_request_rekanans.id")
                     ->select("tender_purchase_request_penawarans.id")
@@ -583,11 +592,8 @@ class TenderPurchaseRequestController extends Controller
                     ->get();
         foreach($tprp_id as $value){
             $tprpd_data = DB::table("tender_purchase_request_penawarans_details")->select("id")->where("tender_penawaran_id","=",$value->id)->get();
-            print_r($tprpd_data[0]->id." ");
             DB::table("tender_purchase_request_penawarans_details")->where("id","=",$tprpd_data[0]->id)->update(["volume" => $request->volume1]);
-            print_r($tprpd_data[1]->id." ");
             DB::table("tender_purchase_request_penawarans_details")->where("id","=",$tprpd_data[1]->id)->update(["volume" => $request->volume2]);
-            print_r($tprpd_data[2]->id." ");
             DB::table("tender_purchase_request_penawarans_details")->where("id","=",$tprpd_data[2]->id)->update(["volume" => $request->volume3]);
             break;
         }
@@ -595,32 +601,58 @@ class TenderPurchaseRequestController extends Controller
 
     }
     public function tambahPenawaran(Request $request){
-        var_dump($request->name);
-        var_dump($request->id_rekanan);
-        var_dump($request->nilai1);
-        var_dump($request->nilai2);
-        var_dump($request->nilai3);
-        $id_rekanan = DB::table("tender_purchase_request_rekanans")->select("id")
-                            ->where("tender_purchase_request_id","=",$request->tpr_id)
-                            ->where("rekanan_id","=",$request->id_rekanan)
-                            ->first()->id;
-        $id_penawaran = DB::table("tender_purchase_request_penawarans")->select("id")->where("tender_rekanan_id","=",$id_rekanan)->first()->id;
-        var_dump($id_penawaran);
-        $id_penawaran_detail = DB::table("tender_purchase_request_penawarans_details")->select("id")->where("tender_penawaran_id","=",$id_penawaran)->get();
-        var_dump($id_penawaran_detail[0]->id);
-        DB::table("tender_purchase_request_penawarans_details")->where("id","=",$id_penawaran_detail[0]->id)->update([
-            "nilai" => $request->nilai1
-        ]);
-        DB::table("tender_purchase_request_penawarans_details")->where("id","=",$id_penawaran_detail[1]->id)->update([
-            "nilai" => $request->nilai2
-        ]);
-        DB::table("tender_purchase_request_penawarans_details")->where("id","=",$id_penawaran_detail[2]->id)->update([
-            "nilai" => $request->nilai3
-        ]);
-        return redirect("/tenderpurchaserequest/detail/?id=". $request->tpr_id);
-
+        $idPenawaran =  DB::table("tender_purchase_request_penawarans")
+                        ->whereIn("tender_rekanan_id",$request->id_rekanan) 
+                        ->get();
+        $i = 0;
+        foreach ($idPenawaran as $v) {
+            $tprdUpdate = DB::table("tender_purchase_request_penawarans_details")->where("tender_penawaran_id",$v->id);
+            if(isset($request->penawaran1[$i]))
+                $tprdUpdate->update([
+                    "nilai1" => $request->penawaran1[$i]
+                ]);
+            if(isset($request->penawaran2[$i]))
+                $tprdUpdate->update([
+                    "nilai2" => $request->penawaran2[$i]
+                ]);
+            if(isset($request->penawaran3[$i]))
+                $tprdUpdate->update([
+                    "nilai3" => $request->penawaran3[$i]
+                ]);
+            $i++;
+        }
         
 
+        // foreach ($request->id_rekanan as $v) {
+        //     $id_penawaran_detail =  DB::table("tender_purchase_request_rekanans")
+        //                             ->join("tender_purchase_request_penawarans","tender_purchase_request_penawarans.tender_rekanan_id","tender_purchase_request_rekanans.id")
+        //                             ->join("tender_purchase_request_penawarans_details","tender_purchase_request_penawarans_details.tender_penawaran_id","tender_purchase_request_penawarans.id")
+        //                             ->where("tender_purchase_request_rekanans.tender_purchase_request_id",$request->tpr_id)
+        //                             ->where("tender_purchase_request_rekanans.rekanan_id",$v)
+        //                             ->get();
+        //     echo("foreach <pre>");
+        //         print_r($request->tpr_id);
+        //     echo("</pre>");
+
+        // }
+        // $id_rekanan = DB::table("tender_purchase_request_rekanans")->select("id")
+        //                     ->where("tender_purchase_request_id","=",$request->tpr_id)
+        //                     ->where("rekanan_id","=",$request->id_rekanan)
+        //                     ->first()->id;
+        // $id_penawaran = DB::table("tender_purchase_request_penawarans")->select("id")->where("tender_rekanan_id","=",$id_rekanan)->first()->id;
+        // var_dump($id_penawaran);
+        // $id_penawaran_detail = DB::table("tender_purchase_request_penawarans_details")->select("id")->where("tender_penawaran_id","=",$id_penawaran)->get();
+        // var_dump($id_penawaran_detail[0]->id);
+        // DB::table("tender_purchase_request_penawarans_details")->where("id","=",$id_penawaran_detail[0]->id)->update([
+        //     "nilai" => $request->nilai1
+        // ]);
+        // DB::table("tender_purchase_request_penawarans_details")->where("id","=",$id_penawaran_detail[1]->id)->update([
+        //     "nilai" => $request->nilai2
+        // ]);
+        // DB::table("tender_purchase_request_penawarans_details")->where("id","=",$id_penawaran_detail[2]->id)->update([
+        //     "nilai" => $request->nilai3
+        // ]);
+        return redirect("/tenderpurchaserequest/detail/?id=". $request->tpr_id);
     }
     public function add_pemenang(Request $request){
         $approval = new Approval;
@@ -685,12 +717,10 @@ class TenderPurchaseRequestController extends Controller
         $PO->tender_purchase_request_group_id   = DB::table("tender_purchase_requests")
                                                    ->where("id",$request->tpr_id)
                                                    ->first()->tender_pr_groups_id;
-        $PO->rekanan_id                         = DB::table("tender_purchase_request_penawarans")
-                                                   ->join("tender_purchase_request_rekanans","tender_purchase_request_rekanans.id","tender_purchase_request_penawarans.tender_rekanan_id")
-                                                   ->where("tender_purchase_request_penawarans.id",$request->id)
-                                                   ->select("tender_purchase_request_rekanans.rekanan_id")
-                                                   ->first()
-                                                   ->rekanan_id;
+        $PO->rekanan_id                         = DB::table("tender_purchase_request_rekanans")
+                                                    ->where("id",$request->id)
+                                                    ->first()
+                                                    ->rekanan_id;
         $PO->no                                 = \App\Helpers\Document::new_number('PO', 2);
         $PO->date                               = date("Y-m-d");
         $PO->matauang                           = "IDR";
@@ -727,12 +757,14 @@ class TenderPurchaseRequestController extends Controller
         $POD->quantity          = DB::table("tender_purchase_request_groups")
                                    ->where("id",$PO->tender_purchase_request_group_id)
                                    ->first()->quantity;
-        $POD->price             = DB::table("tender_purchase_request_penawarans")
-                                   ->where("tender_purchase_request_penawarans.tender_rekanan_id",$request->id)
+        $POD->price             = DB::table("tender_purchase_request_rekanans")
+                                    ->where("tender_purchase_request_rekanans.tender_purchase_request_id",$request->tpr_id)
+                                    ->where("tender_purchase_request_rekanans.rekanan_id",$PO->rekanan_id)
+                                    ->join("tender_purchase_request_penawarans","tender_purchase_request_penawarans.tender_rekanan_id","tender_purchase_request_rekanans.id")
                                    ->join("tender_purchase_request_penawarans_details","tender_purchase_request_penawarans_details.tender_penawaran_id","tender_purchase_request_penawarans.id")
                                    ->orderBy("tender_purchase_request_penawarans_details.id","desc")
                                    ->first()
-                                   ->nilai;
+                                   ->nilai3;
         $POD->ppn               = DB::table("rekanans")
                                    ->where("rekanans.id",$PO->rekanan_id)
                                    ->first()
@@ -794,3 +826,6 @@ class TenderPurchaseRequestController extends Controller
     {
     }
 }
+
+
+

@@ -5,6 +5,11 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Admin QS | Dashboard</title>
   @include("master/header")
+  <style type="text/css">
+    .table-align-right{
+      text-align: right;
+    }
+  </style>
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
@@ -16,9 +21,21 @@
     <!-- Content Header (Page header) -->
     
     <section class="content-header">
-        <h1 style="text-align:center">Data Detil dari Pengelompokan Tender PR 
-        </h1>
-
+        <h1 style="text-align:center">Data Detil dari Pengelompokan Tender PR </h1>
+    </section>
+    <section class="content-header">
+      <div class="" style="float: none">
+        @if($back == "tenderpurchaserequest")
+        <button class="col-md-1 col-sm-2 btn btn-primary" onclick="location.href='{{ url('/')}}/tenderpurchaserequest'" style="float: none; border-radius: 20px; padding-left: 0">
+        @else
+        <button class="col-md-1 col-sm-2 btn btn-primary" onclick="location.href='{{ url('/')}}/tenderpurchaserequest/pengelompokan'" style="float: none; border-radius: 20px; padding-left: 0">
+        @endif
+        <i class="fa fa-fw fa-arrow-left"></i>&nbsp;&nbsp;Back
+        </button>
+        <button class="col-md-1 col-sm-2 btn btn-primary" onclick="window.location.reload()" style="float: right; border-radius: 20px; padding-left: 0;">
+          <i class="fa fa-fw fa-refresh"></i>&nbsp;&nbsp;Refresh
+        </button>  
+      </div>
     </section>
     <section class="content">
       <!-- Info boxes -->
@@ -128,29 +145,28 @@
               
             </div>
             <!-- /.box-header -->
+                @if(strcmp($user->user_login,"administrator")==0 && $status_approve != 6)
             <div class="box-header with-border" style="background-color:white">
-                <div class="col-md-3">
-                  @if(strcmp($user->user_login,"administrator")==0)
-                  <button type="button" class="btn btn-block btn-primary btn-lg" onclick="location.href='{{ url('/')}}/tenderpurchaserequest/pengelompokanAdd/?id={{$itemUmum[0]->id}}'">
-                    <i class="fa fa-fw fa-plus"></i>
-                    &nbsp;&nbsp;
-                    Tambah Item Kedalam Kelompok Ini
-                  </button>
-                  @endif
-                </div>
+              <div class="col-md-3">
+                <button type="button" class="btn btn-block btn-primary btn-lg" onclick="location.href='{{ url('/')}}/tenderpurchaserequest/pengelompokanAdd/?id={{$itemUmum[0]->id}}'">
+                  <i class="fa fa-fw fa-plus"></i>
+                  &nbsp;&nbsp;
+                  Tambah Item Kedalam Kelompok Ini
+                </button>
               </div>
+            </div>
+                @endif
             <div class="box-body">
                 <table id="ListSiapKelompok" class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
                     <thead>
                       <tr style="background-color: greenyellow;">
-                        <th>No</th>
-                        <th>No PR</th>
-                        <th>Id PR Detail</th>
+                        <th class="table-align-right">No</th>
+                        <th class="table-align-right">No PR</th>
                         <th>Departemen</th>
                         <th>Coa</th>
-                        <th>Quantity</th> 
+                        <th class="table-align-right">Quantity</th> 
                         <th>Satuan</th> 
-                        <th>Quantity Baru</th> 
+                        <th class="table-align-right">Quantity Baru</th> 
                         <th>Satuan Baru</th> 
                       </tr>
                       </thead>
@@ -161,14 +177,13 @@
                             @php($i++)
 
                             <tr>
-                            <td>{{$i}}</td>
-                            <td>{{$v->prNo}}</td>
-                            <td>{{$v->prdId}}</td>
+                            <td class="table-align-right">{{$i}}</td>
+                            <td class="table-align-right">{{$v->prNo}}</td>
                             <td>{{$v->dName}}</td>
                             <td>{{$v->ipName}}</td>
-                            <td>{{$v->prdQuantity}}</td>
+                            <td class="table-align-right">{{$v->prdQuantity}}</td>
                             <td>{{$v->isName}}</td>
-                            <td>{{$itemQuantity[$i-1]}}</td>
+                            <td class="table-align-right">{{$itemQuantity[$i-1]}}</td>
                             <td>{{$itemSatuanTerkecil->name}}</td>
                             </tr>
                             

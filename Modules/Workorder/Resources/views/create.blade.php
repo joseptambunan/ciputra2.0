@@ -80,7 +80,8 @@
                 <input type="text" class="form-control" name="end_date" id="end_date" autocomplete="off" required>
               </div> 
                 <div class="box-footer">
-                <button type="submit" class="btn btn-primary">Simpan</button>
+                <i class="fa fa-refresh ld ld-spin" id="loading" style="display: none;"></i>
+                <button type="submit" class="btn btn-primary submitbtn" id="btn_submit">Simpan</button>
               </div>
             </div>
             </form>
@@ -132,6 +133,11 @@
       "dateFormat" : "yy-mm-dd"
     });
 
+    $("#btn_submit").click(function(){
+      $(".submitbtn").hide();
+      $("#loading").show();
+    });
+    
   });
 
   $("#start_date").change(function(){

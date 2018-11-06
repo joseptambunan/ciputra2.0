@@ -68,11 +68,13 @@
                     <td>{{ number_format($value->bangunan_luas) }}</td>
                     <td>{{ $value->is_sellable ? 'Ya' : 'Tidak' }}</td>
                     <td>{{ $value->tag_kategori == 'B' ? 'Bangunan' : 'Kavling'}}</td>
-                    <td>{{ $value->type->name }}</td>
-                    <td>{{ $arrayAngin[$value->unit_arah_id] }}</td>
+                    <td>{{ $value->type->name or '' }}</td>
+                    <td>&nbsp;</td>
                     <td>
                       @if($value->status == 0)
                         <div class="alert-info fade in" style="text-align:center;background-color:#b3ffb3;color:#cc7a00">Open</div>
+                      @elseif($value->status == 1)
+                        <div class="alert-info fade in" style="text-align:center;background-color:#b3ffb3;color:#cc7a00">Planning</div>
                       @elseif($value->status == 2)
                         <div class="alert-info fade in" style="text-align:center;background-color:#fdfc93;color:#817f01">In Progress</div>
                       @elseif($value->status == 4)
@@ -82,7 +84,7 @@
                       @elseif($value->status == 7)
                         <div class="alert-info fade in" style="text-align:center;background-color:#fda8a8;color:#b70101">Rejected</div>
                       @else
-                        <div class="alert-info fade in" style="text-align:center;background-color:#fda8a8;color:#b70101">Rejected</div>';
+                        <div class="alert-info fade in" style="text-align:center;background-color:#fda8a8;color:#b70101">Rejected</div>
                       @endif
                     </td>
                     <td>{{ $value->st1_date }}</td>

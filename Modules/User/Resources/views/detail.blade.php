@@ -94,9 +94,9 @@
                     <ul class="nav nav-tabs">        
                       @foreach ( $project_pt_user as $key6 => $value6 )   
                       @if ( $key6 == 0 )     
-                      <li  class="active"><a href="#tab_{{ $key6 + 5 }}" data-toggle="tab">{{ $value6->project->name }}</a></li>
+                      <li  class="active"><a href="#tab_{{ $key6 + 5 }}" data-toggle="tab">{{ $value6->project_pts->project->name }}</a></li>
                       @else
-                      <li><a href="#tab_{{ $key6 + 5 }}" data-toggle="tab">{{ $value6->project->name }}</a></li>
+                      <li><a href="#tab_{{ $key6 + 5 }}" data-toggle="tab">{{ $value6->project_pts->project->name }}</a></li>
                       @endif
                       @endforeach
                     </ul>
@@ -104,48 +104,50 @@
                     <div class="tab-content">
                       @php $active = ""; @endphp
                       @foreach ( $project_pt_user as $key6 => $value6 )  
-                        @if ( $key6 == 0 ) 
-                          @php $active = "active"; @endphp
-                        @endif
-                        <div class="tab-pane {{ $active }}" id="tab_{{ $key6 + 5 }}">
-
-                        @php $nilai = 0; @endphp
-                        @foreach ( $value6->user->details as $key7 => $value7 )                    
-                          @if ( $value6->pt_id == $value7->mappingperusahaan->pt->id )
-                            @if ( $value7->can_approve == "1")
-                            @php $nilai = $nilai + 1; @endphp
-                            @endif
+                        @if ( $value6->project_pts != "" )
+                          @if ( $key6 == 0 ) 
+                            @php $active = "active"; @endphp
                           @endif
-                        @endforeach
+                          <div class="tab-pane {{ $active }}" id="tab_{{ $key6 + 5 }}">
 
-                        @if ( $nilai > 0 )
-                        <a class="btn btn-info" href="{{ url('/')}}/user/approval/user_detail?id={{ $value6->id}}">
-                            Set Approval
-                        </a>
-                        @endif
-                        <table class="table-bordered table">
-                          <thead class="head_table">
-                            <tr>
-                              <td>Document</td>
-                              <td>Nilai Document</td>
-                              <td>Nomor Urut</td>
-                              <td>Perubahan Data</td>
-                            </tr>
-                          </thead>
-                          <tbody>
-                          @foreach ( $users->approval_reference as $key7 => $value7 )
-                            @if ( $value7->pt_id == $value6->pt->id && $value7->project_id == $value6->project_id )
-                              <tr>
-                                  <td>{{ $value7->document_type }}</td>
-                                  <td>{{ number_format($value7->min_value )}}</td>
-                                  <td>{{ number_format($value7->no_urut )}}</td>
-                                  <td><button class="btn btn-danger" onclick="deleteApproval('{{ $value7->id }}')">Delete</a></td>
-                              </tr>
+                          @php $nilai = 0; @endphp
+                          @foreach ( $value6->user->details as $key7 => $value7 )                    
+                            @if ( $value6->pt_id == $value7->mappingperusahaan->pt->id )
+                              @if ( $value7->can_approve == "1")
+                              @php $nilai = $nilai + 1; @endphp
+                              @endif
                             @endif
                           @endforeach
-                          </tbody>
-                        </table>
-                      </div>
+
+                          @if ( $nilai > 0 )
+                          <a class="btn btn-info" href="{{ url('/')}}/user/approval/user_detail?id={{ $value6->id}}">
+                              Set Approval
+                          </a>
+                          @endif
+                          <table class="table-bordered table">
+                            <thead class="head_table">
+                              <tr>
+                                <td>Document</td>
+                                <td>Nilai Document</td>
+                                <td>Nomor Urut</td>
+                                <td>Perubahan Data</td>
+                              </tr>
+                            </thead>
+                            <tbody>
+                            @foreach ( $users->approval_reference as $key7 => $value7 )
+                              @if ( $value7->pt_id == $value6->project_pts->pt->id && $value7->project_id == $value6->project_pts->project_id )
+                                <tr>
+                                    <td>{{ $value7->document_type }}</td>
+                                    <td>{{ number_format($value7->min_value )}}</td>
+                                    <td>{{ number_format($value7->no_urut )}}</td>
+                                    <td><button class="btn btn-danger" onclick="deleteApproval('{{ $value7->id }}')">Delete</a></td>
+                                </tr>
+                              @endif
+                            @endforeach
+                            </tbody>
+                          </table>
+                        </div>
+                        @endif
                       @endforeach                     
                      
                     </div>
@@ -154,7 +156,7 @@
                   
                 </div>
 
-                <!-- /.tab-pane -->
+                 <!-- /.tab-pane -->
                 <div class="tab-pane" id="tab_2">
                   <h3>Isi Jabatan Proyek</h3>
                   <form action="{{ url('/')}}/user/save-detail" method="post">
@@ -173,7 +175,7 @@
                       <label>Project - PT</label>
                       <select class="form-control" name="project_pt" id="project_pt">
                        @foreach ( $project_pt_user as $key => $value )
-                       <option value="{{ $value->id }}">{{ $value->project->name }} - {{ $value->pt->name }}</option>
+                       <option value="{{ $value->id }}">{{ $value->project_pts->project->name }} - {{ $value->project_pts->pt->name }}</option>
                        @endforeach
                       </select>
                     </div>
@@ -182,9 +184,11 @@
                     <div class="form-group dept" id="input_dept" style="display: none;">
                       <label>Department / Divisi</label><br>
                       @foreach ( $project_pt_user as $key => $value )
-                        @foreach ( $value->pt->mapping as $key2 => $value2 )
+                        @if ( $value->project_pts->pt->mapping->count() > 0 )
+                        @foreach ( $value->project_pts->pt->mapping as $key2 => $value2 )
                           <input type="checkbox" name="dept[{{ $value2->id}}]" class="pt pt_{{ $value->id}}" style="display: none;" value="{{ $value2->id }}"> {{ $value2->department->name }} {{ $value2->division->name }}
                         @endforeach
+                        @endif
                       @endforeach
                     </div>
 
@@ -194,7 +198,13 @@
                     </div>
 
                     <div class="form-group">
-                      <button class="btn btn-primary" type="submit">Simpan</button>
+                      @foreach ( $project_pt_user as $key => $value )
+                        @if ( $value->project_pts->pt->mapping->count() > 0 )
+                          <button class="btn btn-primary" type="submit">Simpan</button>
+                        @else
+                        <h3 style="color:red;"><strong>PT ini tidak memiliki departmen</strong></h3>
+                        @endif
+                      @endforeach
 
                     </div>
 
@@ -222,7 +232,7 @@
                     </tbody>
                   </table>
                 </div>
-                <!-- /.tab-pane -->
+
                 <div class="tab-pane active" id="tab_3">
                     <h3>Tambah Akses</h3>
                     <div class="col-md-6">              
@@ -231,21 +241,15 @@
                         <input type="hidden" name="userid" id="userid" value="{{ $users->id }}">
                         <div class="form-group">
                             <label for="exampleInputEmail1">Project</label>
-                            <select class="form-control" required name="project_s">
-                              @foreach( $project as $key7 => $value7 )
-                              <option value="{{ $value7->id }}">{{ $value7->name}}</option>
+                            <select class="form-control select2" required name="project_s">
+                              @foreach( $pt as $key7 => $value7 )
+                                @foreach ( $value7->project as $key8 => $value8 )
+                                  <option value="{{ $value8->id }}">{{ $value7->name}} - {{ $value8->project->name}}</option>
+                                @endforeach
                               @endforeach
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label for="exampleInputEmail1">PT</label>
-                            <select class="form-control" required name="pt_s">
-                              @foreach( $pt as $key8 => $value8 )
-                              <option value="{{ $value8->id }}">{{ $value8->name}}</option>
-                              @endforeach
-                            </select>
-                        </div>
-                        
+
                         <div class="box-footer">
                           <button type="submit" class="btn btn-primary">Simpan</button>
                         </div>
@@ -264,10 +268,10 @@
                         <tr>
                           <td>
                             <input type="hidden" name="user_project_pt" id="user_project_pt_{{ $value->id }}" value="{{ $value->id }}">
-                            <span id="label_project_{{ $value->id }}">{{ $value->project->name }}</span>
+                            <span id="label_project_{{ $value->id }}">{{ $value->project_pts->project->name }}</span>
                             <select class="form-control project" name="project_name" id="project_name_{{ $value->id }}" style="display: none;">
                               @foreach ( $project as $key2 => $value2)
-                              @if ( $value2->id == $value->project->id )
+                              @if ( $value2->id == $value->project_pts->project->id )
                               <option value="{{ $value2->id}}" selected>{{ $value2->name }}</option>
                               @else
                               <option value="{{ $value2->id}}">{{ $value2->name }}</option>
@@ -276,7 +280,7 @@
                             </select>
                           </td>
                           <td>
-                            <span id="label_pt_{{ $value->id }}">{{ $value->pt->name }}</span>
+                            <span id="label_pt_{{ $value->id }}">{{ $value->project_pts->pt->name }}</span>
                             <select class="form-control pt" name="pt_name" id="pt_name{{ $value->id }}" style="display: none;">
                               @foreach ( $pt as $key3 => $value3)
                               @if ( $value3->id == $value->pt->id )
@@ -298,6 +302,8 @@
                     </table>
                 </div>
                 <!-- /.tab-pane -->
+
+
               </div>
               <!-- /.tab-content -->
             </div>
@@ -343,7 +349,7 @@
                 <div class="col-md-3">
                   <select class="form-control project" name="project_name" id="project_name">
                     @foreach ( $project_pt_user as $key4 => $value4 )                     
-                    <option value="{{ $value4->project->id}}">{{ $value4->project->name }}</option>
+                    <option value="{{ $value4->project_pts->project->id}}">{{ $value4->project_pts->project->name }}</option>
                     @endforeach
                   </select>
                 </div>
@@ -352,7 +358,7 @@
                 <div class="col-md-3">
                   <select class="form-control project" name="pt_name" id="pt_name">
                     @foreach ( $project_pt_user as $key4 => $value4 )                     
-                    <option value="{{ $value4->pt->id}}">{{ $value4->pt->name }}</option>
+                    <option value="{{ $value4->project_pts->pt->id}}">{{ $value4->project_pts->pt->name }}</option>
                     @endforeach
                   </select>
                 </div>
@@ -434,6 +440,10 @@
 
 @include("user::app")
 <script type="text/javascript">
+  $(function () {
+    //Initialize Select2 Elements
+    $('.select2').select2();
+  });
   function removeuser(pt_id,user_id,jabatan_id){
     if ( confirm("Apakah anda yakin ingin menghapus data ini ? ")){
       var request = $.ajax({

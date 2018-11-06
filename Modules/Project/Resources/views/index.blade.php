@@ -29,7 +29,6 @@
             </div>
             <!-- /.box-header -->
             <div class="box-body">
-              <a href="{{ url('/')}}/project/add" class="btn-lg btn-primary"><i class="glyphicon glyphicon-plus-sign"></i>Tambah Data Proyek</a>
               <table id="example2" class="table table-bordered table-hover">
                 <thead>
                 <tr style="background-color: greenyellow;">

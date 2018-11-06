@@ -104,7 +104,7 @@ class Spk extends CustomModel
 
     {
 
-        return $this->belongsTo('Modules\Tender\Entities\TenderRekanan');
+        return $this->belongsTo('Modules\Tender\Entities\TenderRekanan','tender_rekanan_id');
 
     }
 
@@ -1077,14 +1077,18 @@ class Spk extends CustomModel
 
         if ( count($this->progresses) > 0  ){
 
-            $itempekerjaan = $this->progresses->first()->itempekerjaan;
-
-            $code = explode(".", $itempekerjaan->code);
-
-            $id = \Modules\Pekerjaan\Entities\Itempekerjaan::where("code",$code[0])->first();
-
-            return $id;
-
+            $itempekerjaan = $this->progresses->first()->itempekerjaan;   
+            if ( $itempekerjaan->code != "" ){         
+                $code = explode(".", $itempekerjaan->code);
+                if ( count(\Modules\Pekerjaan\Entities\Itempekerjaan::where("code",$code[0])->get()) > 0 ){
+                    $id = \Modules\Pekerjaan\Entities\Itempekerjaan::where("code",$code[0])->first();
+                }else{
+                    $id = \Modules\Pekerjaan\Entities\Itempekerjaan::find($itempekerjaan->parent->id);
+                }
+                return $id;
+            }else{
+                return 0;
+            }
         }
 
         
@@ -1101,7 +1105,7 @@ class Spk extends CustomModel
 
         $progress = $this->lapangan;
 
-        if ( $progress > 100 ){
+        if ( $progress >= 100 ){
             return 100;
         }
 
@@ -1168,12 +1172,13 @@ class Spk extends CustomModel
 
         $total_progress = $this->lapangan ;
         if ( $this->baps->count() > 0 ){
-            if ( $total_progress >= 100 ){
+            /*if ( $total_progress >= 100 ){
                 return ( ($this->dp_percent / 100 ) * $this->nilai) ; 
             } else { 
                 $pengembalian = $this->dp_pengembalians->take($this->baps->count())->where("status",0)->sum("percent");
                 return ( ($this->dp_percent / 100 ) * $this->nilai) * ($pengembalian / 100 ) ;
-            }
+            }*/
+            return ( ($this->dp_percent / 100 ) * $this->nilai) * ( $this->spk_real_termyn / 100 );
            
         } else {
             return ( ($this->dp_percent / 100 ) * $this->nilai) * 0 ; 
@@ -1293,6 +1298,17 @@ class Spk extends CustomModel
 
      
         return $all;
+    }
+
+    public function getTotalVoAttribute(){
+        $nilai = array();
+        foreach ($this->suratinstruksis as $key => $value) {
+            foreach ($value->vos as $key2 => $value2) {
+                $nilai[$key] = $value2->suratinstruksi_id;
+            }
+        }
+
+        return array_unique($nilai);
     }
 
 

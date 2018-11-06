@@ -117,6 +117,9 @@ class Workorder extends Model
         $nilai = array();
         $detailworkorder = array();
         $satuan = "";
+        $budget_tahunan = "";
+        $total_budget = 0;
+        $workorder_budget_id = "";
         foreach ($this->detail_pekerjaan as $key => $value) {
             # code...
             //if ( isset($value->itempekerjaan->parent_id)){
@@ -142,24 +145,31 @@ class Workorder extends Model
             $coa_code =  \Modules\Pekerjaan\Entities\Itempekerjaan::find($id)->code;
             $item_name = \Modules\Pekerjaan\Entities\Itempekerjaan::find($id)->name;
             $item_name = \Modules\Pekerjaan\Entities\Itempekerjaan::find($id)->name;
-
+            
            /* $itempekerjaan = \Modules\Pekerjaan\Entities\Itempekerjaan::where("parent_id",$uniqe[$i])->get();
             foreach ($itempekerjaan as $key => $value) {*/
                 # code...
                 $detail_pekerjaan_workorder = WorkorderBudgetDetail::where("itempekerjaan_id",$id)->where("workorder_id",$this->id)->get()->first();
                 if ( isset($detail_pekerjaan_workorder->volume)){
+                    $workorder_budget_id = $detail_pekerjaan_workorder->id;
                     $subtotal_detail = $detail_pekerjaan_workorder->volume * $detail_pekerjaan_workorder->nilai ;
                     $subtotal = $subtotal + $subtotal_detail;
                     $satuan = $detail_pekerjaan_workorder->satuan;
                     $volume = $volume + $detail_pekerjaan_workorder->volume;
                     $unitprice = $unitprice + $detail_pekerjaan_workorder->nilai;
-                    $budget_tahunan = $detail_pekerjaan_workorder->budget_tahunan->no;
+                    if ( $detail_pekerjaan_workorder->budget_tahunan != "" ){
+                        $budget_tahunan = $detail_pekerjaan_workorder->budget_tahunan->no;
+                    }else{
+                        $budget_tahunan = "";
+                    }
                     $total_budget = 0;
-                    foreach ($detail_pekerjaan_workorder->budget_tahunan->total_parent_item as $key7 => $value7) {
-                       if ( $value7['code'] == $coa_code ){
-                            $total_budget = $value7['total'] * $value7['volume'];
-                            $coa_code."<>".$total_budget;
-                       }
+                    if ( $detail_pekerjaan_workorder->budget_tahunan != "" ){
+                        foreach ($detail_pekerjaan_workorder->budget_tahunan->total_parent_item as $key7 => $value7) {
+                           if ( $value7['code'] == $coa_code ){
+                                $total_budget = $value7['total'] * $value7['volume'];
+                                $coa_code."<>".$total_budget;
+                           }
+                        }                        
                     }
                 }
             //}
@@ -170,11 +180,12 @@ class Workorder extends Model
                 "item_name" => $item_name,
                 "subtotal" => $subtotal,
                 "satuan" => $satuan,
-                "id" => $uniqe[$i],
+                "id" => $id,
                 "volume" => $volume,
                 "unitprice" => $unitprice,
                 "budget_tahunan" => $budget_tahunan,
-                "total_budget" => $total_budget
+                "total_budget" => $total_budget,
+                "workorder_budget_id" => $workorder_budget_id
             );
             
         }

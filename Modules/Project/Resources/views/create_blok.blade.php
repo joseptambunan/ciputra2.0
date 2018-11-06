@@ -58,7 +58,8 @@
                 <textarea class='form-control' name="description" id="description" cols="45" rows="5" placeholder="Descriptions"></textarea>
               </div>     
               <div class="box-footer">
-                <button type="submit" class="btn btn-primary">Simpan</button>
+                <i class="fa fa-refresh ld ld-spin" id="loading" style="display: none;"></i>
+                <button type="submit" class="submitbtn btn btn-primary" id="btn_submit">Simpan</button>
                 <a href="{{ url('/')}}/project/bloks/?id={{ $projectkawasan->id }}" class="btn btn-warning">Kembali</a>
               </div>
               </form>
@@ -105,6 +106,11 @@
 <script type="text/javascript">
   $(function () {
     $("#luas").number(true);
+  });
+
+  $("#btn_submit").click(function(){
+    $(".submitbtn").hide();
+    $("#loading").show();
   });
 </script>
 @include("pt::app")

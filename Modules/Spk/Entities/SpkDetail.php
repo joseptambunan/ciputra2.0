@@ -51,7 +51,7 @@ class SpkDetail extends CustomModel
 
     public function details()
     {
-        return $this->hasMany('Modules\Spk\Entities\SpkvoUnit')->where('head_type','Modules\Spk\Entities\Spk');
+        return $this->hasMany('Modules\Spk\Entities\SpkvoUnit');
     }
 
     public function details_with_vo()
@@ -80,8 +80,8 @@ class SpkDetail extends CustomModel
 
     public function getNilaiAttribute(){
         $nilai = 0;
-        foreach ($this->rab_detail as $key => $value) {
-            # code...
+        foreach ($this->details_with_vo as $key => $value) {
+            $nilai = $nilai + ($value->nilai * $value->volume);
         }
         return $nilai;
     }

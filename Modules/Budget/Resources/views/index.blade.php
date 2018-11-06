@@ -29,7 +29,11 @@
             </div>
             <!-- /.box-header -->
             <div class="box-body">
+              @if ( $project->luas > 0 )
               <a href="{{ url('/')}}/budget/add-budget?id={{ $project->id }}" class="btn-lg btn-primary"><i class="glyphicon glyphicon-plus-sign"></i>Tambah Budget</a><br><br>
+              @else
+              <h3 style="color:red"><strong>Luas Proyek belum dibuat</strong></h3>
+              @endif
               <table class="table table-bordered" style="width: 50%;">
                 <tr>
                   <td style="background-color: grey;color:white;font-weight: bolder" colspan="3">Budget Dev Cost</td>
@@ -51,8 +55,13 @@
                 </tr>
                 <tr>
                   <td>Brutto</td>
+                  @if ( $project->luas > 0 )
                   <td>Luas Brutto  : {{ number_format($project->luas) }} m2</td>
                   <td>Rp. {{ number_format($total/$project->luas,2)}}/m2</td>
+                  @else
+                  <td>Luas Brutto  : {{ number_format(0) }} m2</td>
+                  <td>Rp. {{ number_format(0,2)}}/m2</td>
+                  @endif
                 </tr>
                 <tr>
                   <td>Netto</td>

@@ -5,6 +5,11 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Admin QS | Dashboard</title>
   @include("master/header")
+  <style type="text/css">
+    .table-align-right{
+      text-align: right;
+    }
+  </style>
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
@@ -12,91 +17,138 @@
   @include("master/sidebar_project")
 
   <!-- Content Wrapper. Contains page content -->
-  <div class="content-wrapper" style="min-height: 907px;">
+  <div class="content-wrapper">
     <!-- Content Header (Page header) -->
     
     <section class="content-header">
-      <h1 style="text-align:center">Data Purchase Order</h1>
-
+      <h1 style="text-align:center">Purchase Order</h1>
+    </section>
+    <section class="content-header">
+      <div class="" style="float: none">
+        <button class="col-md-1 col-sm-2 btn btn-primary" onclick="location.href='{{ url('/')}}/'" style="float: none; border-radius: 20px; padding-left: 0" disabled>
+        <i class="fa fa-fw fa-arrow-left"></i>&nbsp;&nbsp;Back
+        </button>
+        <button class="col-md-1 col-sm-2 btn btn-primary" onclick="window.location.reload()" style="float: right; border-radius: 20px; padding-left: 0;">
+          <i class="fa fa-fw fa-refresh"></i>&nbsp;&nbsp;Refresh
+        </button>  
+      </div>
     </section>
     <section class="content">
       <!-- Info boxes -->
       <div class="row">
         <div class="col-md-12">
+          @if(strcmp($user->user_login,"administrator")==0)
           <div class="box box-primary">
             <div class="box-header with-border" data-widget="collapse">
               <h3 class="box-title">
-                List Sedang Berjalan &nbsp; &nbsp;  
+                List Belum Di PO Kan &nbsp;	&nbsp;	
                 <span class="pull-right-container">
-                  <small class="label pull-right bg-yellow">1</small>
+                  <small class="label pull-right bg-yellow"></small>
                 </span>
               </h3>
               <div class="box-tools pull-right">
                 <button type="button" class="btn btn-box-tool" data-widget="collapse">
-                <i class="fa fa-plus"></i>
+                  <i class="fa fa-plus"></i>
+                </button>
+              </div>         
+            </div>
+            <!-- /.box-header -->
+            <div class="box-header with-border" style="background-color:white">
+              <div class="col-md-3">
+                <button type="button" class="btn btn-block btn-primary btn-lg" onclick="location.href='{{ url('/')}}/purchaseorder/add'">
+                  <i class="fa fa-fw fa-plus"></i>
+                  &nbsp;&nbsp;
+                  Tambah Purchase Order
                 </button>
               </div>
             </div>
             <div class="box-body">
-              <table id="ListSedangBerjalan" class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
+                <table id="ListSiapKelompok" class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
                     <thead>
                       <tr style="background-color: greenyellow;">
-                        <th>No.</th>
-                        <th>Nomor PO</th>
-                        <th>Tanggal Dibuat</th>
+                        <th class="table-align-right">No</th>
+                        <th class="table-align-right">Pemenang</th>
+                        <th>No Tender</th>
+                        <th>Nama Tender</th>
                         <th>Item</th>
-                        <th>Desc</th>
-                        <th>Action</th> 
+                        <th class="table-align-right">Brand</th>
+                        <th>Detil</th> 
                       </tr>
                       </thead>
                       <tbody>
-                        @php($i=1)
-                        @foreach($PO_POD as $v)
-                          <tr>
-                            <td>{{$i++}}</td>
-                            <td>{{$v->no}}</td>
-                            <td>{{$v->date}}</td>
-                            <td>{{$v->name}}</td>
-                            <td>{{$v->description}}</td>
-                            <td>
-                                <button type="button" class="btn btn-block btn-primary" onclick="location.href='http://localhost:81/tenderpurchaserequest/pengelompokanDetail/?id='" style="padding-left:0px">
+                       @php($i = 0)
+                       @foreach($TPR as $v)
+                        <tr>
+                          <td>{{++$i}}</td>
+                          <td>{{$v->pemenang}}</td>
+                          <td>{{$v->no}}</td>
+                          <td>{{$v->name}}</td>
+                          <td>{{$v->item}}</td>
+                          <td>{{$v->brand}}</td>
+                          <td>
+                            <button type="button" class="btn btn-block btn-primary" onclick="location.href='{{ url('/')}}/tenderpurchaserequest/detail/?id={{$v->id}}&back=purchaseorder'" style="padding-left:0px">
                                   <i class="fa fa-fw fa-book"></i>
                                   &nbsp;
                                   Detail
                                   
-                                </button>  
-                            </td>
-                          </tr>
-                        @endforeach
-                        </tbody>
+                              </button> 
+                          </td>
+                        </tr>
+                       @endforeach
+                      </tbody>
                   </table>
             </div>
+            
           </div>
+          @endif
         </div>
       </div>
       
       <div class="row">
-        <div class="col-md-12">
-          <div class="box box-primary collapsed-box">
-            <div class="box-header with-border" data-widget="collapse">
-              <h3 class="box-title">
-                List Telah Selesai &nbsp; &nbsp;  
-                <span class="pull-right-container">
-                  <small class="label pull-right bg-yellow">1</small>
-                </span>
-              </h3>
-              <div class="box-tools pull-right">
-                <button type="button" class="btn btn-box-tool" data-widget="collapse">
-                <i class="fa fa-plus"></i>
-                </button>
+          <div class="col-md-12">
+            <div class="box box-primary">
+              <div class="box-header with-border" data-widget="collapse">
+                <h3 class="box-title">
+                  List Telah Di PO Kan &nbsp;	&nbsp;	
+                  <span class="pull-right-container">
+                    <small class="label pull-right bg-yellow"></small>
+                  </span>
+                </h3>
+                <div class="box-tools pull-right">
+                  <button type="button" class="btn btn-box-tool" data-widget="collapse">
+                    <i class="fa fa-minus"></i>
+                  </button>
+                </div>
               </div>
-            </div>
-            <div class="box-body" style="display: none;">
+              <div class="box-body">
+                  <table id="ListTelahKelompok" class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
+                      <thead>
+                        <tr style="background-color: greenyellow;">
+                          <th class="table-align-right">No</th>
+                          <th>Item</th>
+                          <th>Brand</th>
+                          <th class="table-align-right">Quantity</th>
+                          <th>Satuan</th>
+                          <th>Desc</th>
+                          <th>Status</th>
+                          <th>Approve</th>
+                          <th>Action</th> 
+                        </tr>
+                        </thead>
+                        <tbody>
+  
+                          <tr>
+                            
+                            
+                          </tr>
+        
+                        </tbody>
+                    </table>
+              </div>
               
             </div>
           </div>
         </div>
-      </div>
           <!-- /.row -->
     </section>
     <!-- /.content -->
@@ -119,5 +171,13 @@
 
 @include("master/footer_table")
 @include("pt::app")
+<script>
+  
+  $(function () {
+    $('#ListSiapKelompok').DataTable();
+    $('#ListTelahKelompok').DataTable();
+  })
+
+</script>
 </body>
 </html>

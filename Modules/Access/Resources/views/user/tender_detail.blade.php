@@ -96,11 +96,11 @@
                     </tr>
                      <tr>
                       <td style="background-color: grey;"><span style="color:white"><strong>Paket Pekerjaan</strong></span></td>
-                      <td><a href="{{ url('/')}}/user/workorder/detail?id={{ $tender->rab->workorder->id }}">Workorder : {{ $tender->rab->workorder->no or ''}}</a></td>
+                      <td><a href="{{ url('/')}}/access/workorder/detail?id={{ $tender->rab->workorder->id }}">Workorder : {{ $tender->rab->workorder->no or ''}}</a></td>
                     </tr>
                     <tr>
                       <td style="background-color: grey;"><span style="color:white"><strong>RAB</strong></span></td>
-                      <td><a href="{{ url('/')}}/user/rab/detail/?id={{ $tender->rab->id }}">{{ $tender->rab->no }}</a></td>
+                      <td><a href="{{ url('/')}}/access/rab/detail/?id={{ $tender->rab->id }}">{{ $tender->rab->no }}</a></td>
                     </tr>
                     <tr>
                       <td style="background-color: grey;"><span style="color:white"><strong>Nilai ( Exc. Ppn )</strong></span></td>
@@ -167,9 +167,9 @@
                   @endforeach
                 </table>
 
-                @if ( $tender->check_rejected > 0 )
+                
                   <button type="submit" class="btn btn-primary">Simpan</button>
-                @endif
+                
                 </form>
 
               </div>
@@ -239,6 +239,7 @@
                   <td style="padding-left: 0xp !important;">Rekanan</td>
                   <td>Address</td>
                   <td>Contact Number</td>
+                  <td>Spesifikasi</td>
                   <td>Approval Status</td>
                 </tr>
                 @foreach($tender->rekanans as $key2 => $each )
@@ -247,11 +248,19 @@
                     <td>{{ $each->rekanan->group->name }} </td>  
                     <td>{{ $each->rekanan->surat_alamat }} </td>  
                     <td>{{ $each->rekanan->telp }} </td>  
+                    <td style="background-color: white;color:white;">
+                      <ul>
+                      @foreach ( $each->rekanan->group->spesifikasi as $key => $value )
+                        <li style="color:black;">{{ $value->itempekerjaan->name  }}</li>
+                      @endforeach
+                      </ul>
+                    </td>
                     @if ( $each->approval->histories->where("approval_id",$each->approval->id)->where("user_id",$user->id)->first()->approval_action_id == "6" )
                     <td style="background-color: green;color:white;"><strong>APPROVED</strong></td>
                     @elseif ( $each->approval->histories->where("approval_id",$each->approval->id)->where("user_id",$user->id)->first()->approval_action_id == "7" )
                     <td style="background-color: red;color:white;"><strong>REJECTED</strong></td>
                     @elseif ( $each->approval->histories->where("approval_id",$each->approval->id)->where("user_id",$user->id)->first()->approval_action_id == "1" )
+                    
                     <td style="background-color: white;color:white;">
                       <div class="form-check">
                         <input class="form-check-input" type="radio" name="approve{{$each->approval->id}}" id="approved{{$each->approval->id}}" value="6" checked>
@@ -302,25 +311,34 @@
                       <tr>
                         <td>{{ $value2->rekanan->group->name }} {{ $value2->id }}</td>
                          <td>
-                          @if ( count($tender->menangs) <= 0 )
-                           
-                          @else
-                            @if ( $value2->is_pemenang == "2")
-                            <strong><h3>Pemenang Tender</h3></strong>
-                            @else
-                              
-                              @if ( $value2->is_pemenang == "0")
-                              <button href="{{ url('/')}}" class="btn btn-primary" onClick="setujuipemenang('{{ $value2->id }}')">Setujui sebagai Pemenang</button>        
-                              @endif                                                            
-                              
-                              @if ( $value2->is_pemenang == "3")
-                              <strong>Ditolak sebagai pemenang</strong>
+                          @if ($user->jabatan != "")
+                            @if ( $user->jabatan[0]["level"] == "5" )
+                            <button class="btn btn-info" onclick="setpemenang('{{ $value2->id }}')">Usulkan sebagai pemenang</button>
+
+                            @endif
+                            
+                            @if  ( $user->jabatan[0]["level"] < 5 )
+                              @if ( count($tender->menangs) <= 0 )
+                               
+                              @else
+                                @if ( $value2->is_pemenang == "2")
+                                <strong><h3>Pemenang Tender</h3></strong>
+                                @else
+                                  
+                                  @if ( $value2->is_pemenang == "0")
+                                  <button href="{{ url('/')}}" class="btn btn-primary" onClick="setujuipemenang('{{ $value2->id }}')">Setujui sebagai Pemenang</button>        
+                                  @endif                                                            
+                                  
+                                  @if ( $value2->is_pemenang == "3")
+                                  <strong>Ditolak sebagai pemenang</strong>
+                                  @endif
+                                 
+                                  @if ( $value2->is_recomendasi == "1")
+                                  <i>Rekomendasi</i>
+                                  @endif 
+                                 
+                                @endif
                               @endif
-                             
-                              @if ( $value2->is_recomendasi == "1")
-                              <i>Rekomendasi</i>
-                              @endif 
-                             
                             @endif
                           @endif
                          </td>
@@ -410,6 +428,30 @@
 </div>
 <!-- ./wrapper -->
 @include('user.footer')
+<script type="text/javascript">
+  function setpemenang(id){
+      if ( confirm("Apakah anda yakin ingin mengusulkan rekanan ini sebagai pemenang ?")){
+        var request = $.ajax({
+          url : "{{ url('/')}}/access/tender/setpemenang",
+          dataType : "json",
+          data : {
+            id : id
+          },
+          type : "post"
+        });
+
+        request.done(function(data){
+          if ( data.status == "0"){
+            alert("Rekanan telah diusulkan sebagai pemenang")
+          }
+
+          window.location.reload();
+        })
+      }else{
+        return false;
+      }
+    }
+</script>
 @include('access::user.tender_js')
 
 <script type="text/javascript">

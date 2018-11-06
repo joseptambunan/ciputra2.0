@@ -16,4 +16,8 @@ class UnitType extends CustomModel
     public function templates(){
     	return $this->hasMany('Modules\Project\Entities\Templatepekerjaan');
     }
+
+    public function category(){
+    	return $this->hasOne("Modules\Project\Entities\UnitTypeCategory");
+    }
 }

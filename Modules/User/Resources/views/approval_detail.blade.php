@@ -41,11 +41,11 @@
                   <button type="submit" class="btn btn-primary">Simpan</button>
                 </div>
                 {{ csrf_field() }}
-                <input type="hidden" name="pt_id" value="{{ $project_pt->pt_id}}">
-                <input type="hidden" name="project_id" value="{{ $project_pt->project_id}}">
+                <input type="hidden" name="pt_id" value="{{ $project_pt->project_pts->pt->id}}">
+                <input type="hidden" name="project_id" value="{{ $project_pt->project_pts->project->id}}">
                 <input type="hidden" name="user_id" value="{{ $user->id}}">
-                <h4>PT : <strong>{{ $project_pt->pt->name }}</strong></h4>
-                <h4>Project : <strong>{{ $project_pt->project->name }}</strong></h4>
+                <h4>PT : <strong>{{ $project_pt->project_pts->pt->name or '' }}</strong></h4>
+                <h4>Project : <strong>{{ $project_pt->project_pts->project->name or '' }}</strong></h4>
                 <table class="table">
                   <thead class="head_table">
                     <tr>
@@ -62,7 +62,7 @@
                         <input type="checkbox" name="check_[{{ $key}}]"> Approve
                         {{ $value->head_type }}
                       </td>
-                      <td><input type="text" name="max_value_[{{ $key}}]" value="" class="form-control"></td>
+                      <td><input type="text" name="max_value_[{{ $key}}]" value="" class="form-control" autocomplete="off"></td>
                       <td>
                         <select class="form-control" name="urut[{{$key}}]">
                           @foreach ( $uniq as $key2 => $value2 )

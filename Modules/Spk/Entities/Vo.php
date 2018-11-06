@@ -35,7 +35,6 @@ class Vo extends CustomModel
         {
             $nilai[$key] = $value->nilai * $value->volume;
         }
-
         return array_sum($nilai);
     }
 

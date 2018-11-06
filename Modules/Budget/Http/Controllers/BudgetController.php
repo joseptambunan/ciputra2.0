@@ -20,6 +20,7 @@ use Modules\Budget\Entities\BudgetHistoryHpp;
 use Modules\Project\Entities\ProjectPtUser;
 use Modules\Department\Entities\Department;
 use Modules\Pt\Entities\Pt;
+use Modules\Project\Entities\ProjectPt;
 
 class BudgetController extends Controller
 {
@@ -61,10 +62,10 @@ class BudgetController extends Controller
     public function store(Request $request)
     {
         $budget = new Budget;
-        $project_pt = ProjectPtUser::find($request->pt_id);
+        $project = Project::find($request->session()->get('project_id'));
         $pt = Pt::find($request->pt_id);
 
-        $number = \App\Helpers\Document::new_number('BDG', $request->department).$pt->code;
+        $number = \App\Helpers\Document::new_number('BDG', $request->department,$project->id).$pt->code;
         $budget->pt_id = $request->pt_id;
         $budget->department_id = $request->department;
         $budget->project_id = $request->project_id;
@@ -111,8 +112,8 @@ class BudgetController extends Controller
         }else{
             $budget->project_kawasan_id = $request->kawasan;
         }
-        $budget->start_date = $request->start_date;
-        $budget->end_date = $request->end_date;
+        $budget->start_date = date("Y-m-d H:i:s",strtotime($request->start_date));
+        $budget->end_date = date("Y-m-d H:i:s",strtotime($request->end_date));
         $budget->description = $request->description;
         $budget->save();
 
@@ -154,18 +155,18 @@ class BudgetController extends Controller
                 $html .= "<tr>";
                 $html .= "<td><strong>".$value3->code.".00</strong></td>";
                 $html .= "<td style='background-color: white;color:black;' onclick='showhide(".$value3->id.")' data-attribute='1' id='btn_".$value3->id."'>".$value3->name."</td>";
-                 $html .= "<td><input type='hidden' class='form-control item_budget nilai_budget' name='item_id[".$start."]' value='".$value3->id."'/><input type='text' class='form-control nilai_budget' name='volume_[".$start."]' value=''/><input type='hidden' class='form-control' name='code[".$start."]' value='".$value3->code."'/></td>";
-                    $html .= "<td><input type='text' class='form-control' name='satuan_[".$start."]' value=''/></td>";
-                    $html .= "<td><input type='text' class='nilai_budget form-control' name='nilai_[".$start."]' value=''/></td>";
+                 $html .= "<td><input type='hidden' class='form-control item_budget nilai_budget' name='item_id[".$start."]' value='".$value3->id."'/><input type='text' class='form-control nilai_budget' name='volume_[".$start."]' value='' /><input type='hidden' class='form-control' name='code[".$start."]' value='".$value3->code."'/></td>";
+                    $html .= "<td><input type='text' class='form-control' name='satuan_[".$start."]' value='' /></td>";
+                    $html .= "<td><input type='text' class='nilai_budget form-control' name='nilai_[".$start."]' value='' /></td>";
                 $html .= "</tr>";
                 $start++;
             }else{
                 $html .= "<tr>";
                 $html .= "<td><strong>".$value3->code.".00</strong></td>";
                 $html .= "<td style='background-color: white;color:black;' onclick='showhide(".$value3->id.")' data-attribute='1' id='btn_".$value3->id."'>".$value3->name."</td>";
-                $html .= "<td><input type='hidden' class='form-control ' name='item_id[".$start."]' value='".$value3->id."'/><input type='hidden' class='form-control' name='code[".$start."]' value='".$value3->code."'/><input type='text' class='form-control nilai_budget' name='volume_[".$start."]'/></td>";
-                $html .= "<td><input type='text' class='form-control' name='satuan_[".$start."]' value=''/></td>";
-                $html .= "<td><input type='text' class='form-control nilai_budget' name='nilai_[".$start."]' value=''/></td>";
+                $html .= "<td><input type='hidden' class='form-control ' name='item_id[".$start."]' value='".$value3->id."'/><input type='hidden' class='form-control' name='code[".$start."]' value='".$value3->code."'/><input type='text' class='form-control nilai_budget' name='volume_[".$start."]' /></td>";
+                $html .= "<td><input type='text' class='form-control' name='satuan_[".$start."]' value='' /></td>";
+                $html .= "<td><input type='text' class='form-control nilai_budget' name='nilai_[".$start."]' value='' /></td>";
                 $html .= "</tr>";
                 $start++;  
             }
@@ -241,10 +242,11 @@ class BudgetController extends Controller
 
     public function addcashflow(Request $request){
         $budget = Budget::find( $request->budget_id);
-        $pt = ProjectPtUser::find($budget->pt_id);
+        $pt = Pt::find($budget->pt_id);
+        $project = Project::find($request->session()->get('project_id'));
         $budget_tahunan                 = new BudgetTahunan;
         $budget_tahunan->budget_id      = $request->budget_id;
-        $budget_tahunan->no             = \App\Helpers\Document::new_number('BDG-T', $budget->department->id).$pt->pt->code;
+        $budget_tahunan->no             = \App\Helpers\Document::new_number('BDG-T', $budget->department->id,$project->id).$pt->code;
         $budget_tahunan->tahun_anggaran = $request->tahun_anggaran;
         $budget_tahunan->description    = $request->description;
         $status = $budget_tahunan->save();
@@ -270,7 +272,7 @@ class BudgetController extends Controller
         $end_date = $budget->end_date->year;
         $array_cashflow = array();
         $start = 0;
-
+        $nilai_sum_temp = 0;
         $spk = $project->spks;
         if ( $budget_parent != "" ){
 
@@ -285,34 +287,29 @@ class BudgetController extends Controller
             $nilai = $spk->nilai;
             if ( ($spk->progresses != "" )) {
                 if ( isset($spk->progresses->first()->itempekerjaan)) {
-                    $pekerjaan = \Modules\Pekerjaan\Entities\Itempekerjaan::where("code",$spk->progresses->first()->itempekerjaan->code.".00")->get()->first();
+                    $pekerjaan = \Modules\Pekerjaan\Entities\Itempekerjaan::where("code",$spk->progresses->first()->itempekerjaan->parent->code)->get()->first();
                     if ( isset($pekerjaan->group_cost)){
-                        if ( $pekerjaan->group_cost == "1"){
                         $budgetdetail = \Modules\Budget\Entities\BudgetDetail::where("itempekerjaan_id",$pekerjaan->id)->where("budget_id",$budget_devcost)->get();
                         if ( count($budgetdetail) > 0 ){ 
                             $exp = explode("/", $spk->no);  
                             if ( $exp[5] == "17"){     
-                                if ( ($spk->nilai - round($spk->nilai_bap)) > 0 ){
+                                //if ( ($spk->nilai - round($spk->nilai_bap)) > 0 ){
                                     $array_cashflow[$start] = array(
                                         "nospk" => $spk->no,
                                         "nilaispk" => $spk->nilai,
                                         "bap" =>$spk->nilai_bap,
-                                        "sisa" => ($spk->nilai - round($spk->nilai_bap)),
+                                        "sisa" => ($spk->nilai - ($spk->nilai_bap)),
                                         "id" => $spk->id,
                                         "coa" => $spk->itempekerjaan->code.".00.00",
                                         "pekerjaan" => $spk->itempekerjaan->name
-                                    );        
-                                    $start++;  
-                                }
-                                                               
-                               /* echo $spk->nilai_bap."<>".$spk->id."<>".$nilai."<>".$spk->progresses->first()->itempekerjaan->code.".00"."<>".$pekerjaan->id."<>".($spk->nilai - round($spk->nilai_bap));
-                                echo "<br/>";*/
-
-                           }           
-                        }
-                    } 
-                    }
-                                       
+                                    );
+                                $start++; 
+                             }           
+                        }else{
+                            $nilai_sum_temp = $nilai_sum_temp + $spk->nilai;
+                            
+                        }                     
+                    }                                       
                     
                 }
                 
@@ -320,7 +317,15 @@ class BudgetController extends Controller
             
         }
 
-        return view("budget::detail_cashflow",compact("budget_tahunan","user","budget","start_date","end_date","array_cashflow","project"));
+        $carry_over = 0;
+        $total_nilaasi = 0;
+        if ( $array_cashflow != "" ){
+            foreach ($array_cashflow as $key => $value) {
+                $carry_over = $value["sisa"] + $carry_over;
+                $total_nilaasi = $value["nilaispk"] +  $total_nilaasi;
+            }
+        }
+        return view("budget::detail_cashflow",compact("budget_tahunan","user","budget","start_date","end_date","array_cashflow","project","carry_over"));
     }
 
     public function updatecashflow(Request $request){
@@ -802,6 +807,58 @@ class BudgetController extends Controller
            $approval_history = ApprovalHistory::find($value->id);
            $approval_history->approval_action_id = "1";
            $approval_history->save();
+        }
+        return response()->json( ["status" => "0"]);
+    }
+
+    public function approvalhistory(Request $request){
+        $budget = Budget::find($request->id);
+        $approval = $budget->approval;
+        $user = \Auth::user();
+        $project = Project::find($request->session()->get('project_id'));
+        return view("budget::approval_history_global",compact("budget","approval","user","project"));
+    }
+
+    public function reapproval(Request $request){
+
+
+        $budget = Budget::find($request->id);
+        $approval = \App\Approval::find($budget->approval->id);
+        $document = $approval->document;
+
+        $project = Project::find($request->session()->get('project_id'));
+        $approval_references = \Modules\Approval\Entities\ApprovalReference::where('document_type', "Budget")
+            ->where('project_id', $project->id )
+            //->where('pt_id', $pt_id )
+            ->where('min_value', '<=', $budget->nilai)
+            //->where('max_value', '>=', $approval->total_nilai)
+            ->orderBy('no_urut','ASC')
+            ->get();
+
+        foreach ($approval_references as $key => $each) {
+            # code...
+            $user = \Modules\User\Entities\User::find($each->user_id);
+            if ( $budget->approval->histories != "" ){
+                $cek = $budget->approval->histories->where("user_id",$each->id);
+                if ( count($cek) <= 0 ){
+                    $document->approval_histories()->create([
+                        'no_urut' => $each->no_urut,
+                        'user_id' => $each->user_id,
+                        'approval_action_id' => 1, // open
+                        'approval_id' => $approval->id,
+                        'no_urut' => $each->no_urut
+                    ]);
+                }
+            }else{
+                $document->approval_histories()->create([
+                    'no_urut' => $each->no_urut,
+                    'user_id' => $each->user_id,
+                    'approval_action_id' => 1, // open
+                    'approval_id' => $approval->id,
+                    'no_urut' => $each->no_urut
+                ]);
+            }
+            
         }
         return response()->json( ["status" => "0"]);
     }

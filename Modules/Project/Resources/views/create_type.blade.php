@@ -34,35 +34,35 @@
               <h3 class="box-title">Tambah Data Type</h3>
               <form action="{{ url('/')}}/project/save-type" method="post" name="form1">
                 {{ csrf_field() }}
-              <input type="hidden" name="project_id" value="{{ $project->id }}">         
-              
+              <input type="hidden" name="project_id" value="{{ $project->id }}">   
               <div class="form-group">
                 <label>Kode Type</label>
-                <input type="text" class="form-control" name="code"  value="" required>
+                <input type="text" class="form-control" name="code"  value="" autocomplete="off" required>
               </div>
               <div class="form-group">
                 <label>Nama Type</label>
-                <input type="text" class="form-control" name="name"  value="">
+                <input type="text" class="form-control" name="name"  value="" autocomplete="off">
               </div>
               <div class="form-group">
                 <label>Luas Bangunan(m2)</label>
-                <input type="text" class="form-control" name="luas" id="luas" required>
+                <input type="text" class="form-control" name="luas" id="luas" autocomplete="off" required>
               </div>
               <div class="form-group">
                 <label>Luas Tanah(m2)</label>
-                <input type="text" class="form-control" name="luas_tanah" id="luas_tanah" required>
+                <input type="text" class="form-control" name="luas_tanah" id="luas_tanah" autocomplete="off" required>
               </div>
               <div class="form-group">
                 <label>Elektrik(watt)</label>
-                <input type="text" class="form-control" name="elektrik" id="elektrik" required>
+                <input type="text" class="form-control" name="elektrik" id="elektrik" autocomplete="off" required>
               </div>
               <div class="form-group">
                 <label>Keterangan</label>
                 <textarea class='form-control' name="description" id="description" cols="45" rows="5" placeholder="Descriptions"></textarea>
               </div>     
               <div class="box-footer">
-                <button type="submit" class="btn btn-primary">Simpan</button>
-                <a href="{{ url('/')}}/project/unit-type/?id={{ $project->id }}" class="btn btn-warning">Kembali</a>
+                <i class="fa fa-refresh ld ld-spin" id="loading" style="display: none;"></i>
+                <button type="submit" class="submitbtn btn btn-primary" id="btn_submit">Simpan</button>
+                <a href="{{ url('/')}}/project/unit-type/?id={{ $project->id }}" class="submitbtn btn btn-warning">Kembali</a>
               </div>
               </form>
               <!-- /.form-group -->
@@ -108,8 +108,13 @@
 <script type="text/javascript">
   $(function () {
     $("#luas").number(true);
-    $("#luas_tanah").number(true);
+    $("#luas_tanah").number(true,2);
     $("#elektrik").number(true);
+  });
+
+  $("#btn_submit").click(function(){
+    $(".submitbtn").hide();
+    $("#loading").show();
   });
 </script>
 @include("pt::app")

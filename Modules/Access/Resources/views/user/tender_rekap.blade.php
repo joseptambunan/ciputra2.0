@@ -68,7 +68,7 @@
                         @if ( $key2 == $step )
 
                           @if (isset(\Modules\Tender\Entities\TenderPenawaranDetail::where("tender_penawaran_id",$value3->id)->where("rab_pekerjaan_id",$value->id)->get()->first()->nilai))
-                            <td style="text-align: right;">{{ number_format(\Modules\Tender\Entities\TenderPenawaranDetail::where("tender_penawaran_id",$value3->id)->where("rab_pekerjaan_id",$value->id)->get()->first()->nilai)  }}</td>
+                            <td style="text-align: right;">{{ number_format(\Modules\Tender\Entities\TenderPenawaranDetail::where("tender_penawaran_id",$value3->id)->where("rab_pekerjaan_id",$value->id)->get()->first()->nilai )  }}</td>
                           @endif
                         @endif
                         @endforeach
@@ -80,7 +80,7 @@
                         @if ( $key2 == $step )
 
                           @if (isset(\Modules\Tender\Entities\TenderPenawaranDetail::where("tender_penawaran_id",$value3->id)->where("rab_pekerjaan_id",$value->id)->get()->first()->nilai))
-                            <td style="text-align: right;">{{ number_format(\Modules\Tender\Entities\TenderPenawaranDetail::where("tender_penawaran_id",$value3->id)->where("rab_pekerjaan_id",$value->id)->get()->first()->nilai)  }}</td>
+                            <td style="text-align: right;">{{ number_format(\Modules\Tender\Entities\TenderPenawaranDetail::where("tender_penawaran_id",$value3->id)->where("rab_pekerjaan_id",$value->id)->get()->first()->nilai * \Modules\Tender\Entities\TenderPenawaranDetail::where("tender_penawaran_id",$value3->id)->where("rab_pekerjaan_id",$value->id)->get()->first()->volume)  }}</td>
                           @endif
                         @endif
                         @endforeach

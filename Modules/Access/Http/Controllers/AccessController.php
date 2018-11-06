@@ -424,7 +424,7 @@ class AccessController extends Controller
     }
 
     public function rekanan_approve(Request $request){
-        $approval_value = trim($request->apporval_value,"==");
+        $approval_value = trim(str_replace("%3C%3E", "<>", str_replace("%3D", "=", $request->apporval_value)),"==");
         $explode_value = explode("==", $approval_value);
         $highest = Approval::find($request->approval_id)->histories->min("no_urut");
         $user    = \Auth::user();
@@ -454,8 +454,7 @@ class AccessController extends Controller
                     $tender_koresponden->due_at             = date("Y-m-d H:i:s");
                     $tender_koresponden->save();
                 }
-            }
-            
+            }            
         }
 
         return response()->json( ["status" => "0"] );
@@ -1033,6 +1032,46 @@ class AccessController extends Controller
             }            
         }
         return redirect("/access/tender/detail/?id=".$request->tender_docs);
+    }
+
+    public function ispemenang(Request $request){
+        $tender_rekanan = TenderRekanan::find($request->id);
+        $tender_rekanan->is_recomendasi = "1";
+        $tender_rekanan->save();
+
+        foreach ($tender_rekanan->tender->rab->units as $key => $value) {
+            $tender_menang = new TenderMenang;
+            $tender_menang->tender_rekanan_id = $request->id;
+            $tender_menang->tender_unit_id = $value->id;
+            $tender_menang->asset_type = $value->asset_type;
+            $tender_menang->asset_id = $value->asset_id;
+            $tender_menang->save();
+
+            foreach ($tender_rekanan->tender->penawarans->last()->details as $key2 => $value2) {
+                
+                $tender_menang_details = new TenderMenangDetail;
+                $tender_menang_details->tender_menang_id = $tender_menang->id;
+                $tender_menang_details->itempekerjaan_id = $value2->rab_pekerjaan->itempekerjaan_id;
+                $tender_menang_details->nilai = $value2->nilai;
+                $tender_menang_details->volume = $value2->volume;
+                $tender_menang_details->satuan = $value2->satuan;
+                if ( $value->asset_type == "Modules\Project\Entities\Unit"){
+                    $unit = \Modules\Project\Entities\Unit::find($value->asset_id);
+                    $tender_menang_details->templatepekerjaan_detail_id = $unit->templatepekerjaan_id;
+                }else{
+                    $tender_menang_details->templatepekerjaan_detail_id = "0";
+                }
+                $tender_menang_details->save();
+            }
+        }
+
+        $tender_menang_id = $tender_rekanan->tender->id;
+        $class  = "TenderMenang";
+        $approval = \App\Helpers\Document::make_approval('Modules\Tender\Entities\TenderMenang',$tender_menang->id);
+
+
+        return response()->json( ["status" => "0"]);
+        
     }
 
 }

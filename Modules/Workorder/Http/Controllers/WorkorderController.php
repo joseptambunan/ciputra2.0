@@ -57,7 +57,8 @@ class WorkorderController extends Controller
      */
     public function store(Request $request)
     {
-        $work_order_no = \App\Helpers\Document::new_number('WO', $request->department_from);
+        $project = Project::find($request->session()->get('project_id'));
+        $work_order_no = \App\Helpers\Document::new_number('WO', $request->department_from,$project->id);
         $work_order = new Workorder;
         $work_order->budget_tahunan_id = $request->session()->get('project_id');
         $work_order->department_from = $request->department_from;
@@ -176,17 +177,19 @@ class WorkorderController extends Controller
 
     public function savepekerjaan (Request $request){
 
-        foreach ($request->item_id as $key => $value) {
-            if ( $request->volume[$key] != "" && $request->satuan[$key] != "" && $request->nilai[$key] != "" ){
+        foreach ($request->setwo as $key => $value) {
+            if ( $request->setwo[$key] != ""  && $request->volume[$value] != "" && $request->satuan[$value] != "" && $request->nilai[$value] != "" ){
+
                 $workorder = new WorkorderBudgetDetail;
                 $workorder->workorder_id = $request->workorder_id;
                 $workorder->budget_tahunan_id = $request->budget_tahunan;
-                $workorder->itempekerjaan_id = $request->item_id[$key];
+                $workorder->itempekerjaan_id = $request->item_id[$value];
                 $workorder->tahun_anggaran = date('Y');
-                $workorder->volume = str_replace(",", "",$request->volume[$key]);
-                $workorder->satuan = $request->satuan[$key];
-                $workorder->nilai = str_replace(",", "", $request->nilai[$key]);
+                $workorder->volume = str_replace(",", "",$request->volume[$value]);
+                $workorder->satuan = $request->satuan[$value];
+                $workorder->nilai = str_replace(",", "", $request->nilai[$value]);
                 $workorder->save();
+                
             }
         }
 
@@ -321,5 +324,47 @@ class WorkorderController extends Controller
         $approval = \App\Helpers\Document::make_approval('Modules\BudgetDraft\Entities\BudgetDraft',$budget_draft_id);
         return redirect("workorder/detail?id=".$request->workorder_id);
 
+    }
+
+    public function updapprove(Request $request ){
+        $workorder = Workorder::find($request->id);
+        if ( $workorder->approval != "" ){
+            $workorder_approval = \Modules\Approval\Entities\Approval::find($workorder->approval->id);
+            $workorder_approval->approval_action_id = 1;
+            $workorder_approval->save();
+
+            foreach ($workorder->approval->histories as $key => $value) {
+                $approval_history = \Modules\Approval\Entities\ApprovalHistory::find($value->id);
+                $approval_history->approval_action_id = 1;
+                $approval_history->save();
+            }
+        }
+        return response()->json( ["status" => "0"] );
+    }
+
+    public function deletepekerjaan(Request $request){
+        $workorder = WorkorderBudgetDetail::find($request->id);
+        $status = $workorder->delete();
+        if ( $status ){
+            return response()->json( ["status" => "0"] );
+        }else{
+            return response()->json( ["status" => "1"] );
+        }
+    }
+
+    public function getallunit(Request $request){
+        $workorder = Workorder::find($request->id);
+        $user = \Auth::user();
+        $project = Project::find($request->session()->get('project_id'));    
+        $array = array(
+            "0" => "Ready for Stock",
+            "1" => "Planning",
+            "2" => "Ready for Sale ( from Erem )",
+            "3" => "Sold(from Erem)" 
+        );
+        $limit_bangun = \Modules\Globalsetting\Entities\Globalsetting::where("parameter","limit_bangun")->first()->value;
+        $standar_limit = $limit_bangun;
+        $limit_bangun = '+'.$limit_bangun.'day';
+        return view("workorder::workorder_unit",compact("workorder","project","user","array","limit_bangun","standar_limit"));
     }
 }

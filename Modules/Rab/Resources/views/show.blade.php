@@ -94,7 +94,9 @@
                           {{ $array[$rab->approval->approval_action_id]['label'] }}
                     </span>
                     @if ( $rab->approval->approval_action_id == "7")
+                      @if ( $rab->pekerjaans->count() > 0 )
                       <button type="button" class="btn btn-danger" onclick="deletepekerjaans('{{ $rab->id}}')">Hapus Pekerjaan</button>
+                      @endif
                     @else
                     
                     @endif
@@ -119,17 +121,20 @@
                       <td colspan="4">{{ $rab->pekerjaans->first()->itempekerjaan->parent->name or ''}}</td>
                       <td></td>
                       <td>
-                        @php $total=0; @endphp
-                        @foreach($rab->pekerjaans as $key => $value ) 
-                        @php
-                          $total = $total + ( (($value->nilai * $value->volume) / ( $rab->nilai / $rab->units->count()) ) * 100 ); 
-                        @endphp
-                        @endforeach
+                        @if ( $rab->units->count() > 0 )
+                          @php $total=0; @endphp
+                          @foreach($rab->pekerjaans as $key => $value ) 
+                          @php
+                            $total = $total + ( (($value->nilai * $value->volume) / ( $rab->nilai / $rab->units->count()) ) * 100 ); 
+                          @endphp
+                          @endforeach
 
-                        {{ $total }}    
+                          {{ $total }}    
+                        @endif
                       </td>
                     </tr>
 
+                    @if ( $rab->units->count() > 0 )
                     @foreach($rab->pekerjaans as $key => $value )                       
                     <tr>
                       <td><strong>{{ $value->itempekerjaan->code }}</strong></td>
@@ -167,7 +172,7 @@
                       </td>
                     </tr>  
                     @endforeach
-
+                    @endif
                   </tbody>
                 </table>
                 </div>

@@ -14,6 +14,7 @@ use Modules\Document\Entities\DocumentType;
 use Modules\Approval\Entities\ApprovalReference;
 use Modules\Jabatan\Entities\UserJabatan;
 use Modules\User\Entities\UserDetail;
+use Modules\Project\Entities\ProjectPt;
 
 class UserController extends Controller
 {
@@ -149,10 +150,13 @@ class UserController extends Controller
     }
 
     public function projectpt(Request $request){
+        $project_pt = ProjectPt::find($request->project_s);
+
         $project = new ProjectPtUser;
         $project->user_id = $request->userid;
-        $project->project_id = $request->project_s;
-        $project->pt_id = $request->pt_s;
+        $project->project_id = $project_pt->project->id;
+        $project->pt_id = $project_pt->pt->id;
+        $project->project_pt = $request->project_s;
         $status = $project->save();
         return redirect("/user/detail?id=".$request->userid);
     }

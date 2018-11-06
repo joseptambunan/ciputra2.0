@@ -45,7 +45,7 @@
               <div class="form-group">
                 <label>PT</label>
                 <select class="form-control" name="department">
-                  @foreach ( $budget->project->pt_user as $key => $value )
+                  @foreach ( $budget->project->pt as $key => $value )
                       @if ( $value->pt->id == $budget->pt_id)
                         <option value="{{ $value->pt->id }}" selected>{{ $value->pt->name }}</option>
                       @else
@@ -93,11 +93,11 @@
             <div class="col-md-6">
               <div class="form-group">
                 <label>Start Date</label>
-                <input type="text" class="form-control" name="start_date" id="start_date" value="{{ $budget->start_date }}">
+                <input type="text" class="form-control" name="start_date" id="start_date" value="{{ $budget->start_date->format('d/m/Y') }}">
               </div>
               <div class="form-group">
                 <label>End Date</label>
-                <input type="text" class="form-control" name="end_date" id="end_date" value="{{ $budget->end_date }}">
+                <input type="text" class="form-control" name="end_date" id="end_date" value="{{ $budget->end_date->format('d/m/Y') }}">
               </div>
               <div class="form-group">
                 <label>Keterangan Date</label>
@@ -110,6 +110,10 @@
                 <a class="btn btn-warning" href="{{ url('/')}}/budget/proyek/">Kembali</a>
                 @if ( $budget->draft != "")
                 <a href="{{ url('/')}}/budget/draft?id={{ $budget->id }}" class="btn btn-primary">Draft Budget Tambahan</a>
+                @endif
+
+                @if ( $budget->approval != "")
+                <a href="{{ url('/')}}/budget/approval?id={{ $budget->id }}" class="btn btn-info">Approval History</a>
                 @endif
               </div>
               </form>
@@ -124,6 +128,10 @@
               <div class="col-m-6">
                 @if ( $budget->approval == "" )
                 <a class="btn btn-primary" href="{{ url('/')}}/budget/item-budget?id={{ $budget->id }}">Tambah Item Pekerjaan</a>
+                @else
+                   @if ( $budget->approval->approval_action_id == "7" )
+                      <a class="btn btn-primary" href="{{ url('/')}}/budget/item-budget?id={{ $budget->id }}">Tambah Item Pekerjaan</a>
+                   @endif
                 @endif
               </div><br><br>
 
@@ -178,8 +186,14 @@
                                   <input type="text" name="nilai_{{ $value3->id }}" id="nilai_{{ $value3->id }}" style="display: none;" class="form-control" value="{{ $budgets->nilai }}">
                                 </td>
                                 <td>{{ number_format($budgets->nilai * $budgets->volume) }}</td>
-                                <td>
+                                <td>                                  
+                                  @if ( $budget->approval == "")
                                   <a href="{{ url('/')}}/budget/edit-itembudget?id={{ $budget->id}}&item={{ $value3->parent_id }}" class="btn btn-warning">Edit</a>
+                                  @else
+                                    @if ( $budget->approval->approval_action_id == "7")
+                                      <a href="{{ url('/')}}/budget/edit-itembudget?id={{ $budget->id}}&item={{ $value3->parent_id }}" class="btn btn-warning">Edit</a>
+                                    @endif
+                                  @endif
                                   <!--button class="btn btn-warning" id="btn_edit1_{{ $value3->id }}" onclick="editview('{{ $value3->id }}');">Edit</button>
                                   <button class="btn btn-success" id="btn_edit2_{{ $value3->id }}" onclick="saveedit('{{ $value3->id }}');" style="display: none;">Edit</button>
                                   <button class="btn btn-danger" id="btn_remove_{{ $value3->id }}" onclick="removeedit('{{ $value3->id }}');">Delete</button-->
@@ -210,12 +224,12 @@
                                   </td>
                                   <td>{{ number_format($budgets->nilai * $budgets->volume) }}</td>
                                   <td>
-                                    @if ( $budgets->approval == "" )
+                                    @if ( $budget->approval == "" )
                                     <button class="btn btn-warning" id="btn_edit1_{{ $budgets->id }}" onclick="editview('{{ $budgets->id }}');">Edit</button>
                                     <button class="btn btn-success" id="btn_edit2_{{ $budgets->id }}" onclick="saveedit('{{ $budgets->id }}');" style="display: none;">Edit</button>
                                     <button class="btn btn-danger" id="btn_remove_{{ $value4->id }}" onclick="removeedit('{{ $budgets->id }}');">Delete</button>
                                     @else
-                                      @if ( $budgets->approval->approval_action_id != "7")
+                                      @if ( $budget->approval->approval_action_id == "7")
                                       <button class="btn btn-warning" id="btn_edit1_{{ $budgets->id }}" onclick="editview('{{ $budgets->id }}');">Edit</button>
                                       <button class="btn btn-success" id="btn_edit2_{{ $budgets->id }}" onclick="saveedit('{{ $budgets->id }}');" style="display: none;">Edit</button>
                                       <button class="btn btn-danger" id="btn_remove_{{ $budgets->id }}" onclick="removeedit('{{ $budgets->id }}');">Delete</button>

@@ -44,7 +44,7 @@
               </div>
               <div class="form-group">
                 <label>Nama SPK</label>
-                <input type="text" value="{{ $spk->name }}" class="form-control">
+                <input type="text" value="{{ $spk->name }}" name="spk_name" class="form-control">
               </div>    
               <div class="form-group">
                 <label>Rekanan</label>
@@ -103,9 +103,9 @@
                 @endif
                 
                 @endif
-                <h2>Nilai : Rp. {{ number_format($spk->nilai)}}</h2>
+                <h2>Nilai  : Rp. {{ number_format($spk->nilai)}}</h2>
                 <h2>Nilai VO : Rp. {{ number_format($spk->nilai_vo)}}</h2>
-                <h2>Subtotal : Rp. {{ number_format($spk->nilai_vo + $spk->nilai) }}
+                <h2>Nilai SPK (Excl. PPN) : Rp. {{ number_format($spk->nilai_vo + $spk->nilai) }}
               </div>
               <!-- /.form-group -->
             </div>
@@ -248,7 +248,7 @@
                               </div>
                               
                               <div class="box-footer">
-                                @if ( $spk->approval == "" )
+                                @if ( $spk->approval != "" )
                                   <button type="submit" class="btn btn-primary">Simpan</button>                 
                                 @endif
                               </div>
@@ -556,6 +556,10 @@
                         @else
                         <a href="{{ url('/')}}/spk/add-bap?id={{$spk->id}}" class="btn btn-primary">Tambah BAP</a>
                         @endif
+
+                        @if ( $spk->baps != "")
+                        <button class="btn btn-info" onclick="cetakallbap();">Cetak Daftar BAP</button>
+                        @endif
                         <table class="table-bordered table">
                           <thead class="head_table">
                             <tr>
@@ -576,7 +580,8 @@
                               <td>{{ \App\User::find($value->created_by)->user_name }}</td>
                               <td>{{ $value->created_at }}</td>
                               <td>
-                                <a href="{{ url('/')}}/spk/detail-bap?id={{ $value->id }}" class="btn btn-primary">Detail</a>                           
+                                <a href="{{ url('/')}}/spk/detail-bap?id={{ $value->id }}" class="btn btn-primary">Detail</a>
+                                <button class="btn btn-warning" onClick="printbap('{{ $value->id }}');">Cetak BAP</button>                           
                               </td>
                             </tr>
                             @php 
@@ -657,21 +662,27 @@
 <!-- ./wrapper -->
 
 <!--Report -->
+@if ( $spk->approval != "" )
 <style type="text/css">
   #dvContents_spk{
-    font-size:8x;
+    font-size:8px;
   }
 
   @media print body {
-    font-size:1em;
+    font-size:8px;
+  }
+
+  @media print {
+    .result {page-break-after: always;}
   }
 </style>
 <div id="head_Content_spk">
- 
-  <div id="dvContents_spk" style="display: none;">
+  
+  @if ( $ttd_pertama != "" )
+  <div id="dvContents_spk" class="result" style="display: none;">
     <table width="100%" style="border-collapse:collapse" class='table' id='form_spk'>
       <tr>
-        <td>@include("print.logo",['pt' => $spk->tender->rab->budget_tahunan->budget->pt ] )</td>
+        <td></td>
       </tr>
       <tr>
         <td>
@@ -694,30 +705,147 @@
             </tr>
             <tr>
               <td><center>{{ $spk->no or '-'}}</center></td>
-              <td><center>{{ $spk->tender->rab->budget_tahunan->budget->kawasan->name or '-'}}</center></td>
+              <td><center>{{ $spk->tender->rab->budget_tahunan->budget->kawasan->name or 'Fasilitas Kota'}}</center></td>
               <td><center>{{ $spk->tender->no or '-'}}</center></td>
             </tr>
           </table>
           <br><br>
-          <table width="100%" style="border:1px solid black; border-collapse: collapse;" cellpadding="5" cellspacing="5" border="1">
+          <table width="100%" style="border:1px solid black; border-collapse: collapse;font-size:10px;" cellpadding="5" cellspacing="5" border="1">
             <tr>
-              <td>PIHAK PERTAMA</td>
-              <td>PIHAK KEDUA</td>
+              <td width="50%">PIHAK PERTAMA</td>
+              <td width="50%">PIHAK KEDUA</td>
             </tr>
             <tr>
-              <td>
+              <td width="50%">
                 <span>{{ $ttd_pertama["user_name"] }}</span><br>
                 <span>{{ $ttd_pertama["user_jabatan"]}}</span><br>
                 <span><strong>{{ $spk->tender->rab->budget_tahunan->budget->pt->name }}</strong></span><br>
                 <span><strong>{{ $spk->tender->rab->budget_tahunan->budget->pt->address }}</strong></span><br>
               </td>
-              <td>
+              <td width="50%">
                 <span>{{ $spk->rekanan->cp_name or '-' }}</span><br>
                 <span>{{ $spk->rekanan->cp_jabatan or '-' }}</span><br>
                 <span><strong>{{ $spk->rekanan->group->name or '-' }}</strong></span><br>
                 <span><strong>{{ $spk->rekanan->surat_alamat or '-' }}</strong></span><br>
               </td>
             </tr>
+          </table>
+          <br>
+          <span style="font-size:10px;">Dalam hal ini Pihak I memberikan Perintah Kerja Kepada Pihak II untuk melaksanakan Pekerjaan sebagai berikut : </span><br>
+          <table width="100%" style="border:1px solid black; border-collapse: collapse;font-size:10px;" cellpadding="5" cellspacing="5" border="1">
+            <tr>
+              <td width="25%;">Jenis Pekerjaan</td>
+              <td>
+                {{ $spk->itempekerjaan->name or '-'}}
+              </td>
+            </tr>
+            <tr>
+              <td width="25%;">Lokasi Pekerjaan</td>
+              <td>
+                @foreach ( $spk->details as $key => $value )
+                {{ $value->asset->name }} , 
+                @endforeach
+              </td>
+            </tr>
+            <tr>
+              <td width="25%;">Waktu Pelaksanaan</td>
+              <td>
+                @if ( $spk->start_date != null && $spk->finish_date != null )
+                  {{ $spk->start_date->format("d M Y")}}  {{ $spk->finish_date->format("d M Y")}} 
+                @else
+                  - 
+                @endif
+              </td>
+            </tr>
+            <tr>
+              <td width="25%;">Nilai Kontrak</td>
+              <td>
+                <span>DPP   : IDR {{ number_format($spk->nilai) }}</span><br>
+                @if ( $spk->rekanan->pkp_status == "2" )
+                <span>Ppn   : IDR {{ number_format(($spk->nilai * $spk->rekanan->ppn ) / 100 ,2 ) }}</span><br>
+                <span>Total : IDR {{ number_format( $spk->nilai + (($spk->nilai * $spk->rekanan->ppn ) / 100) ,2 ) }}</span><br>
+                @else                
+                <span>Total : IDR {{ number_format( $spk->nilai,2 ) }}</span><br>
+                @endif
+              </td>
+            </tr>
+            <tr>
+              <td width="25%;">Jenis Kontrak</td>
+              <td>{{ strtoupper($spk->jenis_kontrak)  }}</td>
+            </tr>
+            <tr>
+              <td width="25%;">Retensi</td>
+              <td>
+               @foreach ( $spk->retensis as $key => $value )
+                <span>Retensi {{ $key + 1 }} : <i>{{ $value->percent * 100 }}</i> selama <strong>{{ $value->hari }}</strong> hari <br></span>
+               @endforeach
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2" style="height: 300px;vertical-align: top;font-size:12px;">
+                <h3><u>LINGKUP PEKERJAAN</u></h3>
+                <ol>
+                  <li>Pihak Kedua  bertanggung jawab sepenuhnya atas pekerjaan : <strong>{{ ucwords($spk->name) }} </strong></li>
+                  <li>Pihak Pertama  berkewajiban menyelesaikan pembayaran kepada Pihak Kedua sesuai dengan kontrak termyn yang disepakati.<strong></strong></li>
+                  <li>Pihak Pertama akan  melakukan opname pekerjaan Pihak Kedua di lapangan sebelum dilakukan pembayaran  untuk tiap termynnya.<strong></strong></li>
+                </ol>
+                <h3><u>CARA PEMBAYARAN</u></h3>
+                @if($spk->dp_percent != "" )
+                <li>Pembayaran pertama DP {{ number_format($spk->dp_percent,2) }} % sebesar Rp. {{ number_format($spk->dp_percent * $spk->nilai ,2) }} ( <em>Incld Profit, Pph &amp; </em><em>Ppn 10 %</em>), akan dibayarkan dalam batas waktu pencairan selama 21 hari dan akan dipotongkan secara proporsional atau minimum 25% dari DP selama 4x termyn (dipakai nilai yang terbesar), Jika progress termyn sudah  mencapai 50% pengembalian DP akan dipotongkan sebesar 100%.</li>
+                @endif
+                <li>Semua pembayaran  termyn dilakukan berdasarkan opname di lapangan dengan menyertakan Berita Acara  penyelesaian pekerjaan yang dibuat oleh Pihak Kedua yang ditanda tangani oleh  kedua belah Pihak.</li>
+                <span>SPK ini menjadi  bagian yang terikat  dari dokumen kontrak No.</span><br>
+                <ul>
+                  <li>Tender No. : {{ $spk->tender->no or '-'}}</li>
+                  <li>SUPP No. : {{ $spk->tender->no or '-'}}</li>
+                  <li>SIPP No. : {{ $spk->tender->no or '-'}}</li>
+                </ul>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <table width="100%" border="1px" style="border-collapse: collapse;width: 100%;">
+            <tr>
+              <td style="text-transform: uppercase;vertical-align: top;">
+                <center><strong><span>PIHAK KEDUA</span></strong></center><br>
+                <center><span>{{ $spk->rekanan->group->name or '-' }}</span></span>
+              </td>
+              <td colspan="3">
+                <strong><center>PIHAK PERTAMA</strong></center><br>
+                <span><center>{{ $spk->tender->rab->budget_tahunan->budget->pt->name or '-' }}</center></span>
+              </td>
+            </tr> 
+            <tr>
+              <td style="width: 25%;">                      
+                <h1>&nbsp;</h1>
+                <h1>&nbsp;</h1>
+                <center><u>{{ $spk->rekanan->cp_name }}</u><br></span></center>
+                <center><span><strong>{{ $spk->rekanan->cp_jabatan}}</strong></span></center>
+              </td>
+              <td style="width: 25%;">
+                @if ( isset($list_ttd[2]))
+                <h1>&nbsp;</h1>
+                <h1>&nbsp;</h1>
+                <center><u>{{ $list_ttd[2]["user_name"] }}</u><br></span></center>
+                <center><span><strong>{{ $list_ttd[2]["user_jabatan"] }}</strong></span></center>
+                @endif
+              </td>
+              <td style="width: 25%;">
+                <h1>&nbsp;</h1>
+                <h1>&nbsp;</h1>
+                <center><u>{{ $list_ttd[1]["user_name"] }}</u><br></span></center>
+                <center><span><strong>{{ $list_ttd[1]["user_jabatan"] }}</strong></span></center>
+              </td>
+              <td style="width: 25%;">
+                <h1>&nbsp;</h1>
+                <h1>&nbsp;</h1>
+                <center><u>{{ $list_ttd[0]["user_name"] }}</u><br></span></center>
+                <center><span><strong>{{ $list_ttd[0]["user_jabatan"] }}</strong></span></center>
+              </td>
+            </tr>                 
           </table>
         </td>
       </tr>
@@ -726,8 +854,318 @@
       </tr>
     </table>
   </div>
+  
+  
+  <div id="dvContents_spk_detail" class="result" style="display: none;">
+    @if ( $spk->itempekerjaan->group_cost == "2")
+    <table width="100%" style="border-collapse:collapse" class='table' id='form_spk'>
+      <tr>
+        <td>@include("print.logo",['pt' => $spk->tender->rab->budget_tahunan->budget->pt ] )</td>
+      </tr>
+      <tr>
+        <td>          
+          <table border="1" width="100%" style="border:1px solid black; border-collapse: collapse;" cellpadding="5" cellspacing="5">
+            <tr>
+              <td rowspan="2"><center>No. Spk</center></td>
+              <td rowspan="2"><center>{{ $spk->project->name }}</center></td>
+              <td>
+                <center>
+                  @if ($spk->rekanan->supps->count() > 0 )
+                  {{ $spk->rekanan->supp->last()->no }}
+                  @else
+                  -
+                  @endif
+                </center>
+              </td>
+            </tr>
+            <tr>
+              <td><center>-</center></td>
+            </tr>
+            <tr>
+              <td><center>{{ $spk->no or '-'}}</center></td>
+              <td><center>{{ $spk->tender->rab->budget_tahunan->budget->kawasan->name or 'Fasilitas Kota'}}</center></td>
+              <td><center>{{ $spk->tender->no or '-'}}</center></td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <table width="100%" border="1" style="border-collapse: collapse;border:1px solid black;">
+            <tr>
+              <td>No.</td>
+              <td>Item Pekerjaan</td>
+              <td>Unit ID</td>
+              <td>Volume</td>
+              <td>Satuan</td>
+              <td>Nilai</td>
+            </tr>
+            @foreach ( $spk->details as $key => $value )
+            <tr>
+              <td>{{ $key + 1 }}</td>
+              <td>{{ $spk->itempekerjaan->name }}</td>
+              <td>{{ $value->asset->name }}</td>
+              <td>1</td>
+              <td>Unit</td>
+              <td>Rp. {{ number_format($value->nilai)}}</td>
+            </tr>
+            @endforeach
+          </table>
+        </td>
+      </tr>
+    </table>
+
+    @endif
+  </div>
+  @endif
 </div>
 
+@foreach ( $spk->baps as $key4 => $value4 )
+<div id="head_Content_bap_{{ $value4->id}}">
+  <div id="dvContents_bap_{{ $value4->id}}" class="result" style="display: none;">
+    <table width="100%" style="border-collapse:collapse" class='table' id='form_spk'>
+      <tr>
+        <td>HEADER</td>
+      </tr>
+      <tr>
+        <td>
+          <table width="100%" style="border-collapse: collapse;" border="1px" cellspacing="5" cellpadding="5">
+            <tr>
+              <td><center>Department</center></td>
+            </tr>
+          </table>
+          <br>
+        </td>
+      </tr>
+      <tr>
+        <td>   
+          <br>       
+          <table width="100%" style="border-collapse: collapse;" border="1px" cellpadding="5" cellspacing="5">
+            <tr>
+              <td rowspan="2">
+                <span>Nomor SPK</span><br>
+                <span>Proyek</span><br>
+                <span>Kontraktor</span><br>
+                <span>Pekerjaan</span><br>
+                <span>Blok / No</span><br>
+              </td>
+              <td rowspan="2">
+                <span>{{ $spk->no or '-' }}</span><br>
+                <span>{{ $spk->project->name or '-'}}</span><br>
+                <span>{{ $spk->rekanan->group->name or '-' }}</span><br>
+                <span>{{ $spk->itempekerjaan->name or '-'}}</span><br>  
+                @foreach ( $spk->details as $key => $value )
+                <span style="font-size:10px;">{{ $value->asset->name or '-'}}</span>
+                @endforeach               
+              </td>
+              <td><h2><strong>SERTIFIKAT PEMBAYARAN</strong></h2></td>
+            </tr>
+            <tr>
+              <td>
+                <table width="100%" border="1px" style="border-collapse: collapse;border:1px solid black;" cellspacing="5" cellpadding="5">
+                  <tr>
+                    <td>
+                      <span><strong>Termyn ke </strong></span><br>
+                      <span><strong>BCN </strong></span><br>
+                      <span><strong>Tanggal </strong></span><br>
+                    </td>
+                    <td>
+                      <span><strong>{{ $value4->termin or '-'}} </strong></span><br>
+                      <span><strong>{{ $spk->itempekerjaan->code or '-'}} </strong></span><br>
+                      <span><strong>{{ date('d M Y', strtotime($value4->created_at)) }} </strong></span><br>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>          
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <br>
+          <table width="100%" style="border-collapse: collapse;font-size:10px;" border="1px" cellpadding="5" cellspacing="5">
+            <tr>
+              <td style="width: 50%;">
+                <span>Nilai SPK</span><br>
+                <span>VO Kumulatif s/d ke {{ $value4->termin or '-'}}</span><br>
+              </td>
+              <td style="width: 50%;text-align: right;">
+                <span>Rp. {{ number_format($spk->nilai) }}</span><br>
+                <span>Rp. {{ number_format($value4->nilai_vo) }}</span><br>
+              </td>
+            </tr>
+            <tr>
+              <td style="width: 50%;">
+                <span>Total 1</span><br>
+              </td>
+              <td style="width: 50%;text-align: right;">
+                <span>Rp. {{ number_format($total2 = $spk->nilai + $value4->nilai_vo,2)}}</span><br>
+              </td>
+            </tr>
+            <tr>
+              <td style="width: 50%;">
+                <span>Total 2</span><br>
+                <span>PPn </span><br>
+              </td>
+              <td style="width: 50%;text-align: right;">
+                <span>{{ number_format($total1 = $spk->nilai + $value4->nilai_vo,2)}}</span><br>
+                @if ( $spk->rekanan->pkp_status == "2")
+                <span>Rp. {{ number_format($ppn = ( $spk->nilai + $value4->nilai_vo ) * ($spk->rekanan->ppn / 100 ),2)}}</span><br>
+                @else
+                <span>Rp. {{ number_format($ppn = 0,2)}}</span>
+                @endif
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <strong>Nilai Kontrak Akhir</strong>
+              </td>
+              <td style="text-align: right;">
+                <span><strong>Rp. {{ number_format($ppn + $total2,2)}}</strong></span>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <span>Nilai Presentasi Kumulatif ( Progress SPK <i>{{ $value4->percentage or '0' }}</i>)</span><br>
+                <span>Retensi</span><br>
+              </td>
+              <td style="text-align: right;">
+                <span>Rp. {{ number_format($value4->nilai_bap_1,2) }}</span><br>
+                <span>Rp. {{ number_format($value4->nilai_retensi,2) }}</span><br>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <span>Total 1</span><br>
+                <span>Pengembalian DP</span><br>
+              </td>
+              <td style="text-align: right;">
+                <span>Rp. {{ number_format($tot_1 = $value4->nilai_bap_1 - $value4->nilai_retensi,2) }}</span><br>
+                <span>Rp. {{ number_format($value4->nilai_dp,2) }}</span><br>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <span>Total 2</span><br>
+                <span>PPn</span><br>
+              </td>
+              <td style="text-align: right;">
+                <span>Rp. {{ number_format($tot_2 = $value4->nilai_bap_2,2) }}</span><br>
+                @if ( $spk->rekanan->pkp_status == "2")
+                <span>Rp. {{ number_format($ppn = ( $value4->nilai_bap_2 ) * ($spk->rekanan->ppn / 100 ),2)}}</span><br>
+                @else
+                <span>Rp. {{ number_format($ppn = 0,2)}}</span>
+                @endif
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <span>Nilai Sertifikat s/d Periode ini</span><br>
+              </td>
+              <td style="text-align: right;">
+                <span>Rp. {{ number_format( $pembayaran_saat_ini =  $value4->nilai_bap_2 + $ppn, 2)}}</span>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <span>Nilai Sertifikat periode lalu</span><br>
+                <span>Nilai Sertifikat periode ini</span><br>
+              </td>
+              <td style="text-align: right;">
+                <span>Rp. {{ number_format( $value4->nilai_sebelumnya, 2)}}</span><br>
+                <span>Rp. {{ number_format( $value4->nilai_bap_dibayar, 2)}}</span><br>
+              </td>
+            </tr>
+            <tr>
+              <td rowspan="2">
+                <span>Terbilang : </span><br>
+              </td>
+              <td style="text-align: right;">
+                <span>Nilai Sertifikat : Rp. {{ number_format( $value4->nilai_bap_dibayar , 2)}}</span><br>
+              </td>
+            </tr>
+            <tr>
+              <td style="text-align: right;">
+                <span>Sisa Kontrak : Rp. {{ number_format( $total2 - $value4->nilai_bap_2, 2)}}</span><br>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>
+@endforeach
+<style type="text/css">
+  #head_content_allbap_sum { 
+     size: 100mm 200mm landscape;
+  }
+</style>
+<div id="head_content_allbap_sum">
+  <div id="dvcontent_allbap_sum" class="result" style="display: none;">
+    <table width="100%" style="border-collapse:collapse" class='table' id='form_spk'>
+      <tr>
+        <td><h2><strong>Berita Acara Prestasi</strong></h2></td>
+      </tr>
+      <tr>
+        @if ( $spk->baps->count() > 0 )
+        <td><span>Termyn : {{ $spk->baps->last()->termin }}</span></td>
+        @else
+        <td><span>Termyn : 0</span></td>
+        @endif
+      </tr>
+      <tr>
+        <td>
+          <table style="font-size:10px;">
+            <tr>
+              <td>Nomor SPK</td>
+              <td>:</td>
+              <td>{{ $spk->no or '-'}}</td>
+            </tr>
+            <tr>
+              <td>Pekerjaan</td>
+              <td>:</td>
+              <td>{{ $spk->itempekerjaan->name or '-'}}</td>
+            </tr>
+            <tr>
+              <td>Lokasi</td>
+              <td>:</td>
+              <td>{{ $spk->tender->rab->budget_tahunan->budget->project->name or '-'}}</td>
+            </tr>
+            <tr>
+              <td>Waktu Pelaksanaan</td>
+              <td>:</td>
+              <td>{{ $spk->start_date->format("d m Y")}} s/d {{ $spk->finish_date->format("d M Y")}}</td>
+            </tr>
+            <tr>
+              <td>Nilai SPK</td>
+              <td>:</td>
+              <td>{{ number_format($spk->nilai,2)}}</td>
+            </tr>
+            <tr>
+              <td>Nilai Kumulatif VO</td>
+              <td>:</td>
+              <td>{{ number_format($spk->nilai_vo,2)}}</td>
+            </tr>
+            <tr>
+              <td>Total Kontrak</td>
+              <td>:</td>
+              <td>{{ number_format($spk->nilai_vo + $spk->nilai,2)}}</td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+@endif
 
 @include("master/footer_table")
 @include("spk::app")
@@ -751,7 +1189,32 @@
     var myPrintContent = document.getElementById('head_Content_spk');
     var myPrintWindow = window.open("", "");
     myPrintWindow.document.write(myPrintContent.innerHTML);
-    myPrintWindow.document.getElementById('dvContents_spk').style.display='block'
+    myPrintWindow.document.getElementById('dvContents_spk').style.display='block';
+    myPrintWindow.document.getElementById('dvContents_spk_detail').style.display='block';
+    myPrintWindow.document.close();
+    myPrintWindow.focus();
+    myPrintWindow.print();
+    myPrintWindow.close();    
+    return false;
+  }
+
+  function printbap(id){
+    var myPrintContent = document.getElementById('head_Content_bap_' + id);
+    var myPrintWindow = window.open("", "");
+    myPrintWindow.document.write(myPrintContent.innerHTML);
+    myPrintWindow.document.getElementById('dvContents_bap_' + id ).style.display='block';
+    myPrintWindow.document.close();
+    myPrintWindow.focus();
+    myPrintWindow.print();
+    myPrintWindow.close();    
+    return false;
+  }
+
+  function cetakallbap(){
+    var myPrintContent = document.getElementById('head_content_allbap_sum');
+    var myPrintWindow = window.open("", "");
+    myPrintWindow.document.write(myPrintContent.innerHTML);
+    myPrintWindow.document.getElementById('dvcontent_allbap_sum').style.display='block';
     myPrintWindow.document.close();
     myPrintWindow.focus();
     myPrintWindow.print();

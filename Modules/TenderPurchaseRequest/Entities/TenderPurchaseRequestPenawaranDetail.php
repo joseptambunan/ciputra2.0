@@ -10,6 +10,6 @@ class TenderPurchaseRequestPenawaranDetail extends CustomModel
 {
     public $table = "tender_purchase_request_penawarans_details";
     
-    protected $fillable = ['id','tender_penawaran_id','rab_pekerjaan_id','keterangan','nilai','volume'];
+    protected $fillable = ['id','tender_penawaran_id','keterangan','nilai1','nilai2','nilai3','volume'];
 
 }

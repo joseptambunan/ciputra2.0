@@ -83,6 +83,16 @@
     <section class="content-header">
       <h1>Tambah Tender Purchase Request</h1>
     </section>
+    <section class="content-header">
+      <div class="" style="float: none">
+        <button class="col-md-1 col-sm-2 btn btn-primary" onclick="location.href='{{ url('/')}}/tenderpurchaserequest/'" style="float: none; border-radius: 20px; padding-left: 0">
+        <i class="fa fa-fw fa-arrow-left"></i>&nbsp;&nbsp;Back
+        </button>
+        <button class="col-md-1 col-sm-2 btn btn-primary" onclick="window.location.reload()" style="float: right; border-radius: 20px; padding-left: 0;">
+          <i class="fa fa-fw fa-refresh"></i>&nbsp;&nbsp;Refresh
+        </button>  
+      </div>
+    </section>
     <section class="content">
       <div class="box box-default">
         <div class="box-body">
@@ -103,7 +113,7 @@
                       <option value="" disabled selected>Pilih Item</option>
                     </select>
                   </div> -->
-                  <div class="form-group col-md-6">
+                  <div class="form-group col-md-12">
                     <label class="col-md-12" style="padding-left:0">Kelompok Tender</label>
                     <select id="tender_groups" class="form-input input col-md-12" name="t_pr_groups_id" required>
                       <option value="" disabled selected>Pilih Kelompok Tender</option>
@@ -113,10 +123,6 @@
                     </select>
                   </div>
 
-                  <div class="form-group col-md-6">
-                    <label class="col-md-12" style="padding-left:0">Ambil Doc Date</label>
-                    <input type="date" class="form-input input col-md-12" name="t_pr_ambil_doc_date" required>
-                  </div>
                   <!-- <div class="form-group col-md-3">
                     <label class="col-md-12" style="padding-left:0">Input Harga</label>
                     <input type="number" class="form-input input col-md-12" name="t_pr_harga" placeholder="Pilih Harga" required>
@@ -134,51 +140,56 @@
                   </div>
                   <div class="form-group col-md-6">
                     <label class="col-md-12" style="padding-left:0">Invitation Delivery Date</label>
-                    <input type="date" class="form-input input col-md-12" name="t_pr_aanwijzing_date" required>
+                    <input type="date" class="form-input input col-md-12" name="t_pr_aanwijzing_date" 
+                    onchange= "penawaran1.value = this.value;
+                               klarifikasi_penawaran1.value = this.value;
+                               penawaran2.value = autodate(this.value);
+                               klarifikasi_penawaran2.value = penawaran2.value;
+                               penawaran3.value = autodate(penawaran2.value);
+                               final.value = penawaran3.value;
+                               rekomendasi.value = penawaran3.value;
+                               pengumuman.value = penawaran3.value;
+                               " required>
                   </div>
                   <div class="form-group col-md-6">
                     <label class="col-md-12" style="padding-left:0">Penawaran 1 Date</label>
-                    <input type="date" class="form-input input col-md-12" name="t_pr_penawaran1_date" required>
+                    <input id="penawaran1" type="date" class="form-input input col-md-12" name="t_pr_penawaran1_date" onchange="klarifikasi_penawaran1.value = autodate(this.value)" required>
                   </div>
                   <div class="form-group col-md-6">
                     <label class="col-md-12" style="padding-left:0">Klarifikasi 1 Date</label>
-                    <input type="date" class="form-input input col-md-12" name="t_pr_klarifikasi1_date" required>
+                    <input id="klarifikasi_penawaran1" type="date" class="form-input input col-md-12" name="t_pr_klarifikasi1_date" required>
                   </div>
                   <div class="form-group col-md-6">
                     <label class="col-md-12" style="padding-left:0">Penawaran 2 Date</label>
-                    <input type="date" class="form-input input col-md-12" name="t_pr_penawaran2_date" required>
+                    <input id="penawaran2" type="date" class="form-input input col-md-12" name="t_pr_penawaran2_date" required>
                   </div>
                   <div class="form-group col-md-6">
                     <label class="col-md-12" style="padding-left:0">Klarifikasi 2 Date</label>
-                    <input type="date" class="form-input input col-md-12" name="t_pr_klarifikasi2_date" required>
+                    <input id="klarifikasi_penawaran2" type="date" class="form-input input col-md-12" name="t_pr_klarifikasi2_date" required>
                   </div>
                   <div class="form-group col-md-12">
                     <label class="col-md-12" style="padding-left:0">Penawaran 3 Date</label>
-                    <input type="date" class="form-input input col-md-12" name="t_pr_penawaran3_date" required>
+                    <input id="penawaran3" type="date" class="form-input input col-md-12" name="t_pr_penawaran3_date" required>
                   </div>
                   <div class="form-group col-md-4">
                     <label class="col-md-12" style="padding-left:0">Final Date</label>
-                    <input type="date" class="form-input input col-md-12" name="t_pr_final_date" required>
+                    <input id="final" type="date" class="form-input input col-md-12" name="t_pr_final_date" required>
                   </div>
                   <div class="form-group col-md-4">
                     <label class="col-md-12" style="padding-left:0">Recommendation Date</label>
-                    <input type="date" class="form-input input col-md-12" name="t_pr_recommendation_date" required>
+                    <input id="rekomendasi" type="date" class="form-input input col-md-12" name="t_pr_recommendation_date" required>
                   </div>
                   <div class="form-group col-md-4">
                     <label class="col-md-12" style="padding-left:0">Pengumuman Date</label>
-                    <input type="date" class="form-input input col-md-12" name="t_pr_pengumuman_date" required>
+                    <input id="pengumuman" type="date" class="form-input input col-md-12" name="t_pr_pengumuman_date" required>
                   </div>
-                  <div class="form-group col-md-6">
-                    <label class="col-md-12" style="padding-left:0">Harga Dokumen </label>
-                    <input type="number" class="form-input input col-md-12" name="t_pr_harga_dokumen" placeholder="Input Harga Dokumen" required>
-                  </div>
-                  <div class="form-group col-md-6">
+                  <div class="form-group col-md-12">
                     <label class="col-md-12" style="padding-left:0">Sumber </label>
                     <input class="form-input input col-md-12" name="t_pr_sumber" placeholder="Input Sumber" required>
                   </div>
                   <div class="form-group col-md-12">
-                    <label class="col-md-12" style="padding-left:0">Deskripsi Produk</label>
-                    <textarea type="number" class="form-input input col-md-12" name="t_pr_description"></textarea>
+                    <label class="col-md-12" style="padding-left:0">Deskripsi</label>
+                    <textarea type="number" class="form-input input col-md-12" name="t_pr_description" placeholder="Catatan Untuk Tender"></textarea>
                   </div>
                 </div>
                 <!-- <div id="form-tab-rekanan" class="">
@@ -298,6 +309,17 @@
       }); 
     });
   });
+  function autodate(val){
+    tmp = new Date(val);
+    tmp.setDate(tmp.getDate()+{{$auto_date_create_tender}});
+    date = tmp.getDate();
+    month = tmp.getMonth();
+    if(date<10)
+      date = '0'+date;
+    if(month<10)
+      month = '0'+month
+    return(tmp.getFullYear()+"-"+month+"-"+date);
+  }
 
 </script>
 

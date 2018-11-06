@@ -12,6 +12,7 @@ use Modules\Bank\Entities\Bank;
 use Modules\Pt\Entities\PtMasterRekening;
 use Modules\Project\Entities\Project;
 use Modules\Project\Entities\ProjectPtUser;
+use Modules\Project\Entities\ProjectPt;
 use Modules\Department\Entities\Department;
 use Modules\Division\Entities\Division;
 use Modules\Pt\Entities\Mappingperusahaan;
@@ -183,5 +184,14 @@ class PtController extends Controller
         }else{
             return response()->json( ["status" => "1"] );
         }
+    }
+
+    public function proyekpt(Request $request){
+        $projectpt = new ProjectPt;
+        $projectpt->pt_id = $request->pt_proyek;
+        $projectpt->project_id = $request->project;
+        $projectpt->created_by = 1;
+        $projectpt->save();
+        return redirect("/pt/detail/?id=".$request->pt_proyek);
     }
 }

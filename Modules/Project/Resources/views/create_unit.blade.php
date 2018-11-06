@@ -32,7 +32,7 @@
           <div class="row">
             <div class="col-md-6">              
               <h3 class="box-title">Tambah Data Unit</h3>
-              <form action="{{ url('/')}}/project/save-unit" method="post" name="form1">
+              <form action="{{ url('/')}}/project/save-unit" method="post" name="form1" id="form1">
                 {{ csrf_field() }}
               <input type="hidden" name="project_id" name="project_id" value="{{ $blok->kawasan->project->id }}">
               <input type="hidden" name="projectkawasan" name="projectkawasan" value="{{ $blok->kawasan->id }}">
@@ -51,7 +51,7 @@
               <div class="form-group">
                 <label>PT</label>
                 <select class="form-control" name="pt_id" id="pt_id">
-                  @foreach ( $project->pt_user as $key6 => $value6)
+                  @foreach ( $project->pt as $key6 => $value6)
                   <option value="{{ $value6->pt->id}}">{{ $value6->pt->name }}</option>
                   @endforeach
                 </select>
@@ -111,12 +111,20 @@
                 </select>
               </div>
               <div class="form-group">
+                <label>Status Unit</label>
+                <select class='form-control' name='is_status' id='is_status'>
+                  <option value='1'>Planning</option>
+                  <option value='0'>Ready for Stock</option>
+                </select>
+              </div>
+              <div class="form-group">
                 <label>Keterangan</label>
                 <textarea class='form-control' name="description" id="description" cols="45" rows="5" placeholder="Descriptions"></textarea>
               </div>     
               <div class="box-footer">
-                <button type="submit" class="btn btn-primary">Simpan</button>
-                <a href="{{ url('/')}}/project/bloks/?id={{ $blok->kawasan->id }}" class="btn btn-warning">Kembali</a>
+                <i class="fa fa-refresh ld ld-spin" id="loading" style="display: none;"></i>
+                <button type="button" class="submitbtn btn btn-primary" id="btn_submit">Simpan</button>
+                <a href="{{ url('/')}}/project/bloks/?id={{ $blok->kawasan->id }}" class="submitbtn btn btn-warning">Kembali</a>
               </div>
               </form>
               <!-- /.form-group -->
@@ -193,7 +201,38 @@
     });
   });
 
+  $("#btn_submit").click(function(){
+    if ( $("#tag_kategori").val() == "K" ){
+      if ( $("#luas_bangunan").val() > 0 ){
+        alert("Kavling tidak memiliki Luas Bangunan. Silahkan edit kolom luas bangunan");
+        $("#luas_bangunan").attr("style","background-color:yellow;");
+      }else{
+         $("#form1").submit();
+      $(".submitbtn").hide();
+      $("#loading").show();
+      }
+    }else{
+      $("#form1").submit();
+      $(".submitbtn").hide();
+      $("#loading").show();
+    }
+  });
 
+  $("#tag_kategori").change(function(){
+    if ( $("#tag_kategori").val() == "K"){
+      alert("Kavling tidak memiliki Luas Bangunan. Silahkan edit kolom luas bangunan");
+      $("#luas_bangunan").attr("style","background-color:yellow;");
+      $("#btn_submit").hide();
+    }else{
+      $("#luas_bangunan").removeAttr("style");
+      $("#btn_submit").show();
+    }
+  });
+
+  $("#luas_bangunan").keyup(function(){
+    $("#luas_bangunan").removeAttr("style");
+    $("#btn_submit").show();
+  })
 </script>
 @include("pt::app")
 </body>

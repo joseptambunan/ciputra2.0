@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
+use Modules\Rekanan\Entities\UserRekanan;
 
 class PrivilegeController extends Controller
 {
@@ -21,25 +22,31 @@ class PrivilegeController extends Controller
             $request->session()->put('level', 'superadmin');
             return redirect("user");
         }
+        
+        if ( $user->is_rekanan == 0 ){
+            
 
-        foreach ($jabatan as $key => $value) {
-            if ( $value['level'] == "10"){
-                $request->session()->put('level', '');
-                return redirect("/project/detail?id=".$value['project_id']);
+            foreach ($jabatan as $key => $value) {
+                if ( $value['level'] == "10"){
+                    $request->session()->put('level', '');
+                    return redirect("/project/detail?id=".$value['project_id']);
+                }else{
+                    $request->session()->put('level', '');
+                    return redirect("/access");
+                }
+            }
+        }else {
+            $user_rekanan_group = UserRekanan::where("user_login",$user->user_login)->get();
+            if ( count($user_rekanan_group) > 0 ){
+                $users = UserRekanan::find($user_rekanan_group->first()->id);
+                $rekanan_group = $users->rekanan_group;
+                $request->session()->put('rekanan_id', $rekanan_group->id);
+                return redirect("rekanan/user");
             }else{
-                $request->session()->put('level', '');
-                return redirect("/access");
+                return redirect("rekanan/user/fail");
             }
         }
-        /*if ( $user->is_level == "2"){
-            return redirect("/kontraktor");
-        }elseif ( $user->is_level == "1") {
-            if ( $user->id == "1"){
-                return redirect("/user");
-            }else{
-                return redirect("/access");
-            }
-        }*/
+        
     }
 
     /**

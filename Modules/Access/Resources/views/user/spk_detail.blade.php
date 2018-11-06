@@ -75,15 +75,15 @@
                   </tr>
                   <tr>
                     <td style="background-color: grey;color:white;"><strong>Jenis Pekerjaan</strong></td>
-                    <td>{{ $spk->tender->rab->pekerjaans->first()->itempekerjaan->name or ''}}</td>
+                    <td>{{ $spk->name or ''}}</td>
                   </tr>
                   <tr>
                     <td style="background-color: grey;color:white;"><i>Total Nilai    (Rp)</i></td>
                     <td><strong>{{ number_format($spk->nilai + ( 0.1 * $spk->nilai)) }}</strong></td>
                   </tr>
                   <tr>
-                    <td style="background-color: grey;color:white;"><strong>Department / COA</strong></td>
-                    <td>{{ $spk->tender->rab->workorder->detail_pekerjaan->first()->itempekerjaan->department->code or '' }}/ {{ $spk->tender->rab->workorder->detail_pekerjaan->first()->itempekerjaan->parent->code or '' }} </td>
+                    <td style="background-color: grey;color:white;"><strong>Department</strong></td>
+                    <td>{{ $spk->tender->rab->workorder->detail_pekerjaan->first()->itempekerjaan->department->code or '' }} </td>
                   </tr>
                   <tr>
                     <td style="background-color: grey;color:white;"><strong>Lokasi</strong></td>
@@ -124,7 +124,11 @@
                   </tr>
                   <tr>
                     <td style="background-color: grey;color:white;"><strong>PT</strong></td>
-                    <td>{{ $project->pt_user->first()->pt->name }}</td>
+                    <td>{{ $spk->tender_rekanan->rekanan->name }}</td>
+                  </tr>
+                  <tr>
+                    <td style="background-color: grey;color:white;"><strong>SUPP</strong></td>
+                    <td></td>
                   </tr>
                 </table><br>      
             </div>
@@ -151,16 +155,34 @@
                   </tr>
                   <tr>
                     <td style="background-color: grey;color:white;"><strong>Document</strong></td>
-                    <td>&nbsp;</td>
+                    <td>
+                      @foreach ( $spk->tender->tender_document as $key => $value )
+                      <li>{{ $value->document_name or ''}}</li>
+                      @endforeach
+                    </td>
                   </tr>
                   <tr>
                     <td style="background-color: grey;color:white;"><strong>Aan Wijing</strong></td>
                     <td>{{ $spk->tender->aanwijzing_date->format('d M Y')}}</td>
                   </tr>
+                  @foreach ( $spk->tender_rekanan->penawarans as $key => $value )
                   <tr>
-                    <td style="background-color: grey;color:white;"><strong>Klarifikasi 1</strong></td>
-                    <td>{{ $spk->tender->klarifikasi1_date->format('d M Y')}}</td>
+                    <td style="background-color: grey;color:white;"><strong>Penawaran ke {{ $key + 1 }}</strong></td>                    
+                    <td>
+                      {{ $value->date->format("d/m/Y") }}
+                      <br>
+                      
+                      @if ( $key == 0 )
+                      Klarifikasi ke 1 : <strong>{{ $spk->tender->klarifikasi1_date->format("d/m/Y") }}</strong> 
+                      @elseif ( $key == 1)
+                      Klarifikasi ke 2 : <strong>{{ $spk->tender->klarifikasi2_date->format("d/m/Y") }}</strong>
+                      @else
+                      Klarifikasi ke 3 : <strong>{{ $spk->tender->pengumuman_date->format("d/m/Y") }}</strong>
+                      @endif
+                     
+                    </td>
                   </tr>
+                  @endforeach
                   
                 </table><br>      
             </div>

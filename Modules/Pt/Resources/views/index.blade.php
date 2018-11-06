@@ -27,9 +27,7 @@
             
             <!-- /.box-header -->
             <div class="box-body">
-              <div class="col-md-6"><br>
-                <a href="{{ url('/')}}/pt/add" class="btn-lg btn-primary"><i class="glyphicon glyphicon-plus-sign"></i>Tambah Data PT</a>
-              </div>
+          
               <div class="col-md-12">
             	<table id="example3" class="table table-bordered table-hover">
                 <thead>

@@ -8,6 +8,7 @@ Route::group(['middleware' => 'web', 'prefix' => 'budget', 'namespace' => 'Modul
     Route::post('/save-budget','BudgetController@store');
     Route::get('/detail','BudgetController@show');
     Route::post('/update-budget','BudgetController@edit');
+    Route::get('/approval','BudgetController@approvalhistory');
 
     Route::get('/item-budget','BudgetController@itempekerjaan');
     Route::post('/item-detail','BudgetController@itemdetail');
@@ -57,4 +58,5 @@ Route::group(['middleware' => 'web', 'prefix' => 'budget', 'namespace' => 'Modul
 
     Route::get("/draft","BudgetController@draft");
     Route::post("/approval-update","BudgetController@updateapproval");
+    Route::post("/approval/manual","BudgetController@reapproval");
 });

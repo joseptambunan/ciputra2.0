@@ -19,6 +19,9 @@
         select{
           background-color: white;
         }
+        .content-header h1{
+          text-align: center;
+        }
     </style>
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
@@ -28,6 +31,17 @@
     <section class="content-header">
       <h1>Purchase Request</h1>
     </section>
+    <section class="back-button content-header">
+      <div class="" style="float: none">
+        <button class="col-md-1 col-sm-2 btn btn-primary" onclick="location.href='{{ url('/')}}/purchaserequest'" style="float: none; border-radius: 20px; padding-left: 0">
+        <i class="fa fa-fw fa-arrow-left"></i>&nbsp;&nbsp;Back
+        </button>
+        <button class="col-md-1 col-sm-2 btn btn-primary" onclick="window.location.reload()" style="float: right; border-radius: 20px; padding-left: 0;">
+          <i class="fa fa-fw fa-refresh"></i>&nbsp;&nbsp;Refresh
+        </button>  
+      </div>
+    </section>
+
     <section class="content">
       <div class="box box-default">
         <div class="box-body">
@@ -52,11 +66,11 @@
               </select>
               </div>
               <div id="form_waktu_dibutuhkan" class="form-group col-md-3">
-                <label class="col-md-12" style="padding-left:0">Waktu Transaksi</label>
+                <label class="col-md-12" style="padding-left:0">Waktu Transaksi (dd/mm/yyy)</label>
                 <input class="form-input col-md-12" type="date" name="waktu_transaksi" min="<?=$date?>" style="padding-left:15px" value="<?=$date?>" required>
               </div>
               <div id="form_waktu_dibutuhkan" class="form-group col-md-3">
-                <label class="col-md-12" style="padding-left:0">Waktu dibutuhkan</label>
+                <label class="col-md-12" style="padding-left:0">Waktu dibutuhkan (dd/mm/yyy)</label>
                 <input class="form-input col-md-12" type="date" name="butuh_date" min="<?=$date?>" style="padding-left:15px" required> 
               </div>
               <div id="form_diskripsi_umum" class="form-group col-md-10">
@@ -73,7 +87,7 @@
                 </div>
               </div>
               <div class="form-group col-md-12">
-                <label class="col-md-12" style="padding-left:0">Jumlah Item</label>
+                <label class="col-md-12" style="padding-left:0">Jumlah Jenis Item</label>
                 <input id="jumlah_item" name="jumlah_item" type="number" class="form-input col-md-12" placeholder="Masukkan jumlah item" min="1" value="1" onkeyup ="f_list_item()" required>
               </div>
               <div id="list_item" class="col-md-12">
@@ -143,7 +157,7 @@
                 </select>
               </div>
               <div class="form-group col-md-12">
-                <label class="col-md-12" style="padding-left:0">Item Pekerjaan</label>
+                <label class="col-md-12" style="padding-left:0">Kode Coa | Item Pekerjaan</label>
                 <select id="data_itempekerjaan1" class="data_itempekerjaan form-input col-md-12" name="coa[]" placeholder="Pilih Item Pekerjaan" required>
                   <option value="" selected disabled>Pilih Item Pekerjaan</option>
                   @foreach($itempekerjaan as $key => $value )
