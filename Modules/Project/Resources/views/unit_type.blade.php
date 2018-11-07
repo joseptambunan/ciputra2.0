@@ -37,6 +37,7 @@
                   <td>No.</td>
                   <td>Kode Type</td>
                   <td>Nama Type</td>
+                  <td>Kategori</td>
                   <td>Luas Bangunan(m2)</td>
                   <td>Luas Tanah(m2)</td>
                   <td>Elektrik(watt)</td>

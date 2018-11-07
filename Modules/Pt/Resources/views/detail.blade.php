@@ -87,7 +87,7 @@
               <div class="nav-tabs-custom">
                 
                 <ul class="nav nav-tabs">
-                  <li class="active"><a href="#tab_1" data-toggle="tab">Rekening</a></li>
+                  <li class="active"><a href="#tab_1" data-toggle="tab">Rekening Bank Pembayaran</a></li>
                   <li><a href="#tab_2" data-toggle="tab">Proyek</a></li>
                   <li><a href="#tab_3" data-toggle="tab">Department PT</a></li>
                   <!--li><a href="#tab_3" data-toggle="tab">Departemen</a></li-->
@@ -140,22 +140,8 @@
                   <!-- /.tab-pane -->
                   <div class="tab-pane" id="tab_2">
                       <!-- /.form-group -->
-                      <h2 class="page-header">Tambah Proyek</h2>
-                      <form action="{{ url('/')}}/pt/add-proyek" method="post" name="form1">
-                      {{ csrf_field() }}
-                      <input type="hidden" class="form-control" name="pt_proyek" value="{{ $pt->id }}">
-                      <div class="form-group">
-                          <label for="exampleInputEmail1">Proyek</label>
-                          <select class="form-control" name="project">
-                            @foreach ( $project as $key2 => $value2 )
-                            <option value="{{ $value2->id }}">{{ $value2->name}}</option>
-                            @endforeach
-                          </select>
-                      </div>
-                      <div class="box-footer">
-                        <button type="submit" class="btn btn-primary">Simpan</button>
-                      </div>
-                      </form>
+                      <h2 class="page-header">Proyek</h2>
+                      
                       <table class="table">
                         <tr class="head_table">
                           <td>Proyek</td>

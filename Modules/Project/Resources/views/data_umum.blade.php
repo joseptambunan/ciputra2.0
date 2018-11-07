@@ -50,11 +50,11 @@
                 <input type="text" class="form-control" name="name" value="{{ $project->name }}" disabled>
               </div>
               <div class="form-group">
-                <label>Luas Brutto yang belum bisa dikembangkan - Terpencar(m2) </label>
+                <label>Luas Brutto yang belum ada site plan (m2) </label>
                 <input type="text" class="form-control" name="luas_nonpengembangan" id="luas_nonpengembangan" value="{{ number_format($project->luas_nonpengembangan,2) }}">
               </div>
               <div class="form-group">
-                <label>Luas Brutto yang bisa dikembangkan(m2)</label>
+                <label>Luas Brutto yang ada site plan(m2)</label>
                 <input type="text" class="form-control" name="luas" id="luas" value="{{ number_format($project->luas,2) }}">
               </div>
               <div class="form-group">

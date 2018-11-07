@@ -63,28 +63,16 @@
             <li><a href="{{ url('/')}}/pt/"><i class="fa fa-circle-o"></i> PT</a></li>          
             <li><a href="{{ url('/')}}/escrow/"><i class="fa fa-circle-o"></i>Escrows</a></li>
             <li><a href="{{ url('/')}}/pekerjaan/"><i class="fa fa-circle-o"></i> Item Pekerjaan</a></li>
-            <li><a href="{{ url('/')}}/user/master"><i class="fa fa-circle-o"></i> User</a></li>
-            <li><a href="{{ url('/')}}/document/"><i class="fa fa-circle-o"></i> Dokumen</a></li>
-            <li><a href="{{ url('/')}}/bank/"><i class="fa fa-circle-o"></i> Bank</a></li>
-            <li><a href="#"><i class="fa fa-circle-o"></i>Global Setting</a></li>            
+            <li><a href="{{ url('/')}}/user/master"><i class="fa fa-circle-o"></i> User Login</a></li>
+            <li><a href="{{ url('/')}}/document/"><i class="fa fa-circle-o"></i> Dokumen Referensi</a></li>
+            <li><a href="{{ url('/')}}/bank/"><i class="fa fa-circle-o"></i> Bank Pembayaran</a></li>
+            <!--li><a href="#"><i class="fa fa-circle-o"></i>Global Setting</a></li-->            
             <li><a href="{{ url('/')}}/category/"><i class="fa fa-circle-o"></i>Kategori Bangunan</a></li>
             <li><a href="{{ url('/')}}/rekanan/"><i class="fa fa-circle-o"></i>Rekanan</a></li>
+            <li><a href="{{ url('/')}}/project/"><i class="fa fa-circle-o"></i>Project</a></li> 
             <li><a href="{{ url('/')}}/logout/"><i class="fa fa-circle-o"></i>Logout</a></li>
           </ul>
-        </li>
-        <li class="treeview menu-open">
-          <a href="#">
-            <i class="fa fa-pie-chart"></i>
-            <span>Proyek</span>
-            <span class="pull-right-container">
-              <i class="fa fa-angle-left pull-right"></i>
-            </span>
-          </a>
-          <ul class="treeview-menu" style="display: block;">
-            
-            <li><a href="{{ url('/')}}/project/"><i class="fa fa-circle-o"></i>Project</a></li>  
-          </ul>
-        </li>       
+        </li>     
       </ul>
     </section>
     <!-- /.sidebar -->
