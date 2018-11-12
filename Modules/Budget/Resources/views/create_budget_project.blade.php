@@ -79,8 +79,9 @@
                 <label>Keterangan Budget</label>
                 <input type="text" class="form-control" name="description" autocomplete="off">
               </div>
-              <div class="box-footer">
-                <button type="submit" class="btn btn-primary">Simpan</button>
+              <div class="box-footer">               
+                <i class="fa fa-refresh ld ld-spin" id="loading" style="display: none;"></i>
+                <button type="submit" class="btn btn-primary submitbtn" id="btn_submit">Simpan</button>
               </div>
               </form>
               <!-- /.form-group -->
@@ -150,6 +151,11 @@
       $("#kawasan").hide();
     }
   }
+
+  $("#btn_submit").click(function(){
+    $(".submitbtn").hide();
+    $("#loading").show();
+  });
 </script>
 </body>
 </html>

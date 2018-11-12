@@ -12,4 +12,5 @@ Route::group(['middleware' => 'web', 'prefix' => 'pekerjaan', 'namespace' => 'Mo
     Route::post('/add-subitem', 'PekerjaanController@coas');
     Route::post('/add-progress','PekerjaanController@addprogress');
     Route::post('/add-itemchild','PekerjaanController@addchilditem');
+    Route::post('/savesatuan','PekerjaanController@savesatuan');
 });

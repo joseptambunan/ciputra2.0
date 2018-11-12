@@ -112,12 +112,19 @@ class BudgetTahunan extends Model
         //for ( $i=0; $i<count($item_id); $i++ ){
             $itempekerjaan = \Modules\Pekerjaan\Entities\Itempekerjaan::where("code","like",$itemid."%")->get();
             foreach ($itempekerjaan as $key => $value) {
-                $budgets = \Modules\Budget\Entities\BudgetTahunanDetail::where("itempekerjaan_id",$value->id)->where("budget_tahunan_id",$this->id)->first();
-                if ( isset($budgets->volume)){
-                    $total_nilai = $total_nilai + $budgets->nilai;
-                    $total_volume = $total_volume + $budgets->volume;
-                    $satuan = $budgets->satuan;
+                $budgets = \Modules\Budget\Entities\BudgetTahunanDetail::where("itempekerjaan_id",$value->id)->where("budget_tahunan_id",$this->id)->get();
+                if ( count($budgets) > 0 ){
+                    foreach ($budgets as $key2 => $value2) {
+
+                        if ( isset($value2->volume)){
+                            //echo $value2->volume;
+                            $total_nilai = $total_nilai + $value2->nilai;
+                            $total_volume = $total_volume + $value2->volume;
+                            $satuan = $value2->satuan;
+                        }
+                    }
                 }
+                
             }
             $arrayResult = array("id" => $itemid, "nilai" => $total_nilai, "volume" => $total_volume, "satuan" => $satuan, "total" => $total);
         //}
@@ -129,9 +136,14 @@ class BudgetTahunan extends Model
         foreach ($this->details as $key => $value) {
             # code...
             $code = explode(".",$value->itempekerjaans->code);
-            $nilai[$key] = $code[0];
+            if ( sizeof($code) >= 2 ){
+                $nilai[$key] = $code[0].".".$code[1];
+            }else{
+                $nilai[$key] = $code[0];
+            }
         }
         
+
         $uniqe      = array_unique($nilai);
         $item_id    = array_values($uniqe);
         $total_volume = 0;
@@ -147,12 +159,13 @@ class BudgetTahunan extends Model
             if ( $bulanan != "" ){
                 foreach ($bulanan as $key2 => $value2) {
                     $explode2 = explode(".", $value2->itempekerjaan->code);
-                    if ( count($explode2) > 0 ){
+                    $params = $value2->itempekerjaan->code;
+                    /*if ( count($explode2) > 0 ){
                         $params = $explode2[0];
                     }else{
                         $params = $value2->itempekerjaan->code;
-                    }
-
+                    }*/
+                    
                     if ( $item_id[$i] == $params ){
                             $arrayResult[$i] = array(
                             "id" => $value2->id,

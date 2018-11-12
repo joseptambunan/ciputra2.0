@@ -227,7 +227,7 @@ class UserRekananController extends Controller
         return redirect("/rekanan/user/tender/detail/?id=".$tenderrekaann->tender->id); 
     }
 
-     public function step2(Request $request){
+    public function step2(Request $request){
         $tenderpenawaran = TenderPenawaran::find($request->id);
         $tenderRekanan = $tenderpenawaran->rekanan;
         $rab = $tenderRekanan->tender->rab;
@@ -308,5 +308,49 @@ class UserRekananController extends Controller
 
     public function viewstep1(Request $request){
         
+    }
+
+    public function step1(Request $request){
+        $tenderpenawaran = TenderPenawaran::find($request->id);
+        $tenderRekanan = $tenderpenawaran->rekanan;
+        $rab = $tenderRekanan->tender->rab;
+        $itempekerjaan = Itempekerjaan::find($rab->parent_id);
+        $user = \Auth::user();
+        $project = Project::find($request->session()->get('project_id'));
+        $penawaran_id = "";
+        $rekanan_group = RekananGroup::find($request->session()->get('rekanan_id'));
+        foreach ($tenderRekanan->penawarans as $key => $value) {
+            if ( $value->updated_by == null ) {
+                $penawaran_id = $value->id;
+            }
+        }
+
+        return view("rekanan::user.detail_penawaran1",compact("rab","itempekerjaan","rekanan","user","project","tenderpenawaran","tenderRekanan","penawaran_id","rekanan_group"));
+    }
+
+    public function updatepenawaran1(Request $request){
+        foreach ($request->input_rab_id_ as $key => $value) {
+            if ( $request->input_rab_nilai_[$key] != "" ){
+                $tenderpenawarandetail = TenderPenawaranDetail::find($request->input_rab_id_[$key]);
+                $tenderpenawarandetail->nilai = str_replace(",","",$request->input_rab_nilai_[$key]);
+                $tenderpenawarandetail->save();
+            }else{
+                echo $request->input_rab_id_[$key];
+            }
+        }
+        $TenderPenawaran = TenderPenawaran::find($request->tender_id);
+        if ( $_FILES['fileupload']['tmp_name'] != ""){
+            $array_mime = array("application/pdf","application/vnd.openxmlformats-officedocument.wordprocessingml.document","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet","application/vnd.ms-excel","application/msword");
+            $mime = mime_content_type($_FILES['fileupload']['tmp_name']);
+            if ( in_array($mime, $array_mime)){
+                $target_file =  /*$_SERVER["DOCUMENT_ROOT"].*/"../assets/tender/".$TenderPenawaran->rekanan->tender->id;
+                move_uploaded_file($_FILES["fileupload"]["tmp_name"], $target_file);
+                $TenderPenawaran->file_attachment = $_FILES['fileupload']['name'];
+                $TenderPenawaran->save();
+            }else{
+                print("<script type='text/javascript'>alert('Format file tidak bisa diterima. Silahkan upload sesuai format yang diminta');</script>");
+            }
+        }
+        return redirect("/rekanan/user/tender/detail/?id=".$TenderPenawaran->rekanan->id);
     }
 }

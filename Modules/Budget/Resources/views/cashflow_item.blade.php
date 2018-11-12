@@ -40,7 +40,8 @@
                 <input type="hidden" name="budget_awal_nilai" id="budget_awal_nilai" value="">
                  <input type="hidden" name="budget_real_value" id="budget_real_value" value="">
                 <div class="form-group">                  
-                  <button type="submit" class="btn btn-info" id="btn_submit">Submit</button>
+                  <button type="submit" class="btn btn-info" id="btn_submit">Submit</button>                  
+                  <i class="fa fa-refresh ld ld-spin" id="loading" style="display: none;"></i>
                   <span id="warning_message" class="label-danger" style="display: none;"><strong>Nilai Budget Tahunan melebihi Nilai Budget Global</strong></span>
                   <a class="btn btn-warning" href="{{ url('/')}}/budget/cashflow/detail-cashflow?id={{ $budget->id }}">Kembali</a>
                 </div>
@@ -110,7 +111,7 @@
 
                     @endforeach
                     @endif
-                    <input type="hidden" id="tmp_budget" value="{{ $nilai }}">
+                    <input type="hidden" id="tmp_budget" value="{{ $nilai_budget_awal }}">
                   </tbody>
                 </table>
               </form>
@@ -204,8 +205,16 @@
 
   function formsubmit(){
     $("#form1").submit();
+    $("#btn_submit").hide();
+    $(".submitbtn").hide();
+    $("#loading").show();
   }
 
+  $("#btn_submit").click(function(){
+    $(".submitbtn").hide();
+    $("#loading").show();
+    $("#btn_submit").hide();
+  });
   
   function updateSubtotal(id){
     

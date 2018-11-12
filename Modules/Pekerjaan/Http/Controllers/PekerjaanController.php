@@ -12,6 +12,7 @@ use Modules\Department\Entities\Department;
 use Modules\Budget\Entities\BudgetGroup;
 use Modules\Pekerjaan\Entities\ItempekerjaanProgress;
 use Modules\Project\Entities\Project;
+use Modules\Pekerjaan\Entities\ItempekerjaanDetail;
 
 class PekerjaanController extends Controller
 {
@@ -77,7 +78,8 @@ class PekerjaanController extends Controller
         $budgetgroup = BudgetGroup::get();
         $coa = Coa::get();
         $project = Project::get();
-        return view('pekerjaan::detail',compact("itempekerjaan","user","department","budgetgroup","coa","project"));
+        $start = 0;
+        return view('pekerjaan::detail',compact("itempekerjaan","user","department","budgetgroup","coa","project","start"));
     }
 
     /**
@@ -147,6 +149,8 @@ class PekerjaanController extends Controller
             $ItempekerjaanProgress->percentage =  $request->item[$key];
             $ItempekerjaanProgress->save();
         }
+
+        
         return redirect("/pekerjaan/detail/?id=".$request->coa_id);
 
     }
@@ -164,5 +168,24 @@ class PekerjaanController extends Controller
         $itempekerjaan->description = $request->item_child;
         $status = $itempekerjaan->save();
         return redirect("/pekerjaan/detail/?id=".$request->item_coa);
+    }
+
+    public function savesatuan(Request $request){
+
+        foreach ($request->item_id_ as $key => $value) {
+            $detail = Itempekerjaan::find($request->item_id_[$key])->details;
+            if ( $detail != ""){
+                echo $detail->id."<>".$request->item_satuan_[$key]."<br>";
+                $itempekerjaan_detail = ItempekerjaanDetail::find($detail->id);
+                $itempekerjaan_detail->satuan = $request->item_satuan_[$key];
+                $itempekerjaan_detail->save(); 
+            }else{            
+                $itempekerjaan_detail = new ItempekerjaanDetail;
+                $itempekerjaan_detail->itempekerjaan_id = $request->item_id_[$key];
+                $itempekerjaan_detail->satuan = $request->item_satuan_[$key];
+                $itempekerjaan_detail->save(); 
+            }
+        }
+        return redirect("/pekerjaan/detail/?id=".$request->coa_id);
     }
 }

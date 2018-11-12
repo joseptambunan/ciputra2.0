@@ -38,13 +38,14 @@
                 <select class="form-control select2" name="coa_id" id="coa_id">
                   <option>( pilih item pekerjaan)</option>
                   @foreach ( $itempekerjaan as $key => $value )                    
-                      <option value="{{ $value->id }}" selected>{{ $value->code }}.00.00 {{ $value->name }}</option>                      
+                      <option value="{{ $value->id }}" selected>{{ $value->code }}  {{ $value->name }}</option>                      
                   @endforeach
                 </select>
               </div>
               <div class="form-group">
-                <button class="btn btn-info" onClick="formsubmit();">Simpan</button>
-                <a class="btn btn-warning" href="{{ url('/')}}/budget/detail?id={{ $budget->id }}">Kembali</a>
+                <i class="fa fa-refresh ld ld-spin" id="loading" style="display: none;"></i>                
+                <button class="btn btn-info submitbtn" onClick="formsubmit();" id="btn_submit">Simpan</button>
+                <a class="btn btn-warning submitbtn" href="{{ url('/')}}/budget/detail?id={{ $budget->id }}">Kembali</a>
               </div>
             </div>
    
@@ -149,8 +150,11 @@
 
   function formsubmit(){
     $("#form1").submit();
+    $(".submitbtn").hide();
+    $("#loading").show();
   }
 
+  
 </script>
 </body>
 </html>

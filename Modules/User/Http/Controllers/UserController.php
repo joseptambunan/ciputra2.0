@@ -25,6 +25,7 @@ class UserController extends Controller
     public function index()
     {
         $user = \Auth::user();
+
         if ( $user->group->id == "1"){
             return redirect("home");          
         }else{
@@ -127,7 +128,7 @@ class UserController extends Controller
         $user = new User;
         $user->user_login = $request->userlogin;
         $user->user_name = $request->username;
-        $user->is_rekanan = $request->isrekanan;
+        $user->is_rekanan = 0;
         $user->email = $request->email;
         $user->password = bcrypt($request->password);
         $user->user_phone = $request->phone;
@@ -140,7 +141,7 @@ class UserController extends Controller
         $user = User::find($request->userid);
         $user->user_login = $request->userlogin;
         $user->user_name = $request->username;
-        $user->is_rekanan = $request->isrekanan;
+        $user->is_rekanan = 0;
         $user->email = $request->email;
         $user->password = bcrypt($request->password);
         $user->user_phone = $request->phone;
@@ -263,5 +264,9 @@ class UserController extends Controller
             }
         }
          return response()->json( ["status" => "0"] );
+    }
+
+    public function send_email(){
+        
     }
 }

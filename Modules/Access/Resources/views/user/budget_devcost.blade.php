@@ -65,16 +65,16 @@
                     <td>{{ $key + 1 }}</td>
                     <td>{{ $itempekerjaan->name }}</td>
                     <td>{{ $value['volume'] }}</td>
-                    <td>{{ $value['satuan'] }}</td>
+                    <td>{{ $itempekerjaan->item_satuan }}</td>
                     <td>{{ number_format($value['nilai']) }}</td>
                     <td>{{ number_format($value['nilai'] * $value['volume']) }}</td>
                     <td>
-                      {{ number_format($itempekerjaan->nilai_lowest['nilai']) }}<br>
-                      {{ ($itempekerjaan->nilai_lowest['project']) }}
+                      Rp. {{ number_format($itempekerjaan->nilai_lowest["nilai"])}} /  {{ ($itempekerjaan->nilai_lowest["satuan"])}}<br>
+                      <strong>Project : </strong>{{ ($itempekerjaan->nilai_lowest["project"])}}
                     </td>
                     <td>
-                      {{ number_format($itempekerjaan->nilai_maximum['nilai']) }}<br>
-                      {{ $itempekerjaan->nilai_maximum['project'] }}
+                      Rp. {{ number_format($itempekerjaan->nilai_maximum['nilai']) }} /  {{ ($itempekerjaan->nilai_lowest["satuan"])}}<br>
+                      <strong>Project : </strong>{{ $itempekerjaan->nilai_maximum['project'] }}
                     </td>
                   </tr>
                   @endif

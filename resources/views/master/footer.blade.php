@@ -6,6 +6,7 @@
 <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
 <script>
   $.widget.bridge('uibutton', $.ui.button);
+  $('input').attr('autocomplete','off');
 </script>
 <!-- Bootstrap 3.3.7 -->
 <script src="{{ url('/') }}/assets/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>

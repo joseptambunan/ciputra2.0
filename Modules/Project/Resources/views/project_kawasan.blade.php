@@ -36,22 +36,19 @@
               {{ csrf_field() }}              
               <thead style="background-color: greenyellow;">
                 <tr>
-                  <td rowspan="3">Progress</td>
-                  <td rowspan="3">Blok</td>
-                  <td rowspan="3">#</td>
-                  <td rowspan="3">Project</td>
                   <td rowspan="3">Kawasan</td>
-                  <td rowspan="3">Luas Lahan Brutto</td>
-                  <td rowspan="3">Luas Lahan Netto</td>
-                  <td rowspan="3">Status Lahan</td>
+                  <td rowspan="3">Jumlah Blok</td>
+                  <td rowspan="3">Luas Lahan Brutto(m2)</td>
+                  <td rowspan="3">Luas Lahan Netto(m2)</td>
+                  <td rowspan="3">Status Lahan<br>(PL,UC,F)</td>
                   <td colspan="5"><center>Dev Cost</center></td>
                   <td rowspan="3">Edit</td>
                   <td rowspan="3">Delete</td>
                 </tr>
                 <tr>
                   <td colspan="3">Budget</td>
-                  <td rowspan="2">SPK</td>
-                  <td rowspan="2">Realisasi</td>
+                  <td rowspan="2">SPK(Rp)</td>
+                  <td rowspan="2">Real(Rp)</td>
                 </tr>
                 <tr>
                   <td>Total(Rp)</td>
@@ -69,14 +66,11 @@
                   ); 
                  @endphp
                  <tr>
-                    <td>&nbsp;</td>
-                    <td><a href="{{ url('/')}}/project/bloks/?id={{ $value->id }}" class="btn btn-primary">{{ count($value->bloks) }} Blok</a></td>
-                    <td>{{ $key + 1 }}</td>
-                    <td>{{ $value->project->name }}</td>
                     <td>{{ $value->name }}</td>
+                    <td><a href="{{ url('/')}}/project/bloks/?id={{ $value->id }}" class="btn btn-primary">{{ count($value->bloks) }}</a></td>
                     <td>{{ number_format($value->lahan_luas) }}</td>
                     <td>{{ number_format($value->netto_kawasan) }}</td>
-                    <td></td>
+                    <td>Planning</td>
                     <td>{{ number_format($value->total_budget,2)}}</td>
                     <td>{{ number_format($value->total_budget / $value->lahan_luas,2)}}</td>
                     <td></td>

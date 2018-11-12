@@ -663,6 +663,7 @@
 
 <!--Report -->
 @if ( $spk->approval != "" )
+@if ( $spk->approval_approval_action_id == 6 )
 <style type="text/css">
   #dvContents_spk{
     font-size:8px;
@@ -1165,6 +1166,7 @@
   </div>
 </div>
 
+@endif
 @endif
 
 @include("master/footer_table")

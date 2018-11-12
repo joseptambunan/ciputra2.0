@@ -83,7 +83,7 @@
             </div>
              </form>
             <!-- /.col -->
-            <div class="col-md-12">
+            <div class="col-md-12 table-responsive">
               <table class="table-bordered table">
                 <thead class="head_table">
                   <tr>
@@ -134,7 +134,7 @@
                 <li><a href="#tab_4" data-toggle="tab">CF Carry Over</a></li>
               </ul>
               <div class="tab-content">
-                <div class="tab-pane active" id="tab_1">
+                <div class="tab-pane active table-responsive" id="tab_1">
                   @if ( $budget_tahunan->approval != "" )
                     @if ( $budget_tahunan->approval->approval_action_id == "6")
                       <span class="label-success">Approved</span>

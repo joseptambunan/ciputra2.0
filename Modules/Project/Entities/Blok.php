@@ -112,4 +112,21 @@ class Blok extends Model
     public function project_kawasan(){
         return $this->belongsTo("Modules\Project\Entities\ProjectKawasan");
     }
+
+    public function getTotalTanahAttribute(){
+        $nilai = 0;
+        foreach ($this->units as $key => $value) {
+            $nilai = $nilai + $value->tanah_luas;
+        }
+
+        return $nilai;
+    }
+
+    public function getTotalBangunanAttribute(){
+        $nilai = 0;
+        foreach ($this->units as $key => $value) {
+            $nilai = $nilai + $value->bangunan_luas;
+        }
+        return $nilai;
+    }
 }

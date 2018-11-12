@@ -93,11 +93,11 @@
             <div class="col-md-6">
               <div class="form-group">
                 <label>Start Date</label>
-                <input type="text" class="form-control" name="start_date" id="start_date" value="{{ $budget->start_date }}" readonly>
+                <input type="text" class="form-control" name="start_date" id="start_date" value="{{ $budget->start_date->format('d/m/Y') }}" readonly>
               </div>
               <div class="form-group">
                 <label>End Date</label>
-                <input type="text" class="form-control" name="end_date" id="end_date" value="{{ $budget->end_date }}" readonly>
+                <input type="text" class="form-control" name="end_date" id="end_date" value="{{ $budget->end_date->format('d/m/Y') }}" readonly>
               </div>
               <div class="form-group">
                 <label>Keterangan Date</label>
@@ -139,10 +139,10 @@
                         </thead>
                         <tbody>
                           @foreach ( $parent->total_parent_item as $key => $value )
-                            @if ( count(\Modules\Pekerjaan\Entities\Itempekerjaan::where("code",$value['id'])->get()) > 0 )
+                            @if ( count(\Modules\Pekerjaan\Entities\Itempekerjaan::where("id",$value['id'])->get()) > 0 )
                               <tr>
-                                <td><strong>{{  \Modules\Pekerjaan\Entities\Itempekerjaan::where("code",$value['id'])->first()->code }}</strong></td>
-                                <td><strong>{{  \Modules\Pekerjaan\Entities\Itempekerjaan::where("code",$value['id'])->first()->name }}</strong></td>
+                                <td><strong>{{  \Modules\Pekerjaan\Entities\Itempekerjaan::where("id",$value['id'])->first()->code }}</strong></td>
+                                <td><strong>{{  \Modules\Pekerjaan\Entities\Itempekerjaan::where("id",$value['id'])->first()->name }}</strong></td>
                                 <td>{{ number_format($value['volume'])}}</td>
                                 <td>{{ $value['satuan']}}</td>
                                 <td>{{ number_format($value['nilai'])}}</td>
@@ -173,10 +173,10 @@
                         </thead>
                         <tbody>
                           @foreach ( $budget->total_parent_item as $key => $value )
-                            @if ( count(\Modules\Pekerjaan\Entities\Itempekerjaan::where("code",$value['id'])->get()) > 0 )
+                            @if ( count(\Modules\Pekerjaan\Entities\Itempekerjaan::where("id",$value['id'])->get()) > 0 )
                               <tr>
-                                <td><strong>{{  \Modules\Pekerjaan\Entities\Itempekerjaan::where("code",$value['id'])->first()->code }}</strong></td>
-                                <td><strong>{{  \Modules\Pekerjaan\Entities\Itempekerjaan::where("code",$value['id'])->first()->name }}</strong></td>
+                                <td><strong>{{  \Modules\Pekerjaan\Entities\Itempekerjaan::where("id",$value['id'])->first()->code }}</strong></td>
+                                <td><strong>{{  \Modules\Pekerjaan\Entities\Itempekerjaan::where("id",$value['id'])->first()->name }}</strong></td>
                                 <td>{{ number_format($value['volume'])}}</td>
                                 <td>{{ $value['satuan']}}</td>
                                 <td>{{ number_format(round($value['total'] / $value['volume']))}}</td>

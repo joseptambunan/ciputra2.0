@@ -137,16 +137,24 @@
                     <br><br>
                   </div>
                   <!-- /.tab-pane -->
-                  <div class="tab-pane active" id="tab_2">
+                  <div class="tab-pane active table-responsive" id="tab_2">
+                    <form action="{{ url('/')}}/pekerjaan/savesatuan" method="post" name="form1">
+                      {{ csrf_field() }}
+                      <input type="hidden" name="coa_id" id="coa_id" value="{{ $itempekerjaan->id }}">
                       <!-- /.form-group -->
                       <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modal-info">
                         Sub Item Pekerjaan
                       </button>
+                      <button type="submit" class="btn btn-primary">
+                        Simpan Satuan Item Pekerjaan
+                      </button>
+                      <br><br>
                       <table id="example3" class="table table-bordered table-responsive">
                         <thead style="background-color: greenyellow;">
                           <tr>
                             <td>COA Pekerjaan</td>
-                            <td style="width: 50%;">Item Pekerjaan</td>
+                            <td style="width: 40%;">Item Pekerjaan</td>
+                            <td style="width: 10%;">Satuan</td>
                             <td>Termin 1(%)</td>
                             <td>Termin 2(%)</td>
                             <td>Termin 3(%)</td>
@@ -163,28 +171,9 @@
                           <tr>
                             <td><strong>{{ $itempekerjaan->code }}</strong></td>
                             <td><strong>{{ $itempekerjaan->name }}</strong></td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                          </tr>
-                          @foreach ( $itempekerjaan->child_item as $key3 => $value3 )
-                          <tr>
-                            <td><strong>{{ $value3->code }}</strong></td>
-                            <td style="background-color: white;color:black;" onclick="showhide('{{ $value3->id }}')" data-attribute='1' id='btn_{{ $value3->id }}'>
-                              @if ( count($value3->child_item) > 0 )
-                              {{ $value3->name }}
-                              @else
-                              <a href="#" onclick="setItem('{{ $value3->id}}','{{ $value3->name }}','{{ $itempekerjaan->id }}')"  data-toggle="modal" data-target="#modal-primary" title="Silahkan isi bobot disini!">
-                                      {{ $value3->name }}
-                              @endif
+                            <td>
+                              <input type="hidden" class="form-control" name="item_id_[{{ $start }}]" value="{{ $itempekerjaan->id }}" required>
+                              <input type="text" class="form-control" name="item_satuan_[{{ $start }}]" value="{{ $itempekerjaan->item_satuan }}" required>
                             </td>
                             <td>&nbsp;</td>
                             <td>&nbsp;</td>
@@ -198,6 +187,48 @@
                             <td>&nbsp;</td>
                             <td>&nbsp;</td>
                           </tr>
+                          @php $start++; @endphp
+                          @foreach ( $itempekerjaan->child_item as $key3 => $value3 )
+                          <tr>
+                            <td><strong>{{ $value3->code }}</strong></td>
+                            <td style="background-color: white;color:black;" onclick="showhide('{{ $value3->id }}')" data-attribute='1' id='btn_{{ $value3->id }}'>
+                              @if ( count($value3->child_item) > 0 )
+                              {{ $value3->name }}
+                              @else
+                              <a href="#" onclick="setItem('{{ $value3->id}}','{{ $value3->name }}','{{ $itempekerjaan->id }}','{{ $value3->item_satuan }}')"  data-toggle="modal" data-target="#modal-primary" title="Silahkan isi bobot disini!">
+                                      {{ $value3->name }}
+                              @endif
+                            </td>
+                            <td>                              
+                              <input type="hidden" class="form-control" name="item_id_[{{ $start }}]" value="{{ $value3->id }}" required>
+                              <input type="text" class="form-control" name="item_satuan_[{{ $start }}]" value="{{ $value3->item_satuan }}" required>
+                            </td>
+                            @if ( count($value3->child_item) > 0 )
+                              <td>&nbsp;</td>
+                              <td>&nbsp;</td>
+                              <td>&nbsp;</td>
+                              <td>&nbsp;</td>
+                              <td>&nbsp;</td>
+                              <td>&nbsp;</td>
+                              <td>&nbsp;</td>
+                              <td>&nbsp;</td>
+                              <td>&nbsp;</td>
+                              <td>&nbsp;</td>
+                              <td>&nbsp;</td>
+                            @else
+                              <td>{{ $value3->item_progress[0]->percentage or '0' }}</td>
+                              <td>{{ $value3->item_progress[1]->percentage or '0' }}</td>
+                              <td>{{ $value3->item_progress[2]->percentage or '0' }}</td>
+                              <td>{{ $value3->item_progress[3]->percentage or '0' }}</td>
+                              <td>{{ $value3->item_progress[4]->percentage or '0' }}</td>
+                              <td>{{ $value3->item_progress[5]->percentage or '0' }}</td>
+                              <td>{{ $value3->item_progress[6]->percentage or '0' }}</td>
+                              <td>{{ $value3->item_progress[7]->percentage or '0' }}</td>
+                              <td>{{ $value3->item_progress[8]->percentage or '0' }}</td>
+                              <td>{{ $value3->item_progress[9]->percentage or '0' }}</td>
+                            @endif
+                            @php $start++; @endphp
+                          </tr>
                           @if ( count($value3->child_item) > 0 )
                             @foreach ( $value3->child_item as $key4 => $value4 )
                             <tr class="class_{{ $value3->id}}">
@@ -206,9 +237,13 @@
                                 @if ( count($value4->child_item) > 0 )
                                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $value4->name }}
                                 @else
-                                <a href="#" onclick="setItem('{{ $value4->id}}','{{ $value4->name }}','{{ $itempekerjaan->id }}')"  data-toggle="modal" data-target="#modal-primary" title="Silahkan isi bobot disini!">
+                                <a href="#" onclick="setItem('{{ $value4->id}}','{{ $value4->name }}','{{ $itempekerjaan->id }}','{{ $value3->item_satuan }}')"  data-toggle="modal" data-target="#modal-primary" title="Silahkan isi bobot disini!">
                                       {{ $value4->name }}
                                 @endif
+                              </td>
+                              <td>                              
+                                <input type="hidden" class="form-control" name="item_id_[{{ $start }}]" value="{{ $value4->id }}" required>
+                                <input type="text" class="form-control" name="item_satuan_[{{ $start }}]" value="{{ $value4->item_satuan }}" required>
                               </td>
                               <td>{{ $value4->item_progress[0]->percentage or '0' }}</td>
                               <td>{{ $value4->item_progress[1]->percentage or '0' }}</td>
@@ -221,15 +256,20 @@
                               <td>{{ $value4->item_progress[8]->percentage or '0' }}</td>
                               <td>{{ $value4->item_progress[9]->percentage or '0' }}</td>
                             </tr>
+                              @php $start++; @endphp
                               @if ( count($value4->child_item) > 0 )
                                 @foreach ( $value4->child_item as $key5 => $value5 )
                                 <tr class="class_{{ $value3->id}}">
                                   <td><strong>{{ $value5->code }}</strong></td>
                                   <td>
                                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    <a href="#" onclick="setItem('{{ $value5->id}}','{{ $value5->name }}','{{ $itempekerjaan->id }}')"  data-toggle="modal" data-target="#modal-primary" title="Silahkan isi bobot disini!">
+                                    <a href="#" onclick="setItem('{{ $value5->id}}','{{ $value5->name }}','{{ $itempekerjaan->id }}','{{ $value3->item_satuan }}')"  data-toggle="modal" data-target="#modal-primary" title="Silahkan isi bobot disini!">
                                       {{ $value5->name }}
                                     </a>
+                                  </td>
+                                  <td>                                    
+                                    <input type="hidden" class="form-control" name="item_id_[{{ $start }}]" value="{{ $value5->id }}" required>
+                                    <input type="text" class="form-control" name="item_satuan_[{{ $start }}]" value="{{ $value5->item_satuan }}" required>
                                   </td>
                                   <td>{{ $value5->item_progress[0]->percentage or '0' }}</td>
                                   <td>{{ $value5->item_progress[1]->percentage or '0' }}</td>
@@ -242,6 +282,7 @@
                                   <td>{{ $value5->item_progress[8]->percentage or '0' }}</td>
                                   <td>{{ $value5->item_progress[9]->percentage or '0' }}</td>
                                 </tr>
+                                @php $start++; @endphp
                                 @endforeach
                               @endif
                             @endforeach
@@ -249,6 +290,7 @@
                           @endforeach
                         </tbody>
                       </table>
+                    </form>
                   </div>
                   <!-- /.tab-pane -->
                 </div>

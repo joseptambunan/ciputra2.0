@@ -409,7 +409,7 @@
 
                       <tr>
                       <th>Nilai BAP 3</th>
-                      <td style="text-align: right;">Rp. {{  number_format( (($total2 * $ppn) + $total2) - $nilai_sebelumnya,2 )}}</td>
+                      <td style="text-align: right;">Rp. {{  number_format( $nilai_bap_3 = (($total2 * $ppn) + $total2) - $nilai_sebelumnya,2 )}}</td>
                       <input type="" name="">
                       </tr>
 
@@ -493,7 +493,7 @@
                           <input type="hidden" name="nilai_bap_dibayar" value="{{ $spk->nilai_bap_sekarang + ($spk->nilai_bap_sekarang * $ppn) }}">
 
                           @else
-                          <span id="total_dibayar">{{ number_format( $total_bisa_dibayar = (($total2 * $ppn) + $total2) - ( $spk->nilai_total_sebelumnya ),2) }}</span>
+                          <span id="total_dibayar">{{ number_format( $total_bisa_dibayar = (($total2 * $ppn) + $total2 ) - $nilai_sebelumnya,2 ) }}</span>
                           <input type="hidden" name="nilai_bap_dibayar" value="{{ ( ($total2 * $ppn) + $total2 ) - ( $spk->nilai_total_sebelumnya  ) }}">
                           @endif
                         </td>

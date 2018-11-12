@@ -59,7 +59,7 @@
   });
 
 
-  function setItem(item_id,item_name,coa){
+  function setItem(item_id,item_name,coa,satuan){
     $("#item_name").val(item_name);
     $("#item_id").val(item_id);
   }

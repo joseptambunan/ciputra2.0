@@ -28,7 +28,7 @@
 
             </div>
             <!-- /.box-header -->
-            <div class="box-body">
+            <div class="box-body table-responsive">
               @if ( $project->luas > 0 )
               <a href="{{ url('/')}}/budget/add-budget?id={{ $project->id }}" class="btn-lg btn-primary"><i class="glyphicon glyphicon-plus-sign"></i>Tambah Budget</a><br><br>
               @else
@@ -82,7 +82,7 @@
                   <td>Nomor Budget</td>
                   <td>Nilai DevCost(Rp)</td>
                   <td>Department</td>
-                  <td>Project</td>
+                  <td>Proyek</td>
                   <td>Kawasan</td>
                   <td>Start Date</td>
                   <td>End Date</td>                  
@@ -110,17 +110,25 @@
                   <td>{{ $value->department->name }}</td>
                   <td>{{ $value->project->name }}</td>
                   <td>{{ $value->kawasan->name or '' }}</td>
-                  <td>{{ $value->start_date}}</td>
-                  <td>{{ $value->end_date }}</td>                  
+                  <td>{{ $value->start_date->format("d/m/Y")}}</td>
+                  <td>{{ $value->end_date->format("d/m/Y") }}</td>                  
                   <!--td>Status</td-->
                   <td>
                     <a class="btn btn-warning" href="{{ url('/')}}/budget/detail?id={{ $value->id }}">Detail</a>                   
                   </td>
                   <td>
-                    @if ( count(\Modules\Budget\Entities\Budget::where("parent_id",$value->id)->get()) <= 0 )
-                    <a class="btn btn-success" href="{{ url('/')}}/budget/revisibudget?id={{ $value->id }}">Revisi</a>
+                    @if ( $value->approval == "" )
+                     
                     @else
-                    <a class="btn btn-success" href="{{ url('/')}}/budget/list-budgetrevisi?id={{ $value->id }}">Daftar Revisi</a>
+                      @if ( $value->approval->approval_action_id == 6 )
+                        @if ( count(\Modules\Budget\Entities\Budget::where("parent_id",$value->id)->get()) <= 0 )
+                          <a class="btn btn-success" href="{{ url('/')}}/budget/revisibudget?id={{ $value->id }}">Revisi</a>
+                        @else
+                          <a class="btn btn-success" href="{{ url('/')}}/budget/list-budgetrevisi?id={{ $value->id }}">Daftar Revisi</a>
+                        @endif
+                      @else
+                      
+                      @endif
                     @endif
                   </td>
                   <td>

@@ -27,4 +27,6 @@
       'autoWidth'   : false
     });
   })
+
+  $('input').attr('autocomplete','off');
 </script>

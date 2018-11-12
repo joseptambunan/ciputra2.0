@@ -40,11 +40,7 @@ class ProjectController extends Controller
     public function index()
     {
         $user = \Auth::user();
-        if ( $user->group->id == "1"){
-            $project = Project::get();
-        }else{
-            $project = $user->project;
-        }
+        $project = Project::get();
         return view('project::index',compact("user","project"));
     }
 

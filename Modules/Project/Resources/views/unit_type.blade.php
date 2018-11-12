@@ -38,8 +38,8 @@
                   <td>Kode Type</td>
                   <td>Nama Type</td>
                   <td>Kategori</td>
-                  <td>Luas Bangunan(m2)</td>
-                  <td>Luas Tanah(m2)</td>
+                  <td>L Bang.(m2)</td>
+                  <td>L Tanah(m2)</td>
                   <td>Elektrik(watt)</td>
                   <td>Detail</td>
                   <td colspan="2">Perubahan Data</td>
@@ -56,8 +56,11 @@
                     </td>
                     <td>
                       <span id="label_{{ $value->id }}">{{ $value->name }}</span><br>                      
-                      Kategori : <strong>{{ $value->category->category_project->category_detail->category->name or '-'}} {{ $value->category->category_project->category_detail->sub_type or '-'}}</strong><br>
+                      
                       <input type="text" name="input_{{ $value->id }}" id="input_{{ $value->id }}" style="display: none;" value="{{ $value->name }}">
+                    </td>
+                    <td>
+                      Kategori : <strong>{{ $value->category->category_project->category_detail->category->name or '-'}} {{ $value->category->category_project->category_detail->sub_type or '-'}}</strong><br>
                     </td>
                     <td>
                       <span id="luas_{{ $value->id }}">{{ $value->luas_bangunan }}</span>

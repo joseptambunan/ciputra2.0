@@ -36,6 +36,7 @@ use Modules\Department\Entities\Department;
 use Modules\Budget\Entities\HppUpdate;
 use Modules\Budget\Entities\HppUpdateDetail;
 
+
 class AccessController extends Controller
 {
     public function __construct()

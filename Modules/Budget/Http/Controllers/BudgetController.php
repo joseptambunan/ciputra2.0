@@ -150,28 +150,20 @@ class BudgetController extends Controller
         $itempekerjaan = Itempekerjaan::find($request->id);
         $html = "";
         $start = 0;
-        foreach ( $itempekerjaan->child_item as $key3 => $value3 ){            
-            if ( count($value3->child_item) > 0 ){
-                $html .= "<tr>";
-                $html .= "<td><strong>".$value3->code.".00</strong></td>";
-                $html .= "<td style='background-color: white;color:black;' onclick='showhide(".$value3->id.")' data-attribute='1' id='btn_".$value3->id."'>".$value3->name."</td>";
-                 $html .= "<td><input type='hidden' class='form-control item_budget nilai_budget' name='item_id[".$start."]' value='".$value3->id."'/><input type='text' class='form-control nilai_budget' name='volume_[".$start."]' value='' /><input type='hidden' class='form-control' name='code[".$start."]' value='".$value3->code."'/></td>";
-                    $html .= "<td><input type='text' class='form-control' name='satuan_[".$start."]' value='' /></td>";
-                    $html .= "<td><input type='text' class='nilai_budget form-control' name='nilai_[".$start."]' value='' /></td>";
-                $html .= "</tr>";
-                $start++;
-            }else{
-                $html .= "<tr>";
-                $html .= "<td><strong>".$value3->code.".00</strong></td>";
-                $html .= "<td style='background-color: white;color:black;' onclick='showhide(".$value3->id.")' data-attribute='1' id='btn_".$value3->id."'>".$value3->name."</td>";
-                $html .= "<td><input type='hidden' class='form-control ' name='item_id[".$start."]' value='".$value3->id."'/><input type='hidden' class='form-control' name='code[".$start."]' value='".$value3->code."'/><input type='text' class='form-control nilai_budget' name='volume_[".$start."]' /></td>";
-                $html .= "<td><input type='text' class='form-control' name='satuan_[".$start."]' value='' /></td>";
-                $html .= "<td><input type='text' class='form-control nilai_budget' name='nilai_[".$start."]' value='' /></td>";
-                $html .= "</tr>";
-                $start++;  
-            }
-        }
-    
+         $html .= "<tr>";
+        $html .= "<td><strong>".$itempekerjaan->code."</strong></td>";
+        $html .= "<td style='background-color: white;color:black;' onclick='showhide(".$itempekerjaan->id.")' data-attribute='1' id='btn_".$itempekerjaan->id."'>".$itempekerjaan->name."</td>";
+        $html .= "<td>
+                    <input type='hidden' class='form-control ' name='item_id[".$start."]' value='".$itempekerjaan->id."'/>
+                    <input type='hidden' class='form-control' name='code[".$start."]' value='".$itempekerjaan->code."'/>
+                    <input type='text' class='form-control nilai_budget' name='volume_[".$start."]' autocomplete='off'/></td>";
+        $html .= "<td>
+                    <input type='hidden' class='form-control' name='satuan_[".$start."]' value='".$itempekerjaan->satuan."' autocomplete='off' />
+                    <input type='text' class='form-control' value='".$itempekerjaan->item_satuan."' autocomplete='off' disabled />
+                    </td>";
+        $html .= "<td><input type='text' class='form-control nilai_budget' name='nilai_[".$start."]' value='' autocomplete='off' /></td>";
+        $html .= "</tr>";
+
         $status = "1";
         if ( $status ){
             return response()->json( ["status" => "0", "html" => $html] );
@@ -325,7 +317,7 @@ class BudgetController extends Controller
                 $total_nilaasi = $value["nilaispk"] +  $total_nilaasi;
             }
         }
-        return view("budget::detail_cashflow",compact("budget_tahunan","user","budget","start_date","end_date","array_cashflow","project","carry_over"));
+        return view("budget::detail_cashflow2",compact("budget_tahunan","user","budget","start_date","end_date","array_cashflow","project","carry_over"));
     }
 
     public function updatecashflow(Request $request){
@@ -341,7 +333,26 @@ class BudgetController extends Controller
         $itempekerjaan = Itempekerjaan::where("code",$request->id)->first();
         $user = \Auth::user();
         $project = Project::find($request->session()->get('project_id'));
-        return view("budget::cashflow_item",compact("budget","itempekerjaan","user","project"));
+        $nilai = 0;
+
+        $check = Itempekerjaan::find($itempekerjaan->id);
+        $budget_detail = BudgetDetail::where("itempekerjaan_id",$check->id)->where("budget_id",$budget->budget->id)->get();
+        if ( count($budget_detail) > 0 ){
+            foreach( $budget_detail as $key => $value ){
+                $nilai = $nilai + $value->volume * $value->nilai;
+            }
+        }
+        foreach ($check->child_item as $key => $value) {
+            $budget_detail = BudgetDetail::where("itempekerjaan_id",$value->id)->where("budget_id",$budget->budget->id)->get();
+            if ( count($budget_detail) > 0 ){
+                foreach( $budget_detail as $key => $value ){
+                    $nilai = $nilai + $value->volume * $value->nilai;
+                }
+            }
+        }
+
+        $nilai_budget_awal = $nilai;
+        return view("budget::cashflow_item",compact("budget","itempekerjaan","user","project","nilai_budget_awal"));
     }
 
     public function revitemcashflow(Request $request){
@@ -542,7 +553,7 @@ class BudgetController extends Controller
             $budgetDetail->save();
         }
         //$approval = \App\Helpers\Document::make_approval('Modules\Budget\Entities\Budget',$budget->id);
-        return redirect("budget/show-budgetrevisi/?id=".$budget->id);
+        return redirect("budget/detail/?id=".$budget->id);
     }
 
     public function detailrevisi(Request $request){
@@ -555,7 +566,7 @@ class BudgetController extends Controller
 
     public function itemrevisi(Request $request){
         $budget = Budget::find($request->id);
-        $itempekerjaan_id = Itempekerjaan::where("code",$request->coa)->get()->first()->id;
+        $itempekerjaan_id = Itempekerjaan::where("id",$request->coa)->get()->first()->id;
         $itempekerjaan = Itempekerjaan::find($itempekerjaan_id);
         $project = $budget->project;
         $user = \Auth::user();
@@ -839,7 +850,7 @@ class BudgetController extends Controller
             # code...
             $user = \Modules\User\Entities\User::find($each->user_id);
             if ( $budget->approval->histories != "" ){
-                $cek = $budget->approval->histories->where("user_id",$each->id);
+                $cek = $budget->approval->histories->where("user_id",$each->user_id);
                 if ( count($cek) <= 0 ){
                     $document->approval_histories()->create([
                         'no_urut' => $each->no_urut,

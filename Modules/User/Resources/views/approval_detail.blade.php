@@ -55,14 +55,17 @@
                     </tr>
                   </thead>
                   <tbody>
+                    <tr>
+                      <td colspan="5"><input type="checkbox" name="all_check" id="all_check" onclick="allcheck()"> Pilih Semua</td>
+                    </tr>
                     @foreach ( $document as $key => $value )
                     <tr>
                       <td>
-                        <input type="hidden" name="document_[{{ $key}} ]" value="{{ $value->head_type }}">
-                        <input type="checkbox" name="check_[{{ $key}}]"> Approve
+                        <input type="hidden" name="document_[{{ $key}} ]" value="{{ $value->head_type }}" >
+                        <input type="checkbox" name="check_[{{ $key}}]" class="approval"> Approve
                         {{ $value->head_type }}
                       </td>
-                      <td><input type="text" name="max_value_[{{ $key}}]" value="" class="form-control" autocomplete="off"></td>
+                      <td><input type="text" name="max_value_[{{ $key}}]" class="form-control" autocomplete="off" value="0"></td>
                       <td>
                         <select class="form-control" name="urut[{{$key}}]">
                           @foreach ( $uniq as $key2 => $value2 )
@@ -108,6 +111,14 @@
 @include("master/footer_table")
 @include("pt::app")
 <!-- Select2 -->
-
+<script type="text/javascript">
+  function allcheck(){
+    if ( $("#all_check").is(":checked")){
+      $(".approval").attr("checked","checked");
+    }else{
+      $(".approval").removeAttr("checked");
+    }
+  }
+</script>
 </body>
 </html>

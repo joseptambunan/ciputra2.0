@@ -35,15 +35,16 @@
             <div class="col-md-6">             
               <div class="form-group">
                 <label>Item Pekerjaan</label>
-                <select class="form-control" name="coa_id" id="coa_id">
+                <select class="form-control select2" name="coa_id" id="coa_id">
                   <option>( pilih item pekerjaan)</option>
                   @foreach ( $itempekerjaan as $key => $value )                    
-                      <option value="{{ $value->id }}" selected>{{ $value->name }}</option>                      
+                      <option value="{{ $value->id }}" selected>{{ $value->code}} - {{ $value->name }}</option>                      
                   @endforeach
                 </select>
               </div>
               <div class="form-group">
-                <button class="btn btn-info" onClick="formsubmit();">Simpan</button>
+                <i class="fa fa-refresh ld ld-spin" id="loading" style="display: none;"></i>
+                <button class="btn btn-info submitbtn" onClick="formsubmit();" id="btn_submit">Simpan</button>
                 <a class="btn btn-warning" href="{{ url('/')}}/budget/show-budgetrevisi?id={{ $budget->id }}">Kembali</a>
               </div>
             </div>
@@ -113,9 +114,12 @@
       "dateFormat" : "yy-mm-dd"
     });
 
-     $('#end_date').datepicker({
+    $('#end_date').datepicker({
       "dateFormat" : "yy-mm-dd"
     });
+
+    $('.select2').select2();
+
   });
 
   function setkawasan(){
@@ -148,6 +152,7 @@
 
   function formsubmit(){
     $("#form1").submit();
+    
   }
 
 </script>

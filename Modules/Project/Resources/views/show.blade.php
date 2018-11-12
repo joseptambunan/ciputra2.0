@@ -240,8 +240,8 @@
 
               @endforeach
 
-              <h3>Luas Brutto ( yang belum bisa dikembangkan )   : {{ number_format($project->luas_nonpengembangan,2) }} m2 </h3>
-              <h3>Luas Brutto ( yang bisa dikembangkan )   : {{ number_format($project->luas)}} m2 </h3>
+              <h3>Luas Brutto yang belum ada site plan (m2)   : {{ number_format($project->luas_nonpengembangan,2) }} m2 </h3>
+              <h3>Luas Brutto yang ada site plan(m2)   : {{ number_format($project->luas)}} m2 </h3>
               <h3>Luas Netto    : {{ number_format($project->netto)}} m2</h3>
 
               @if ( $project->luas > 0 )
@@ -271,7 +271,8 @@
                   <tr>
                     <td>Tipe Bangunan (LB/LT)</td>
                     <td>Kategori Bangunan</td>
-                    <td>HPP(Rp/m2)</td>
+                    <td>HPP Awal(Rp/m2)</td>
+                    <td>Real (Rp/m2)</td>
                   </tr>
                 </thead>
                 <tbody>
@@ -284,6 +285,7 @@
                     @else
                     <td>{{ number_format(0,2)}}</td>
                     @endif
+                    <td>0</td>
                   </tr>
                   @endforeach
                 </tbody>
@@ -399,7 +401,7 @@
                 <button class="btn-primary btn" type="submit">Simpan</button>
               </div>
             
-            <h3>HPP Update</h3>
+            <h3>Rekap HPP Devcost</h3>
 
             <table class="table table-borderd">
               <thead class="head_table">

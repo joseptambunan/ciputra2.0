@@ -86,7 +86,7 @@
               </div>
               <div class="form-group">
                 <label>Keterangan Date</label>
-                <input type="text" class="form-control" name="description">
+                <input type="text" class="form-control" name="description" autocomplete="off">
               </div>
               <div class="box-footer">
                 <button type="submit" class="btn btn-primary">Simpan</button>

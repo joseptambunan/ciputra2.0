@@ -657,7 +657,7 @@ class Spk extends CustomModel
            $nilai = $nilai + $value->progress;
        }
 
-       return $nilai / count($this->tender->units);
+       return $nilai ;
     }
 
 

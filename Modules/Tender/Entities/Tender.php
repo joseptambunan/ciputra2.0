@@ -87,7 +87,7 @@ class Tender extends CustomModel
     public function getNilaiAttribute()
     {
         $nilai = 0;
-
+        return $nilai;
         foreach ($this->units as $key => $unit) 
         {
             $nilai = $nilai + $unit->rab_unit->nilai;

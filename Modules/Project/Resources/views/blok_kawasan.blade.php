@@ -42,12 +42,11 @@
                   <td>Unit</td>
                   <td>#</td>
                   <td>Nama</td>
-                  <td>Project</td>
+                  <td>Proyek</td>
                   <td>Kawasan</td>
-                  <td>Luas Lahan(m2)</td>
-                  <td colspan="9">Dev Cost</td>
-                  <td>Con Cost</td>
-                  <td colspan="9">Descriptipn</td>
+                  <td>L Tanah(m2)</td>
+                  <td>L Bang(m2)</td>
+                  <td>Keterangan</td>
                   <td>Edit</td>
                   <td>Delete</td>
                 </tr>
@@ -62,10 +61,9 @@
                     <td>{{ $value->name }}</td>
                     <td>{{ $projectkawasan->project->name }}</td>
                     <td>{{ $projectkawasan->name }}</td>
-                    <td>{{ number_format($value->luas) }}</td>
-                    <td colspan="9"></td>
-                    <td></td>
-                    <td colspan="9"></td>
+                    <td>{{ number_format($value->total_tanah) }}</td>
+                    <td>{{ number_format($value->total_bangunan) }}</td>
+                    <td></td>                    
                     <td><a href="{{ url('/')}}/project/edit-blok?id={{ $value->id }}" class="btn btn-warning">Edit</a></td>
                     <td><button class="btn btn-danger" onclick="removeblok('{{ $value->id }}','{{ $value->name }}')">Delete</button></td>
                  </tr>

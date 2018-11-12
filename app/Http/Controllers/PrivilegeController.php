@@ -15,7 +15,7 @@ class PrivilegeController extends Controller
      */
     public function index(Request $request)
     {
-        //print_r(\Auth::user());
+       
         $user = \Modules\User\Entities\User::find(\Auth::user()->id);
         $jabatan = $user->jabatan;
         if ( $user->id == "1"){
@@ -23,8 +23,7 @@ class PrivilegeController extends Controller
             return redirect("user");
         }
         
-        if ( $user->is_rekanan == 0 ){
-            
+        if ( $user->is_rekanan == 0 ){           
 
             foreach ($jabatan as $key => $value) {
                 if ( $value['level'] == "10"){
