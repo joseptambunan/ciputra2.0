@@ -32,23 +32,19 @@
               </ol>
             </div>
             <!-- /.box-header -->
-            <div class="box-body">
+            <div class="box-body table-responsive">
               <a href="{{ url('/')}}/project/add-unit?id={{ $blok->id }}" class="btn-lg btn-primary"><i class="glyphicon glyphicon-plus-sign"></i>Tambah Unit</a><br><br>
               <table id="example2" class="table table-bordered table-hover">   
               {{ csrf_field() }}              
               <thead style="background-color: greenyellow;">
-                <tr>
-                  <td>Progress</td>
-                  <td>#</td>
+                <tr>                 
                   <td>Unit No.</td>
-                  <td>Project</td>
-                  <td>Kawasan</td>
                   <td>Luas Tanah(m2)</td>
                   <td>Luas Bangunan(m2)</td>
                   <td>Sellable</td>
                   <td>Kategori</td>
                   <td>Type</td>
-                  <td>Arah</td>
+                  <td>Progress</td>
                   <td>Status</td>
                   <td>ST 1</td>
                   <td>ST 2</td>
@@ -59,22 +55,18 @@
                  @foreach ( $blok->units as $key => $value )
                  @php $arrayAngin = array("1" => "Utara", "2" =>"Timur Laut", "3" => "Timur", "4" => "Tenggara", "5" => "Selatan", "6" => "Barat Daya", "7" => "Barat", "8" => "Barat Laut") @endphp
                  <tr>
-                    <td>&nbsp;</td>
-                    <td>#</td>
                     <td>{{ $value->name }}</td>
-                    <td>{{ $value->blok->project_kawasan->project->name }}</td>
-                    <td>{{ $value->blok->project_kawasan->name }}</td>
                     <td>{{ number_format($value->tanah_luas,2) }}</td>
                     <td>{{ number_format($value->bangunan_luas) }}</td>
                     <td>{{ $value->is_sellable ? 'Ya' : 'Tidak' }}</td>
                     <td>{{ $value->tag_kategori == 'B' ? 'Bangunan' : 'Kavling'}}</td>
                     <td>{{ $value->type->name or '' }}</td>
-                    <td>&nbsp;</td>
+                    <td>0 %</td>
                     <td>
                       @if($value->status == 0)
-                        <div class="alert-info fade in" style="text-align:center;background-color:#b3ffb3;color:#cc7a00">Open</div>
-                      @elseif($value->status == 1)
                         <div class="alert-info fade in" style="text-align:center;background-color:#b3ffb3;color:#cc7a00">Planning</div>
+                      @elseif($value->status == 1)
+                        <div class="alert-info fade in" style="text-align:center;background-color:#b3ffb3;color:#cc7a00">Ready for Stock</div>
                       @elseif($value->status == 2)
                         <div class="alert-info fade in" style="text-align:center;background-color:#fdfc93;color:#817f01">In Progress</div>
                       @elseif($value->status == 4)

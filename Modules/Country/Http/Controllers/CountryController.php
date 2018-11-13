@@ -110,6 +110,8 @@ class CountryController extends Controller
 
         $province = Province::find($province);
         $country  = $province->country->id;
+
+
         return redirect("/country/detail/?id=".$country);
     }
 

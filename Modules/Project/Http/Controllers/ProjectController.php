@@ -24,6 +24,9 @@ use Modules\Category\Entities\CategoryDetail;
 use Modules\Category\Entities\CategoryProject;
 use Modules\Project\Entities\UnitTypeCategory;
 use Modules\Project\Entities\UnitTypeCategoryDetail;
+use Illuminate\Support\Facades\DB;
+use Modules\Project\Entities\ProjectPt;
+use Modules\Pt\Entities\Pt;
 
 class ProjectController extends Controller
 {
@@ -152,6 +155,7 @@ class ProjectController extends Controller
     }
 
     public function saveKawasan(Request $request){
+        $authuser = \Auth::user();
         $project_kawasan                         = new ProjectKawasan;
         $project_kawasan->project_id             = $request->project_id;
         $project_kawasan->code                   = strtoupper($request->kode_kawasan);
@@ -169,6 +173,26 @@ class ProjectController extends Controller
         }
         
         $status = $project_kawasan->save();
+
+        //Save to EREM
+        $project = Project::find($request->project_id);
+        $project_id_erem = $project->project_id;
+
+        $project_pt = ProjectPt::where("project_id",$request->project_id)->get();
+        if ( count($project_pt) > 0 ){
+            $project_pt_id = $project_pt->first()->id;
+            $project_pts = ProjectPt::find($project_pt_id);
+            $pt = Pt::find($project_pts->pt_id)->pt_id;
+        }else{
+            $pt = "";
+        }
+        $users = DB::connection('sqlsrv3')->table('dbo.mh_cluster')->get();
+        $ins_erem = DB::connection('sqlsrv3')->insert('insert into [dbo].[mh_cluster] (project_id, pt_id,code,cluster,description,Addon,Addby,Modion,Modiby) values (?, ?, ?, ?, ?, ?, ?, ?, ?)', [$project_id_erem, $pt,$request->kode_kawasan,$request->nama_kawasan,$request->nama_kawasan,date("Y-m-d H:i:s.000"),7534,date("Y-m-d H:i:s.000"),$authuser->user_id]);
+        $get_last = DB::connection('sqlsrv3')->table('dbo.mh_cluster')->where('project_id', $project_id_erem)->get();
+        $cluster_id = $get_last->last();
+        $project_kawasan_upd = ProjectKawasan::find($project_kawasan->id);
+        $project_kawasan_upd->cluster_id = $cluster_id->cluster_id;
+        $project_kawasan_upd->save();
         return redirect("/project/kawasan/");
     }
 
@@ -205,6 +229,8 @@ class ProjectController extends Controller
         $user = \Auth::user();
         $projectkawasan = ProjectKawasan::find($request->id);
         $project = $projectkawasan;
+
+        
         return view("project::create_blok",compact("user","projectkawasan","project"));
     }
 
@@ -216,6 +242,31 @@ class ProjectController extends Controller
         $blok->name = $request->name;
         $blok->luas = str_replace(",","",$request->luas);
         $status  = $blok->save();
+
+        //Save to EREM
+        $authuser = \Auth::user();
+        $project = Project::find($request->project_id);
+        $project_id_erem = $project->project_id;
+
+        $projectkawasan = ProjectKawasan::find($request->projectkawasan);
+        $cluster_id  = $projectkawasan->cluster_id;
+
+        $project_pt = ProjectPt::where("project_id",$request->project_id)->get();
+        if ( count($project_pt) > 0 ){
+            $project_pt_id = $project_pt->first()->id;
+            $project_pts = ProjectPt::find($project_pt_id);
+            $pt = Pt::find($project_pts->pt_id)->pt_id;
+        }else{
+            $pt = "";
+        }
+        $users = DB::connection('sqlsrv3')->table('dbo.m_block')->get();
+        $ins_erem = DB::connection('sqlsrv3')->insert('insert into [dbo].[m_block] (project_id, pt_id,cluster_id,code,block,description,Addon,Addby,Modion,Modiby) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [$project_id_erem, $pt,$cluster_id,$request->kode,$request->name,$request->description,date("Y-m-d H:i:s.000"),7534,date("Y-m-d H:i:s.000"),$authuser->user_id]);
+        $get_last = DB::connection('sqlsrv3')->table('dbo.m_block')->where('cluster_id', $cluster_id)->get();
+        $block_id = $get_last->last();
+
+        $blok = Blok::find($blok->id);
+        $blok->block_id = $block_id->block_id;
+        $blok->save();
         return redirect("/project/bloks/?id=".$request->projectkawasan);
     }
 
@@ -227,10 +278,15 @@ class ProjectController extends Controller
     }
 
     public function updateblok(Request $request){
+
+        $authuser = \Auth::user();
         $blok = Blok::find($request->blok_id);
         $blok->name = $request->name;
         $blok->luas = str_replace(",","",$request->luas);
         $blok->save();
+
+        $cluster_id = $blok->kawasan->cluster_id;
+        $update_cluster = DB::connection('sqlsrv3')->table('dbo.m_block')->where('block_id', $blok->block_id)->update(['cluster_id' => $cluster_id,'Modiby' => $authuser->user_id, "Modion" => date("Y-m-d H:i:s.000")]);
         return redirect("/project/bloks/?id=".$blok->kawasan->id);
     }
 
@@ -290,6 +346,44 @@ class ProjectController extends Controller
         $unit_type->description = $request->description;
         $unit_type->listrik = str_replace(",", "", $request->elektrik);
         $unit_type->save();
+
+        //Save to EREM
+        if ( $request->luas > 0 ){
+            $productcategory = 1;
+        }else{
+            $productcategory = 2;
+        }
+
+        $authuser = \Auth::user();
+        $projectkawasan = ProjectKawasan::find($request->kawasan);
+
+        $users = DB::connection('sqlsrv3')->table('dbo.mh_type')->get();
+        $ins_erem = DB::connection('sqlsrv3')->insert('insert into [dbo].[mh_type] (productcategory_id,cluster_id,code,name,land_size,building_size,electricity,building_class,floor_size,floor,bedroom,bathroom,Addon,Addby,Modion,Modiby) values (?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?)', [
+            $productcategory, 
+            $projectkawasan->cluster_id,
+            $request->code,
+            $request->name,
+            str_replace(",", "", $request->luas_tanah),
+            $request->luas,
+            str_replace(",", "", $request->elektrik),
+            '',
+            $request->luas,
+            $request->lantai,
+            0,
+            0,
+            date("Y-m-d H:i:s.000"),
+            7534,
+            date("Y-m-d H:i:s.000"),
+            $authuser->user_id]
+        );
+
+        $get_last = DB::connection('sqlsrv3')->table('dbo.mh_type')->get();
+        $type_id = $get_last->last();
+        $type = UnitType::find($unit_type->id);
+        $type->type_id = $type_id->type_id;
+        $type->save();
+
+
         return redirect("project/templatepekerjaan?id=".$unit_type->id);
     }
 
@@ -415,6 +509,10 @@ class ProjectController extends Controller
 
         }
 
+        //Save to EREM
+        $category = Category::find($request->master_tipe);
+        $authuser = \Auth::user();
+        $update_cluster = DB::connection('sqlsrv3')->table('dbo.mh_type')->where('type_id', $unit_type->type_id)->update(['building_class' => $category->name,'Modiby' => $authuser->user_id, "Modion" => date("Y-m-d H:i:s.000")]);
         return redirect("/project/templatepekerjaan/?id=".$request->unit_type);
     }
 
@@ -562,6 +660,52 @@ class ProjectController extends Controller
             }
             $project_units->status = $request->is_status;
             $status = $project_units->save();
+
+             //Save to EREM           
+            if ( $request->luas_bangunan > 0 ){
+                $productcategory = 1;
+            }else{
+                $productcategory = 2;
+            }
+            $authuser = \Auth::user();
+            $project_pt_erem = Project::find($request->project_id)->project_id;
+            $projectkawasan = ProjectKawasan::find($request->projectkawasan);
+            $pt = Pt::find($request->pt_id);
+            $datatype = UnitType::find($request->unit_type);
+
+            if ( $request->is_status == 0 ){
+                $is_readystock = 0;
+            }else{
+                $is_readystock = 1;
+            }
+
+            //$users = DB::connection('sqlsrv3')->table('dbo.m_unit')->get();
+            $ins_erem = DB::connection('sqlsrv3')->insert('insert into [dbo].[m_unit] (project_id,pt_id,cluster_id,unit_number,productcategory_id,type_id,land_size,building_size,floor_size,floor,electricity,block_id,is_readystock,state_admistrative,Addon,Addby,Modion,Modiby) values (?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?,?,?)', [
+                $project_pt_erem, 
+                $pt->pt_id,
+                $projectkawasan->cluster_id,
+                $unit_no,
+                $productcategory,
+                $datatype->type_id,
+                str_replace(",", "", $request->luas_tanah),
+                str_replace(",", "", $request->luas_bangunan),
+                $request->luas_bangunan,
+                $datatype->lantai,
+                $datatype->electricity,
+                $blok->block_id,
+                $is_readystock,
+                1,
+                date("Y-m-d H:i:s.000"),
+                7534,
+                date("Y-m-d H:i:s.000"),
+                $authuser->user_id]
+            );
+
+            $get_last = DB::connection('sqlsrv3')->table('dbo.m_unit')->get();
+            $unit_id = $get_last->last();
+            $unit = UnitType::find($unit_type->id);
+            $unit->type_id = $unit_id->unit_id;
+            $unit->save();
         }
         return redirect("project/units/?id=".$request->blok);
     }

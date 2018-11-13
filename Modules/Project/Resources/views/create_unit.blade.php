@@ -74,27 +74,6 @@
                 <label>Luas Bangunan(m2)</label>
                 <input type="text" class="form-control" name="luas_bangunan" id="luas_bangunan"  autocomplete="off">
               </div>
-              <div class="form-group">
-                <label>Arah Bangunan</label>
-                <select class="form-control" name="unit_arah_id" id="unit_arah_id">
-                  <option value='1'>Utara</option>
-                  <option value='2'>Timur Laut</option>
-                  <option value='3'>Timur</option>
-                  <option value='4'>Tenggara</option>
-                  <option value='5'>Selatan</option>
-                  <option value='6'>Barat Daya</option>
-                  <option value='7'>Barat</option>
-                  <option value='8'>Barat Laut</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Hadap Bangunan</label>
-                <select class='form-control select2' name='unit_hadap' id='unit_hadap'>
-                  @foreach ( $project->hadap as $key3 => $value3 )
-                  <option value='{{ $value3->id }}'>{{ $value3->name }}</option>
-                  @endforeach
-                </select>
-              </div>
 
               <div class="form-group">
                 <label>Product Kategori</label>
@@ -113,8 +92,8 @@
               <div class="form-group">
                 <label>Status Unit</label>
                 <select class='form-control' name='is_status' id='is_status'>
-                  <option value='1'>Planning</option>
-                  <option value='0'>Ready for Stock</option>
+                  <option value='0'>Planning</option>
+                  <option value='1'>Ready for Stock</option>
                 </select>
               </div>
               <div class="form-group">

@@ -4,6 +4,7 @@ namespace Modules\Project\Entities;
 
 use App\CustomModel;
 use Modules\Budget\Entities\Budget;
+use Illuminate\Support\Facades\DB;
 
 class ProjectKawasan extends CustomModel
 {
@@ -782,5 +783,6 @@ class ProjectKawasan extends CustomModel
         return $this->hasMany("App\CostReport");
     }
 
+    
     
 }

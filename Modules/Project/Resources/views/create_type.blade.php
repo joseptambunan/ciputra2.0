@@ -56,6 +56,22 @@
                 <input type="text" class="form-control" name="elektrik" id="elektrik" autocomplete="off" required>
               </div>
               <div class="form-group">
+                <label>Lantai</label>
+                <input type="text" class="form-control" name="lantai" id="lantai" autocomplete="off" required>
+              </div>
+              <div class="form-group">
+                <label>Kawasan</label>
+                @if ( $project->kawasans != "" )
+                <select class="form-control" name="kawasan">
+                  @foreach ( $project->kawasans as $key => $value )
+                  <option value="{{ $value->id }}">{{ $value->name }}</option>
+                  @endforeach
+                </select>
+                @else
+                <h3 style="color:red"><strong>Harap isi data kawasan terlebih dahulu</strong></h3>
+                @endif
+              </div>
+              <div class="form-group">
                 <label>Keterangan</label>
                 <textarea class='form-control' name="description" id="description" cols="45" rows="5" placeholder="Descriptions"></textarea>
               </div>     
