@@ -13,7 +13,9 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'mysql'),
+    'default' => env('DB_CONNECTION', 'sqlsrv'),
+    'sqlsrv2' => env('DB_CONNECTION_SECOND', 'sqlsrv2'),
+    'sqlsrv3' => env('DB_CONNECTION_THIRD','sqlsrv3'),
 
     /*
     |--------------------------------------------------------------------------
@@ -74,6 +76,28 @@ return [
             'database' => env('DB_DATABASE', 'ciputraqs'),
             'username' => env('DB_USERNAME', ''),
             'password' => env('DB_PASSWORD', ''),
+            'charset' => 'utf8',
+            'prefix' => '',
+        ],
+
+        'sqlsrv2' => [
+            'driver' => 'sqlsrv',
+            'host' => env('DB_HOST_SECOND', 'USER-PC\SQLEXPRESS'),
+            'port' => env('DB_PORT_SECOND', '1433'),
+            'database' => env('DB_DATABASE_SECOND', 'erems'),
+            'username' => env('DB_USERNAME_SECOND', ''),
+            'password' => env('DB_PASSWORD_SECOND', ''),
+            'charset' => 'utf8',
+            'prefix' => '',
+        ],
+
+        'sqlsrv3' => [
+            'driver' => 'sqlsrv',
+            'host' => env('DB_HOST_THIRD', '52.163.117.241'),
+            'port' => env('DB_PORT_THIRD', ''),
+            'database' => env('DB_DATABASE_THIRD', 'erems'),
+            'username' => env('DB_USERNAME_THIRD', 'ciputraqs'),
+            'password' => env('DB_PASSWORD_THIRD', ''),
             'charset' => 'utf8',
             'prefix' => '',
         ],

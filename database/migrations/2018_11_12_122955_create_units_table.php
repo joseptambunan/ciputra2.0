@@ -41,6 +41,7 @@ class CreateUnitsTable extends Migration {
 			$table->integer('unit_id')->nullable();
 			$table->integer('purchaseletter_id')->nullable();
 			$table->string('building_class', 32)->nullable();
+			$table->integer('is_spk')->nullable();
 		});
 	}
 
