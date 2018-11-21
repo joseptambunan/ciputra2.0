@@ -33,9 +33,36 @@ Route::post('ces-login', function()
 
 	if ($user) 
 	{
-		\Auth::loginUsingId($user->id);
+		$user = \Modules\User\Entities\User::find($user->id);
+        $jabatan = $user->jabatan;
+        if ( $user->id == "1"){
+            $request->session()->put('level', 'superadmin');
+            return redirect("user");
+        }
+        
+        if ( $user->is_rekanan == 0 ){           
 
-		return redirect()->route('project');
+            foreach ($jabatan as $key => $value) {
+                if ( $value['level'] == "10"){
+                    $request->session()->put('level', '');
+                    return redirect("/project/detail?id=".$value['project_id']);
+                }else{
+                    $request->session()->put('level', '');
+                    return redirect("/access");
+                }
+            }
+        }else {
+            $user_rekanan_group = UserRekanan::where("user_login",$user->user_login)->get();
+            if ( count($user_rekanan_group) > 0 ){
+                $users = UserRekanan::find($user_rekanan_group->first()->id);
+                $rekanan_group = $users->rekanan_group;
+                $request->session()->put('rekanan_id', $rekanan_group->id);
+                return redirect("rekanan/user");
+            }else{
+                return redirect("rekanan/user/fail");
+            }
+        }
+        
 	}else{
 		return redirect('https://ces-test.ciputragroup.com');
 	}
