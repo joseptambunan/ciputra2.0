@@ -43,12 +43,20 @@ Route::post('ces-login', function()
         if ( $user->is_rekanan == 0 ){           
 
             foreach ($jabatan as $key => $value) {
-                if ( $value['level'] == "10"){
-                    $request->session()->put('level', '');
-                    return redirect("/project/detail?id=".$value['project_id']);
+                if ( $value['level'] == "10"){                    
+					if(Auth::loginUsingId($user->id)){
+						return redirect("/project/detail?id=".$value['project_id']);
+					} else {
+						return 'Sorry, but your Credentials seem to be wrong, stupid';
+					}
+                    
                 }else{
-                    $request->session()->put('level', '');
-                    return redirect("/access");
+                    // $request->session()->put('level', '');
+					if(Auth::loginUsingId($user->id)){
+						return redirect("/project/detail?id=".$value['project_id']);
+					} else {
+						return 'Sorry, but your Credentials seem to be wrong, stupid';
+					}
                 }
             }
         }else {
