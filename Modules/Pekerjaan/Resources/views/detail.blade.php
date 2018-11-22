@@ -39,9 +39,7 @@
               <div class="form-group">
                 <label>Sub Holding</label>
                 <select class="form-control" name="subholding">
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                  <option value="3">3</option>
+                  <option value="2" >2</option>
                 </select>
               </div>
               <div class="form-group">
@@ -83,9 +81,9 @@
                 <select class='form-control' name='group_cost' id="group_cost">
                   @foreach ( $budgetgroup as $key2 => $value2 )
                   @if ( $value2->id == $itempekerjaan->group_cost )
-                  <option value="{{ $value2->id }}" selected>{{ $value2->name }}</option>
+                  <option value="{{ $value2->id }}" selected>{{$value2->name}}</option>
                   @else
-                  <option value="{{ $value2->id }}">{{ $value2->name }}</option>
+                  <option value="{{ $value2->id }}">{{$value2->name}}</option>
                   @endif
                   @endforeach
                 </select>
@@ -111,6 +109,7 @@
                 <ul class="nav nav-tabs">
                   <li ><a href="#tab_1" data-toggle="tab">COA Department</a></li>
                   <li class="active"><a href="#tab_2" data-toggle="tab">Sub Item Pekerjaan</a></li>
+                  <li><a href="#tab_3" data-toggle="tab">Master Library</a></li>
                 </ul>
                 <div class="tab-content">
                   <div class="tab-pane " id="tab_1">
@@ -154,7 +153,7 @@
                           <tr>
                             <td>COA Pekerjaan</td>
                             <td style="width: 40%;">Item Pekerjaan</td>
-                            <td style="width: 10%;">Satuan</td>
+                            <td style="width: 30%;">Satuan</td>
                             <td>Termin 1(%)</td>
                             <td>Termin 2(%)</td>
                             <td>Termin 3(%)</td>
@@ -173,7 +172,15 @@
                             <td><strong>{{ $itempekerjaan->name }}</strong></td>
                             <td>
                               <input type="hidden" class="form-control" name="item_id_[{{ $start }}]" value="{{ $itempekerjaan->id }}" required>
-                              <input type="text" class="form-control" name="item_satuan_[{{ $start }}]" value="{{ $itempekerjaan->item_satuan }}" required>
+                              <select class="form-control" name="item_satuan_[{{ $start }}]" style="width: 100px;">
+                                @foreach($satuan as $key => $value8 )
+                                  @if ( $value8->satuan == $itempekerjaan->item_satuan )
+                                  <option value="{{ $value8->satuan}}" selected>{{$value8->satuan}}</option>
+                                  @else
+                                  <option value="{{ $value8->satuan}}">{{$value8->satuan}}</option>
+                                  @endif
+                                @endforeach
+                              </select>
                             </td>
                             <td>&nbsp;</td>
                             <td>&nbsp;</td>
@@ -201,7 +208,15 @@
                             </td>
                             <td>                              
                               <input type="hidden" class="form-control" name="item_id_[{{ $start }}]" value="{{ $value3->id }}" required>
-                              <input type="text" class="form-control" name="item_satuan_[{{ $start }}]" value="{{ $value3->item_satuan }}" required>
+                              <select class="form-control" name="item_satuan_[{{ $start }}]" style="width: 100px;">
+                                @foreach($satuan as $key => $value8 )
+                                  @if ( $value8->satuan == $value3->item_satuan )
+                                  <option value="{{ $value8->satuan}}" selected>{{$value8->satuan}}</option>
+                                  @else
+                                  <option value="{{ $value8->satuan}}">{{$value8->satuan}}</option>
+                                  @endif
+                                @endforeach
+                              </select>
                             </td>
                             @if ( count($value3->child_item) > 0 )
                               <td>&nbsp;</td>
@@ -243,7 +258,15 @@
                               </td>
                               <td>                              
                                 <input type="hidden" class="form-control" name="item_id_[{{ $start }}]" value="{{ $value4->id }}" required>
-                                <input type="text" class="form-control" name="item_satuan_[{{ $start }}]" value="{{ $value4->item_satuan }}" required>
+                                <select class="form-control" name="item_satuan_[{{$start }}]" style="width: 100px;">
+                                @foreach($satuan as $key => $value8 )
+                                  @if ( $value8->satuan == $value4->item_satuan )
+                                  <option value="{{ $value8->satuan}}" selected>{{$value8->satuan}}</option>
+                                  @else
+                                  <option value="{{ $value8->satuan}}">{{$value8->satuan}}</option>
+                                  @endif
+                                @endforeach
+                              </select>
                               </td>
                               <td>{{ $value4->item_progress[0]->percentage or '0' }}</td>
                               <td>{{ $value4->item_progress[1]->percentage or '0' }}</td>
@@ -269,7 +292,15 @@
                                   </td>
                                   <td>                                    
                                     <input type="hidden" class="form-control" name="item_id_[{{ $start }}]" value="{{ $value5->id }}" required>
-                                    <input type="text" class="form-control" name="item_satuan_[{{ $start }}]" value="{{ $value5->item_satuan }}" required>
+                                    <select class="form-control" name="item_satuan_[{{ $start }}]" style="width: 100px;">
+                                      @foreach($satuan as $key8 => $value8 )
+                                        @if ( $value8->satuan == $value5->item_satuan )
+                                        <option value="{{ $value8->satuan}}" selected>{{$value8->satuan}}</option>
+                                        @else
+                                        <option value="{{ $value8->satuan}}">{{$value8->satuan}}</option>
+                                        @endif
+                                      @endforeach
+                                    </select>
                                   </td>
                                   <td>{{ $value5->item_progress[0]->percentage or '0' }}</td>
                                   <td>{{ $value5->item_progress[1]->percentage or '0' }}</td>
@@ -293,6 +324,43 @@
                     </form>
                   </div>
                   <!-- /.tab-pane -->
+
+                  <div class="tab-pane table-responsive" id="tab_3">
+                    <table class="table table-bordered">
+                      <thead class="head_table">
+                        <tr>
+                          <td>No.</td>
+                          <td>Coa</td>
+                          <td>Item Pekerjaan</td>
+                          <td>Satuan</td>
+                          <td>Nilai</td>
+                          <td>Terendah</td>
+                          <td>Tertinggi</td>
+                          <td>Detail</td>
+                        </tr>
+                      </thead>
+                      <tbody>                      
+                        @foreach ($itempekerjaan->child_item as $key => $value)  
+                          <tr>
+                            <td>{{ $key + 1 }}</td>
+                            <td>{{ $value->code }}</td>
+                            <td>{{ $value->name }}</td>
+                            <td>{{ $value->details->satuan or ''}}</td>
+                            <td>{{ number_format($value->nilai_master_satuan,2) }}</td>
+                            <td>
+                              {{ number_format($value->nilai_lowest_library["nilai"],2) }}<br>
+                              <strong>Project : {{ $value->nilai_lowest_library["project_id"] }} </strong>
+                            </td>
+                            <td>
+                              {{ number_format($value->nilai_max_library["nilai"],2) }}<br>
+                              <strong>Project : {{ $value->nilai_lowest_library["project_id"] }} </strong>                              
+                            </td>
+                            <td><a class="btn btn-warning" href="{{ url('/')}}/pekerjaan/library-detail?id={{ $value->id }}">Detail</a></td>
+                          </tr>
+                        @endforeach
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
                 <!-- /.tab-content -->
               </div>

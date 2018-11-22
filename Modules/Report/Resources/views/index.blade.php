@@ -54,6 +54,7 @@
                 </thead>
                 <tbody>
                 @foreach ( $project as $key => $value )
+                @if ( $value->project_pts)
                 @php $detail = $value->project_pts->project; @endphp
                 <tr>
                   <td>{{ $detail->name }}</td>
@@ -84,6 +85,7 @@
                     <a href="{{ url('/')}}/report/project/detail/?id={{ $detail->id}}" class="btn btn-info">Dashboard</a>
                   </td>
                 </tr>
+                @endif
                 @endforeach
               </table>
             </div>

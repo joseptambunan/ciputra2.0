@@ -338,6 +338,8 @@ class ProjectController extends Controller
 
     public function savetype(Request $request){
         $unit_type = new UnitType;
+        $projectkawasan = ProjectKawasan::find($request->kawasan);
+
         $unit_type->kode = $request->code;
         $unit_type->project_id = $request->project_id;
         $unit_type->name = $request->name;
@@ -345,6 +347,7 @@ class ProjectController extends Controller
         $unit_type->luas_tanah = str_replace(",", "", $request->luas_tanah);
         $unit_type->description = $request->description;
         $unit_type->listrik = str_replace(",", "", $request->elektrik);
+        $unit_type->cluster_id = $projectkawasan->id;
         $unit_type->save();
 
         //Save to EREM
@@ -355,7 +358,6 @@ class ProjectController extends Controller
         }
 
         $authuser = \Auth::user();
-        $projectkawasan = ProjectKawasan::find($request->kawasan);
 
         $users = DB::connection('sqlsrv3')->table('dbo.mh_type')->get();
         $ins_erem = DB::connection('sqlsrv3')->insert('insert into [dbo].[mh_type] (productcategory_id,cluster_id,code,name,land_size,building_size,electricity,building_class,floor_size,floor,bedroom,bathroom,Addon,Addby,Modion,Modiby) values (?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?)', [
@@ -423,6 +425,7 @@ class ProjectController extends Controller
 
     public function addtemplate(Request $request){
         $satuan = "";
+        $volume = 0;
         $unit_type = UnitType::find($request->unit_type);
         $category_detail = CategoryDetail::find($request->tipe);
 
@@ -484,24 +487,27 @@ class ProjectController extends Controller
                 elseif ( $value->code == 300 ){
                     foreach ($value->child_item as $key2 => $value2) {
                         if ( $value2->code == "300.01" ||  $value2->code == "300.02" || $value2->code == "300.03" || $value2->code == "300.04"){ 
-                            if ( $value->name == "Biaya SR (  Air, KWH Meter )"){
+                            if ( str_replace(" ", "", $value2->name) == "BiayaSR(Air,KWHMeter)") {
                                 $satuan = "unit";
-                            } elseif ( $value->name == "Biaya SR ( Telp, TV, Internet )"){
+                                $volume = 1;
+                            } elseif ( str_replace(" ", "", $value2->name) == "BiayaSR(Telp,TV,Internet)"){
                                 $satuan = "unit";
-                            } else if ( $value->name == "Biaya SR (  Listrik  )"){
+                                $volume = 1;
+                            } else if ( str_replace(" ", "", $value2->name) == "BiayaSR(Listrik)"){
                                 $satuan = "va";
-                            } else if ( $value->name == "Biaya SR ( Gas )"){
+                                $volume = $unit_type->listrik;
+                            } else if ( str_replace(" ", "", $value2->name) == "BiayaSR(Gas)"){
                                 $satuan = "unit";
+                                $volume = 1;
                             }   
-
                             $unit_category_detail = new UnitTypeCategoryDetail;
                             $unit_category_detail->unit_type_category_id = $unit_category->id;
                             $unit_category_detail->itempekerjaan_id = $value2->id;
-                            $unit_category_detail->volume = 0;
+                            $unit_category_detail->volume = $volume;
                             $unit_category_detail->satuan = $satuan;
                             $unit_category_detail->nilai = 0;
                             $unit_category_detail->created_by = \Auth::user()->id;
-                            $unit_category_detail->save();
+                            $unit_category_detail->save();                            
                         }
                     }
                 }
@@ -619,15 +625,16 @@ class ProjectController extends Controller
         $start = "";
         /* Status Unit */
         $array = array(
-            "0" => "Ready for Stock",
-            "1" => "Planning",
-            "2" => "Ready for Sale ( from Erem )",
-            "3" => "Sold(from Erem)" 
+            "0" => "Planning",
+            "1" => "Ready for Stock",
+            "2" => "Sudah di WO dan blm SPK",
+            "3" => "Sudah di WO dan sdh SPK"
         );
 
+        $blok = Blok::find($request->blok);
         for ($i=1; $i <= $request->quantity ; $i++) 
         { 
-            $blok = Blok::find($request->blok);
+            
             $units = $blok->units;
             $global_setting = Globalsetting::where("parameter","length_number")->first()->value;
 
@@ -661,7 +668,8 @@ class ProjectController extends Controller
             $project_units->status = $request->is_status;
             $status = $project_units->save();
 
-             //Save to EREM           
+             //Save to EREM        
+            $authuser = \Auth::user();   
             if ( $request->luas_bangunan > 0 ){
                 $productcategory = 1;
             }else{
@@ -680,7 +688,7 @@ class ProjectController extends Controller
             }
 
             //$users = DB::connection('sqlsrv3')->table('dbo.m_unit')->get();
-            $ins_erem = DB::connection('sqlsrv3')->insert('insert into [dbo].[m_unit] (project_id,pt_id,cluster_id,unit_number,productcategory_id,type_id,land_size,building_size,floor_size,floor,electricity,block_id,is_readystock,state_admistrative,Addon,Addby,Modion,Modiby) values (?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?,?,?)', [
+            /*$ins_erem = DB::connection('sqlsrv3')->insert('insert into [dbo].[m_unit] (project_id,pt_id,cluster_id,unit_number,productcategory_id,type_id,land_size,building_size,floor_size,floor,electricity,block_id,is_readystock,state_admistrative,Addon,Addby,Modion,Modiby) values (?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?,?,?)', [
                 $project_pt_erem, 
                 $pt->pt_id,
                 $projectkawasan->cluster_id,
@@ -703,10 +711,12 @@ class ProjectController extends Controller
 
             $get_last = DB::connection('sqlsrv3')->table('dbo.m_unit')->get();
             $unit_id = $get_last->last();
-            $unit = UnitType::find($unit_type->id);
-            $unit->type_id = $unit_id->unit_id;
-            $unit->save();
+
+            $unit = Unit::find($project_units->id);
+            $unit->unit_id = $unit_id->unit_id;
+            $unit->save();*/
         }
+
         return redirect("project/units/?id=".$request->blok);
     }
 
@@ -847,7 +857,7 @@ class ProjectController extends Controller
         $project_history->project_id = $request->session()->get('project_id');
         $project_history->luas_dikembangkan = str_replace(",","",$request->luas);
         $project_history->luas_non_pengembangan  = str_replace(",","",$request->luas_nonpengembangan);
-        $project_history->created_at = date("Y-m-d H:i:s");
+        $project_history->created_at = date("Y-m-d H:i:s.u");
         $project_history->created_by = \Auth::user()->id;
         $project_history->save();
 

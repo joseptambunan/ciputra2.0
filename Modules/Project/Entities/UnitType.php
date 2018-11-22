@@ -20,4 +20,10 @@ class UnitType extends CustomModel
     public function category(){
     	return $this->hasOne("Modules\Project\Entities\UnitTypeCategory");
     }
+
+    public function cluster(){
+        return $this->belongsTo("Modules\Project\Entities\ProjectKawasan","cluster_id");
+    }
+
+    
 }

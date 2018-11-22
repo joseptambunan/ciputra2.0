@@ -69,17 +69,11 @@
                           {{ $value->itempekerjaan->name or '-' }}
                           @endif
                         </td>
-                        <td>
-                          @if ( $value->itempekerjaan->code == "100" || $value->itempekerjaan->code == "200")
+                        <td>                          
                             {{ $value->volume or '0'}}
-                            <input type="hidden" class="form-control" id="volume_{{ $value->id }}" name="volume_[{{ $value->id }}]" value="{{ $value->volume }}" autocomplete="off">
-                          @else
-                            <input type="text" class="form-control" id="volume_{{ $value->id }}" name="volume_[{{ $value->id }}]" value="{{ $value->volume }}" autocomplete="off" required>
-                          @endif
+                            <input type="hidden" class="form-control" id="volume_{{ $value->id }}" name="volume_[{{ $value->id }}]" value="{{ $value->volume }}" autocomplete="off">                         
                         </td>
-                        <td>
-                          @if ( $value->itempekerjaan->code == "100" || $value->itempekerjaan->code == "200" )
-                            
+                        <td>                   
                             @if ( $value->satuan == "%")
                               <input type="hidden" class="percent form-control" id="volume_{{ $value->id }}" name="volume_[{{ $value->id }}]" value="{{ $value->volume }}" autocomplete="off">
                                 %
@@ -87,10 +81,7 @@
                             @else
                             {{ $value->satuan or '-'}}
                             <input type="hidden" class="form-control" name="satuan_[{{ $value->id }}]" value="{{ $value->satuan }}" autocomplete="off">
-                            @endif
-                          @else
-                            <input type="text" class="form-control" name="satuan_[{{ $value->id }}]" value="{{ $value->satuan }}" autocomplete="off" required>
-                          @endif
+                            @endif                         
                         </td>
                         <td>
                           @if ( $value->satuan != "%")
@@ -115,7 +106,11 @@
                             <span class="subm2_percentage" id="subm2_{{ $value->id}}">{{ number_format($value->volume * $value->nilai ,2) }}</span>
                           @else
                           <input type="hidden" class="sub_totalm2_" id="sub_totalm2_{{ $value->id}}" value="{{ ( ($value->volume * $value->nilai ) / $unit_category->unit_type->luas_bangunan) }}">
-                          <span id="subm2_{{ $value->id}}">{{ number_format( ($value->volume * $value->nilai ) / $unit_category->unit_type->luas_bangunan ,2) }}</span>
+                          <span id="subm2_{{ $value->id}}">
+                            @if ( $unit_category->unit_type->luas_bangunan > 0 )
+                              {{ number_format( ($value->volume * $value->nilai ) / $unit_category->unit_type->luas_bangunan ,2) }}
+                            @endif
+                          </span>
                           @endif
                         </td>                
                       </tr>

@@ -140,7 +140,7 @@
                       <button class="btn btn-info" href="{{ url('/')}}/budget/approval" onclick="updateapproval('{{ $value->id }}','{{ $value->approval->id }}')">Request Approval</button>
                       @endif
                     @else
-                    <button class="btn btn-info" href="{{ url('/')}}/budget/approval" onclick="requestapproval('{{ $value->id }}')">Request Approval</button>
+                    <button class="btn btn-info" id="btn_approval_{{$value->id}}" href="{{ url('/')}}/budget/approval" onclick="requestapproval('{{ $value->id }}')">Request Approval</button>
                     @endif
                   </td>
                 </tr>
@@ -193,6 +193,7 @@
 
   function requestapproval(id){
     if ( confirm("Apakah anda yakin ingin merilis budget ini ? ")){
+      $("#btn_approval_" + id).hide();
       var request = $.ajax({
         url : "{{ url('/')}}/budget/approval-add",
         data : {
@@ -203,6 +204,7 @@
       });
 
       request.done(function(data){
+        $("#btn_approval_" + id).show();
         if ( data.status == "0" ){
           alert("Budget telah dirilis ");
           window.location.reload();

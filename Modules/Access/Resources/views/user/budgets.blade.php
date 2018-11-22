@@ -26,12 +26,12 @@
       </div><!-- /.container-fluid -->
       <a href="{{ url('/') }}/access/" class="btn btn-warning">Back</a>
       @if ( isset($approval->histories) )
-        @if ( $approval->histories->where("user_id",9)->where("approval_action_id",1)->count() > 0 )
+        @if ( $approval->histories->where("user_id",$user->id)->where("approval_action_id",1)->count() > 0 )
         <a href="#" class="btn btn-info" onclick="setapproved('6')" data-toggle="modal" data-target="#myModal">Approve</a>
         <a href="#" class="btn btn-danger" onclick="setapproved('7')" data-toggle="modal" data-target="#myModal">Reject</a>
-        @elseif ( $approval->histories->where("user_id",9)->where("approval_action_id",6)->count() > 0 )
+        @elseif ( $approval->histories->where("user_id",$user->id)->where("approval_action_id",6)->count() > 0 )
           <span class="badge badge-success" style="font-size:20px;">Approved</span>
-        @elseif ( $approval->histories->where("user_id",9)->where("approval_action_id",7)->count() > 0 )
+        @elseif ( $approval->histories->where("user_id",$user->id)->where("approval_action_id",7)->count() > 0 )
           <span class="badge badge-danger" style="font-size:20px;">Rejected</span>
         @endif
       @endif
@@ -183,7 +183,7 @@
       return false;
     }
     var request = $.ajax({
-      url : "{{ url('/') }}/access/budget/approval/budget_faskot",
+      url : "{{ url('/') }}/access/budget/approval/approval_budget_awal",
       data: {
           user_id : $("#user_id").val(),
           budget_id :$("#budget_id").val(),

@@ -783,6 +783,8 @@ class ProjectKawasan extends CustomModel
         return $this->hasMany("App\CostReport");
     }
 
-    
+    public function unit_type(){
+        return $this->hasMany("Modules\Project\Entities\UnitType","cluster_id");
+    }
     
 }

@@ -40,7 +40,7 @@
                   </div>
               	</form>
               </div>
-              <div class="col-md-12">
+              <div class="col-md-12 table-responsive">
             	<table id="example3" class="table table-bordered table-hover">
                 <thead>
                 <tr style="background-color: greenyellow;">
@@ -51,7 +51,7 @@
                 <tbody>
                   @foreach ( $satuan as $key => $value )
                     <tr>
-                      <td>{{ $value->name }}</td>
+                      <td>{{ $value->satuan }}</td>
                       <td><button class="btn btn-danger" onclick="removesatuan()">Hapus</button></td>
                     </tr>
                   @endforeach

@@ -199,7 +199,11 @@ class BudgetTahunan extends Model
         foreach ($this->details as $key => $value) {
             # code...
             $code = explode(".",$value->itempekerjaans->code);
-            $nilai[$key] = $code[0].".".$code[1];
+            if ( count($code) > 2 ){
+                $nilai[$key] = $code[0].".".$code[1];
+            }else{
+                $nilai[$key] = $code[0];
+            }
         }
         
         $uniqe      = array_unique($nilai);
@@ -267,13 +271,74 @@ class BudgetTahunan extends Model
 
     public function getTotalConCostAttribute(){
         $nilai = 0;
+        $volume = 0;
         foreach ($this->details as $key => $value) {
-            # code...
-            if ( \Modules\Pekerjaan\Entities\Itempekerjaan::find($value->itempekerjaan_id)->group_cost == "2"){
-                $nilai = $nilai + ( $value->volume * $value->nilai);
-            }
+            if ( $value->itempekerjaans->group_cost == 2 ){
+                $nilai = $nilai + ($value->volume * $value->nilai);
+            } 
         }
         return $nilai ;
     }
 
+    public function getNilaiCarryOverAttribute(){
+        $nilai = 0;
+        foreach ($this->carry_over as $key => $value) {
+            foreach ($value->cash_flows as $key1 => $value1) {
+                $nilai = $nilai + ( ($value1->total / 100) * ( $value->spk->nilai - ( $value->spk->nilai_bap * $value->spk->nilai ) ) );
+            }
+        }
+
+        return $nilai;
+    }
+
+    public function getNilaiCarryOverDevCostAttribute(){
+        $nilai = 0;
+        foreach ($this->carry_over as $key => $value) {
+            if ( $value->spk != "" ){
+                if ( $value->spk->itempekerjaan->group_cost == 1 ){
+                    foreach ($value->cash_flows as $key1 => $value1) {
+                        $nilai = $nilai + ( ($value1->total / 100) * ( $value->spk->nilai - ( $value->spk->nilai_bap * $value->spk->nilai ) ) );
+                    }
+                }
+            }
+        }
+        return $nilai;
+    }
+
+    public function getNilaiCarryOverConCostAttribute(){
+        $nilai = 0;
+        foreach ($this->carry_over as $key => $value) {
+            if ( $value->spk != "" ){
+                if ( $value->spk->itempekerjaan->group_cost == 2 ){
+                    foreach ($value->cash_flows as $key1 => $value1) {
+                        $nilai = $nilai + ( ($value1->total / 100) * ( $value->spk->nilai - ( $value->spk->nilai_bap * $value->spk->nilai ) ) );
+                    }
+                }
+            }
+        }
+        return $nilai;
+    }
+
+    public function getTotalUnitsAttribute(){
+        $nilai = 0;
+        return $nilai;
+    }
+
+    public function budget_unit(){
+        return $this->hasMany("Modules\Budget\Entities\BudgetTahunanUnit");
+    }
+
+    public function getCashFlowSpkAttribute(){
+        $nilai = 0;
+        foreach ($this->details as $key => $value) {
+            if ( $value->itempekerjaans->group_cost == 2 ){
+                foreach ($this->budget_unit as $key2 => $value2) {
+                    $nilai = ( $value2->volume * $value->nilai ) + $nilai;
+                }
+            }            
+        }
+       
+
+        return $nilai;
+    }
 }

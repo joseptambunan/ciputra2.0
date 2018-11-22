@@ -41,40 +41,53 @@
             </div>
             <!-- /.card-header -->
             <div class="card-body table-responsive">
-              <table id="example1" class="table table-bordered table-striped">
+              <table  class="table table-bordered table-striped">
                 <thead style="background-color:#17a2b8;color:white;font-weight:bolder">
                 <tr>
-                  <td rowspan="2">No.</td>       
+                  <td rowspan="2">No.</td>    
+                  <td rowspan="2">COA</td>       
                   <td rowspan="2">Item Pekerjaan</td>
                   <td rowspan="2">Volume</td>
                   <td rowspan="2">Satuan</td>
-                  <td rowspan="2">Nilai</td>
+                  <td rowspan="2">Harga Satuan</td>
                   <td rowspan="2">Subtotal</td>
-                  <td colspan="2">Referensi</td>
+                  <td colspan="3">Referensi</td>
+                  <td rowspan="2">Status</td>
                 </tr>
                 <tr>                  
                   <td>Nilai Terendah</td>
                   <td>Nilai Tertinggi</td>
+                  <td>Referensi</td>
                 </tr>
                 </thead>
                 <tbody>
-                  @foreach ( $coa as $key => $value )
-                  @if ( Modules\Pekerjaan\Entities\Itempekerjaan::find($value['id'])->group_cost == "1")
-                  @php $itempekerjaan = Modules\Pekerjaan\Entities\Itempekerjaan::find($value['id']); @endphp
+                  @foreach( $budgets->details as $key => $value )
+                  @if ( $value->itempekerjaan->group_cost == 1 )
                   <tr>
                     <td>{{ $key + 1 }}</td>
-                    <td>{{ $itempekerjaan->name }}</td>
-                    <td>{{ $value['volume'] }}</td>
-                    <td>{{ $itempekerjaan->item_satuan }}</td>
-                    <td>{{ number_format($value['nilai']) }}</td>
-                    <td>{{ number_format($value['nilai'] * $value['volume']) }}</td>
+                    <td>{{ $value->itempekerjaan->code or '' }}</td>
+                    <td>{{ $value->itempekerjaan->name or '' }}</td>
+                    <td>{{ $value->volume or '' }}</td>
+                    <td>{{ $value->satuan or '' }}</td>
+                    <td>{{ number_format($value->nilai) }}</td>
+                    <td>{{ number_format($value->nilai * $value->volume ) }}</td>
                     <td>
-                      Rp. {{ number_format($itempekerjaan->nilai_lowest["nilai"])}} /  {{ ($itempekerjaan->nilai_lowest["satuan"])}}<br>
-                      <strong>Project : </strong>{{ ($itempekerjaan->nilai_lowest["project"])}}
+                       <span> Rp. {{number_format($value->itempekerjaan->nilai_lowest_library["nilai"],2)}} / {{ $value->satuan or  '' }}</span><br>
+                       <span>Proyek : {{ $value->itempekerjaan->nilai_lowest_library["project_id"] }}</span>
                     </td>
                     <td>
-                      Rp. {{ number_format($itempekerjaan->nilai_maximum['nilai']) }} /  {{ ($itempekerjaan->nilai_lowest["satuan"])}}<br>
-                      <strong>Project : </strong>{{ $itempekerjaan->nilai_maximum['project'] }}
+                      <span>Rp. {{number_format($value->itempekerjaan->nilai_max_library["nilai"],2)}} / {{ $value->satuan }}</span><br>
+                      <span>Proyek : {{ $value->itempekerjaan->nilai_lowest_library["project_id"] }}</span>
+                    </td>
+                    <td><a href="{{ url('/')}}/access/budget/referensi?id={{ $value->id }}" class="btn btn-warning">Referensi</a></td>
+                    <td>
+                      @if (  $value->approval->histories->where("user_id",$user->id)->first()->approval_action_id == "7" )
+                        <span class="reject"><strong>Reject</strong></span>
+                      @elseif (  $value->approval->histories->where("user_id",$user->id)->first()->approval_action_id == "6")
+                        <span class="approve"><strong>Approve</strong></span>
+                      @else
+                        <span class="waiting"><strong>Waiting</strong></span>
+                      @endif
                     </td>
                   </tr>
                   @endif
@@ -126,7 +139,7 @@
   function requestApproval(){
     var description = $("#description").val()
     var request = $.ajax({
-      url : "{{ url('/') }}/user/budget/approval/budget_faskot",
+      url : "{{ url('/') }}/access/budget/approval/approval_budget_awal",
       data: {
           user_id : $("#user_id").val(),
           budget_id :$("#budget_id").val(),

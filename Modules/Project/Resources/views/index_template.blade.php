@@ -109,7 +109,11 @@
                       <td>{{ $value->satuan or '-' }}</td>
                       <td>{{ number_format($value->nilai,2) }}</td>
                       <td>{{ number_format(($value->volume /100 ) * $value->nilai ,2) }}</td>    
-                      <td>{{ number_format( (( $value->volume / 100 ) * $value->nilai ) / $unit_type->luas_bangunan ,2) }}</td>                
+                      <td>
+                        @if ( $unit_type->luas_bangunan > 0 )
+                        {{ number_format( (( $value->volume / 100 ) * $value->nilai ) / $unit_type->luas_bangunan ,2) }}
+                        @endif
+                      </td>                
                     </tr>
                     @else
                     <tr>
@@ -119,7 +123,11 @@
                       <td>{{ $value->satuan or '-' }}</td>
                       <td>{{ number_format($value->nilai,2) }}</td>
                       <td>{{ number_format($value->volume * $value->nilai ,2) }}</td>    
-                      <td>{{ number_format( ($value->volume * $value->nilai ) / $unit_type->luas_bangunan ,2) }}</td>                
+                      <td>
+                        @if ( $unit_type->luas_bangunan > 0 )
+                        {{ number_format( ($value->volume * $value->nilai ) / $unit_type->luas_bangunan ,2) }}
+                        @endif
+                      </td>                
                     </tr>
                     @endif
                     @endforeach

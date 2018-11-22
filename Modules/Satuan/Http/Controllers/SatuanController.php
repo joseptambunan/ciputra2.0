@@ -5,8 +5,8 @@ namespace Modules\Satuan\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
-use Modules\Satuan\Entities\ItemSatuan;
-use Modules\Satuan\Entities\Item;
+use Modules\Satuan\Entities\CoaSatuan;
+use Modules\Pekerjaan\Entities\Itempekerjaan;
 
 class SatuanController extends Controller
 {
@@ -17,7 +17,7 @@ class SatuanController extends Controller
     public function index()
     {
         $user = \Auth::user();
-        $itemsatuan = ItemSatuan::get();
+        $satuan = CoaSatuan::get();
         return view('satuan::index',compact("user","satuan"));
     }
 
@@ -35,11 +35,7 @@ class SatuanController extends Controller
      * @param  Request $request
      * @return Response
      */
-    public function store(Request $request)
-    {
-        $itemsatuan = new ItemSatuan;
-        $itemsatuan-> 
-    }
+    
 
     /**
      * Show the specified resource.
@@ -47,6 +43,7 @@ class SatuanController extends Controller
      */
     public function show()
     {
+
         return view('satuan::show');
     }
 
@@ -72,7 +69,21 @@ class SatuanController extends Controller
      * Remove the specified resource from storage.
      * @return Response
      */
-    public function destroy()
+    public function store(Request $request)
     {
+        $user = \Auth::user();
+        $coa_satuan = new CoaSatuan;
+        $coa_satuan->satuan = $request->itemsatuan;
+        $coa_satuan->created_by = $user->id;
+        $coa_satuan->save();
+        return redirect("satuan");
+    }
+
+    public function destroy(Request $request){
+        $user = \Auth::user();
+        $satuan = CoaSatuan::find($request->id);
+        $satuan->deleted_at = date("Y-m-d H:i:s.u");
+        $satuan->deleted_by = $user->id;
+        return response()->json( ["status" => "0"] );
     }
 }

@@ -88,11 +88,11 @@
               </div>
               <div class="form-group">
                 <label>Keterangan</label>
-                <textarea class='form-control' name="description" id="description" cols="45" rows="5" placeholder="Descriptions"></textarea>
+                <textarea class='form-control' name="description" id="description" cols="45" rows="5" required></textarea>
               </div>  
               <div class="form-group">
                 <label>Is Kawasan</label>
-                <select name="is_kawasan" id="is_kawasan" class="form-control">
+                <select name="is_kawasan" id="is_kawasan" class="form-control" >
                   <option value="1">Ya</option>
                   <option value="0">Tidak</option>
                 </select>

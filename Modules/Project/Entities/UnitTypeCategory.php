@@ -26,13 +26,21 @@ class UnitTypeCategory extends Model
     	if ( $this->unit_type->luas_tanah > 0 ){
     		foreach ($this->details as $key => $value) {
                 if ( $value->satuan == "%"){
-
-                $nilai_per_item = ( ($value->volume / 100 ) * $value->nilai ) / $this->unit_type->luas_bangunan;
-                $nilai = $nilai + $nilai_per_item;
+                    if ( $this->unit_type->luas_bangunan > 0 ){
+                        $nilai_per_item = ( ($value->volume / 100 ) * $value->nilai ) / $this->unit_type->luas_bangunan;
+                        $nilai = $nilai + $nilai_per_item;                        
+                    }else{
+                        $nilai_per_item = 0;
+                        $nilai = $nilai + $nilai_per_item;
+                    }
                 }else{
-
-                    $nilai_per_item = ( $value->volume * $value->nilai ) / $this->unit_type->luas_bangunan;
-                    $nilai = $nilai + $nilai_per_item;
+                    if ( $this->unit_type->luas_bangunan > 0 ){                        
+                        $nilai_per_item = ( $value->volume * $value->nilai ) / $this->unit_type->luas_bangunan;
+                        $nilai = $nilai + $nilai_per_item;
+                    }else{
+                        $nilai_per_item = 0;
+                        $nilai = $nilai + $nilai_per_item;
+                    }
                 }
     		}
     	}

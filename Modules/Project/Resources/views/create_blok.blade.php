@@ -55,7 +55,7 @@
               
               <div class="form-group">
                 <label>Keterangan</label>
-                <textarea class='form-control' name="description" id="description" cols="45" rows="5" placeholder="Descriptions"></textarea>
+                <textarea class='form-control' name="description" id="description" cols="45" rows="5" required></textarea>
               </div>     
               <div class="box-footer">
                 <i class="fa fa-refresh ld ld-spin" id="loading" style="display: none;"></i>
@@ -112,6 +112,11 @@
     $(".submitbtn").hide();
     $("#loading").show();
   });
+
+  $(".form-control").keyup(function(){
+    $(".submitbtn").show();
+    $("#loading").hide();
+  })
 </script>
 @include("pt::app")
 </body>

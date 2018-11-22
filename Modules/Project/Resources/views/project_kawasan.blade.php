@@ -72,7 +72,11 @@
                     <td>{{ number_format($value->netto_kawasan) }}</td>
                     <td>Planning</td>
                     <td>{{ number_format($value->total_budget,2)}}</td>
-                    <td>{{ number_format($value->total_budget / $value->lahan_luas,2)}}</td>
+                    <td>
+                      @if ( $value->lahan_luas >  0 )
+                      {{ number_format($value->total_budget / $value->lahan_luas,2)}}
+                      @endif
+                    </td>
                     <td></td>
                     <td></td>
                     <td></td>

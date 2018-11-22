@@ -29,8 +29,6 @@ Route::group(['middleware' => 'web', 'prefix' => 'access', 'namespace' => 'Modul
 	Route::get('/budget_tahunan/detail','AccessController@budget_tahunan');
 	Route::get('/budget_tahunan/approval','AccessController@budget_tahunan_approval');
 	
-	
-	
 	Route::get('/workorder','AccessController@workorder');
 	Route::get('/workorder/detail','AccessController@workorder_detail');
 	Route::get('/workorder/approval','AccessController@workorder_approval');
@@ -77,5 +75,9 @@ Route::group(['middleware' => 'web', 'prefix' => 'access', 'namespace' => 'Modul
 	Route::get("/tender/detail-penawaran",'AccessController@rekaptender');
 	Route::post("/tender/document/save/","AccessController@approvedeoc");
 	Route::post("/tender/setpemenang/","AccessController@ispemenang");
-/* Budget Unit Type*/
+	
+	Route::get("/budget/referensi","AccessController@budgetreferensi");
+	Route::get("/budget/approval/budget_item","AccessController@budgetdetail_approval");
+	Route::get("/budget/approval/approval_budget_awal","AccessController@approval_budget_awal");
+	
 });

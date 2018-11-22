@@ -9,6 +9,7 @@ Route::group(['middleware' => 'web', 'prefix' => 'budget', 'namespace' => 'Modul
     Route::get('/detail','BudgetController@show');
     Route::post('/update-budget','BudgetController@edit');
     Route::get('/approval','BudgetController@approvalhistory');
+    Route::get('/referensi','BudgetController@referensi');
 
     Route::get('/item-budget','BudgetController@itempekerjaan');
     Route::post('/item-detail','BudgetController@itemdetail');
@@ -59,4 +60,16 @@ Route::group(['middleware' => 'web', 'prefix' => 'budget', 'namespace' => 'Modul
     Route::get("/draft","BudgetController@draft");
     Route::post("/approval-update","BudgetController@updateapproval");
     Route::post("/approval/manual","BudgetController@reapproval");
+
+    Route::get("/master","BudgetMasterController@index");
+    Route::get("/master/add","BudgetMasterController@create");
+    Route::post("/master/save","BudgetMasterController@store");
+    Route::get("/master/detail","BudgetMasterController@show");
+    Route::post("/master/removepekerjaan","BudgetMasterController@destroy");
+    Route::post("/master/reload","BudgetMasterController@update");
+
+    Route::post("/item-saverevisi","BudgetController@itemrevisisavet");
+    Route::post("/cashflow/save-monthlyco","BudgetController@itemsavemonthlyco");
+    Route::get("/budget_tahunan/cashflow-concost","BudgetController@cashflowconcost");
+    Route::post("/item-saveitemconcost","BudgetController@saveitemconcost");
 });

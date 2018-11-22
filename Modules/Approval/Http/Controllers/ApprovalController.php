@@ -75,7 +75,7 @@ class ApprovalController extends Controller
 
         foreach ($request->document_ as $key => $value) {
             if ( isset($request->document_[$key]) ){
-                if ( $request->document_[$key] != ""){                    
+                if ( $request->check_[$key] != ""){                    
                     $approval_reference = new ApprovalReference;
                     $approval_reference->user_id = $request->user_id;
                     $approval_reference->project_id = $request->project_id;
@@ -83,7 +83,7 @@ class ApprovalController extends Controller
                     $approval_reference->document_type = $request->document_[$key];
                     $approval_reference->no_urut = $request->urut[0];
                     $approval_reference->min_value = 0;
-                    $approval_reference->max_value =0;
+                    $approval_reference->max_value = str_replace(",", "", $request->max_value_[$key]);
                     $status = $approval_reference->save();  
                 }              
             }

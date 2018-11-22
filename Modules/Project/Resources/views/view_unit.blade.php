@@ -62,7 +62,7 @@
                 <label>Unit Type</label>
                 <select class="form-control" name="unit_type" id="unit_type" {{ $readonly }}>
                   <option value="">Pilih Type</option>
-                  @foreach ( $project->unittype as $key5 => $value5 )
+                  @foreach ( $unit->blok->kawasan->unit_type as $key5 => $value5 )
                   @if ( $value5->id  == $unit->unit_type_id)
                   <option value="{{ $value5->id }}" selected>{{ $value5->name }}</option>
                   @else

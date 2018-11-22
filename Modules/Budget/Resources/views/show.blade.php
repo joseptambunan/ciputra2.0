@@ -147,21 +147,21 @@
               <!-- /.form-group -->
             </div>
             <!-- /.col -->
-            <div class="col-md-12">
+            <div class="col-md-12 table-responsive">
               <h3>Nilai Dev Cost : Rp. {{ number_format($budget->total_dev_cost)}}</h3>
               <h3>Nilai Con Cost : Rp. {{ number_format($budget->total_con_cost)}}</h3>
               <h3>Nilai Budget   : Rp. {{ number_format($budget->nilai)}}</h3>
               <br>
-              <div class="col-m-6">
-                @if ( $budget->approval == "" )
+              <input type="radio" name="all" onclick="showcoa('9')">Semua Pekerjaan<br>
+              <input type="radio" name="all" onclick="showcoa('0');">Yang belum memiliki budget<br>
+              <input type="radio" name="all" onclick="showcoa('1');">Yang sudah memilik budget<br>
+              @if ( $budget->approval == "" )
                 <a class="btn btn-primary" href="{{ url('/')}}/budget/item-budget?id={{ $budget->id }}">Tambah Item Pekerjaan</a>
-                @else
-                   @if ( $budget->approval->approval_action_id == "7" )
-                      <a class="btn btn-primary" href="{{ url('/')}}/budget/item-budget?id={{ $budget->id }}">Tambah Item Pekerjaan</a>
-                   @endif
-                @endif
-              </div><br><br>
-
+              @else
+                 @if ( $budget->approval->approval_action_id == "7" )
+                    <a class="btn btn-primary" href="{{ url('/')}}/budget/item-budget?id={{ $budget->id }}">Tambah Item Pekerjaan</a>
+                 @endif
+              @endif
               <table class="table" style="padding: 0" id="example3">
                 <thead class="head_table">
                   <tr>
@@ -169,18 +169,27 @@
                     <td>Item Pekerjaan</td>
                     <td>Volume</td>
                     <td>Satuan</td>
-                    <td>Nilai(Rp)</td>
+                    <td>Harga Satuan(Rp)</td>
                     <td>Subtotal(Rp)</td>
                     <td colspan="2">Perubahan Data</td>
                   </tr>
                 </thead>
                 <tbody>
                   @foreach ( $budget->details as $key => $value )
-                   <tr>
+                  @if ( $value->volume > 0 )
+                    @php $class = "class_1"; @endphp
+                  @else
+                    @php $class = "class_0"; @endphp
+                  @endif
+                   <tr class="nilai {{ $class }}">
                     <td>
                       <input type="hidden" name="item_pekerjaan_id_{{ $value->id }}" id="item_pekerjaan_id_{{ $value->id }}" style="display: none;" class="form-control" value="{{ $value->itempekerjaan->id }}">
                       <input type="text" name="item_id_{{ $value->id }}" id="item_id_{{ $value->id }}" style="display: none;" class="form-control" value="{{ $value->id }}">
-                      {{ $value->itempekerjaan->code }}
+                      @if ( $value->itempekerjaan->code == "225.01" || $value->itempekerjaan->code == "225.04" || $value->itempekerjaan->code == "225.05" )                    
+                      {{ $value->itempekerjaan->code or '' }}
+                      @else
+                      {{ $value->itempekerjaan->child_item->first()->code or '' }}
+                      @endif
                     </td>
                     <td>{{ $value->itempekerjaan->name }}</td>
                     <td>
@@ -195,14 +204,16 @@
                     <td>{{ number_format($value->volume * $value->nilai,2)}}</td>
                     <td colspan="2">
                        @if ( $budget->approval == "" )
-                        <button class="btn btn-warning" id="btn_edit1_{{ $value->id }}" onclick="editview('{{ $value->id }}');">Edit</button>
+                        <a class="btn btn-warning" id="btn_edit1_{{ $value->id }}" href="{{ url('/')}}/budget/referensi/?id={{ $value->id }}">Edit</a>
                         <button class="btn btn-success" id="btn_edit2_{{ $value->id }}" onclick="saveedit('{{ $value->id }}');" style="display: none;">Simpan</button>
                         <button class="btn btn-danger" id="btn_remove_{{ $value->id }}" onclick="removeedit('{{ $value->id }}');">Delete</button>
                         @else
                           @if ( $budget->approval->approval_action_id == "7")
-                          <button class="btn btn-warning" id="btn_edit1_{{ $value->id }}" onclick="editview('{{ $value->id }}');">Edit</button>
-                          <button class="btn btn-success" id="btn_edit2_{{ $value->id }}" onclick="saveedit('{{ $value->id }}');" style="display: none;">Simpan</button>
-                          <button class="btn btn-danger" id="btn_remove_{{ $value->id }}" onclick="removeedit('{{ $value->id }}');">Delete</button>
+                            <a class="btn btn-warning" id="btn_edit1_{{ $value->id }}" href="{{ url('/')}}/budget/referensi/?id={{ $value->id }}">Edit</a>
+                            <button class="btn btn-success" id="btn_edit2_{{ $value->id }}" onclick="saveedit('{{ $value->id }}');" style="display: none;">Simpan</button>
+                            <button class="btn btn-danger" id="btn_remove_{{ $value->id }}" onclick="removeedit('{{ $value->id }}');">Delete</button>
+                          @else
+                            <span class="{{ $array[$value->approval->approval_action_id]['class']}}">{{ $array[$value->approval->approval_action_id]["label"]}}</span>
                           @endif
                         @endif    
                     </td>
@@ -242,6 +253,18 @@
 
 @include("master/footer_table")
 @include("budget::app")
-
+<script type="text/javascript">
+  function showcoa(nilai){
+    if ( nilai == 9 ){
+      $(".nilai").show();
+    }else if ( nilai == 1 ){
+      $(".nilai").hide();
+      $(".class_1").show();
+    }else if ( nilai == 0 ){
+      $(".nilai").hide();
+      $(".class_0").show();
+    }
+  }
+</script>
 </body>
 </html>

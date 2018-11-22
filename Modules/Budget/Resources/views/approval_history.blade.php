@@ -64,7 +64,7 @@
                           {{ $array[$value->approval->approval_action_id]['label'] }}
                         </span>
                       </td>
-                      <td>{{ $value->user->user_name }}</td>
+                      <td>{{ $value->user->user_name or '' }}</td>
                       <td>{{ $value->updated_at->format('d/m/Y') }}</td>
                       <td>{{ $value->description }}</td>
                     </tr>

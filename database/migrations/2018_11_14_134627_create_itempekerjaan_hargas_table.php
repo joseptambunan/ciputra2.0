@@ -17,7 +17,7 @@ class CreateItempekerjaanHargasTable extends Migration
 			$table->increments('id');
             $table->integer('itempekerjaan_id')->nullable()->index();
             $table->integer('project_id')->nullable()->index();
-            $table->float('nilai', 15)->default(0.00)->nullable->index();
+            $table->float('nilai', 15)->default(0.00);
             $table->string('satuan', 191)->nullable();
             $table->softDeletes();
             $table->integer('created_by')->nullable();

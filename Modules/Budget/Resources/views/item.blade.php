@@ -37,8 +37,10 @@
                 <label>Item Pekerjaan</label>
                 <select class="form-control select2" name="coa_id" id="coa_id">
                   <option>( pilih item pekerjaan)</option>
-                  @foreach ( $itempekerjaan as $key => $value )                    
-                      <option value="{{ $value->id }}" selected>{{ $value->code }}  {{ $value->name }}</option>                      
+                  @foreach ( $itempekerjaan as $key => $value )  
+                    @if ( $value->group_cost == 2 )                  
+                      <option value="{{ $value->id }}" selected>{{ $value->code }}  {{ $value->name }}</option>      
+                    @endif                
                   @endforeach
                 </select>
               </div>
@@ -51,7 +53,7 @@
    
             <!-- /.col -->
             <div class="col-md-12">
-              <form action="{{ url('/')}}/budget/item-save" method="post" name="form1" id="form1">  
+              <form action="{{ url('/')}}/budget/item-saverevisi" method="post" name="form1" id="form1">  
                 {{ csrf_field() }}
                 <input type="hidden" name="budget_id" id="budget_id" value="{{ $budget->id }}">
                 <table class="table">

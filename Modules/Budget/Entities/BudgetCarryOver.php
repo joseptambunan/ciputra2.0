@@ -9,7 +9,7 @@ class BudgetCarryOver extends Model
     protected $fillable = [];
 
     public function spk(){
-    	return $this->belongsTo("App\Spk");
+    	return $this->belongsTo("Modules\Spk\Entities\Spk");
     }
 
     public function getSisaAttribute(){
@@ -17,4 +17,10 @@ class BudgetCarryOver extends Model
     	$sisa = ( $this->spk->nilai - $this->spk->nilai_bap);
     	return $sisa;
     }
+
+    public function cash_flows(){
+    	return $this->hasMany("Modules\Budget\Entities\BudgetCarryOverCashflow");
+    }
+
+    
 }

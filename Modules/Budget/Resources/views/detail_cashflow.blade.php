@@ -354,8 +354,56 @@
 
                 <div class="tab-pane" id="tab_4">
                   <center><h4>Cash Flow Carry Over</h4></center>
-                  <i>(Under Development)</i>
-                </div>
+                  <h3>Total Carry Over : {{ number_format($carry_over)}}</h3>
+                  <form action="{{ url('/')}}/budget/save-carryover" method="post">
+                  <input type="hidden" name="carryover_budget_id" value="{{ $budget_tahunan->id }}">
+                  {{ csrf_field() }}
+                  <table class="table table-bordered">
+                    <thead class="head_table">
+                      <tr>
+                        <td>No. SPK</td>
+                        <td>Nilai SPK</td>
+                        <td>Terbayar</td>
+                        <td>Sisa Bayar</td>
+                        <td>Total Dibayar</td>
+                        <td>Januari</td>
+                        <td>Februari</td>
+                        <td>Maret</td>
+                        <td>April</td>
+                        <td>Mei</td>
+                        <td>Juni</td>
+                        <td>Juli</td>
+                        <td>Agustus</td>
+                        <td>September</td>
+                        <td>Oktober</td>
+                        <td>November</td>
+                        <tr>Desember</tr>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @foreach ( $array_cashflow as $key4 => $value4 )
+                      <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                      @endforeach
+                    </tbody>
+                  </table>
+                  @if ( count($array_cashflow) > 0  )
+                  <button type="submit" class="btn btn-primary">Simpan</button>
+                  @endif
               </div>
               <!-- /.tab-content -->
             </div>
@@ -375,135 +423,249 @@
   </div>
 
   <div class="modal fade" id="modal-info">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">Info Modal</h4>
-              </div>
-              <div class="modal-body">
-                <form action="{{ url('/')}}/budget/cashflow/save-monthly" method="post" name="form1">
-                  {{ csrf_field()}}
-                  <input type="hidden" name="budget_tahunan_id" value="{{ $budget_tahunan->id }}">
-                  <div class="form-group">
-                                    <button type="submit" class="btn btn-info" id="btn_save_bln">Save changes</button>
-                    <label>Item Pekerjaan</label>
-                    <select class="form-control" id="item_id_monthly" name="item_id_monthly" required>
-                      <option value="">(pilih item pekerjaan)</option>
-                      @foreach ( $budget_tahunan->total_parent_item as $key2 => $value2 )
-                        @if ( \Modules\Pekerjaan\Entities\Itempekerjaan::where('code',$value2['code'])->count() > 0  )                          
-                          <option value="{{ \Modules\Pekerjaan\Entities\Itempekerjaan::where('code',$value2['code'])->first()->id }}"> {{ $value2['code'] }}.00.00 - {{ \Modules\Pekerjaan\Entities\Itempekerjaan::where('code',$value2['code'])->first()->name }}</option>
-                        @endif
-                      @endforeach
-                    </select>
-                  </div> 
-                  <div class="form-group">
-                    <label>Nilai Budget(Rp)</label>
-                      @foreach ( $budget_tahunan->total_parent_item as $key2 => $value2 )
-                        @if ( \Modules\Pekerjaan\Entities\Itempekerjaan::where('code',$value2['code'])->count() > 0  )
-                          <span style="display: none;" class="label_budget" id="label_budget_{{ \Modules\Pekerjaan\Entities\Itempekerjaan::where('code',$value2['code'])->first()->id }}" data-value="{{ $value2['nilai']}} "><br>
-                          <strong>{{ number_format($value2['nilai'],2)}}</strong>
-                          </span>
-                        @endif
-                      @endforeach<br>
-                    <label>Sisa(Rp)</label><br>
-                    <span id="sisa_budget"></span>
-                  </div> 
-                  <table style="width: 100%;" class="table">    
-                      <tr class="head_table">
-                        <td></td>
-                        <td>% <span id="lbl_percent_text"></span></td>
-                        <td><input type="hidden" id="total_sub"/> Rp. <span id="lbl_budget_text"></span></td>
-
-                      </tr>                
-                      <tr>
-                        <td style="background-color: grey;color:white;font-weight: bolder;">Januari</td>
-                        <td><input type="text" name="januari" id="januari" style="width: 20%;" onKeyUp="countPercentage('januari')" value="0" autocomplete="off">%</td>
-                        <td><span id="lbl_januari" data-value="0"></span></td>
-                      </tr>
-                      <tr>
-                        <td style="background-color: grey;color:white;font-weight: bolder;">Februari</td>
-                        <td><input type="text" name="februari" id="februari" style="width: 20%;" onKeyUp="countPercentage('februari')" value="0" autocomplete="off">%</td>
-                        <td><span id="lbl_februari" data-value="0"></span></td>
-                      </tr>
-                      <tr>
-                        <td style="background-color: grey;color:white;font-weight: bolder;">Maret</td>
-                        <td><input type="text" name="maret" id="maret" style="width: 20%;" onKeyUp="countPercentage('maret')" value="0" autocomplete="off">%</td>
-                        <td><span id="lbl_maret" data-value="0"></span></td>
-                      </tr>
-                      <tr>
-                        <td style="background-color: grey;color:white;font-weight: bolder;">April</td>
-                        <td><input type="text" name="april" id="april" style="width: 20%;" onKeyUp="countPercentage('april')" value="0" autocomplete="off">%</td>
-                        <td><span id="lbl_april" data-value="0"></span></td>
-                      </tr>
-                      <tr>
-                        <td style="background-color: grey;color:white;font-weight: bolder;">Mei</td>
-                        <td><input type="text" name="mei" id="mei" style="width: 20%;" onKeyUp="countPercentage('mei')" value="0" autocomplete="off">%</td>
-                        <td><span id="lbl_mei" data-value="0"></span></td>
-                      </tr>
-                      <tr>
-                        <td style="background-color: grey;color:white;font-weight: bolder;">Juni</td>
-                        <td><input type="text" name="juni" id="juni" style="width: 20%;" onKeyUp="countPercentage('juni')" value="0" autocomplete="off">%</td>
-                        <td><span id="lbl_juni" data-value="0"></span></td>
-                      </tr>
-                      <tr>
-                        <td style="background-color: grey;color:white;font-weight: bolder;">Juli</td>
-                        <td><input type="text" name="juli" id="juli" style="width: 20%;" onKeyUp="countPercentage('juli')" value="0" autocomplete="off">%</td>
-                        <td><span id="lbl_juli" data-value="0"></span></td>
-                      </tr>
-                      <tr>
-                        <td style="background-color: grey;color:white;font-weight: bolder;">Agustus</td>
-                        <td><input type="text" name="agustus" id="agustus" style="width: 20%;" onKeyUp="countPercentage('agustus')" value="0" autocomplete="off">%</td>
-                        <td><span id="lbl_agustus" data-value="0"></span></td>
-                      </tr>
-                      <tr>
-                        <td style="background-color: grey;color:white;font-weight: bolder;">September</td>
-                        <td><input type="text" name="september" id="september" style="width: 20%;" onKeyUp="countPercentage('september')" value="0" autocomplete="off">%</td>
-                        <td><span id="lbl_september" data-value="0"></span></td>
-                      </tr>
-                      <tr>
-                        <td style="background-color: grey;color:white;font-weight: bolder;">Oktober</td>
-                        <td><input type="text" name="oktober" id="oktober" style="width: 20%;" onKeyUp="countPercentage('oktober')" value="0">%</td>
-                        <td><span id="lbl_oktober" data-value="0"></span></td>
-                      </tr>
-                      <tr>
-                        <td style="background-color: grey;color:white;font-weight: bolder;" >November</td>
-                        <td><input type="text" name="november" id="november" style="width: 20%;" onKeyUp="countPercentage('november')" value="0" autocomplete="off">%</td>
-                        <td><span id="lbl_november" data-value="0"></span></td>
-                      </tr>
-                      <tr>
-                        <td style="background-color: grey;color:white;font-weight: bolder;">Desember</td>
-                        <td><input type="text" name="desember" id="desember" style="width: 20%;" onKeyUp="countPercentage('desember')" value="0" autocomplete="off">%</td>
-                        <td><span id="lbl_desember" data-value="0"></span></td>
-                      </tr>
-                                          
-                  </table>
-                
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-warning pull-left" data-dismiss="modal">Close</button>
-
-              </div>
-               <div class="alert alert-warning alert-dismissible">                    
-                <h4><i class="icon fa fa-warning"></i> Alert!</h4>
-                Harap Input Budget Bulanan dengan percentase.
-              </div>
-            </div>
-          </form>
-            <!-- /.modal-content -->
-          </div>
-          <!-- /.modal-dialog -->
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">Info Modal</h4>
         </div>
-        <!-- /.modal -->
-  <!-- /.content-wrapper -->
-  <footer class="main-footer">
-    <div class="pull-right hidden-xs">
-      <b>Version</b> 2.4.0
+        <div class="modal-body">
+          <form action="{{ url('/')}}/budget/cashflow/save-monthly" method="post" name="form1">
+            {{ csrf_field()}}
+            <input type="hidden" name="budget_tahunan_id" value="{{ $budget_tahunan->id }}">
+            <div class="form-group">
+                              <button type="submit" class="btn btn-info" id="btn_save_bln">Save changes</button>
+              <label>Item Pekerjaan</label>
+              <select class="form-control" id="item_id_monthly" name="item_id_monthly" required>
+                <option value="">(pilih item pekerjaan)</option>
+                @foreach ( $budget_tahunan->total_parent_item as $key2 => $value2 )
+                  @if ( \Modules\Pekerjaan\Entities\Itempekerjaan::where('code',$value2['code'])->count() > 0  )                          
+                    <option value="{{ \Modules\Pekerjaan\Entities\Itempekerjaan::where('code',$value2['code'])->first()->id }}"> {{ $value2['code'] }}.00.00 - {{ \Modules\Pekerjaan\Entities\Itempekerjaan::where('code',$value2['code'])->first()->name }}</option>
+                  @endif
+                @endforeach
+              </select>
+            </div> 
+            <div class="form-group">
+              <label>Nilai Budget(Rp)</label>
+                @foreach ( $budget_tahunan->total_parent_item as $key2 => $value2 )
+                  @if ( \Modules\Pekerjaan\Entities\Itempekerjaan::where('code',$value2['code'])->count() > 0  )
+                    <span style="display: none;" class="label_budget" id="label_budget_{{ \Modules\Pekerjaan\Entities\Itempekerjaan::where('code',$value2['code'])->first()->id }}" data-value="{{ $value2['nilai']}} "><br>
+                    <strong>{{ number_format($value2['nilai'],2)}}</strong>
+                    </span>
+                  @endif
+                @endforeach<br>
+              <label>Sisa(Rp)</label><br>
+              <span id="sisa_budget"></span>
+            </div> 
+            <table style="width: 100%;" class="table">    
+                <tr class="head_table">
+                  <td></td>
+                  <td>% <span id="lbl_percent_text"></span></td>
+                  <td><input type="hidden" id="total_sub"/> Rp. <span id="lbl_budget_text"></span></td>
+
+                </tr>                
+                <tr>
+                  <td style="background-color: grey;color:white;font-weight: bolder;">Januari</td>
+                  <td><input type="text" name="januari" id="januari" style="width: 20%;" onKeyUp="countPercentage('januari')" value="0" autocomplete="off">%</td>
+                  <td><span id="lbl_januari" data-value="0"></span></td>
+                </tr>
+                <tr>
+                  <td style="background-color: grey;color:white;font-weight: bolder;">Februari</td>
+                  <td><input type="text" name="februari" id="februari" style="width: 20%;" onKeyUp="countPercentage('februari')" value="0" autocomplete="off">%</td>
+                  <td><span id="lbl_februari" data-value="0"></span></td>
+                </tr>
+                <tr>
+                  <td style="background-color: grey;color:white;font-weight: bolder;">Maret</td>
+                  <td><input type="text" name="maret" id="maret" style="width: 20%;" onKeyUp="countPercentage('maret')" value="0" autocomplete="off">%</td>
+                  <td><span id="lbl_maret" data-value="0"></span></td>
+                </tr>
+                <tr>
+                  <td style="background-color: grey;color:white;font-weight: bolder;">April</td>
+                  <td><input type="text" name="april" id="april" style="width: 20%;" onKeyUp="countPercentage('april')" value="0" autocomplete="off">%</td>
+                  <td><span id="lbl_april" data-value="0"></span></td>
+                </tr>
+                <tr>
+                  <td style="background-color: grey;color:white;font-weight: bolder;">Mei</td>
+                  <td><input type="text" name="mei" id="mei" style="width: 20%;" onKeyUp="countPercentage('mei')" value="0" autocomplete="off">%</td>
+                  <td><span id="lbl_mei" data-value="0"></span></td>
+                </tr>
+                <tr>
+                  <td style="background-color: grey;color:white;font-weight: bolder;">Juni</td>
+                  <td><input type="text" name="juni" id="juni" style="width: 20%;" onKeyUp="countPercentage('juni')" value="0" autocomplete="off">%</td>
+                  <td><span id="lbl_juni" data-value="0"></span></td>
+                </tr>
+                <tr>
+                  <td style="background-color: grey;color:white;font-weight: bolder;">Juli</td>
+                  <td><input type="text" name="juli" id="juli" style="width: 20%;" onKeyUp="countPercentage('juli')" value="0" autocomplete="off">%</td>
+                  <td><span id="lbl_juli" data-value="0"></span></td>
+                </tr>
+                <tr>
+                  <td style="background-color: grey;color:white;font-weight: bolder;">Agustus</td>
+                  <td><input type="text" name="agustus" id="agustus" style="width: 20%;" onKeyUp="countPercentage('agustus')" value="0" autocomplete="off">%</td>
+                  <td><span id="lbl_agustus" data-value="0"></span></td>
+                </tr>
+                <tr>
+                  <td style="background-color: grey;color:white;font-weight: bolder;">September</td>
+                  <td><input type="text" name="september" id="september" style="width: 20%;" onKeyUp="countPercentage('september')" value="0" autocomplete="off">%</td>
+                  <td><span id="lbl_september" data-value="0"></span></td>
+                </tr>
+                <tr>
+                  <td style="background-color: grey;color:white;font-weight: bolder;">Oktober</td>
+                  <td><input type="text" name="oktober" id="oktober" style="width: 20%;" onKeyUp="countPercentage('oktober')" value="0">%</td>
+                  <td><span id="lbl_oktober" data-value="0"></span></td>
+                </tr>
+                <tr>
+                  <td style="background-color: grey;color:white;font-weight: bolder;" >November</td>
+                  <td><input type="text" name="november" id="november" style="width: 20%;" onKeyUp="countPercentage('november')" value="0" autocomplete="off">%</td>
+                  <td><span id="lbl_november" data-value="0"></span></td>
+                </tr>
+                <tr>
+                  <td style="background-color: grey;color:white;font-weight: bolder;">Desember</td>
+                  <td><input type="text" name="desember" id="desember" style="width: 20%;" onKeyUp="countPercentage('desember')" value="0" autocomplete="off">%</td>
+                  <td><span id="lbl_desember" data-value="0"></span></td>
+                </tr>
+                                    
+            </table>
+          
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-warning pull-left" data-dismiss="modal">Close</button>
+
+        </div>
+         <div class="alert alert-warning alert-dismissible">                    
+          <h4><i class="icon fa fa-warning"></i> Alert!</h4>
+          Harap Input Budget Bulanan dengan percentase.
+        </div>
+      </div>
+    </form>
+      <!-- /.modal-content -->
     </div>
-    <strong>Copyright &copy; 2014-2016 <a href="https://adminlte.io">Almsaeed Studio</a>.</strong> All rights
-    reserved.
-  </footer>
+    <!-- /.modal-dialog -->
+  </div>
+  <div class="modal fade" id="modal-info-co">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">Info Modal</h4>
+        </div>
+        <div class="modal-body">
+          <form action="{{ url('/')}}/budget/cashflow/save-monthly" method="post" name="form1">
+            {{ csrf_field()}}
+            <input type="hidden" name="budget_tahunan_id" value="{{ $budget_tahunan->id }}">
+            <div class="form-group">
+                              <button type="submit" class="btn btn-info" id="btn_save_bln">Save changes</button>
+              <label>Item Pekerjaan</label>
+              <select class="form-control" id="item_id_monthly" name="item_id_monthly" required>
+                <option value="">(pilih item pekerjaan)</option>
+                @foreach ( $budget_tahunan->total_parent_item as $key2 => $value2 )
+                  @if ( \Modules\Pekerjaan\Entities\Itempekerjaan::where('code',$value2['code'])->count() > 0  )                          
+                    <option value="{{ \Modules\Pekerjaan\Entities\Itempekerjaan::where('code',$value2['code'])->first()->id }}"> {{ $value2['code'] }}.00.00 - {{ \Modules\Pekerjaan\Entities\Itempekerjaan::where('code',$value2['code'])->first()->name }}</option>
+                  @endif
+                @endforeach
+              </select>
+            </div> 
+            <div class="form-group">
+              <label>Nilai Budget(Rp)</label>
+                @foreach ( $budget_tahunan->total_parent_item as $key2 => $value2 )
+                  @if ( \Modules\Pekerjaan\Entities\Itempekerjaan::where('code',$value2['code'])->count() > 0  )
+                    <span style="display: none;" class="label_budget" id="label_budget_{{ \Modules\Pekerjaan\Entities\Itempekerjaan::where('code',$value2['code'])->first()->id }}" data-value="{{ $value2['nilai']}} "><br>
+                    <strong>{{ number_format($value2['nilai'],2)}}</strong>
+                    </span>
+                  @endif
+                @endforeach<br>
+              <label>Sisa(Rp)</label><br>
+              <span id="sisa_budget"></span>
+            </div> 
+            <table style="width: 100%;" class="table">    
+                <tr class="head_table">
+                  <td></td>
+                  <td>% <span id="lbl_percent_text"></span></td>
+                  <td><input type="hidden" id="total_sub"/> Rp. <span id="lbl_budget_text"></span></td>
+
+                </tr>                
+                <tr>
+                  <td style="background-color: grey;color:white;font-weight: bolder;">Januari</td>
+                  <td><input type="text" name="januari" id="januari" style="width: 20%;" onKeyUp="countPercentage('januari')" value="0" autocomplete="off">%</td>
+                  <td><span id="lbl_januari" data-value="0"></span></td>
+                </tr>
+                <tr>
+                  <td style="background-color: grey;color:white;font-weight: bolder;">Februari</td>
+                  <td><input type="text" name="februari" id="februari" style="width: 20%;" onKeyUp="countPercentage('februari')" value="0" autocomplete="off">%</td>
+                  <td><span id="lbl_februari" data-value="0"></span></td>
+                </tr>
+                <tr>
+                  <td style="background-color: grey;color:white;font-weight: bolder;">Maret</td>
+                  <td><input type="text" name="maret" id="maret" style="width: 20%;" onKeyUp="countPercentage('maret')" value="0" autocomplete="off">%</td>
+                  <td><span id="lbl_maret" data-value="0"></span></td>
+                </tr>
+                <tr>
+                  <td style="background-color: grey;color:white;font-weight: bolder;">April</td>
+                  <td><input type="text" name="april" id="april" style="width: 20%;" onKeyUp="countPercentage('april')" value="0" autocomplete="off">%</td>
+                  <td><span id="lbl_april" data-value="0"></span></td>
+                </tr>
+                <tr>
+                  <td style="background-color: grey;color:white;font-weight: bolder;">Mei</td>
+                  <td><input type="text" name="mei" id="mei" style="width: 20%;" onKeyUp="countPercentage('mei')" value="0" autocomplete="off">%</td>
+                  <td><span id="lbl_mei" data-value="0"></span></td>
+                </tr>
+                <tr>
+                  <td style="background-color: grey;color:white;font-weight: bolder;">Juni</td>
+                  <td><input type="text" name="juni" id="juni" style="width: 20%;" onKeyUp="countPercentage('juni')" value="0" autocomplete="off">%</td>
+                  <td><span id="lbl_juni" data-value="0"></span></td>
+                </tr>
+                <tr>
+                  <td style="background-color: grey;color:white;font-weight: bolder;">Juli</td>
+                  <td><input type="text" name="juli" id="juli" style="width: 20%;" onKeyUp="countPercentage('juli')" value="0" autocomplete="off">%</td>
+                  <td><span id="lbl_juli" data-value="0"></span></td>
+                </tr>
+                <tr>
+                  <td style="background-color: grey;color:white;font-weight: bolder;">Agustus</td>
+                  <td><input type="text" name="agustus" id="agustus" style="width: 20%;" onKeyUp="countPercentage('agustus')" value="0" autocomplete="off">%</td>
+                  <td><span id="lbl_agustus" data-value="0"></span></td>
+                </tr>
+                <tr>
+                  <td style="background-color: grey;color:white;font-weight: bolder;">September</td>
+                  <td><input type="text" name="september" id="september" style="width: 20%;" onKeyUp="countPercentage('september')" value="0" autocomplete="off">%</td>
+                  <td><span id="lbl_september" data-value="0"></span></td>
+                </tr>
+                <tr>
+                  <td style="background-color: grey;color:white;font-weight: bolder;">Oktober</td>
+                  <td><input type="text" name="oktober" id="oktober" style="width: 20%;" onKeyUp="countPercentage('oktober')" value="0">%</td>
+                  <td><span id="lbl_oktober" data-value="0"></span></td>
+                </tr>
+                <tr>
+                  <td style="background-color: grey;color:white;font-weight: bolder;" >November</td>
+                  <td><input type="text" name="november" id="november" style="width: 20%;" onKeyUp="countPercentage('november')" value="0" autocomplete="off">%</td>
+                  <td><span id="lbl_november" data-value="0"></span></td>
+                </tr>
+                <tr>
+                  <td style="background-color: grey;color:white;font-weight: bolder;">Desember</td>
+                  <td><input type="text" name="desember" id="desember" style="width: 20%;" onKeyUp="countPercentage('desember')" value="0" autocomplete="off">%</td>
+                  <td><span id="lbl_desember" data-value="0"></span></td>
+                </tr>
+                                    
+            </table>
+          
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-warning pull-left" data-dismiss="modal">Close</button>
+
+        </div>
+         <div class="alert alert-warning alert-dismissible">                    
+          <h4><i class="icon fa fa-warning"></i> Alert!</h4>
+          Harap Input Budget Bulanan dengan percentase.
+        </div>
+      </div>
+    </form>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+  </div>
+        <!-- /.modal -->
+  @include("master/copyright")
 
   
   <!-- Add the sidebar's background. This div must be placed

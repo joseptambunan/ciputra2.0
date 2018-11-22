@@ -93,12 +93,14 @@
               
                     <ul class="nav nav-tabs">        
                       @foreach ( $project_pt_user as $key6 => $value6 )   
-                      @if ( $key6 == 0 )     
-                      <li  class="active"><a href="#tab_{{ $key6 + 5 }}" data-toggle="tab">{{ $value6->project_pts->project->name }}</a></li>
-                      @else
-                      <li><a href="#tab_{{ $key6 + 5 }}" data-toggle="tab">{{ $value6->project_pts->project->name }}</a></li>
-                      @endif
-                      @endforeach
+                        @if ( $value6->project_pts != "" )
+                          @if ( $key6 == 0 )     
+                          <li  class="active"><a href="#tab_{{ $key6 + 5 }}" data-toggle="tab">{{ $value6->project_pts->project->name }}</a></li>
+                          @else
+                          <li><a href="#tab_{{ $key6 + 5 }}" data-toggle="tab">{{ $value6->project_pts->project->name }}</a></li>
+                          @endif
+                        @endif
+                      @endforeach        
                     </ul>
 
                     <div class="tab-content">
@@ -138,7 +140,7 @@
                               @if ( $value7->pt_id == $value6->project_pts->pt->id && $value7->project_id == $value6->project_pts->project_id )
                                 <tr>
                                     <td>{{ $value7->document_type }}</td>
-                                    <td>{{ number_format($value7->min_value )}}</td>
+                                    <td>{{ number_format($value7->max_value )}}</td>
                                     <td>{{ number_format($value7->no_urut )}}</td>
                                     <td><button class="btn btn-danger" onclick="deleteApproval('{{ $value7->id }}')">Delete</a></td>
                                 </tr>
@@ -175,7 +177,9 @@
                       <label>Project - PT</label>
                       <select class="form-control" name="project_pt" id="project_pt">
                        @foreach ( $project_pt_user as $key => $value )
+                       @if ( $value->project_pts != "" )
                        <option value="{{ $value->id }}">{{ $value->project_pts->project->name }} - {{ $value->project_pts->pt->name }}</option>
+                       @endif
                        @endforeach
                       </select>
                     </div>
@@ -184,12 +188,15 @@
                     <div class="form-group dept" id="input_dept" style="display: none;">
                       <label>Department / Divisi</label><br>
                       @foreach ( $project_pt_user as $key => $value )
+                      @if ( $value->project_pts != "" )
                         @if ( $value->project_pts->pt->mapping->count() > 0 )
                         @foreach ( $value->project_pts->pt->mapping as $key2 => $value2 )
                           <input type="checkbox" name="dept[{{ $value2->id}}]" class="pt pt_{{ $value->id}}" style="display: none;" value="{{ $value2->id }}"> {{ $value2->department->name }} {{ $value2->division->name }}
                         @endforeach
                         @endif
+                      @endif
                       @endforeach
+                      
                     </div>
 
                     <div class="form-group">
@@ -198,14 +205,20 @@
                     </div>
 
                     <div class="form-group">
+                      @php $start = 0; @endphp
                       @foreach ( $project_pt_user as $key => $value )
+                      @if ( $value->project_pts != "" )
                         @if ( $value->project_pts->pt->mapping->count() > 0 )
-                          <button class="btn btn-primary" type="submit">Simpan</button>
+                          @php $start = 1; @endphp
                         @else
                         <h3 style="color:red;"><strong>PT ini tidak memiliki departmen</strong></h3>
                         @endif
+                      @endif
                       @endforeach
-
+                      
+                      @if ( $start > 0 )
+                      <button class="btn btn-primary" type="submit">Simpan</button>
+                      @endif
                     </div>
 
                   </form>
@@ -265,6 +278,7 @@
                       </thead>
                       <tbody>
                         @foreach ( $project_pt_user as $key => $value )
+                        @if ( $value->project_pts != "" )
                         <tr>
                           <td>
                             <input type="hidden" name="user_project_pt" id="user_project_pt_{{ $value->id }}" value="{{ $value->id }}">
@@ -297,6 +311,7 @@
                             <button class="btn btn-danger" onclick="deletept('{{ $value->id }}')">Delete</button>
                           </td>
                         </tr>
+                        @endif
                         @endforeach
                       </tbody>
                     </table>
@@ -334,81 +349,7 @@
   <!-- Add the sidebar's background. This div must be placed
        immediately after the control sidebar -->
   <div class="control-sidebar-bg"></div>
-  <div class="modal fade" id="modal-info">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title">Primary Modal</h4>
-        </div>
-        <div class="modal-body">
-          <form action="{{ url('/')}}/user/save-approval" method="post" name="form1">
-              <input type="hidden" name="userid" id="userid" value="{{ $users->id }}">
-              <div class="form-group">
-                <div class="col-md-3">
-                  <select class="form-control project" name="project_name" id="project_name">
-                    @foreach ( $project_pt_user as $key4 => $value4 )                     
-                    <option value="{{ $value4->project_pts->project->id}}">{{ $value4->project_pts->project->name }}</option>
-                    @endforeach
-                  </select>
-                </div>
-              </div>
-              <div class="form-group">
-                <div class="col-md-3">
-                  <select class="form-control project" name="pt_name" id="pt_name">
-                    @foreach ( $project_pt_user as $key4 => $value4 )                     
-                    <option value="{{ $value4->project_pts->pt->id}}">{{ $value4->project_pts->pt->name }}</option>
-                    @endforeach
-                  </select>
-                </div>
-              </div><br><br>
-              {{ csrf_field() }}
-              <table class="table table-bordered">
-                <thead style="background-color: greenyellow;">
-                  <tr>
-                    <td>Approve</td>
-                    <td>Document</td>
-                    <td>Nilai Document</td>
-                    <td>Nomor Urut</td>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td colspan="3"><input type="checkbox" name="check_all" id="check_all"></td>
-                  </tr>
-                  @if ( count($project_pt_user) > 0 )
-                  @foreach ( $document as $key3 => $value3 )
-                  <tr>
-                    <td><input type="hidden" name="document_[{{ $key3}} ]" value="{{ $value3->head_type }}">
-                      <input type="checkbox" name="check_[{{ $key3}}]"> Approve</td>
-                    <td>{{ $value3->head_type }}</td>
-                    <td><input type="text" name="min_value_[{{ $key3}}]" value="" class="form-control"></td>
-                    <td>
-                      <select class="form-control project" name="urut[{{ $key3 }}]" id="urut[{{ $key3 }}]">
-                        @for ( $i=1; $i < 8; $i++ )                     
-                        <option value="{{ $i}}">Level {{ $i}}</option>
-                        @endfor
-                      </select>
-                    </td>
-                  </tr>
-                  @endforeach
-                  @endif
-              </tbody>
-              </table>
-              <button type="submit" class="btn btn-info">Submit</button>
-            </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-outline pull-left" data-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-outline">Save changes</button>
-        </div>
-      </div>
-      <!-- /.modal-content -->
-    </div>
-    <!-- /.modal-dialog -->
-  </div>
-  <!-- /.modal -->
+  
 
   <div class="modal  fade" id="modal-primary">
     <div class="modal-dialog">

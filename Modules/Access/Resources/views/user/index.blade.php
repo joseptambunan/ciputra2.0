@@ -105,7 +105,7 @@
                 <tbody style="background-color: white;">
  
                     @foreach ( $approval as $key => $value )
-                    @if ( $value->document_type != "Modules\Tender\Entities\TenderRekanan" && $value->document_type != "Modules\Tender\Entities\TenderMenang" )
+                    @if ( $value->document_type != "Modules\Tender\Entities\TenderRekanan" && $value->document_type != "Modules\Tender\Entities\TenderMenang"  && $value->document_type != "Modules\Budget\Entities\BudgetDetail" )
                     @php 
                       $arrayDocument = array(
                         "Modules\Budget\Entities\Budget" => array("label" => "Budget Awal", "url" => "budget" ),

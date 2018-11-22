@@ -28,19 +28,21 @@
 
             </div>
             <!-- /.box-header -->
-            <div class="box-body">
+            <div class="box-body table-responsive">
               <a href="{{ url('/')}}/project/add-type?id={{ $project->id }}" class="btn-lg btn-primary"><i class="glyphicon glyphicon-plus-sign"></i>Tambah Type</a><br><br>
               <table id="example2" class="table table-bordered table-hover">   
               {{ csrf_field() }}              
               <thead class="head_table">
                 <tr>
                   <td>No.</td>
+                  <td>Kawasan</td>
                   <td>Kode Type</td>
                   <td>Nama Type</td>
                   <td>Kategori</td>
                   <td>L Bang.(m2)</td>
                   <td>L Tanah(m2)</td>
                   <td>Elektrik(watt)</td>
+                  <td>HPP(Rp/m2)</td>
                   <td>Detail</td>
                   <td colspan="2">Perubahan Data</td>
                 </tr>
@@ -50,6 +52,7 @@
                 
                  <tr>
                     <td>{{ $key + 1 }}</td>
+                    <td>{{ $value->cluster->name }}</td>
                     <td>
                       <span id="label_{{ $value->id }}">{{ $value->kode }}</span>
                       <input type="text" name="input_kode{{ $value->id }}" id="input_kode{{ $value->id }}" style="display: none;" value="{{ $value->kode }}">
@@ -73,6 +76,13 @@
                     <td>
                       <span id="listrik_{{ $value->id }}">{{ $value->listrik }}</span>
                       <input type="text" name="input_listrik_{{ $value->id }}" id="input_listrik_{{ $value->id }}" style="display: none;" value="{{ $value->listrik }}">
+                    </td>
+                    <td>
+                      @if ( $value->category )
+                        {{ number_format($value->category->nilai,2 )}}
+                      @else
+                        {{ number_format(0,2)}}
+                      @endif
                     </td>
                     <td><a href="{{ url('/')}}/project/templatepekerjaan/?id={{ $value->id }}" class="btn btn-success">Detail</a></td>
                     <td>

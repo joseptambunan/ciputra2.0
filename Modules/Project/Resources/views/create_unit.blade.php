@@ -42,15 +42,15 @@
               <div class="form-group">
                 <label>Starting Number</label>
                 <input type='hidden' id='starting_number' name='starting_number' class='form-control' required style="widht:30%" value='{{ count($blok->units) + 1 }}' min="1" />
-                <input type='number' class='form-control' required style="widht:30%" value='{{ $start}}{{ count($blok->units) + 1 }}' min="1" />
+                <input type='number' class='form-control' required style="widht:30%" value='{{ $start}}{{ count($blok->units) + 1 }}' min="1" required />
               </div>
               <div class="form-group">
                 <label>Jumlah Unit</label>
-                <input type='number' id='quantity' name='quantity' class='form-control' required style="widht:30%" value='1' min="1"  autocomplete="off" />
+                <input type='number' id='quantity' name='quantity' class='form-control' required style="widht:30%" value='1' min="1"  autocomplete="off" required />
               </div>
               <div class="form-group">
                 <label>PT</label>
-                <select class="form-control" name="pt_id" id="pt_id">
+                <select class="form-control" name="pt_id" id="pt_id" required>
                   @foreach ( $project->pt as $key6 => $value6)
                   <option value="{{ $value6->pt->id}}">{{ $value6->pt->name }}</option>
                   @endforeach
@@ -59,46 +59,45 @@
 
               <div class="form-group">
                 <label>Unit Type</label>
-                <select class="form-control" name="unit_type" id="unit_type">
-                  <option>Pilih Type</option>
-                  @foreach ( $unittype as $key5 => $value5 )
+                <select class="form-control" name="unit_type" id="unit_type" required>
+                  @foreach ( $blok->kawasan->unit_type as $key5 => $value5 )
                   <option value="{{ $value5->id }}">{{ $value5->name }}</option>
                   @endforeach
                 </select>
               </div>
               <div class="form-group">
                 <label>Luas Tanah(m2)</label>
-                <input type="text" class="form-control" name="luas_tanah" id="luas_tanah"  autocomplete="off">
+                <input type="text" class="form-control" name="luas_tanah" id="luas_tanah" required autocomplete="off">
               </div>
               <div class="form-group">
                 <label>Luas Bangunan(m2)</label>
-                <input type="text" class="form-control" name="luas_bangunan" id="luas_bangunan"  autocomplete="off">
+                <input type="text" class="form-control" name="luas_bangunan" id="luas_bangunan" required  autocomplete="off">
               </div>
 
               <div class="form-group">
                 <label>Product Kategori</label>
-                <select class='form-control select2' name='tag_kategori' id='tag_kategori'>
+                <select class='form-control select2' name='tag_kategori' id='tag_kategori' required>
                   <option value='B'>Bangunan</option>
                   <option value='K'>Kavling</option>
                 </select>
               </div>
               <div class="form-group">
                 <label>Status Sellable</label>
-                <select class='form-control' name='is_sellable' id='is_sellable'>
+                <select class='form-control' name='is_sellable' id='is_sellable' required>
                   <option value='1'>Ya</option>
                   <option value='0'>Tidak</option>
                 </select>
               </div>
               <div class="form-group">
                 <label>Status Unit</label>
-                <select class='form-control' name='is_status' id='is_status'>
+                <select class='form-control' name='is_status' id='is_status' required>
                   <option value='0'>Planning</option>
                   <option value='1'>Ready for Stock</option>
                 </select>
               </div>
               <div class="form-group">
                 <label>Keterangan</label>
-                <textarea class='form-control' name="description" id="description" cols="45" rows="5" placeholder="Descriptions"></textarea>
+                <textarea class='form-control' name="description" id="description" cols="45" rows="5" required></textarea>
               </div>     
               <div class="box-footer">
                 <i class="fa fa-refresh ld ld-spin" id="loading" style="display: none;"></i>
@@ -211,6 +210,11 @@
   $("#luas_bangunan").keyup(function(){
     $("#luas_bangunan").removeAttr("style");
     $("#btn_submit").show();
+  });
+
+  $(".form-control").keyup(function(){
+    $(".submitbtn").show();
+    $("#loading").hide();
   })
 </script>
 @include("pt::app")

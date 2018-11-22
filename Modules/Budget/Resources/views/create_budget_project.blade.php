@@ -59,7 +59,7 @@
                 </select>
               </div>
               <div class="form-group">
-                <label>Kawasan</label>
+                <label>Kawasan <i><strong>*(jika tidak dicentang, budget akan dibuat untuk Fasilitas Kota)</strong></i></label>
                 <input type="checkbox" name="iskawasan" id="iskawasan" onClick="setkawasan();">
                 <select class="form-control" name="kawasan" id="kawasan" style="display: none;" >
                   @foreach ( $project->kawasans as $key2 => $value2 )

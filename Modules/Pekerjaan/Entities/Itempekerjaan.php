@@ -7,6 +7,7 @@ use Modules\Spk\Entities\Spk;
 use Modules\Spk\Entities\SpkDetail;
 use Modules\Spk\Entities\SpkvoUnit;
 use Modules\Project\Entities\UnitProgress;
+use Modules\Project\Entities\Project;
 
 class Itempekerjaan extends Model
 {
@@ -409,5 +410,65 @@ class Itempekerjaan extends Model
             $now =(array_values(array_sort($result)));
             return reset($now);
         }
+    }
+
+    public function harga(){
+        return $this->hasMany("Modules\Pekerjaan\Entities\ItempekerjaanHarga");
+    }
+
+    public function hargadetail(){
+        return $this->hasMany("Modules\Pekerjaan\Entities\ItempekerjaanHargaDetail");
+    }
+
+    public function getNilaiMasterSatuanAttribute(){
+        $nilai = 0;
+        foreach ($this->child_item as $key => $value) {
+            foreach ($value->harga as $key2 => $value2) {
+                if ( $value2->nilai != ""  ){
+                    $nilai = $value2->nilai;
+                }
+            }
+            
+        }
+        return $nilai;
+    }
+
+    public function getNilaiLibraryAttribute(){
+        $nilai = 0;
+        foreach ($this->hargadetail as $key => $value) {
+            if ( $value->project_id == null ){
+                $nilai = $value->nilai;
+            }
+        }
+
+        return $nilai;
+    }
+
+    public function getNilaiLowestLibraryAttribute(){
+        $nilai= array();
+        foreach ($this->harga as $key => $value) {    
+            if ( $value->project_id != "" ){
+                $nilai[$key] = array( "nilai" => $value->nilai, "project_id" => Project::find($value->project_id)->name ); 
+            }               
+        }   
+
+        $now =(array_values(array_sort($nilai)));
+        return reset($now);   
+    }
+
+    public function getNilaiMaxLibraryAttribute(){
+        $nilai= array();
+        foreach ($this->harga as $key => $value) {            
+            if ( $value->project_id != "" ){
+                $nilai[$key] = array( "nilai" => $value->nilai, "project_id" => Project::find($value->project_id)->name ); 
+            }    
+        }        
+
+        $now =(array_values(array_sort($nilai)));
+        return end($now);
+    }
+
+    public function budget_type_details(){
+        return $this->hasOne("Modules\Budget\Entities\BudgetTypeDetail","itempekerjaan_id");
     }
 }

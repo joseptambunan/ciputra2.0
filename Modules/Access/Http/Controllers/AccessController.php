@@ -232,6 +232,37 @@ class AccessController extends Controller
         }
     }
 
+    public function approval_budget_awal(Request $request){
+        $budget_id = Budget::find($request->budget_id);
+        $user_id = $request->user_id;
+        $status = $request->status;
+
+        $document = $budget_id->approval->histories;
+        $approval_id = $document->where("user_id",$user_id)->first();
+        $highest = $budget_id->approval->histories->min("no_urut");
+
+        if ( isset($approval_id->id)){
+            $approval_history = ApprovalHistory::find($approval_id->id);
+            $approval_history->approval_action_id = $status;
+            $status = $approval_history->save();
+            
+            if ( $approval_history->no_urut == $highest){       
+                $approval_ac = Approval::find($budget_id->approval->id);
+                $approval_ac->approval_action_id = $request->status;
+                $approval_ac->save();
+            }
+
+            if ( $status ){
+                return response()->json( ["status" => "0"] );
+            }else{
+                return response()->json( ["status" => "1"] );
+            }
+        }else{
+            return response()->json( ["status" => "1"] );
+        }
+        
+    }
+
     public function budget_faskot(Request $request){
         $budget_id = BudgetTahunan::find($request->budget_id);
         $user_id = $request->user_id;
@@ -634,49 +665,7 @@ class AccessController extends Controller
     }
 
     public function tender_menang(Request $request){
-        /*$explode = explode(",",trim($request->list_rekanan_approval_id,","));
-
-        for ( $i=0; $i < count($explode); $i++ ){
-            if ( $explode[$i] == $request->rekanan_approval_id){
-                $approval = ApprovalHistory::find($request->rekanan_approval_id);
-                $approval->approval_action_id = "6";
-                $status = $approval->save();
-
-                $approval_history = $approval->histories->where("user_id",$request->user_id)->first();              
-                $approval_history_id = ApprovalHistory::find($approval_history->id);
-                $approval_history_id->approval_action_id = $request->status;
-                $approval_history_id->save();
-
-
-                $highest = Approval::find($request->rekanan_approval_id)->histories->min("no_urut");
-                if ( $approval->no_urut == $highest){
-                    $approval_ac = Approval::find($request->approval_id);
-                    $approval_ac->approval_action_id = $explode_detail[1];
-                    $approval_ac->save();
-                }
-
-            }else{
-                $approval = Approval::find($explode[$i]);
-                $approval->approval_action_id = "7";
-                $status = $approval->save();
-
-                $approval_history = $approval->histories->where("user_id",$request->user_id)->first();
-                $approval_history_id = ApprovalHistory::find($approval_history->id);
-                $approval_history_id->approval_action_id = "7";
-                $approval_history_id->save();
-
-                $highest = Approval::find($request->rekanan_approval_id)->histories->min("no_urut");
-                if ( $approval->no_urut == $highest){
-                    $approval_ac = Approval::find($request->approval_id);
-                    $approval_ac->approval_action_id = $explode_detail[1];
-                    $approval_ac->save();
-                }
-
-
-            }
-        }
-*/
-
+        
         $tenderRekanan = TenderRekanan::find($request->id);
         $tender = $tenderRekanan->tender;
         $menangs = $tender->menangs;
@@ -718,21 +707,8 @@ class AccessController extends Controller
             $rekanan->save();
             
         }
-        /*$menangs = $tender->menangs->first()->approval->id;
-        $approval_history_id = ApprovalHistory::where("approval_id",$menangs)->first()->id;
         
-        $approval_history = ApprovalHistory::find($approval_history_id);        
-        $approval_history->approval_action_id = "6";
-        $approval_history->save();
 
-        $approval = Approval::find($menangs);
-        $highest = $approval->histories->min("no_urut");
-        if ( $approval_history->no_urut == $highest){     
-            $approval_ac = Approval::find($approval->id);
-            $approval_ac->approval_action_id = "6";
-            $status = $approval_ac->save();
-        }
-*/
         $approval = $tender->approval;
         foreach ($approval->histories as $key => $value) {
             if ( $value->user_id == $request->user_id){
@@ -811,42 +787,7 @@ class AccessController extends Controller
     }
 
     public function budget_devcost(Request $request){
-        /*$user = \Auth::user();
-        $project = Project::find($request->id);
-        $budgets = $project->budgets;
-        $budget_project = 0;
-        $budget_project_kawasan = 0;
-        $total_budget = 0;
-        $effisiensi_netto = 0;
-        $approval = "";
-        $total_devcost = 0;
-        $total_concost = 0;
-        $budget_total = $budgets->where("project_kawasan_id",null)->first();
-            if ( isset($budget_total->id)){
-            $budget = Budget::find($budget_total->id);
-            $approval = Budget::find($budget_total->id)->approval;
-
-            foreach ($budgets as $key => $value) {
-                # code...
-                if ( $value->project_kawasan_id == null ){
-                    $budget_project = $value->nilai;
-                    $total_devcost  = $total_devcost + $value->total_dev_cost;
-                }else{
-                    $budget_project_kawasan = $value->total_dev_cost;
-                    $total_devcost  = $total_devcost + $value->total_dev_cost;
-                    $total_concost  = $total_concost + $value->total_con_cost;
-                }
-
-                $total_budget = $total_budget + $value->nilai;
-            }
-
-            if ( $project->netto > 0 ){
-                $effisiensi_netto = $total_budget / $project->netto;
-            }
-            
-        }*/
-
-
+       
         $budgets = Budget::find($request->id);
         $coa = $budgets->total_parent_item;
         $user = \Auth::user();
@@ -855,18 +796,7 @@ class AccessController extends Controller
     }
 
     public function budget_concost(Request $request){
-        /*$user = \Auth::user();
-        $project = Project::find($request->id);
-        $budgets = $project->budgets;
-        $start = 0;
-        foreach ($project->kawasans as $key => $value) {
-            foreach ($value->units as $key2 => $value2 ) {
-                $array[$start] = $value2->unit_type_id;
-                $start++;
-            }
-        }
-
-        $type = array_values(array_unique($array));*/
+        
         $budgets = Budget::find($request->id);
         $coa = $budgets->total_parent_item;
         $user = \Auth::user();
@@ -1075,6 +1005,35 @@ class AccessController extends Controller
         
     }
 
+    public function budgetreferensi(Request $request){
+        $budgetdetail = BudgetDetail::find($request->id);
+        $user = \Auth::user();
+        $project = Project::find($request->session()->get('project_id'));
+        return view("access::user.budget_referensi",compact("budgetdetail","user","project"));
+    }
+
+    public function budgetdetail_approval(Request $request){
+        $budgetdetail = BudgetDetail::find($request->budget_detail_id);
+        foreach ($budgetdetail->approval->histories as $key => $value) {
+            if ( $value->user_id == $request->user_id ){
+                $approval_history = ApprovalHistory::find($value->id);
+                $approval_history->approval_action_id = $request->status;
+                $approval_history->save();
+
+                $approvals = Approval::find($approval_history->approval->id);
+                $highest  = $approvals->histories->min("no_urut");
+                if ( $highest == $approval_history->no_urut ){
+                    $approvals->approval_action_id = $request->status;
+                    $approvals->save();
+                }
+            }
+            
+        }
+
+        
+        return response()->json( ["status" => "0"] );
+
+    }
 }
 
 ?>

@@ -13,6 +13,9 @@ use Modules\Budget\Entities\BudgetGroup;
 use Modules\Pekerjaan\Entities\ItempekerjaanProgress;
 use Modules\Project\Entities\Project;
 use Modules\Pekerjaan\Entities\ItempekerjaanDetail;
+use Modules\Satuan\Entities\CoaSatuan;
+use Modules\Pekerjaan\Entities\ItempekerjaanHarga;
+use Modules\Pekerjaan\Entities\ItempekerjaanHargaDetail;
 
 class PekerjaanController extends Controller
 {
@@ -79,7 +82,8 @@ class PekerjaanController extends Controller
         $coa = Coa::get();
         $project = Project::get();
         $start = 0;
-        return view('pekerjaan::detail',compact("itempekerjaan","user","department","budgetgroup","coa","project","start"));
+        $satuan = CoaSatuan::get();
+        return view('pekerjaan::detail',compact("itempekerjaan","user","department","budgetgroup","coa","project","start","satuan"));
     }
 
     /**
@@ -175,7 +179,6 @@ class PekerjaanController extends Controller
         foreach ($request->item_id_ as $key => $value) {
             $detail = Itempekerjaan::find($request->item_id_[$key])->details;
             if ( $detail != ""){
-                echo $detail->id."<>".$request->item_satuan_[$key]."<br>";
                 $itempekerjaan_detail = ItempekerjaanDetail::find($detail->id);
                 $itempekerjaan_detail->satuan = $request->item_satuan_[$key];
                 $itempekerjaan_detail->save(); 
@@ -187,5 +190,64 @@ class PekerjaanController extends Controller
             }
         }
         return redirect("/pekerjaan/detail/?id=".$request->coa_id);
+    }
+
+    public function library(Request $request){
+        $user = \Auth::user();
+        $project = Project::get();
+        $itempekerjaan = Itempekerjaan::find($request->id);
+        $class = "";
+        $nilai_library_satuan = 0;
+        $total_library = 0;
+        foreach ($itempekerjaan->harga as $key => $value) {
+            if ( $value->project_id == null ){
+                $nilai_library_satuan = $value->nilai;
+            }
+        }
+
+        foreach ($itempekerjaan->child_item as $key => $value) {
+            $total_library = $total_library + $value->nilai_library;
+        }
+        return view("pekerjaan::add_library",compact("user","project","itempekerjaan","class","nilai_library_satuan","total_library"));
+    }
+
+    public function savelibrary(Request $request){
+        $user = \Auth::user();
+        if ( $request->nilai_[0] != "" ){
+            $detail_master = Itempekerjaan::find($request->item_id_[0]);   
+            $itempekerjaan_harga = new ItempekerjaanHarga;
+            $itempekerjaan_harga->itempekerjaan_id = $request->parent_id;
+            $itempekerjaan_harga->project_id = null;
+            $itempekerjaan_harga->nilai = str_replace(",", "", $request->nilai_[0]);
+            $itempekerjaan_harga->satuan = $detail_master->details->satuan;
+            $itempekerjaan_harga->created_by = $user->id;
+            $itempekerjaan_harga->save();
+        }
+
+        foreach ($request->nilai_ as $key => $value) {
+            if ( $request->item_id_[$key] != $request->tag ){
+                $tag = 0;
+            }else{
+                $tag = 1;
+            }
+
+            $itempekerjaan = Itempekerjaan::find($request->item_id_[$key]);
+            $itempekerjaan->tag = $tag;
+            $itempekerjaan->save();  
+
+            if ( $request->nilai_[$key] != "" ){
+                if ( $key > 0 ){
+                    $itempekerjaan_harga_detail = new ItempekerjaanHargaDetail;
+                    $itempekerjaan_harga_detail->itempekerjaan_id = $request->item_id_[$key];    
+                    $itempekerjaan_harga_detail->itempekerjaan_harga_id = $itempekerjaan_harga->id;
+                    $itempekerjaan_harga_detail->project_id = null;
+                    $itempekerjaan_harga_detail->nilai = str_replace(",", "", $request->nilai_[$key]);                
+                    $itempekerjaan_harga_detail->satuan = $itempekerjaan->details->satuan;
+                    $itempekerjaan_harga_detail->created_by = $user->id;
+                    $itempekerjaan_harga_detail->save();
+                }
+            }
+        }        
+        return redirect("pekerjaan/library-detail/?id=".$request->parent_id);
     }
 }

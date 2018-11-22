@@ -44,8 +44,8 @@
                    @foreach ( $rekanan_group->rekanans as $key => $value )
                     @foreach ( $value->tender_rekanans as $key2 => $value2 )
                       <tr>
-                        <td>{{ $value2->tender->no }}</td>
-                        <td>{{ $value2->tender->name }}</td>
+                        <td>{{ $value2->tender->no or '' }}</td>
+                        <td>{{ $value2->tender->name or ''}}</td>
                         <td>{{ $value2->tender->rab->budget_tahunan->budget->project->name or '' }}</td>
                         <td>{{ $value2->tender->rab->budget_tahunan->budget->project->city->name or '' }}</td>
                         <td>
