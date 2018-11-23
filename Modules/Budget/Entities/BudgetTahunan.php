@@ -83,7 +83,7 @@ class BudgetTahunan extends Model
         foreach ($this->details as $key => $value) {
             $nilai = $nilai + ( $value->nilai * $value->volume);
         }
-        return $nilai ;
+        return $nilai + $this->nilai_carry_over_dev_cost + $this->nilai_carry_over_con_cost ;
     }
 
     public function geTendersAttribute()

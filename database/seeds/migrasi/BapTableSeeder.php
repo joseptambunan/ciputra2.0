@@ -33,7 +33,7 @@ class BapTableSeeder extends Seeder
 		    		$bap->spk_id = $spk->id;
 		    		$bap->date = $csv_line[3];
 		    		$bap->termin = $spk->baps->count() + 1;
-		    		$bap->no = $csv_line[2];
+		    		$bap->no = $csv_line[1].$csv_line[2];
 		    		$bap->nilai_bap_2 = $csv_line[7] - $csv_line[8];
 		    		$bap->created_at = date("Y-m-d H:i:s.u");
 		    		$bap->created_by = 1;

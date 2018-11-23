@@ -81,8 +81,7 @@
                 <tr>
                   <td>Nomor Budget</td>
                   <td>Nilai DevCost(Rp)</td>
-                  <td>Department</td>
-                  <td>Proyek</td>
+                  <td>Hpp (Rp / m2)</td>
                   <td>Kawasan</td>
                   <td>Start Date</td>
                   <td>End Date</td>                  
@@ -107,8 +106,14 @@
                 <tr>
                   <td>{{ $value->no }}</td>
                   <td>{{ number_format($value->total_dev_cost) }}</td>
-                  <td>{{ $value->department->name }}</td>
-                  <td>{{ $value->project->name }}</td>
+                  <td>
+                    @if ( $value->kawasan != "" )
+                      @if ( $value->kawasan->lahan_luas > 0 )
+                      {{ number_format( $value->total_dev_cost / $value->kawasan->lahan_luas,2 ) }}
+                      @endif
+                    @endif
+                  </td>
+
                   <td>{{ $value->kawasan->name or '' }}</td>
                   <td>{{ $value->start_date->format("d/m/Y")}}</td>
                   <td>{{ $value->end_date->format("d/m/Y") }}</td>                  

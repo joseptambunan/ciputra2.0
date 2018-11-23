@@ -84,7 +84,7 @@
 
             <div class="inner">
 
-              <h3>{{ number_format( $project->percentage_budget )}}<sup style="font-size: 20px">%</sup></h3>
+              <h3>{{ number_format( $project->nilai_realisasi /$project->total_budget,2  )}}<sup style="font-size: 20px">%</sup></h3>
 
               <p>Budget</p>
 
@@ -252,9 +252,9 @@
               <h3>Total Budget  : Rp. {{ number_format($project->total_budget,2) }} </h3>
               <h3>Total Kontrak  : Rp. {{ number_format($project->total_nilai_kontrak,2) }} </h3>
 
-              <h3>Total BAP     : Rp. {{ number_format($project->nilai_total_bap,2) }} </h3>
+              <h3>Total BAP     : Rp. {{ number_format($project->nilai_realisasi,2) }} </h3>
 
-              <h3>Sisa Budget       : Rp. {{ number_format( $project->total_budget - $project->nilai_total_bap,2)}}
+              <h3>Sisa Budget       : Rp. {{ number_format( $project->total_budget - $project->nilai_realisasi,2)}}
 
               @if ( $project->netto <= 0 )
 

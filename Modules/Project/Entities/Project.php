@@ -776,4 +776,15 @@ class Project extends Model
     public function history_luas(){
         return $this->hasMany("Modules\Project\Entities\ProjectHistory")->orderBy('id','DESC');
     }
+
+    public function getNilaiRealisasiAttribute(){
+        $nilai = 0;
+        foreach ($this->voucher as $key => $value) {
+            if ( $value->pencairan_date != "" ){
+                $nilai = $nilai + $value->nilai;
+            }
+        }
+
+        return $nilai;
+    }
 }

@@ -79,8 +79,8 @@
                   <td>{{ number_format(0,2 ) }}</td> 
                   <td>{{ number_format(0,2 ) }}</td>
                   @endif
-                  <td>{{ number_format($detail->summary_kontrak->sum("total_kontrak"),2 ) }}</td> 
-                  <td>{{ number_format($detail->summary_kontrak->sum("total_kontrak_terbayar"),2 ) }}</td>              
+                  <td>{{ number_format($detail->dev_cost_only,2 ) }}</td> 
+                  <td>{{ number_format($detail->nilai_realisasi,2 ) }}</td>              
                   <td>
                     <a href="{{ url('/')}}/report/project/detail/?id={{ $detail->id}}" class="btn btn-info">Dashboard</a>
                   </td>

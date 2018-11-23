@@ -112,4 +112,16 @@ class ReportController extends Controller
         $user = \Auth::user();
         return view('report::document',compact("user","project"));
     }
+
+    public function budget(Request $request){
+        $project = Project::find($request->id);
+        $user = \Auth::user();
+        return view("report::report.report_hpp_summary",compact("user","project"));
+    }
+
+    public function budgetdetail(Request $request){
+        $project = Project::find($request->id);
+        $user = \Auth::user();
+        return view("report::report.report_hpp_detail",compact("user","project"));
+    }
 }

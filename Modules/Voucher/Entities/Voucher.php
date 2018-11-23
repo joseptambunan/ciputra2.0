@@ -86,11 +86,14 @@ class Voucher extends CustomModel
 
     public function getNilaiAttribute()
     {
-        $dpp = $this->details()->where('type','dpp')->sum('nilai');
-        $ppn = $this->details()->where('type','ppn')->sum('nilai');
-        $pph = $this->details()->where('type','pph')->sum('nilai');
-        $pot = $this->details()->where('type','potongan')->sum('nilai');
+        $nilai = 0;
+        foreach ($this->details as $key => $value) {
+            $nilai = $nilai + $value->nilai;
+        }
+        return $nilai;
+    }
 
-        return $dpp + $ppn - $pph - $pot;
+    public function project(){
+        return $this->belongsTo("Modules\Project\Entities\Project");
     }
 }

@@ -393,22 +393,34 @@ class ProjectKawasan extends CustomModel
 
     public function getTotalBudgetAttribute(){
         $nilai = 0;
-        foreach ($this->budgets as $key => $value) {
-            # code...
-            $nilai = $nilai + $value->nilai;
+        $nilai_budget = 0;
+        $rev = 0;
+        foreach ($this->budgets as $key => $value) {            
+            $nilai = $nilai + $value->nilai;            
         }
 
-        /* Budget Faskot Proporsional */
-        if ( count($this->project->budgets) > 0 ){
-            $budget = $this->project->budgets->where("project_kawasan_id",null);
-            if ( $budget->first()->id ){
-                $budget_faskot = Budget::find($budget->first()->id)->nilai;
-                $nilai_faskot = $budget_faskot * (  $this->lahan_luas / $this->project->luas );
-                return $nilai_faskot + $nilai;
+        //Proporsional
+        foreach ($this->project->budgets_all as $key => $value) {
+            if ( $value->deleted_at == null ){
+                $nilai_budget = $nilai_budget + $value->total_dev_cost;
+            }else{
+                $rev = $rev + 1;
             }
         }
-        
-        return number_format($nilai);
+
+        if ( $rev > 0 ){
+            $total_faskot =  $nilai_budget + $this->project->dev_cost_only;
+        }else{
+            $total_faskot = $nilai_budget;
+        }
+
+        if ( $this->lahan_luas > 0 ){
+            $proporsional = ( $this->lahan_luas  / $this->project->luas ) * $total_faskot;
+        }else{
+            $proporsional = 0;
+        }
+       
+        return $nilai + $proporsional;
     }
 
     public function getHppConCostAttribute(){
@@ -785,6 +797,127 @@ class ProjectKawasan extends CustomModel
 
     public function unit_type(){
         return $this->hasMany("Modules\Project\Entities\UnitType","cluster_id");
+    }
+
+    public function getTotalKontrakProporsionalAttribute(){
+        $nilai = 0;
+        $summary_kontrak = $this->project->dev_cost_only;
+
+        foreach ($this->project->spks as $key => $value) {
+            if ( $value->itempekerjaan->group_cost == 1 ){  
+                if ( $value->tender->rab->budget_tahunan != "" ){
+                    if ( $value->tender->rab->budget_tahunan->kawasan != "" ){
+                        if ( $value->tender->rab->budget_tahunan->kawasan->id == $this->id ){
+                            $nilai = $value->nilai + $nilai;
+                        }
+                    }
+                }
+            }
+        }
+
+        //proporsional 
+        if ( $this->lahan_luas > 0 ){
+            $proporsional = $summary_kontrak * (  $this->lahan_luas / $this->project->luas ); 
+        }else{
+            $proporsional = 0;
+        }
+        return $nilai + $proporsional;
+    }
+
+    public function getTotalTerbayarProporsionalAttribute(){
+        $nilai = 0;
+        $summary_terbayar = $this->project->nilai_realisasi;
+
+        
+        //proporsional 
+        if ( $this->lahan_luas > 0 ){
+            $proporsional = $summary_terbayar * (  $this->lahan_luas / $this->project->luas ); 
+        }else{
+            $proporsional = 0;
+        }
+        return $nilai + $proporsional;
+    }
+
+    public function budget_tahunan(){
+        return $this->hasMany("Modules\Budget\Entities\BudgetTahunan");
+    }
+
+    public function getTotalBudgetTahunan($year){
+        $nilai = 0;
+        if ( $this->budget_tahunan != "" ){
+            if ( $year == "" ){
+                $nilai = $this->budget_tahunan->last()->nilai;
+            }else{
+                foreach ($this->budget_tahunan as $key => $value) {
+                    if ( $value->tahun_anggaran == $year){
+                        $nilai = $value->nilai;
+                    }
+                }
+            }   
+        }
+        
+
+        return $nilai;
+    }
+
+    public function getTotalKontrakTahunProporsionalAttribute($year){
+        $nilai = 0;
+        $nilai_proporsional = 0;
+        if ( $year == "" ){
+            foreach ($this->project->spks as $key => $value) {
+                if ( $value->itempekerjaan->group_cost == 1 ){                    
+                    if ( $value->date->format("Y") == date("Y")){
+                        $nilai_proporsional = $value->nilai + $nilai_proporsional;
+                    }
+                }
+            }
+
+            foreach ($this->project->spks as $key => $value) {
+                if ( $value->itempekerjaan->group_cost == 1 ){   
+                    if ( $value->tender->rab->budget_tahunan != "" ){
+                        if ( $value->tender->rab->budget_tahunan->kawasan != "" ){
+                            if ( $value->tender->rab->budget_tahunan->kawasan->id == $this->id ){
+                                if ( $value->date->format("Y") == date("Y")){
+                                    $nilai = $nilai + $value->nilai;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if ( $this->lahan_luas > 0 ){
+            $proporsional = $nilai_proporsional * (  $this->lahan_luas / $this->project->luas ); 
+        }else{
+            $proporsional = 0;
+        }
+
+        return $nilai + $proporsional;
+    }
+
+    public function getNilaiTerbayarTahunAttribute(){
+        $nilai = 0;
+        foreach ($this->project->spks as $key => $value) {
+            if ( $value->itempekerjaan->group_cost == 1 ){  
+                foreach ($value->baps as $key2 => $value2) {
+                    if ( $value2->date->format("Y") == date("Y") ){
+                        foreach ($value2->vouchers as $key3 => $value3) {
+     
+                            if ( $value3->pencairan_date != "" ){
+                                $nilai = $nilai + $value3->nilai;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if ( $this->lahan_luas > 0 ){
+            $proporsional = $nilai * (  $this->lahan_luas / $this->project->luas ); 
+        }else{
+            $proporsional = 0;
+        }
+
+        return $proporsional;
     }
     
 }

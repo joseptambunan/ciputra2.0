@@ -1,112 +1,97 @@
 <!DOCTYPE html>
 <html>
-@include('user.header')
-
-<body class="hold-transition sidebar-mini">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>User QS | Dashboard</title>
+  @include("master/header")
+</head>
+<body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
- 
-  <!-- /.navbar -->
-  @include('user.sidebar')
+
+  @include('master/sidebar_report')
+
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <h1>Data Proyek</h1>
+
+    </section>
 
     <!-- Main content -->
-    <section class="content" style="font-size:17px;">
+    <section class="content">
       <div class="row">
-        <div class="col-12">
-
-          <div class="card">
-            <div class="card-header">              
-              <a class="btn btn-warning" href="{{ url('/')}}/user/report/document?id={{ $project->id}}">Back</a>
-              <h3 class="card-title">Data Report HPP Development Cost( Detail )</h3>
+        
+        <div class="col-xs-12">
+          <div class="box">
+            <div class="box-header">
+              <h3 class="box-title">Data Proyek <strong>{{ $project->name }}</strong></h3><br>
+              <h3 class="box-title">Tahun <strong>{{ date("Y") }}</strong></h3>
             </div>
-            <!-- /.card-header -->
-            <div class="card-body">
-              <h4>Nama Proyek : <strong>{{ $project->name or  '' }}</strong></h4>
-              <h4>Periode : 1 Jan s/d {{ date("d/m/Y") }} </h4>
-              <table id="example3" class="table table-bordered" style="font-size: 20px;" cellpadding="0" cellspacing="0">
-                <thead style="text-align: center;">
-                <tr style="background-color: #17a2b8;color: white;font-weight: bolder;">
-                  <th rowspan="2">&nbsp;</th>
-                  <th rowspan="2" style="width: 20%">Kawasan</th>
-                  <th colspan="2">Budget(Rp)</th>
-                  <th colspan="2">Kontrak(Rp)</th>
-                  <th rowspan="2">Prog. Lapangan(%)</th>
-                  <th rowspan="2">Prog. BAP(%)</th>
+              
+            <!-- /.box-header -->
+            <div class="box-body table-responsive">
+              <div class="col-md-3">
+                <div class="form-group">
+                  <select class="form-control">
+                    <label>Tahun </label>
+                    @for($i= 2015; $i <= date("Y"); $i++ )
+                    <option value="{{ $i}}">{{ $i }}</option>
+                    @endfor
+                  </select>
+                </div>
+                <div class="form-group">
+                  <button class="btn btn-primary">Cari</button>
+                </div>
+              </div><br>  
+              <table id="example2" class="table  table-bordered table-hover">
+                <thead  style="background-color: greenyellow;">
+                <tr>
+                  <th rowspan="2">Kawasan </th>
+                  <th colspan="2">Budget</th>
+                  <th colspan="2">Kontrak</th>
+                  <th rowspan="3">Proggres Lapangan</th>
+                  <th rowspan="3">Proggress BAP</th>
                   <th colspan="2">BAP Terbayar(Rp)</th>
-                  <th colspan="3">Saldo(Rp)</th>
+                  <th colspan="3">Saldo</th>
                 </tr>
-                <tr style="background-color: #17a2b8;color: white;font-weight: bolder;">
-                  <th>Budget<br>Awal</th>
-                  <th>Budget<br>Tahun</th>
-                  <th>Kontrak<br>Total</th>
-                  <th>Kontrak<br>Tahun</th>
-                  <th>Terbayar<br>Total</th>
-                  <th>Terbayar<br>Tahun</th>
-                  <th>Budget<br>Awal</th>
-                  <th>Budget<br>Tahun</th>
-                  <th>Sisa<br>Kontrak</th>
+                <tr>            
+                  <th>Budget Awal</th>
+                  <th>Budget Tahun</th>
+                  <th>Kontrak Awal</th>
+                  <th>Kontrak Tahun</th>
+                  <th>Terbayar Total</th>
+                  <th>Terbayar Tahun</th>
+                  <th>Budget Awal</th>
+                  <th>Budget Tahun</th>
+                  <th>Total Kontrak</th>
                 </tr>
                 </thead>
                 <tbody>
                   @foreach ( $project->kawasans as $key => $value )
-                    @php $budget_awal = 0; $kontrak_total = 0; $start = 1; $progress = 0; $start_bap = 1; $bap=0; $bap_terbayar = 0; @endphp
-                        @foreach ( $value->HppDevCostReport as $key2 => $value2 )
-                        @php $budget_awal = $budget_awal + $value2->budget_awal; @endphp
-                        @php $kontrak_total = $kontrak_total + $value2->kontrak_total; @endphp
-                        @if ( $value2->progress_lapangan != "0")
-                          @php $progress = $progress + $value2->progress_lapangan; @endphp
-                          @php $start = $start + 1 ; @endphp
-                        @endif
-                        @if ( $value2->progress_bap != "0")
-                          @php $bap = $bap + $value2->progress_bap; @endphp
-                          @php $start_bap = $start_bap + 1 ; @endphp
-                        @endif
-                        @php $bap_terbayar = $bap_terbayar + $value2->bap_terbayar_total @endphp
-                        @endforeach
-                        
-                    <tr style="text-align: left;background-color: grey;color:white;">
-                      <td>{{ $key + 1 }}</td>
-                      <td style="text-transform: uppercase;" onclick="showchild('{{ $value->id }}');" data-attribute='1' id='btn_{{$value->id}}'><strong>{!! $value->name or '' !!}</strong></td>
-                      <td>{{ number_format($budget_awal,2) }}</td>
-                      <td>0</td>
-                      <td>{{ number_format($kontrak_total,2) }}</td>
-                      <td>0</td>
-                      <td>{{ number_format($progress/ $start,2) * 100 }}</td>                    
-                      <td>{{ number_format($bap/ $start_bap,2) * 100 }} </td>
-                      <td>{{ number_format($bap_terbayar),2 }}</td>
-                      <td>0</td>
-                      <td>{{ number_format($budget_awal - $kontrak_total,2) }}</td>
-                      <td>{{ number_format(0 - 0,2) }}</td>
-                      <td>{{ number_format($kontrak_total - $bap_terbayar,2) }}</td>
-                    </tr>
-                   
-                    @foreach ( $value->HppDevCostReport as $key2 => $value2 )
-                    <tr style="text-align: right;background-color: white;display: none" class="itempekerjaan item_{{$value->id}}">
-                      <td>&nbsp;</td>
-                      <td style="text-align: left;">{{ $value2->item->name or ''}}</td>
-                      <td>{{ number_format($value2->budget_awal,2) }}</td>
-                      <td>{{ number_format($value2->budget_tahun,2) }}</td>
-                      <td>{{ number_format($value2->kontrak_total,2)}}</td>
-                      <td>{{ number_format($value2->kontrak_tahun,2)}}</td>
-                      <td>{{ round($value2->progress_lapangan * 100,2)}}</td>
-                      <td>{{ round($value2->progress_bap * 100 ,2)}}</td>
-                      <td>{{ number_format($value2->bap_terbayar_total,2) }}</td>
-                      <td>{{ number_format($value2->bap_terbayar_tahun,2)}}</td>
-                      <td>{{ number_format($value2->budget_awal - $value2->kontrak_total,2)}}</td>
-                      <td>{{ number_format($value2->budget_tahun - $value2->bap_terbayar_tahun,2)}}</td>
-                      <td>{{ number_format($value2->kontrak_total - $value2->bap_terbayar_total,2)}}</td>
-                    </tr>
-                    @endforeach
-                    
+                  <tr>
+                    <td>{{ $value->name }}</td>
+                    <td>{{ number_format($value->total_budget) }}</td>
+                    <td>{{ number_format($value->total_budget_tahunan) }}</td>                    
+                    <td>{{ number_format($value->total_kontrak_proporsional) }}</td>             
+                    <td>{{ number_format($value->total_kontrak_tahun_proporsional) }}</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>{{ number_format($value->total_terbayar_proporsional) }}</td>                     
+                    <td>{{ number_format($value->nilai_terbayar_tahun) }}</td>  
+                    <td>{{ number_format($value->total_budget) }}</td>
+                    <td>{{ number_format($value->total_budget_tahunan) }}</td>               
+                    <td>{{ number_format($value->total_kontrak_proporsional) }}</td>               
+                  </tr>
                   @endforeach
-
                 </tbody>
               </table>
             </div>
-            <!-- /.card-body -->
+            <!-- /.box-body -->
           </div>
-          <!-- /.card -->
+          <!-- /.box -->
+
         </div>
         <!-- /.col -->
       </div>
@@ -116,52 +101,21 @@
   </div>
   <!-- /.content-wrapper -->
   <footer class="main-footer">
-    <div class="float-right d-none d-sm-block">
-      <b>Version</b> 3.0.0-alpha
+    <div class="pull-right hidden-xs">
+      <b>Version</b> 2.4.0
     </div>
-    <strong>Copyright &copy; 2014-2018 <a href="http://adminlte.io">AdminLTE.io</a>.</strong> All rights
+    <strong>Copyright &copy; 2014-2016 <a href="https://adminlte.io">Almsaeed Studio</a>.</strong> All rights
     reserved.
   </footer>
 
-
+  
+  <!-- Add the sidebar's background. This div must be placed
+       immediately after the control sidebar -->
+  <div class="control-sidebar-bg"></div>
 </div>
 <!-- ./wrapper -->
-@include('user.footer')
-<script type="text/javascript" src="https://cdn.datatables.net/fixedcolumns/3.2.4/js/dataTables.fixedColumns.min.js"></script>
-<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/fixedcolumns/3.0.2/css/dataTables.fixedColumns.css">
-<script type="text/javascript">
-  $(document).ready(function() {
-    $('#example3').DataTable( {
-        scrollY:        600,
-        scrollX:        true,
-        scrollCollapse: true,
-        paging:         false,
-        ordering :      false,
-        fixedColumns:   {
-            leftColumns: 2
-        }
-    } );
 
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-Token': $('input[name=_token]').val()
-        }
-    });
-   
-  });
+@include("master/footer_table")
 
-  function showchild(id){
-    if ( $("#btn_" +id).attr("data-attribute") == "1"){
-      $(".itempekerjaan").hide();
-      $(".item_" + id).show(1000);
-      $("#btn_" +id).attr("data-attribute","0");
-    }else{
-      $(".itempekerjaan").hide();
-      $(".item_" + id).hide(1000);
-      $("#btn_" +id).attr("data-attribute","1");
-    }
-    
-  }
-</script>
 </body>
 </html>
