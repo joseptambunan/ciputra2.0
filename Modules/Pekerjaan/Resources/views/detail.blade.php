@@ -333,7 +333,7 @@
                           <td>Coa</td>
                           <td>Item Pekerjaan</td>
                           <td>Satuan</td>
-                          <td>Nilai</td>
+                          <td>Harg Satuan</td>
                           <td>Terendah</td>
                           <td>Tertinggi</td>
                           <td>Detail</td>

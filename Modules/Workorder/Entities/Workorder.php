@@ -22,7 +22,7 @@ class Workorder extends Model
     public function getProjectAttribute()
     {
         //return $this->budget_tahunan->project;
-        return $this->belongsTo('Modules\Project\Entities\Project', 'budget_tahunan_id');
+        return $this->belongsTo('Modules\Project\Entities\Project', 'budget_tahunan_id')->first();
     }
 
     public function budget_tahunan()
@@ -62,7 +62,7 @@ class Workorder extends Model
 
     public function getPtAttribute()
     {
-        return $this->project->first()->pt_user->first()->pt;
+        return $this->project->first()->pt->first()->pt;
     }
 
     public function unit()
@@ -166,7 +166,7 @@ class Workorder extends Model
                     if ( $detail_pekerjaan_workorder->budget_tahunan != "" ){
                         foreach ($detail_pekerjaan_workorder->budget_tahunan->total_parent_item as $key7 => $value7) {
                            if ( $value7['code'] == $coa_code ){
-                                $total_budget = $value7['total'] * $value7['volume'];
+                                $total_budget = $value7['nilai'] * $value7['volume'];
                                 $coa_code."<>".$total_budget;
                            }
                         }                        

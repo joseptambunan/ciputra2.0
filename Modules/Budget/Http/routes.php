@@ -37,7 +37,9 @@ Route::group(['middleware' => 'web', 'prefix' => 'budget', 'namespace' => 'Modul
     Route::post('/cashflow/approval','BudgetController@approval_cashflow');
     Route::get("/cashflow/newadd-item/","BudgetController@newitemcashflow");
     Route::post('/cashflow/savenewadd-item','BudgetController@savenewitemcashflow');
-    
+    Route::get('/cashflow/views','BudgetController@viewcf');
+    Route::get('/cashflow/referensi','BudgetController@referensicf');
+
     Route::get('/revisibudget','BudgetController@revisibudget');
     Route::post('/save-budgetrevisi','BudgetController@saverevisi');
     Route::get('/show-budgetrevisi','BudgetController@detailrevisi');

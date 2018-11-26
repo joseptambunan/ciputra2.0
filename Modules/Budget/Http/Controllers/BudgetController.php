@@ -262,14 +262,26 @@ class BudgetController extends Controller
         $budget_tahunan->tahun_anggaran = $request->tahun_anggaran;
         $budget_tahunan->description    = $request->description;
         $status = $budget_tahunan->save();
+        $start = 0;
         foreach ($budget->details as $key => $value) {
-            $budgetDetail = new BudgetTahunanDetail;
-            $budgetDetail->budget_tahunan_id = $budget_tahunan->id;
-            $budgetDetail->itempekerjaan_id = $value->itempekerjaan_id;
-            $budgetDetail->nilai = $value->nilai;
-            $budgetDetail->volume = str_replace(",", "",$value->volume);
-            $budgetDetail->satuan = str_replace(",", "",$value->satuan);
-            $budgetDetail->save();
+            $start = 0;
+            foreach ($value->itempekerjaan->child_item as $key1 => $value1) {
+                if ( $start == 0 ){
+                    $volume = $value->volume;
+                    $nilai = $value->nilai;
+                }else{
+                    $volume = 0;
+                    $nilai = 0;
+                }
+                $budgetDetail = new BudgetTahunanDetail;
+                $budgetDetail->budget_tahunan_id = $budget_tahunan->id;
+                $budgetDetail->itempekerjaan_id = $value1->id;
+                $budgetDetail->nilai = $nilai;
+                $budgetDetail->volume = $volume;
+                $budgetDetail->satuan = $value1->details->satuan;
+                $budgetDetail->save();
+                $start++;
+            }            
         }
         return redirect("/budget/cashflow/detail-cashflow?id=".$budget_tahunan->id);
     }
@@ -481,7 +493,7 @@ class BudgetController extends Controller
         $budgetperiode->desember = $request->desember;
         $budgetperiode->save();
         
-        return redirect("budget/cashflow/detail-cashflow/?id=".$request->budget_tahunan_id);
+        return response()->json( ["status" => "0"]);
     }
 
     public function updatemonthly(Request $request){
@@ -759,7 +771,7 @@ class BudgetController extends Controller
             }
         }
 
-        $document = BudgetTahunan::find($request->budget_id);
+/*        $document = BudgetTahunan::find($request->budget_id);
         $apprival = $document->approval->id;
         $approval = Approval::find($apprival);
         if ( $approval != ""){
@@ -781,24 +793,22 @@ class BudgetController extends Controller
                                     ->orderBy('no_urut','ASC')
                                     ->get();
                 foreach ($approval_references as $key => $each)  {
-                    /* Departmen ID = 11 is Direksi */
-                    //$department_id = \App\User::find($each->user_id)->details->first()->mappingperusahaan->department_id;
                     $user_level = \App\User::find($each->user_id)->details->first()->user_level;
-                    if ( /*$department_id == $department_from || */$user_level <= 4 ){
+                    
                         $document->approval_histories()->create([
                         'no_urut' => $each->no_urut,
                         'user_id' => $each->user_id,
                         'approval_action_id' => 1, // open
                         'approval_id' => $approval->id
                          ]);
-                    }     
+                         
                 }
             }
         }else{
             $budget = $request->id;
             $class  = "BudgetTahunan";
             $approval = \App\Helpers\Document::make_approval('Modules\Budget\Entities\BudgetTahunan',$budget);
-        }
+        }*/
 
        
         return redirect("budget/cashflow/detail-cashflow/?id=".$request->budget_id);
@@ -1013,5 +1023,21 @@ class BudgetController extends Controller
         return redirect("budget/cashflow/detail-cashflow/?id=".$budget_tahunan_detail->budget_tahunan_id);
     }
 
+
+    public function viewcf(Request $request){
+        $user = \Auth::user();
+        $project = Project::find($request->session()->get('project_id'));
+        $budget_tahunan = BudgetTahunan::find($request->id);
+        return view("budget::item_cf",compact("user","project","budget_tahunan"));
+    }
+
+    public function referensicf(Request $request){
+        $itempekerjaan = Itempekerjaan::find($request->id);
+        $harga = $itempekerjaan->harga;
+        $user = \Auth::user();
+        $project = Project::find($request->session()->get('project_id'));
+        $budget_tahunan = BudgetTahunan::find($request->budget_tahunan_id);
+        return view("budget::item_referensi_cf",compact("user","project","itempekerjaan","harga","budget_tahunan"));
+    }
     
 }

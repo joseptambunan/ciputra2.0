@@ -43,7 +43,7 @@ Route::group(['middleware' => 'web', 'prefix' => 'rekanan', 'namespace' => 'Modu
     Route::post('/user/tender/penawaran-update2','UserRekananController@updatepenawaran2');
 
     //Penawaran ketiga
-    Route::get('/penawaran-addstep3','UserRekananController@addstep3');
-    Route::post('/penawaran-save3','UserRekananController@updatepenawaran3');
+    Route::get('/user/tender/penawaran-step3','UserRekananController@step3');
+    Route::post('/user/tender/penawaran-update3','UserRekananController@updatepenawaran3');
 
 });

@@ -33,12 +33,12 @@
           <div class="row">
             <div class="col-md-12">
 
-              <form action="{{ url('/')}}/rekanan/user/tender/penawaran-save3" method="post" name="form1" enctype="multipart/form-data">
+              <form action="{{ url('/')}}/rekanan/user/tender/penawaran-update3" method="post" name="form1" enctype="multipart/form-data">
               <a href="{{ url('/')}}/rekanan/user/tender/detail/?id={{ $tenderRekanan->tender->id }}" class="btn btn-warning">Kembali</a>
               <button type="submit" class="btn btn-primary">Simpan</button><br><input type="file" name="fileupload"><br>
               {{ csrf_field() }}
               <input type="hidden" name="tender_id" value="{{ $tenderpenawaran->id }}">
-              <h3><center>Rekanan : <strong>{{ $tenderRekanan->group->name }}</strong></center></h3>
+              <h3><center>Rekanan : <strong>{{ $tenderRekanan->rekanan->name }}</strong></center></h3>
               <hr>
               <table class="table table-bordered">
                <thead class="head_table">

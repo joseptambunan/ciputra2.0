@@ -5,7 +5,7 @@
       <!-- mini logo for sidebar mini 50x50 pixels -->
       <span class="logo-mini"><b>A</b></span>
       <!-- logo for regular state and mobile devices -->
-      <span class="logo-lg"><b>User</b></span>
+      <span class="logo-lg"><b>Admin</b></span>
     </a>
     <!-- Header Navbar: style can be found in header.less -->
     <nav class="navbar navbar-static-top">
@@ -56,14 +56,13 @@
             </span>
           </a>
           <ul class="treeview-menu" style="display: block;">
-            <li><a href="{{ url('/')}}/report/"><i class="fa fa-circle-o"></i> Home</a></li>
-            <li><a href="{{ url('/')}}/report/project/document/?id={{ $project->id}}"><i class="fa fa-circle-o"></i> Dokumen</a></li>
-            <li><a href="#"><i class="fa fa-circle-o"></i> Aktivitas</a></li>
-            <li><a href="{{ url('/')}}/report/project/budget/?id={{ $project->id}}"><i class="fa fa-circle-o"></i>Report HPP Summary</a></li>
-            <li><a href="{{ url('/')}}/report/project/budgetdetail/?id={{ $project->id}}"><i class="fa fa-circle-o"></i>Report HPP Detail</a></li>
+            <li><a href="{{ url('/')}}"><i class="fa fa-circle-o"></i> Voucher Tagihan</a></li>
+            <li><a href="{{ url('/')}}/simulasi/tender/"><i class="fa fa-circle-o"></i> Tender</a></li>
+            <li><a href="{{ url('/')}}/simulasi/erems/"><i class="fa fa-circle-o"></i> Unit Sold</a></li>
+            <li><a href="{{ url('/')}}/logout/"><i class="fa fa-circle-o"></i> Logout</a></li>
           </ul>
-        </li>       
+        </li>     
       </ul>
     </section>
     <!-- /.sidebar -->
-  </aside>s
+  </aside>

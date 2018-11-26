@@ -150,7 +150,7 @@ class RabController extends Controller
                             $html .= "<td><strong>".$value5->code."</strong></td>";
                             $html .= "<td style='background-color: white;color:black;' onclick='showhide(".$value5->id.")' data-attribute='1' id='btn_".$value5->id."'>".$value5->name."</td>";
                             $html .= "<td><input type='hidden' class='form-control' name='item_id[".$start."]' value='".$value5->id."'/><input type='text' class='form-control' name='volume_[".$start."]' value='0'  onkeyup='summary(".$start.")'/><input type='hidden' class='form-control' name='code[".$start."]' value='".$value5->code."'/></td>";
-                            $html .= "<td><input type='text' class='form-control' name='satuan_[".$start."]'value=''/></td>";
+                            $html .= "<td><input type='text' class='form-control' name='satuan_[".$start."]' value='".$value5->itempekerjaan->details->satuan."'/></td>";
                             $html .= "<td><input type='text' class='form-control nilai_budgets' name='nilai_[".$start."]' value=''  onkeyup='summary(".$start.")'/></td>";
                             $html .= "<td><span id='total_".$start."'></span></td>";
                             $html .= "</tr>";
@@ -161,7 +161,7 @@ class RabController extends Controller
                         $html .= "<td><strong>".$value4->code."</strong></td>";
                         $html .= "<td style='background-color: white;color:black;' onclick='showhide(".$value4->id.")' data-attribute='1' id='btn_".$value4->id."'>".$value4->name."</td>";
                         $html .= "<td><input type='hidden' class='form-control' name='item_id[".$start."]' value='".$value4->id."'/><input type='text' class='form-control' name='volume_[".$start."]' id='volume_[".$start."]' value='0' onkeyup='summary(".$start.")'/><input type='hidden' class='form-control' name='code[".$start."]' value='".$value4->code."'/></td>";
-                        $html .= "<td><input type='text' class='form-control' name='satuan_[".$start."]'value=''/></td>";
+                        $html .= "<td><input type='text' class='form-control' name='satuan_[".$start."]' value='".$value4->itempekerjaan->details->satuan."'/></td>";
                         $html .= "<td><input type='text' class='form-control ' name='nilai_[".$start."]' id='nilai_[".$start."]' value='' onkeyup='summary(".$start.")'/></td>";
                         $html .= "<td><span id='total_".$start."'></span></td>";
                         $html .= "</tr>";
@@ -287,8 +287,8 @@ class RabController extends Controller
                     $html .= "<tr>";
                     $html .= "<td><strong>".$value5->code."</strong></td>";
                     $html .= "<td style='background-color: white;color:black;' onclick='showhide(".$value5->id.")' data-attribute='1' id='btn_".$value5->id."'>".$value5->name."</td>";
-                    $html .= "<td><input type='hidden' class='form-control' name='item_id[".$start."]' value='".$value5->id."'/><input type='text' class='form-control' name='volume_[".$start."]' onkeyup='summary(".$start.")' value='0'/><input type='hidden' class='form-control' name='code[".$start."]' value='".$value5->code."'/></td>";
-                    $html .= "<td><input type='text' class='form-control' name='satuan_[".$start."]'value=''/></td>";
+                    $html .= "<td><input type='hidden' class='form-control' name='item_id[".$start."]' value='".$value5->id."'/><input type='text' class='form-control' name='volume_[".$start."]' onkeyup='summary(".$start.")' value='0' autocomplete='off'/><input type='hidden' class='form-control' name='code[".$start."]' value='".$value5->code."' autocomplete='off'/></td>";
+                    $html .= "<td><input type='text' class='form-control' name='satuan_[".$start."]' value='".$value5->details->satuan."' autocomplete='off'/></td>";
                     $html .= "<td><input type='text' class='form-control nilai_budgets' name='nilai_[".$start."]' value=''  onkeyup='summary(".$start.")'/></td>";
                     $html .= "<td><span id='total_".$start."'></span></td>";
                     $html .= "</tr>";
@@ -299,10 +299,10 @@ class RabController extends Controller
                 $html .= "<tr>";
                 $html .= "<td><strong>".$value3->code."</strong></td>";
                 $html .= "<td style='background-color: white;color:black;' onclick='showhide(".$value3->id.")' data-attribute='1' id='btn_".$value3->id."'>".$value3->name."</td>";
-                $html .= "<td><input type='hidden' class='form-control' name='item_id[".$start."]' value='".$value3->id."'/><input type='hidden' class='form-control' name='code[".$start."]' value='".$value3->code."'/><input type='text' class='form-control' name='volume_[".$start."]' value='0'/></td>";
-                $html .= "<td><input type='text' class='form-control ' name='satuan_[".$start."]' value='' required/></td>";
-                $html .= "<td><input type='text' class='form-control nilai_budget' name='nilai_[".$start."]'value=''/></td>";
-                $html .= "<td><span id='total_{{ $start }}'></span></td>";
+                $html .= "<td><input type='hidden' class='form-control' name='item_id[".$start."]' value='".$value3->id."'/><input type='hidden' class='form-control' name='code[".$start."]' value='".$value3->code."'/><input type='text' class='form-control' name='volume_[".$start."]' value='0' autocomplete='off'/></td>";
+                $html .= "<td><input type='text' class='form-control ' name='satuan_[".$start."]' value='".$value3->details->satuan."' autocomplete='off' required/></td>";
+                $html .= "<td><input type='text' class='form-control nilai_budget' name='nilai_[".$start."]'value='' autocomplete='off'/></td>";
+                $html .= "<td><span id='total_{{ $start }}' ></span></td>";
                 $html .= "</tr>";
                 $start++;
             }

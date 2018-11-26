@@ -112,11 +112,11 @@
                   </tr>
                   <tr style="background-color: grey;color:white;font-weight: bolder;">
                     <td colspan="3" style="text-align: right">Total Cash Flow Budget SPK DevCost Tahun Berjalan</td>
-                    <td style="text-align: right;;color:white;font-weight: bolder;">Rp. <span id="label_cash_flow_spk">Rp. {{ number_format(0)}}</span></td>
+                    <td style="text-align: right;;color:white;font-weight: bolder;">Rp. <span id="label_cash_flow_spk">Rp. {{ number_format($budget_tahunan->nilai_carry_over_dev_cost)}}</span></td>
                   </tr>
                   <tr style="background-color: grey;color:white;font-weight: bolder;">
                     <td colspan="3" style="text-align: right">Total Cash Flow Budget SPK ConCost Tahun Berjalan</td>
-                    <td style="text-align: right;;color:white;font-weight: bolder;">Rp. <span id="label_cash_flow_spk">Rp. {{ number_format($budget_tahunan->cash_flow_spk)}}</span></td>
+                    <td style="text-align: right;;color:white;font-weight: bolder;">Rp. <span id="label_cash_flow_spk">Rp. {{ number_format($budget_tahunan->nilai_carry_over_con_cost)}}</span></td>
                   </tr>
                   <tr style="background-color: grey;color:white;font-weight: bolder;">
                     <td colspan="3" style="text-align: right">Total Cash Flow Carry Over</td>
@@ -166,27 +166,29 @@
                       </tr>
                     </thead>
                     <tbody>
-                      @foreach ( $budget_tahunan->details as $key => $value )
-                      @if ( $value->itempekerjaans->group_cost == 1 )
-                      <tr>
-                        <td>{{ $value->itempekerjaans->code or '' }}</td>
-                        <td>{{ $value->itempekerjaans->name or ''}}</td>
-                        <td>{{ number_format($value->volume) }}</td>
-                        <td>{{ $value->satuan }}</td>
-                        <td>{{ number_format($value->nilai) }}</td>
-                        <td>{{ number_format($value->nilai * $value->volume ) }}</td> 
-                        <td>
-                          @if ( $budget_tahunan->approval != "" )
-                            @if ( $budget_tahunan->approval != "6")
-                          <a href="{{ url('/')}}/budget/cashflow/revisi-item?id={{ $value->itempekerjaans->code }}&budget={{ $budget_tahunan->id }}" class="btn btn-warning">Edit Cash Flow</a>
-                            @endif
-                          @else
-                          <a href="{{ url('/')}}/budget/cashflow/revisi-item?id={{ $value->itempekerjaans->code }}&budget={{ $budget_tahunan->id }}" class="btn btn-warning">Edit Cash Flow</a>
+                      @if ( $budget_tahunan->total_parent_item != "" )
+                        @foreach ( $budget_tahunan->total_parent_item as $key => $value )
+                          @if ( $value['group_cost'] == 1 )
+                          <tr>
+                            <td>{{ $value['code']}}</td>
+                            <td>{{ $value['itempekerjaan']}}</td>
+                            <td>{{ number_format($value['volume'])}}</td>
+                            <td>{{ $value['satuan']}}</td>
+                            <td>{{ number_format($value['nilai'])}}</td>
+                            <td>{{ number_format($value['nilai'] * $value['volume'])}}</td>
+                            <td>
+                              @if ( $budget_tahunan->approval != "" )
+                                @if ( $budget_tahunan->approval->approval_action_id != 6 )
+                                  <a href="{{ url('/')}}/budget/cashflow/revisi-item?id={{ $value['code'] }}&budget={{ $budget_tahunan->id }}" class="btn btn-warning">Edit Cash Flow</a>
+                                @endif
+                              @else
+                                <a href="{{ url('/')}}/budget/cashflow/revisi-item?id={{ $value['code'] }}&budget={{ $budget_tahunan->id }}" class="btn btn-warning">Edit Cash Flow</a>
+                              @endif
+                            </td>
+                          </tr>
                           @endif
-                        </td>
-                      </tr>
+                        @endforeach
                       @endif
-                      @endforeach
                     </tbody>
                   </table>
                 </div>
@@ -220,73 +222,81 @@
                     </thead>
                     <tbody>
                       @php $item_bln = 0; @endphp
-                      @if ( $budget_tahunan->budget_monthly != "" )
-                      @foreach ( $budget_tahunan->budget_monthly as $key9 => $value9 )
-                      @if (  \Modules\Pekerjaan\Entities\Itempekerjaan::where("code",$value9['code'])->count() > 0 )                       
-                        <tr>
-                          <input type="hidden" name="item_id[$key]" value="{{ $value9['code']}}">
-                          <input type="hidden" id="monthly_id_{{ $value9['id']}}" value="{{ $value9['id']}}">
-                          <td>{{ \Modules\Pekerjaan\Entities\Itempekerjaan::where("code",$value9['code'])->first()->code }}</td>
-                          <td>{{ \Modules\Pekerjaan\Entities\Itempekerjaan::where("code",$value9['code'])->first()->name }}</td>
-                          <td>{{ number_format($budget_tahunan->total_volume($value9['code'],"nilai") * $budget_tahunan->total_volume($value9['code'],"volume")) }}</td>
-                          <td>{{ number_format($item_bln = $item_bln + (( $value9['januari'] + $value9['februari'] + $value9['maret'] + $value9['april'] + $value9['mei'] + $value9['juni'] + $value9['juli'] + $value9['agustus'] + $value9['september'] + $value9['oktober'] + $value9['november'] + $value9['desember'] )/100) * ( ($budget_tahunan->total_volume($value9['code'],"nilai") * $budget_tahunan->total_volume($value9['code'],"volume"))))  }}</td>
-                          <td>
-                            <span id="label_januari_{{ $value9['id']}}">{{ number_format(($value9['januari']/100) * ( $budget_tahunan->total_volume($value9['code'],"nilai") * $budget_tahunan->total_volume($value9['code'],"volume"))) }}</span>
-                            <input type="text" id="januari_{{ $value9['id']}}" style="display: none;width: 80%;" value=" {{ $value9['januari'] }} ">
-                          </td>
-                          <td>
-                            <span id="label_februari_{{ $value9['id']}}">{{ number_format(($value9['februari']/100) * ( $budget_tahunan->total_volume($value9['code'],"nilai") * $budget_tahunan->total_volume($value9['code'],"volume"))) }}</span>
-                            <input type="text" id="februari_{{ $value9['id']}}" style="display: none;width: 80%;" value="{{ $value9['februari'] }}">
-                          </td>
-                          <td>
-                            <span id="label_maret_{{ $value9['id']}}">{{ number_format(($value9['maret']/100) * ( $budget_tahunan->total_volume($value9['code'],"nilai") * $budget_tahunan->total_volume($value9['code'],"volume"))) }}</span>
-                            <input type="text" id="maret_{{ $value9['id']}}" style="display: none;width: 80%;" value=" {{ $value9['maret'] }} ">
-                          </td>
-                          <td>
-                            <span id="label_april_{{ $value9['id']}}">{{ number_format(($value9['april'] / 100) * ( $budget_tahunan->total_volume($value9['code'],"nilai") * $budget_tahunan->total_volume($value9['code'],"volume"))) }}</span>
-                            <input type="text" id="april_{{ $value9['id']}}" style="display: none;width: 80%;" value=" {{ $value9['april'] }} ">
-                          </td>
-                          <td>
-                            <span id="label_mei_{{ $value9['id']}}">{{ number_format(($value9['mei'] /100 ) * ( $budget_tahunan->total_volume($value9['code'],"nilai") * $budget_tahunan->total_volume($value9['code'],"volume"))) }}</span>
-                            <input type="text" id="mei_{{ $value9['id']}}" style="display: none;width: 80%;" value=" {{ $value9['mei'] }} ">
-                          </td>
-                          <td>
-                            <span id="label_juni_{{ $value9['id']}}">{{ number_format(($value9['juni'] /100) * ( $budget_tahunan->total_volume($value9['code'],"nilai") * $budget_tahunan->total_volume($value9['code'],"volume"))) }}</span>
-                            <input type="text" id="juni_{{ $value9['id']}}" style="display: none;width: 80%;" value=" {{ $value9['juni'] }} ">
-                          </td>
-                          <td>
-                            <span id="label_juli_{{ $value9['id']}}">{{ number_format(($value9['juli'] /100)* ( $budget_tahunan->total_volume($value9['code'],"nilai") * $budget_tahunan->total_volume($value9['code'],"volume"))) }}</span>
-                            <input type="text" id="juli_{{ $value9['id']}}" style="display: none;width: 80%;" value=" {{ $value9['juli'] }} ">
-                          </td>
-                          <td>
-                            <span id="label_agustus_{{ $value9['id']}}">{{ number_format(($value9['agustus'] /100) *  ( $budget_tahunan->total_volume($value9['code'],"nilai") * $budget_tahunan->total_volume($value9['code'],"volume"))) }}</span>
-                            <input type="text" id="agustus_{{ $value9['id']}}" style="display: none;width: 80%;" value=" {{ $value9['agustus'] }} ">
-                          </td>
-                          <td>
-                            <span id="label_september_{{ $value9['id']}}">{{ number_format(($value9['september'] /100) * ( $budget_tahunan->total_volume($value9['code'],"nilai") * $budget_tahunan->total_volume($value9['code'],"volume"))) }}</span>
-                            <input type="text" id="september_{{ $value9['id']}}" style="display: none;width: 80%;" value=" {{ $value9['september'] }} ">
-                          </td>
-                          <td>
-                            <span id="label_oktober_{{ $value9['id']}}">{{ number_format(($value9['oktober'] /100) *  ( $budget_tahunan->total_volume($value9['code'],"nilai") * $budget_tahunan->total_volume($value9['code'],"volume"))) }}</span>
-                            <input type="text" id="oktober_{{ $value9['id']}}" style="display: none;width: 80%;" value=" {{ $value9['oktober'] }} ">
-                          </td>
-                          <td>
-                            <span id="label_november_{{ $value9['id']}}">{{ number_format(($value9['november'] /100) * ( $budget_tahunan->total_volume($value9['code'],"nilai") * $budget_tahunan->total_volume($value9['code'],"volume"))) }}</span>
-                            <input type="text" id="november_{{ $value9['id']}}" style="display: none;width: 80%;" value=" {{ $value9['november'] }} ">
-                          </td>
-                          <td>
-                            <span id="label_desember_{{ $value9['id']}}">{{ number_format(($value9['desember'] /100) * ( $budget_tahunan->total_volume($value9['code'],"nilai") * $budget_tahunan->total_volume($value9['code'],"volume"))) }}</span>
-                            <input type="text" id="desember_{{ $value9['id']}}" style="display: none;width: 80%;" value=" {{ $value9['desember'] }} ">
-                          </td>
-                          <td>
-                            <button class="btn btn-warning" id="btn_edit1_{{ $value9['id']}}" onclick="viewedit('{{ $value9['id']}}')">Edit</button>
-                            <button class="btn btn-success" id="btn_edit2_{{ $value9['id']}}" onclick="saveedit('{{ $value9['id']}}')" style="display: none;">Edit</button>
-                            <button class="btn btn-danger" onclick="removeedit('{{ $value9['id']}}')">Delete</button>
-                          </td>
-                        </tr>                      
-                      @endif
+                      @foreach ( $budget_tahunan->details as $key => $value )
+                        @if ( $value->volume > 0 && $value->nilai > 0 )
+                        @php 
+                          $budgetcf = \Modules\Budget\Entities\BudgetTahunanPeriode::where("budget_id",$budget_tahunan->id)->where("itempekerjaan_id",$value->itempekerjaans->id)->get();
+                        @endphp
+                          @if ( count($budgetcf) > 0 )
+                            @foreach ( $budgetcf as $key2 => $value2 )
+                            <tr>
+                              <td>
+                                <input type="hidden" name="item_id_{{ $value->itempekerjaans->code }}" value="{{ $value->itempekerjaans->code}}">
+                                <input type="hidden" id="monthly_id_{{ $value2->id }}" value="{{ $value2->id }}">
+                                {{ $value->itempekerjaans->code }}
+                              </td>
+                              <td>{{ $value->itempekerjaans->name }}</td>
+                              <td>{{ number_format($spk = $value->volume * $value->nilai )}}</td>
+                              <td>{{ number_format( (($value2->januari/100) * $spk ) + ( ($value2->februari/100) * $spk ) + ( ($value2->maret/100) * $spk ) + ( ($value2->april/100) * $spk ) + (($value2->mei/100) * $spk ) + ( ($value2->juni/100) * $spk ) + ( ($value2->juli/100) * $spk ) + ( ($value2->agustus/100) * $spk ) + ( ($value2->september/100) * $spk ) + ( ($value2->oktober/100) * $spk ) + ( ($value2->november/100) * $spk ) + ( ($value2->desember/100) * $spk ) ) }}</td>
+                              <td>
+                                <span id="label_januari_{{ $value2->id}}">{{ number_format(( $value2->januari / 100 ) * $spk) }}</span>
+                                <input type="text" id="januari_{{ $value2->id}}" style="display: none;width: 80%;" value=" {{  $value2->januari }} ">
+                              </td>
+                              <td>
+                                <span id="label_februari_{{ $value2->id}}">{{ number_format(( $value2->februari / 100 ) * $spk)}}</span>
+                                <input type="text" id="februari_{{ $value2->id}}" style="display: none;width: 80%;" value="{{  $value2->februari }}">
+                              </td>
+                              <td>
+                                <span id="label_maret_{{ $value2->id}}">{{ number_format(( $value2->maret / 100 ) * $spk) }}</span>
+                                <input type="text" id="maret_{{ $value2->id}}" style="display: none;width: 80%;" value=" {{  $value2->maret }} ">
+                              </td>
+                              <td>
+                                <span id="label_april_{{ $value2->id}}">{{ number_format(( $value2->april / 100 ) * $spk ) }}</span>
+                                <input type="text" id="april_{{ $value2->id}}" style="display: none;width: 80%;" value=" {{  $value2->april }} ">
+                              </td>
+                              <td>
+                                <span id="label_mei_{{ $value2->id}}">{{ number_format(( $value2->mei / 100 ) * $spk ) }}</span>
+                                <input type="text" id="mei_{{ $value2->id}}" style="display: none;width: 80%;" value=" {{  $value2->mei }} ">
+                              </td>
+                              <td>
+                                <span id="label_juni_{{ $value2->id}}">{{ number_format(( $value2->juni / 100 ) * $spk )}}</span>
+                                <input type="text" id="juni_{{ $value2->id}}" style="display: none;width: 80%;" value=" {{  $value2->juni}} ">
+                              </td>
+                              <td>
+                                <span id="label_juli_{{ $value2->id}}">{{ number_format(( $value2->juli / 100 ) * $spk ) }}</span>
+                                <input type="text" id="juli_{{ $value2->id}}" style="display: none;width: 80%;" value=" {{  $value2->juli }} ">
+                              </td>
+                              <td>
+                                <span id="label_agustus_{{ $value2->id}}">{{ number_format(( $value2->agustus / 100 ) *  $spk ) }}</span>
+                                <input type="text" id="agustus_{{ $value2->id}}" style="display: none;width: 80%;" value=" {{  $value2->agustus }} ">
+                              </td>
+                              <td>
+                                <span id="label_september_{{ $value2->id}}">{{ number_format(( $value2->september / 100 ) * $spk ) }}</span>
+                                <input type="text" id="september_{{ $value2->id}}" style="display: none;width: 80%;" value=" {{ $value2->september }} ">
+                              </td>
+                              <td>
+                                <span id="label_oktober_{{ $value2->id}}">{{ number_format(( $value2->oktober / 100 ) *  $spk ) }}</span>
+                                <input type="text" id="oktober_{{ $value2->id}}" style="display: none;width: 80%;" value=" {{  $value2->oktober }} ">
+                              </td>
+                              <td>
+                                <span id="label_november_{{ $value2->id}}">{{ number_format(( $value2->november / 100 ) * $spk ) }}</span>
+                                <input type="text" id="november_{{ $value2->id}}" style="display: none;width: 80%;" value=" {{  $value2->november }} ">
+                              </td>
+                              <td>
+                                <span id="label_desember_{{ $value2->id}}">{{ number_format(( $value2->desember /100) * $spk ) }}</span>
+                                <input type="text" id="desember_{{ $value2->id}}" style="display: none;width: 80%;" value=" {{  $value2->desember}} ">
+                              </td>
+                              <td>
+                                <button class="btn btn-warning" id="btn_edit1_{{ $value2->id }}" onclick="viewedit('{{ $value2->id }}')">Edit</button>
+                                <button class="btn btn-success" id="btn_edit2_{{ $value2->id }}" onclick="saveedit('{{ $value2->id }}')" style="display: none;">Edit</button>
+                                <button class="btn btn-danger" onclick="removeedit('{{ $value2->id }}')">Delete</button>
+                              </td>
+                            </tr>
+                            @endforeach
+                          @endif
+                        @endif
                       @endforeach
-                      @endif
+  
                     </tbody>
                   </table>
                   <input type="hidden" id="total_budget_bln" value="{{ $item_bln }}">
@@ -375,10 +385,10 @@
                       @foreach ( $budget_tahunan->carry_over as $key => $value )
                         @foreach ( $value->cash_flows as $key1 => $value1 )
                         <tr>
-                          <td>{{ $value->spk->no or '' }}</td>
+                          <td data-value="{{ $value->spk->id }}">{{ $value->spk->no or '' }}</td>
                           <td>{{ number_format($value->spk->nilai,2)}}</td>
-                          <td>{{ number_format($value->spk->nilai_bap * $value->spk->nilai,2) }}</td>
-                          <td>{{ number_format( $sisa = $value->spk->nilai - ($value->spk->nilai_bap * $value->spk->nilai),2) }}</td>
+                          <td>{{ number_format($value->spk->baps->sum("nilai_bap_2"),2) }}</td>
+                          <td>{{ number_format( $sisa = $value->spk->nilai - $value->spk->baps->sum("nilai_bap_2"),2) }}</td>
                           <td>{{ number_format( $sisa * ( $value1->total / 100 ) ,2) }}</td>
                           <td>{{ number_format( $sisa * ( $value1->januari / 100 ) ,2) }}</td>
                           <td>{{ number_format( $sisa * ( $value1->februari / 100 ) ,2) }}</td>
@@ -407,31 +417,41 @@
                   <table class="table table-bordered">
                     <thead class="head_table">
                       <tr>
-                        <td>Unit Type</td>
-                        <td>Total Unit</td>
-                        <td>Total Volume</td>
+                        <td>COA</td>
+                        <td>Item Pekerjaan</td>
+                        <td>Volume</td>
                         <td>Satuan</td>
-                        <td>Harga Satuan(m2)</td>
+                        <td>Harga Satuan(Rp)</td>
                         <td>Subtotal(Rp)</td>
                         <td colspan="2">Perubahan Data</td>
                       </tr>
                     </thead>
                     <tbody>
-                      @foreach ( $budget_tahunan->details as $key => $value )
-                        @if ( $value->itempekerjaans->group_cost == 2 )
-                          @foreach ( $budget_tahunan->budget_unit as $key2 => $value2 )
-                            <tr>
-                              <td>{{ $value2->unit_type->name }}</td>
-                              <td>{{ $value2->total_unit }}</td>
-                              <td>{{ number_format($value->volume )}}</td>
-                              <td>m2</td>
-                              <td>{{ number_format( $value->nilai )}}</td>
-                              <td>{{ number_format( $value->nilai * $value->volume )}}</td>
-                              <td><a class="btn btn-warning" href="{{ url('/') }}/budget/budget_tahunan/detailunit?id={{ $value->id}}">Detail</a></td>
-                            </tr>
-                          @endforeach
-                        @endif
-                      @endforeach
+                      <tbody>
+                      @if ( $budget_tahunan->total_parent_item != "" )
+                        @foreach ( $budget_tahunan->total_parent_item as $key => $value )
+                          @if ( $value['group_cost'] == 2 )
+                          <tr>
+                            <td>{{ $value['code']}}</td>
+                            <td>{{ $value['itempekerjaan']}}</td>
+                            <td>{{ number_format($value['volume'])}}</td>
+                            <td>{{ $value['satuan']}}</td>
+                            <td>{{ number_format($value['nilai'])}}</td>
+                            <td>{{ number_format($value['nilai'] * $value['volume'])}}</td>
+                            <td>
+                              @if ( $budget_tahunan->approval != "" )
+                                @if ( $budget_tahunan->approval->approval_action_id != 6 )
+                                  <a href="{{ url('/')}}/budget/cashflow/revisi-item?id={{ $value['code'] }}&budget={{ $budget_tahunan->id }}" class="btn btn-warning">Edit Cash Flow</a>
+                                @endif
+                              @else
+                                <a href="{{ url('/')}}/budget/cashflow/revisi-item?id={{ $value['code'] }}&budget={{ $budget_tahunan->id }}" class="btn btn-warning">Edit Cash Flow</a>
+                              @endif
+                            </td>
+                          </tr>
+                          @endif
+                        @endforeach
+                      @endif
+                    </tbody>
                     </tbody>
                   </table>
                 </div>
@@ -510,27 +530,28 @@
           <h4 class="modal-title">Info Modal</h4>
         </div>
         <div class="modal-body">
-          <form action="{{ url('/')}}/budget/cashflow/save-monthly" method="post" name="form1">
+          <form action="{{ url('/')}}/budget/cashflow/save-monthly" method="post" name="formacasd">
 
-            <input type="hidden" name="budget_tahunan_id" value="{{ $budget_tahunan->id }}">
+            <input type="hidden" name="budget_tahunan_id" id="budget_tahunan_id" value="{{ $budget_tahunan->id }}">
             <div class="form-group">
-              <button type="submit" class="btn btn-info" id="btn_save_bln">Save changes</button>
+              <span id="loading_cf_bar"></span>
+              <button type="button" class="btn btn-info" id="btn_save_bln">Save changes</button>
               <label>Item Pekerjaan</label>
               <select class="form-control" id="item_id_monthly" name="item_id_monthly" required>
                 <option value="">(pilih item pekerjaan)</option>
-                @foreach ( $budget_tahunan->total_parent_item as $key2 => $value2 )
-                  @if ( \Modules\Pekerjaan\Entities\Itempekerjaan::where('code',$value2['code'])->count() > 0  )                          
-                    <option value="{{ \Modules\Pekerjaan\Entities\Itempekerjaan::where('code',$value2['code'])->first()->id }}"> {{ $value2['code'] }} - {{ \Modules\Pekerjaan\Entities\Itempekerjaan::where('code',$value2['code'])->first()->name }}</option>
+                @foreach ( $budget_tahunan->details as $key2 => $value2 )
+                  @if ( $value2->volume > 0 && $value2->nilai > 0 )
+                  <option value="{{ $value2->itempekerjaans->id }}">{{ $value2->itempekerjaans->code }} - {{ $value2->itempekerjaans->name }}</option>
                   @endif
                 @endforeach
               </select>
             </div> 
             <div class="form-group">
               <label>Nilai Budget(Rp)</label>
-                @foreach ( $budget_tahunan->total_parent_item as $key2 => $value2 )
-                  @if ( \Modules\Pekerjaan\Entities\Itempekerjaan::where('code',$value2['code'])->count() > 0  )
-                    <span style="display: none;" class="label_budget" id="label_budget_{{ \Modules\Pekerjaan\Entities\Itempekerjaan::where('code',$value2['code'])->first()->id }}" data-value="{{ $value2['nilai']}} "><br>
-                    <strong>{{ number_format($value2['nilai'],2)}}</strong>
+                @foreach ( $budget_tahunan->details as $key2 => $value2 )
+                  @if ( $value2->volume > 0 && $value2->nilai > 0 )
+                    <span style="display: none;" class="label_budget" id="label_budget_{{ $value2->itempekerjaans->id }}" data-value="{{ $value2->nilai * $value2->volume }}"><br>
+                    <strong>{{ number_format( $value2->nilai * $value2->volume ,2)}}</strong>
                     </span>
                   @endif
                 @endforeach<br>
@@ -636,7 +657,7 @@
             {{ csrf_field()}}
             <input type="hidden" name="budget_tahunan_id" value="{{ $budget_tahunan->id }}">
             <div class="form-group">
-              <button type="submit" class="btn btn-info" id="btn_save_bln">Save changes</button>
+              <button type="submit" class="btn btn-info" id="btn_save_bln_2">Save changes</button>
               <label>COA Spk</label>
               <select class="form-control" id="item_id_monthly_co" name="item_id_monthly_co" required>
                 <option value="">(pilih spk)</option>
@@ -742,13 +763,7 @@
   </div>
   <!-- /.modal -->
   <!-- /.content-wrapper -->
-  <footer class="main-footer">
-    <div class="pull-right hidden-xs">
-      <b>Version</b> 2.4.0
-    </div>
-    <strong>Copyright &copy; 2014-2016 <a href="https://adminlte.io">Almsaeed Studio</a>.</strong> All rights
-    reserved.
-  </footer>
+@include("master/copyright")
 
   
   <!-- Add the sidebar's background. This div must be placed
@@ -760,183 +775,7 @@
 @include("master/footer_table")
 @include("budget::app")
 <script type="text/javascript">
-  $(function(){
-    $("#label_cash_flow_spk").text($("#total_budget_bln").val());
-    $("#label_cash_flow_spk").number(true);
-
-    var total_cash_flow_spk = parseInt($("#total_budget_bln").val());
-    var total_budget_bln_co = parseInt($("#total_budget_bln_co").val());
-    var total_cash_flow = parseInt(total_cash_flow_spk + total_budget_bln_co);
-    $("#label_cash_flow").text(total_cash_flow);
-    $("#label_cash_flow").number(true);
-
-  });
-
-  $("#item_id_monthly").change(function(){
-    $(".label_budget").hide();
-    $("#label_budget_" + $("#item_id_monthly").val()).show();
-    $("#total_sub").val("0");
-  });
-
-  $("#item_id_monthly_co").change(function(){
-    $(".label_budget_co").hide();
-    $("#label_budget_co_" + $("#item_id_monthly_co").val()).show();
-    $("#total_sub_co_").val("0");
-  })
-
-  function viewedit(id){
-    $("#label_januari_" + id).hide();
-    $("#label_februari_" + id).hide();
-    $("#label_maret_" + id).hide();
-    $("#label_april_" + id).hide();
-    $("#label_mei_" + id).hide();
-    $("#label_juni_" + id).hide();
-    $("#label_juli_" + id).hide();
-    $("#label_agustus_" + id).hide();
-    $("#label_september_" + id).hide();
-    $("#label_oktober_" + id).hide();
-    $("#label_november_" + id).hide();
-    $("#label_desember_" + id).hide();
-    $("#btn_edit1_" +id).hide();
-
-    $("#januari_" + id).show();
-    $("#februari_" + id).show();
-    $("#maret_" + id).show();
-    $("#april_" + id).show();
-    $("#mei_" + id).show();
-    $("#juni_" + id).show();
-    $("#juli_" + id).show();
-    $("#agustus_" + id).show();
-    $("#september_" + id).show();
-    $("#oktober_" + id).show();
-    $("#november_" + id).show();
-    $("#desember_" + id).show();
-    $("#btn_edit2_" +id).show();
-  }
-
-  function saveedit(id){
-
-  var request = $.ajax({
-    url : "{{ url('/')}}/budget/cashflow/update-monthly",
-    data : {
-      id : $("#monthly_id_" + id).val(),
-      jan : $("#januari_" + id).val(),
-      feb : $("#februari_" + id).val(),
-      mar : $("#maret_" + id).val(),
-      apr : $("#april_" + id).val(),
-      mei : $("#mei_" + id).val(),
-      jun : $("#juni_" + id).val(),
-      jul : $("#juli_" + id).val(),
-      agu : $("#agustus_" + id).val(),
-      sept : $("#september_" + id).val(),
-      okt : $("#oktober_" + id).val(),
-      nov : $("#november_" + id).val(),
-      des : $("#desember_" + id).val()
-    },
-    type : "post",
-    dataType : "json"
-  });
-
-  request.done(function(data){
-    if ( data.status == "0"){
-      alert("Data telah diganti");
-    }
-
-    window.location.reload();
-  })
-}
-
-  function removeedit(id){
-  if ( confirm("Apakah anda yakin ingin menghapus data ini ? ")){
-    var request = $.ajax({
-      url : "{{ url('/')}}/budget/cashflow/delete-monthly",
-      data : {
-        id : id 
-      },
-      type : "post",
-      dataType : "json"
-    });
-
-    request.done(function(data){
-      if ( data.status == "0"){
-        alert("data telah dihapus");
-      }
-      window.location.reload();
-    })
-
-  }else{
-    return false;
-  }
-}
-
-function removecarry(id){
-  if ( confirm("Apakah anda yakin ingin menghapus data ini ?")){
-    var request = $.ajax({
-      url : "{{ url('/')}}/budget/delete-carryover",
-      data : {
-        id : id 
-      },
-      type : "post",
-      dataType : "json"
-    });
-
-    request.done(function(data){
-      if ( data.status == "0"){
-        alert("data telah dihapus");
-      }
-      window.location.reload();
-    })
-  }else{
-    return false;
-  }
-}
-
-function countPercentage(bln){
-  //console.log(bln);
-  var percent = parseInt($("#"+bln).val());
-  var sub2 = parseInt($("#label_budget_" + $("#item_id_monthly").val()).attr("data-value"));
-  var sub = percent * ( parseInt(sub2)) / 100;
-  var total = parseInt($("#total_sub").val());
-
-
-  /*if ( total > sub2 ){
-    alert("Persentase Budget Bulanan sudah 100 %");
-    $("#btn_save_bln").hide();
-    
-  }else{
-    
-  }*/
-
-    if ( sub != "NaN"){    
-      $("#lbl_"+bln).text(sub);
-      $("#lbl_"+bln).attr("data-value",sub);
-      $("#lbl_"+bln).number(true); 
-      $("#sisa_budget").text(sub2 - total);   
-      $("#sisa_budget").number(true);   
-    }
   
-    $("#total_sub").val( parseInt($("#lbl_januari").attr("data-value")) + parseInt($("#lbl_februari").attr("data-value")) + parseInt($("#lbl_maret").attr("data-value")) + parseInt($("#lbl_april").attr("data-value")) + parseInt($("#lbl_mei").attr("data-value")) + parseInt($("#lbl_juni").attr("data-value")) + parseInt($("#lbl_juli").attr("data-value")) + parseInt($("#lbl_agustus").attr("data-value")) + parseInt($("#lbl_september").attr("data-value")) + parseInt($("#lbl_oktober").attr("data-value")) + parseInt($("#lbl_november").attr("data-value")) + parseInt($("#lbl_desember").attr("data-value")) );
-    $("#lbl_budget_text").text($("#total_sub").val());
-    $("#lbl_budget_text").number(true);
-
-    var totals = ( parseInt($("#januari").val()) + parseInt($("#februari").val()) + parseInt($("#maret").val()) + parseInt($("#april").val()) + parseInt($("#mei").val()) + parseInt($("#juni").val()) + parseInt($("#juli").val()) + parseInt($("#agustus").val()) + parseInt($("#september").val()) + parseInt($("#oktober").val()) + parseInt($("#november").val()) + parseInt($("#desember").val()) );
-    //console.log(totals);
-    if ( totals != "NaN"){
-      $("#lbl_percent_text").text(totals);
-    }
-
-    if ( parseInt($("#lbl_percent_text").text()) > 100 ){
-      alert("Persentase Budget Bulanan sudah 100 %");
-      $("#btn_save_bln").attr("style","display:none");
-      $("#lbl_percent_text").text(parseInt(totals) - $("#" + bln).val());
-      $("#" + bln).val("0");
-    }else{
-      $("#btn_save_bln").show();
-    }
-
-
-}
-
 </script>
 </body>
 </html>

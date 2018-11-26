@@ -27,6 +27,8 @@
 
    <!-- Loading Bar -->
   <link rel="stylesheet" href="{{ url('/') }}/assets/loading.css">
+    <!-- iCheck for checkboxes and radio inputs -->
+  <link rel="stylesheet" href="{{ url('/') }}/assets/plugins/iCheck/all.css">
   
   <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->

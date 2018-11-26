@@ -81,7 +81,7 @@
                             <input type='hidden' class='form-control' name='budgetdetail[{{ $start }}]' value='{{ $budgetth->first()->id }}'/><input type='hidden' class='form-control' name='item_id[{{ $start }}]' value='{{ $value3->id }}'/>
                             <input type='text' class='form-control nilai_budget' name='Volume_[{{ $start }}]' id="Volume_{{ $start }}" value='{{ $budgetth->first()->volume }}' onKeyUp="updateSubtotal('{{$start}}');" style="text-align: right;" autocomplete="off"/></td>
                           <td>
-                            <input type='text' class='form-control' name='satuan_[{{ $start }}]' value="{{ $budgettw->first()->satuan or 'ls' }}" autocomplete="off" required />
+                            <input type='text' class='form-control' name='satuan_[{{ $start }}]' value="{{ $value3->details->satuan or 'ls' }}" autocomplete="off" required />
                           </td>
                           <td>
                             <input type='text' class='form-control nilai_budget ' name='nilai_[{{ $start }}]' id="nilai_{{ $start }}" value='{{ $budgetth->first()->nilai }}' onKeyUp="updateSubtotal('{{$start}}');" autocomplete="off" style="text-align: right;" />
@@ -100,7 +100,7 @@
                             <input type='text' class='form-control nilai_budget' name='Volume_[{{ $start }}]' value='0' id="Volume_{{ $start }}" onKeyUp="updateSubtotal('{{$start}}');" style="text-align: right;" autocomplete="off"/>
                           </td>
                           <td>
-                            <input type='text' class='form-control ' name='satuan_[{{ $start }}]' value="{{ $budgettw->first()->satuan or 'ls' }}" autocomplete="off" required />
+                            <input type='text' class='form-control ' name='satuan_[{{ $start }}]' value="{{ $value3->details->satuan or 'ls' }}" autocomplete="off" required />
                           </td>
                           <td><input type='text' class='form-control nilai_budget' name='nilai_[{{ $start }}]' id="nilai_{{ $start }}" value='' onKeyUp="updateSubtotal('{{$start}}');" style="text-align: right;" autocomplete="off"/></td>              
                           <td><input type="text" class="form-control nilai_budget sub_total" id="sub_total_{{$start}}" name="" value="0" style="text-align: right;" autocomplete="off"></td>
@@ -146,7 +146,7 @@
 <!-- ./wrapper -->
 
 @include("master/footer_table")
-@include("pt::app")
+@include("budget::app")
 <!-- Select2 -->
 <script src="{{ url('/')}}/assets/bower_components/select2/dist/js/select2.full.min.js"></script>
 <script src="{{ url('/')}}/assets/plugins/input-mask/jquery.inputmask.js"></script>

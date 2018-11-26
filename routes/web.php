@@ -18,7 +18,7 @@ Route::get('/', function () {
 Auth::routes();
 
 
-Route::post('ces-login', function() 
+/*Route::post('ces-login', function() 
 {
 	if(!isset($_POST["user_login"]))
 	{
@@ -33,51 +33,16 @@ Route::post('ces-login', function()
 
 	if ($user) 
 	{
-		$user = \Modules\User\Entities\User::find($user->id);
-        $jabatan = $user->jabatan;
-        if ( $user->id == "1"){
-            $request->session()->put('level', 'superadmin');
-            return redirect("user");
-        }
-        
-        if ( $user->is_rekanan == 0 ){           
+		\Auth::loginUsingId($user->id);
 
-            foreach ($jabatan as $key => $value) {
-                if ( $value['level'] == "10"){                    
-					if(Auth::loginUsingId($user->id)){
-						return redirect("/project/detail?id=".$value['project_id']);
-					} else {
-						return 'Sorry, but your Credentials seem to be wrong, stupid';
-					}
-                    
-                }else{
-                    // $request->session()->put('level', '');
-					if(Auth::loginUsingId($user->id)){
-						return redirect("/project/detail?id=".$value['project_id']);
-					} else {
-						return 'Sorry, but your Credentials seem to be wrong, stupid';
-					}
-                }
-            }
-        }else {
-            $user_rekanan_group = UserRekanan::where("user_login",$user->user_login)->get();
-            if ( count($user_rekanan_group) > 0 ){
-                $users = UserRekanan::find($user_rekanan_group->first()->id);
-                $rekanan_group = $users->rekanan_group;
-                $request->session()->put('rekanan_id', $rekanan_group->id);
-                return redirect("rekanan/user");
-            }else{
-                return redirect("rekanan/user/fail");
-            }
-        }
-        
+		return redirect()->route('project');
 	}else{
 		return redirect('https://ces-test.ciputragroup.com');
 	}
 
-});
+});*/
 
-//Route::get('/', 'PrivilegeController@index')->middleware("auth");
-//Route::post('/login/validation','PrivilegeController@validation');
+Route::get('/', 'PrivilegeController@index')->middleware("auth");
+Route::post('/login/validation','PrivilegeController@validation');
 Route::get('/logout','PrivilegeController@destroy');
 Route::post('/workorder/save-nonbudget','WorkorderController@savenonbudget');

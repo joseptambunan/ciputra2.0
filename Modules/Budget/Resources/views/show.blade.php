@@ -213,7 +213,9 @@
                             <button class="btn btn-success" id="btn_edit2_{{ $value->id }}" onclick="saveedit('{{ $value->id }}');" style="display: none;">Simpan</button>
                             <button class="btn btn-danger" id="btn_remove_{{ $value->id }}" onclick="removeedit('{{ $value->id }}');">Delete</button>
                           @else
+                            @if ( $value->approval != "" )
                             <span class="{{ $array[$value->approval->approval_action_id]['class']}}">{{ $array[$value->approval->approval_action_id]["label"]}}</span>
+                            @endif
                           @endif
                         @endif    
                     </td>

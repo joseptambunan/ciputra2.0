@@ -245,6 +245,24 @@ class UserRekananController extends Controller
         return view("rekanan::user.detail_penawaran2",compact("rab","itempekerjaan","rekanan","user","project","tenderpenawaran","tenderRekanan","penawaran_id","rekanan_group"));
     }
 
+    public function step3(Request $request){
+        $tenderpenawaran = TenderPenawaran::find($request->id);
+        $tenderRekanan = $tenderpenawaran->rekanan;
+        $rab = $tenderRekanan->tender->rab;
+        $itempekerjaan = Itempekerjaan::find($rab->parent_id);
+        $user = \Auth::user();
+        $project = Project::find($request->session()->get('project_id'));
+        $penawaran_id = "";
+        $rekanan_group = RekananGroup::find($request->session()->get('rekanan_id'));
+        foreach ($tenderRekanan->penawarans as $key => $value) {
+            if ( $value->updated_by == null ) {
+                $penawaran_id = $value->id;
+            }
+        }
+
+        return view("rekanan::user.detail_penawaran3",compact("rab","itempekerjaan","rekanan","user","project","tenderpenawaran","tenderRekanan","penawaran_id","rekanan_group"));
+    }
+
     public function updatepenawaran2(Request $request){
         foreach ($request->input_rab_id_ as $key => $value) {
             if ( $request->input_rab_nilai_[$key] != "" ){

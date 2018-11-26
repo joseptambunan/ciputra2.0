@@ -267,4 +267,8 @@ class UserController extends Controller
     public function send_email(){
         
     }
+
+    public function approvalde(Request $request){
+        echo "asdas";
+    }
 }

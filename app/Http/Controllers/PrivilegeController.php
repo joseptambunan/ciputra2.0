@@ -18,6 +18,11 @@ class PrivilegeController extends Controller
        
         $user = \Modules\User\Entities\User::find(\Auth::user()->id);
         $jabatan = $user->jabatan;
+       
+        if ( $user->user_login == "simulasi"){
+            return redirect("simulasi");
+        }
+
         if ( $user->id == "1"){
             $request->session()->put('level', 'superadmin');
             return redirect("user");

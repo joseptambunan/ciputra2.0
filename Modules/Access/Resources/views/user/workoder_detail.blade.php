@@ -62,6 +62,10 @@
                   <td>{{ $workorder->no }}</td>
                 </tr>
                 <tr>
+                  <td style="background-color: grey;"><span style="color:white"><strong>Project</strong></span></td>
+                  <td>{{ $workorder->project->name }}</td>
+                </tr>
+                <tr>
                   <td style="background-color: grey;"><span style="color:white"><strong>Dept. From</strong></span></td>
                   <td>{{ $workorder->departmentFrom->name }}</td>
                 </tr>
@@ -77,40 +81,34 @@
                   @php $nilai = $nilai + ($workorder->parent_id[$i]['subtotal']) @endphp
                   @endfor
               <table id="example3" class="table table-bordered">
-                <thead>
-                  <tr style="background-color: yellow;color:black; ">
-                    <th style="width: 10%;">Dept.</th>
-                    <th>COA</th>
-                    <th>Work Item</th>
-                    <th>Subtotal (Rp)</th>
-                    <th>Budget Tahunan</th>
-                  </tr>
+                <thead class="header_1">
+                  <tr>
+                        <td>COA</td>
+                        <td>Item Pekerjaan</td>
+                        <td>No. Budget Tahunan</td>
+                        <td>Volume</td>
+                        <td>Satuan</td>
+                        <td>Nilai(Rp)</td>
+                        <td>Subtotal(Rp)</td>
+                        <td>Delete</td>
+                       </tr>
                 </thead>
-                <tbody>
-                  @php $nilai = 0 @endphp
-                  @for ( $i=0; $i < count($workorder->parent_id); $i++ )
-                  @if ( $workorder->parent_id[$i]['total_budget'] == "0")
-                    @php
-                    $class = "background-color:grey;color:white;font-weight:bolder";
-                    $label = "Budget Tahunan tidak tersedia. Silahkan cek draft budget untuk approval";
-                    @endphp
-                  @else
-                    @php
-                    $class = "";
-                    $label = number_format($workorder->parent_id[$i]['total_budget']);
-                    @endphp
-                  @endif
-                  <tr style="{{ $class }}">
-                    <td>{{ $workorder->parent_id[$i]['deptcode'] }}</td>
-                    <td>{{ $workorder->parent_id[$i]['coa_code'] }}</td>
-                    <td>{{ $workorder->parent_id[$i]['item_name'] }}</td>
-                    <td>{{ number_format($workorder->parent_id[$i]['subtotal']) }}</td>
-                    <td>{{ $label }}</td>
-                  </tr>
-                  @php $nilai = $nilai + ($workorder->parent_id[$i]['subtotal']) @endphp
-                  @endfor
-
-                </tbody>
+                  <tbody id="detail_item">
+                       @foreach ( $workorder->detail_pekerjaan as $key => $value )
+                       <tr>
+                          <td>{{ $value->itempekerjaan->code or ''}}</td>
+                          <td>{{ $value->itempekerjaan->name or ''}}</td>
+                          <td>{{ $value->budget_tahunan->no}}</td>
+                          <td>{{ number_format($value->volume)}}</td>
+                          <td>{{ $value->itempekerjaan->details->satuan or ''}}</td>
+                          <td>{{ number_format($value->nilai)}}</td>
+                          <td>{{ number_format($value->volume * $value->nilai,2)}}</td>
+                          <td>
+                            <button type="button" class="btn btn-danger" onclick="removepekerjaan('{{ $value->id }}')">Hapus Pekerjaan</button>
+                          </td>
+                       </tr>
+                       @endforeach
+                     </tbody>
               </table>
               <br>
                @php $nilai = 0 @endphp

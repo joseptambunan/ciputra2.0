@@ -102,14 +102,23 @@ class TenderUnit extends CustomModel
 
         //VO
         foreach ($this->unit_progress as $key => $value) {
-            $vo = $value->spkvo_unit->spk_detail->spk->nilai_vo;
-            if ( $vo > 0 ){
-                if ( $value->spkvo_unit->head_type == "Modules\Spk\Entities\Vo" ){
-                    $vo_nilai = ( $value->volume * $value->nilai ) + $vo_nilai;
-                    $vo_bobot_s =  (( $value->progresslapangan_percent *  $vo ) / $vo ) * 100 ;
-                    $vo_bobot = $vo_bobot + $vo_bobot_s;                
+            if ( $value->spkvo_unit != "" ){
+                if ( $value->spkvo_unit->spk_detail != "" ){
+                    if ( $value->spkvo_unit->spk_detail->spk != "" ){
+                        if ( $value->spkvo_unit->spk_detail->spk->nilai_vo != "" ){
+                            $vo = $value->spkvo_unit->spk_detail->spk->nilai_vo;
+                            if ( $vo > 0 ){
+                                if ( $value->spkvo_unit->head_type == "Modules\Spk\Entities\Vo" ){
+                                    $vo_nilai = ( $value->volume * $value->nilai ) + $vo_nilai;
+                                    $vo_bobot_s =  (( $value->progresslapangan_percent *  $vo ) / $vo ) * 100 ;
+                                    $vo_bobot = $vo_bobot + $vo_bobot_s;                
+                                }
+                            }
+                        }
+                    }
                 }
             }
+            
         }
 
         //Main + VO Percent

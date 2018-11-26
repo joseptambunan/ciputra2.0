@@ -4,6 +4,7 @@ namespace Modules\Budget\Entities;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\Approval;
+use Modules\Budget\Entities\BudgetTahunan;
 
 class BudgetTahunan extends Model
 {
@@ -135,11 +136,14 @@ class BudgetTahunan extends Model
         $nilai = array();
         foreach ($this->details as $key => $value) {
             # code...
-            $code = explode(".",$value->itempekerjaans->code);
-            if ( sizeof($code) >= 2 ){
-                $nilai[$key] = $code[0].".".$code[1];
-            }else{
-                $nilai[$key] = $code[0];
+            if ( $value->itempekerjaans != "" ){
+
+                $code = explode(".",$value->itempekerjaans->code);
+                if ( sizeof($code) >= 2 ){
+                    $nilai[$key] = $code[0].".".$code[1];
+                }else{
+                    $nilai[$key] = $code[0];
+                }
             }
         }
         
@@ -195,63 +199,33 @@ class BudgetTahunan extends Model
     }
 
     public function getTotalParentItemAttribute(){
-        $nilai = array();
-        foreach ($this->details as $key => $value) {
-            # code...
-            $code = explode(".",$value->itempekerjaans->code);
-            if ( count($code) > 2 ){
-                $nilai[$key] = $code[0].".".$code[1];
+        $array = array();
+        foreach ($this->details as $key => $value) {           
+
+            if ( isset($array[$value->itempekerjaans->parent->id] )){
+                $array[$value->itempekerjaans->parent->id] = array(
+                    "code" => $value->itempekerjaans->parent->code,
+                    "satuan" => $value->itempekerjaans->parent->details->satuan,
+                    "itempekerjaan" => $value->itempekerjaans->parent->name,
+                    "nilai" => $value->nilai + $array[$value->itempekerjaans->parent->id]["nilai"],
+                    "volume" => $value->volume + $array[$value->itempekerjaans->parent->id]["volume"],
+                    "group_cost" => $value->itempekerjaans->group_cost,
+                    "nilai_terpakai" => 0
+                );
             }else{
-                $nilai[$key] = $code[0];
+                $array[$value->itempekerjaans->parent->id] = array(
+                    "code" => $value->itempekerjaans->parent->code,
+                    "satuan" => $value->itempekerjaans->parent->details->satuan,
+                    "itempekerjaan" => $value->itempekerjaans->parent->name,
+                    "nilai" => $value->nilai,
+                    "volume" => $value->volume,
+                    "group_cost" => $value->itempekerjaans->group_cost,
+                    "nilai_terpakai" => 0
+                );
             }
         }
         
-        $uniqe      = array_unique($nilai);
-        $item_id    = array_values($uniqe);
-        $total_volume = 0;
-        $total_nilai = 0;
-        $total = 0;
-        $satuan = "";
-        $id = "";
-        $total = 0;
-        $total_unit_price = 0;
-        $arrayResult = array();
-        $nilai_terpakai = 0;
-
-        for ( $i=0; $i<count($item_id); $i++ ){
-            $total_volume = 0;
-            $total_nilai = 0;
-            $total = 0;
-            $total_unit_price = 0;
-            $id = "";
-            $itempekerjaan = \Modules\Pekerjaan\Entities\Itempekerjaan::where("code","like",$item_id[$i]."%")->get();
-            foreach ($itempekerjaan as $key => $value) {
-                $budgets = \Modules\Budget\Entities\BudgetTahunanDetail::where("itempekerjaan_id",$value->id)->where("budget_tahunan_id",$this->id)->first();
-                if ( isset($budgets->volume)){
-                    $total_nilai = $total_nilai + ( $budgets->volume * $budgets->nilai); //$budgets->nilai;
-                    $total_volume = $total_volume + $budgets->volume;
-                    $total_unit_price = $total_unit_price + $budgets->nilai;
-                    $satuan = $budgets->satuan;
-                    $id = $value->id;
-                }
-
-                $terpakai = \Modules\Workorder\Entities\WorkorderBudgetDetail::where("itempekerjaan_id",$value->id)->where("budget_tahunan_id",$this->id)->get();
-
-                if ( count($terpakai) > 0 ){
-                    foreach ($terpakai as $key2 => $value2) {
-                        $nilai_terpakai = $nilai_terpakai + ( $value2->volume * $value2->nilai);
-                    }
-                }
-            }
-
-
-
-            $arrayResult[$i] = array("code" => $item_id[$i], "nilai" => $total_nilai, "volume" => $total_volume, "satuan" => $satuan, "id" => $id, "total" => $total_unit_price, "nilai_terpakai" => $nilai_terpakai);
-            $nilai_terpakai = 0;
-        }
-        return $arrayResult;
-
-        
+        return $array;
     }
 
     public function getProjectAttribute(){
@@ -262,8 +236,15 @@ class BudgetTahunan extends Model
         $nilai = 0;
         foreach ($this->details as $key => $value) {
             # code...
-            if ( \Modules\Pekerjaan\Entities\Itempekerjaan::find($value->itempekerjaan_id)->group_cost == "1"){
-                $nilai = $nilai + ( $value->volume * $value->nilai);
+            /*if (  \Modules\Pekerjaan\Entities\Itempekerjaan::find($value->itempekerjaan_id) != "" ){                
+                if ( \Modules\Pekerjaan\Entities\Itempekerjaan::find($value->itempekerjaan_id)->group_cost == "1"){
+                    $nilai = $nilai + ( $value->volume * $value->nilai);
+                }
+            }*/
+            if ( $value->itempekerjaans != ""){
+                if ( $value->itempekerjaans->group_cost == 1 ){
+                    $nilai = $nilai + ( $value->volume * $value->nilai);
+                }
             }
         }
         return $nilai ;
@@ -273,9 +254,14 @@ class BudgetTahunan extends Model
         $nilai = 0;
         $volume = 0;
         foreach ($this->details as $key => $value) {
-            if ( $value->itempekerjaans->group_cost == 2 ){
+            /*if ( $value->itempekerjaans->group_cost == 2 ){
                 $nilai = $nilai + ($value->volume * $value->nilai);
-            } 
+            } */
+            if ( $value->itempekerjaans != ""){
+                if ( $value->itempekerjaans->group_cost == 2 ){
+                    $nilai = $nilai + ( $value->volume * $value->nilai);
+                }
+            }
         }
         return $nilai ;
     }
@@ -341,4 +327,81 @@ class BudgetTahunan extends Model
 
         return $nilai;
     }
+
+    public function getMonthlyCashFlowAttribute(){
+        $array = array(
+            "januari" => 0,
+            "februari" => 0,
+            "maret" => 0,
+            "april" => 0,
+            "mei" => 0,
+            "juni" => 0,
+            "juli" => 0,
+            "agustus" => 0,
+            "september" => 0,
+            "oktober" => 0,
+            "november" => 0,
+            "desember" => 0
+        );
+        $array_monthly = array();
+
+        foreach ($this->budget_monthly as $key => $value) {
+            $array["januari"] = $array["januari"] + ($value['januari']/100) * ( $this->total_volume($value['code'],"nilai") * $this->total_volume($value['code'],"volume"));
+            $array["februari"] = $array["februari"] + ($value['februari']/100) * ( $this->total_volume($value['code'],"nilai") * $this->total_volume($value['code'],"volume"));
+            $array["maret"] = $array["maret"] + ($value['maret']/100) * ( $this->total_volume($value['code'],"nilai") * $this->total_volume($value['code'],"volume"));
+            $array["april"] = $array["april"] + ($value['april']/100) * ( $this->total_volume($value['code'],"nilai") * $this->total_volume($value['code'],"volume"));
+            $array["mei"] = $array["mei"] + ($value['mei']/100) * ( $this->total_volume($value['code'],"nilai") * $this->total_volume($value['code'],"volume"));
+            $array["juni"] = $array["juni"] + ($value['juni']/100) * ( $this->total_volume($value['code'],"nilai") * $this->total_volume($value['code'],"volume"));
+            $array["juli"] = $array["juli"] + ($value['juli']/100) * ( $this->total_volume($value['code'],"nilai") * $this->total_volume($value['code'],"volume"));
+            $array["september"] = $array["september"] + ($value['september']/100) * ( $this->total_volume($value['code'],"nilai") * $this->total_volume($value['code'],"volume"));
+            $array["oktober"] = $array["oktober"] + ($value['oktober']/100) * ( $this->total_volume($value['code'],"nilai") * $this->total_volume($value['code'],"volume"));
+            $array["november"] = $array["november"] + ($value['november']/100) * ( $this->total_volume($value['code'],"nilai") * $this->total_volume($value['code'],"volume"));            
+            $array["desember"] = $array["desember"] + ($value['desember']/100) * ( $this->total_volume($value['code'],"nilai") * $this->total_volume($value['code'],"volume"));
+        }
+
+        return $array;
+    }
+
+    public function getMonthlyBudgetUnitAttribute(){
+         $array = array(
+            "januari" => 0,
+            "februari" => 0,
+            "maret" => 0,
+            "april" => 0,
+            "mei" => 0,
+            "juni" => 0,
+            "juli" => 0,
+            "agustus" => 0,
+            "september" => 0,
+            "oktober" => 0,
+            "november" => 0,
+            "desember" => 0
+        );
+
+        if ( $this->budget_unit != "" ){
+            foreach ($this->budget_unit as $key => $value) {
+                if ( $value->details != "" ){
+                    foreach ( $value->details as $key2 => $value2 ){
+                        $array["januari"] = ( $value2->januari ) + $array["januari"];
+                        $array["februari"] = ( $value2->februari ) + $array["februari"];
+                        $array["maret"] = ( $value2->maret ) + $array["maret"];
+                        $array["april"] = ( $value2->april ) + $array["april"];
+                        $array["mei"] = ( $value2->januari ) + $array["mei"];
+                        $array["juni"] = ( $value2->januari ) + $array["juni"];
+                        $array["juli"] = ( $value2->januari ) + $array["juli"];
+                        $array["agustus"] = ( $value2->januari ) + $array["agustus"];
+                        $array["september"] = ( $value2->januari ) + $array["september"];
+                        $array["oktober"] = ( $value2->januari ) + $array["oktober"];
+                        $array["november"] = ( $value2->januari ) + $array["november"];
+                        $array["desember"] = ( $value2->januari ) + $array["desember"];
+                    }
+                }                
+            }
+        }
+        
+
+        return $array;
+    }
+
+
 }

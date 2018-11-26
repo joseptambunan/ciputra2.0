@@ -60,7 +60,7 @@
                   </div>
                   <div class="form-group">
                     <span>PT</span>
-                    <input type="text" class="form-control" value="{{ $voucher->bap->spk->tender->rab->budget_tahunan->budget->pt->name }}" readonly>
+                    <input type="text" class="form-control" value="{{ $voucher->bap->spk->project->pt->first()->name or '' }}" readonly>
                   </div>
                   <div class="form-group">
                     <span>Dibayarkan kepada</span>
@@ -96,7 +96,14 @@
                     <p>Belum memenuhi progress lapangan minimal <i><strong><span style="color:red;">18 %</span></strong></i></p>
                     @else       
                     <span>Tanggal Voucher Dicairkan / Giro diserahkan</span>             
-                    <input type="text" class="form-control" id="pencairan" name="pencairan" value="{{ date('Y-m-d')}}" autocomplete="off">
+                    <div class="row">
+                      <div class="col-3">
+                        <input type="text" class="form-control" placeholder=".col-3" value="{{ date('m/d/Y')}}">
+                      </div>
+                      <div class="col-4">
+                        <input type="text" class="form-control" placeholder=".col-4" value="BCA/0000/11/2018">
+                      </div>
+                    </div>
                     @endif
                   </div>
                 </div>

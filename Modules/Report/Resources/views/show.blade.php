@@ -8,7 +8,7 @@
 
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-  <title>Admin QS | Dashboard</title>
+  <title>User QS | Dashboard</title>
 
   @include("master/header")
 

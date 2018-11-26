@@ -35,7 +35,7 @@
             <!-- /.col -->
             <div class="col-md-12">
 
-                <form action="{{ url('/')}}/user/approval/save-detail/" method="post">
+                <form action="{{ url('/')}}/user/approvalde" method="post">
                 <div class="form-group">                  
                   <a class="btn btn-warning" href="{{ url('/')}}/user/detail/?id={{ $user->id }}">Kembali</a>
                   <button type="submit" class="btn btn-primary">Simpan</button>

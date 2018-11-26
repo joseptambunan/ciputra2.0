@@ -66,24 +66,22 @@
                       </tr>
                     </thead>
                     <tbody>
-                      @foreach ( $budget_tahunan->total_parent_item as $key => $value )
-                      @if ( count(\Modules\Pekerjaan\Entities\Itempekerjaan::where("code",$value['code'])->get()) > 0 )    
-                      @if ( $value["volume"] > 0 )                   
+                      @foreach ( $budget_tahunan->details as $key => $value )
+                      @if ( $value->nilai > 0 && $value->volume > 0 )
                         <tr>
                           <td><input type="checkbox" name="setwo[{{ $key}}]" value="{{ $key}}"></td>
-                          <td>{{ $value['code'] }}</td>
-                          <td>{{ \Modules\Pekerjaan\Entities\Itempekerjaan::where("code",$value['code'])->get()->first()->name }}</td>
-                          <td>{{ number_format($value["volume"] * $value['total'],2) }}</td>
-                          <td>{{ number_format($value["nilai_terpakai"],2) }}</td>
-                          <td>
-                            <input type="hidden" name="item_id[{{ $key}}]" class="form-control" value="{{ \Modules\Pekerjaan\Entities\Itempekerjaan::where('code',$value['code'])->get()->first()->id }}">
-                            <input type="text" name="volume[{{ $key}}]" class="form-control nilai_budget" value="{{ number_format($value['volume'],2) }}">
+                          <td>{{ $value->itempekerjaans->code or ''}}</td>
+                          <td>{{ $value->itempekerjaans->name or ''}}</td>
+                          <td>{{ number_format($value->nilai * $value->volume,2 )}}</td>
+                          <td>{{ number_format($value->nilai * $value->volume,2) }}</td>
+                         <td>
+                            <input type="hidden" name="item_id[{{ $key}}]" class="form-control" value="{{ $value->itempekerjaans->id or ''}}">
+                            <input type="text" name="volume[{{ $key}}]" class="form-control nilai_budget" value="{{ number_format($value->volume,2) }}">
                           </td>
-                          <td><input type="hidden" name="satuan[{{ $key}}]" class="form-control" value="{{ $value['satuan'] }}"><input type="text" class="form-control" value="{{ $value['satuan'] }}" readonly></td>
-                          <td><input type="text" name="nilai[{{ $key}}]" class="form-control nilai_budget" value="{{ number_format($value['total'],2) }}"></td>   
-                          <td><span id="">0</span></td>                       
+                          <td><input type="hidden" name="satuan[{{ $key}}]" class="form-control" value="{{ $value->itempekerjaans->details->satuan }}"><input type="text" class="form-control" value="{{ $value->itempekerjaans->details->satuan }}" readonly></td>
+                          <td><input type="text" name="nilai[{{ $key}}]" class="form-control nilai_budget" value="{{ number_format($value->nilai,2)}}"></td>   
+                          <td><span id="">0</span></td>  
                         </tr>
-                      @endif
                       @endif
                       @endforeach
                     </tbody>

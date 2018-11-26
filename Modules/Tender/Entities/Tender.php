@@ -13,7 +13,7 @@ class Tender extends CustomModel
     
 	public function getPtAttribute()
     {
-        return $this->rab->workorder->project->first()->pt_user->first()->pt;
+        return $this->rab->workorder->project->first()->pt->first()->pt;
     }
 
     public function units()

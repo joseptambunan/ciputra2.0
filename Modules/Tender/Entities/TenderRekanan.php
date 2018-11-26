@@ -103,4 +103,9 @@ class TenderRekanan extends CustomModel
     public function project(){
         return $this->tender->rab->workorder->project;
     }
+
+    public function getDepartmentFromAttribute(){
+        return $this->tender->rab->workorder->department_from;
+    }
+
 }

@@ -18,7 +18,7 @@
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <section class="content-header">
-      <h1>Data Proyek <strong>{{ $budget->project->name }}</strong></h1>
+      <h1>Data Proyek <strong>{{ $budget_tahunan->budget->project->name }}</strong></h1>
 
     </section>
 
@@ -31,42 +31,46 @@
         <!-- /.box-header -->
         <div class="box-body">
           <div class="row">
-            <div class="col-md-12"><h3 class="box-title">Detail Data Budget Proyek</h3></div>
-            <div class="col-md-6">             
-              <div class="form-group">
-                <label>Item Pekerjaan</label>
-                <select class="form-control select2" name="coa_id" id="coa_id">
-                  <option>( pilih item pekerjaan)</option>
-                  @foreach ( $itempekerjaan as $key => $value )  
-                    @if ( $value->group_cost == 2 )                  
-                      <option value="{{ $value->id }}" selected>{{ $value->code }}  {{ $value->name }}</option>      
-                    @endif                
-                  @endforeach
-                </select>
-              </div>
-              <div class="form-group">
-                <i class="fa fa-refresh ld ld-spin" id="loading" style="display: none;"></i>                
-                <button class="btn btn-info submitbtn" onClick="formsubmit();" id="btn_submit">Simpan</button>
-                <a class="btn btn-warning submitbtn" href="{{ url('/')}}/budget/detail?id={{ $budget->id }}">Kembali</a>
-              </div>
-            </div>
+            <div class="col-md-12"><h3 class="box-title">Detail Data Budget Tahunan</h3></div>
+
    
             <!-- /.col -->
             <div class="col-md-12">
-              <form action="{{ url('/')}}/budget/item-saverevisi" method="post" name="form1" id="form1">  
+              <form action="{{ url('/')}}/cashflow/save-monthly" method="post" name="form1" id="form1">  
                 {{ csrf_field() }}
-                <input type="hidden" name="budget_id" id="budget_id" value="{{ $budget->id }}">
+                <input type="hidden" name="budget_id" id="budget_id" value="{{ $budget_tahunan->id }}">
                 <table class="table">
                   <thead class="head_table">
                     <tr>
                       <td>COA</td>
                       <td>Item Pekerjaan</td>
-                      <td>Volume</td>
-                      <td>Satuan</td>
-                      <td>Nilai</td>
+                      <td>Total Budget SPK</td>
+                      <td>Total Budget Cash Flow</td>
+                      <td>Januari</td>
+                      <td>Februari</td>
+                      <td>Maret</td>
+                      <td>April</td>
+                      <td>Mei</td>
+                      <td>Juni</td>
+                      <td>Juli</td>
+                      <td>Agustus</td>
+                      <td>September</td>
+                      <td>Oktober</td>
+                      <td>November</td>
+                      <td>Desember</td>
                     </tr>
                   </thead>
-                  <tbody id="itemlist"></tbody>
+                  <tbody id="itemlist">
+                    @foreach ( $budget_tahunan->details as $key => $value )
+                      @if ( $value->volume > 0 && $value->nilai > 0 )
+                        <tr>
+                          <td>{{ $value->itempekerjaan->code }}</td>
+                          <td>{{ $value->itempekerjaan->name }}</td>
+                          <td></td>
+                        </tr>
+                      @endif
+                    @endforeach
+                  </tbody>
                 </table>
               </form>
             </div>

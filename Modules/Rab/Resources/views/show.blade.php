@@ -258,12 +258,8 @@
               <label>Pilih Item Pekerjaan</label>
               <select class="form-control" id="item_coa">
                 <option value="">( pilih item pekerjaan )</option>
-                @foreach ( $rab->workorder->parent_id as $key => $value )
-                @if ( $value['total_budget'] == "0" )
-                <option value="">{{ \Modules\Pekerjaan\Entities\Itempekerjaan::where("code",$value['coa_code'])->get()->first()->name }}</option>
-                @else
-                <option value="{{ \Modules\Pekerjaan\Entities\Itempekerjaan::where('code',$value['coa_code'])->get()->first()->id }}">{{ \Modules\Pekerjaan\Entities\Itempekerjaan::where("code",$value['coa_code'])->get()->first()->name }}</option>
-                @endif
+                @foreach ( $rab->workorder->detail_pekerjaan as $key => $value )                
+                <option value="{{ $value->itempekerjaan->id}}">{{ $value->itempekerjaan->name }}</option>
                 @endforeach
               </select>
             </div>

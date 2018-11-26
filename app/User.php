@@ -239,8 +239,12 @@ class User extends Authenticatable
            if ( $value['project'][0] == null ){
                 $project_id = "";
            }else{
-                $project_pt_users = \Modules\Project\Entities\Project::find($value['project'][0]);
-                $project_id = $project_pt_users->project->id;
+                $project_pt_users = \Modules\Project\Entities\ProjectPtUser::find($value['project'][0]);
+                if ( $project_pt_users != "" ) {
+                    $project_id = $project_pt_users->project_pts->project->id;
+                }else{
+                    $project_id = "";
+                }
            }
 
            if ( $value['level'][0] <= 5 ){

@@ -73,7 +73,7 @@ class ApprovalController extends Controller
 
     public function saveapprovaldetail(Request $request){
 
-        foreach ($request->document_ as $key => $value) {
+        foreach ($request->check_ as $key => $value) {
             if ( isset($request->document_[$key]) ){
                 if ( $request->check_[$key] != ""){                    
                     $approval_reference = new ApprovalReference;
@@ -86,10 +86,8 @@ class ApprovalController extends Controller
                     $approval_reference->max_value = str_replace(",", "", $request->max_value_[$key]);
                     $status = $approval_reference->save();  
                 }              
-            }
-            
+            }        
         }
-
         return redirect("/user/detail/?id=".$request->user_id);
     }
 }

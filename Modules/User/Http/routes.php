@@ -17,6 +17,6 @@ Route::group(['middleware' => 'web', 'prefix' => 'user', 'namespace' => 'Modules
     Route::post('/delete-detail','UserController@removedetail');
 
     Route::get('/approval/user_detail','UserController@approvaldetail');
-    Route::post('/approval/save-detail/','UserController@saveapprovaldetail');
+    Route::post('/approvalde','UserController@saveapprovaldetail');
     Route::post('/send_email','UserController@send_email');
 });

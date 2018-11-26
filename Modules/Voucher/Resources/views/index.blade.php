@@ -51,7 +51,9 @@
                     <td>{{ $value->department->name }}</td>
                     <td style="text-align: right;">{{ number_format($value->details->sum('nilai') ) }}</td>
                     <td>{{ $value->created_at }}</td>
-                    <td><a href="{{ url('/')}}/voucher/show?id={{ $value->id }}" class="btn btn-warning">Detail</td>                   
+                    <td>
+                      <a href="{{ url('/')}}/voucher/show?id={{ $value->id }}" class="btn btn-warning">Detail
+                    </td>                   
                   </tr>
                   @endforeach
                 </tbody>

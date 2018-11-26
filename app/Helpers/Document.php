@@ -98,6 +98,20 @@ class Document
         $approval->document_type = $class;
         $approval->save();
         self::make_approval_history($approval->id,$class);
+
+        if ( $class == "Modules\Budget\Entities\Budget"){
+            $budget = \Modules\Budget\Entities\Budget::find($id);
+            foreach ($budget->details as $key => $value) {
+
+                $approval = new \App\Approval;
+                $approval->approval_action_id = 1;
+                $approval->total_nilai = $value->nilai * $value->volume ;
+                $approval->document_id = $value->id;
+                $approval->document_type = "Modules\Budget\Entities\BudgetDetail";
+                $approval->save();
+                self::make_approval_history($approval->id,"Modules\Budget\Entities\BudgetDetail");
+            }
+        }
         return $document;
 
     }
@@ -111,6 +125,7 @@ class Document
         $approval = \App\Approval::find($id);
         $document = $approval->document;
         $class = class_basename($document);
+
 
         if ( $class == "Purchaseorder"){
             $pt_id = $document->purchaserequest->pt->id;
@@ -135,6 +150,8 @@ class Document
             $department_from = $document->department_id;
         } else if ( $class == "BudgetDraft"){
             $department_from = $document->budget->department_id;
+        }else if ( $class == "BudgetDetail"){
+            $department_from = $document->budget->department_from;
         }
         
         // cari di ApprovalReference, user mana yang akan approve dokumen ini
@@ -153,19 +170,17 @@ class Document
             //$department_id = \App\User::find($each->user_id)->details->first()->mappingperusahaan->department_id;
             //$user_level = \App\User::find($each->user_id)->details->first()->user_level;
             //if ( $user_level <= 4 ){
-                $user = \Modules\User\Entities\User::find($each->user_id);
-                if ( isset($user->jabatan ) ) {                    
-                    $jabatan = $user->jabatan;
-                    $document->approval_histories()->create([
-                        'no_urut' => $each->no_urut,
-                        'user_id' => $each->user_id,
-                        'approval_action_id' => 1, // open
-                        'approval_id' => $approval->id,
-                        'no_urut' => $each->no_urut
-                    ]);
-                }
-            //}                      
-            //document->approval->update(['approval_action_id' => 1]);
+            $user = \Modules\User\Entities\User::find($each->user_id);
+            if ( isset($user->jabatan ) ) {                    
+                $jabatan = $user->jabatan;
+                $document->approval_histories()->create([
+                    'no_urut' => $each->no_urut,
+                    'user_id' => $each->user_id,
+                    'approval_action_id' => 1, // open
+                    'approval_id' => $approval->id,
+                    'no_urut' => $each->no_urut
+                ]);
+            }
         }
         return $document;
 

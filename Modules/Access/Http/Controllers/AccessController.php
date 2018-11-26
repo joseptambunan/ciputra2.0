@@ -583,18 +583,130 @@ class AccessController extends Controller
     }
 
     public function budget_tahunan(Request $request){
-        //$project = Project::find($request->id);
-        //$user = \Auth::user();
-        //return view("access::user.budget_tahunan",compact("project","user"));
-        $budget = BudgetTahunan::find($request->id);
-        $project = $budget->project;
-        $user = \Auth::user();
-        $approval = $budget->approval;
-        $effisiensi_netto = 0;
-        if ( $budget->project->netto > 0 ){
-            $effisiensi_netto = $budget->total_devcost / $budget->project->netto;
+        $array_cashflow = array();
+        $budget_tahunan = BudgetTahunan::find($request->id);
+        $budget_parent = $budget_tahunan->budget->parent_id;
+        if ( $budget_parent != "" ){
+
+        $budget_parent = Budget::find($budget_parent);
+        $budget_devcost = $budget_parent->id;
+        }else{
+            $budget_devcost = $budget_tahunan->budget->id;
         }
-        return view("access::user.budgets",compact("budget","project","user","approval","effisiensi_netto"));
+        $array_carryover = array();
+        $project = $budget_tahunan->project;
+        $user = \Auth::user();
+        $approval = $budget_tahunan->approval;
+        $effisiensi_netto = 0;
+        $nilai_sum_temp = 0;
+        $start = 0;
+        if ( $budget_tahunan->project->netto > 0 ){
+            $effisiensi_netto = $budget_tahunan->total_devcost / $budget_tahunan->project->netto;
+        }
+
+        $spk = $budget_tahunan->budget->project->spks;
+        foreach ($spk as $key => $value) {
+            # code...
+            $spk = \Modules\Spk\Entities\Spk::find($value->id);
+            $nilai = $spk->nilai;
+            if ( ($spk->progresses != "" )) {
+                if ( isset($spk->progresses->first()->itempekerjaan)) {
+                    $pekerjaan = \Modules\Pekerjaan\Entities\Itempekerjaan::where("code",$spk->progresses->first()->itempekerjaan->parent->code)->get()->first();
+                    if ( isset($pekerjaan->group_cost)){
+                        $budgetdetail = \Modules\Budget\Entities\BudgetDetail::where("itempekerjaan_id",$pekerjaan->id)->where("budget_id",$budget_devcost)->get();
+                        if ( count($budgetdetail) > 0 ){ 
+                            $exp = explode("/", $spk->no);  
+                            if ( $exp[5] == "17"){     
+                                //if ( ($spk->nilai - round($spk->nilai_bap)) > 0 ){
+                                    $array_cashflow[$start] = array(
+                                        "nospk" => $spk->no,
+                                        "nilaispk" => $spk->nilai,
+                                        "bap" =>$spk->nilai_bap,
+                                        "sisa" => ($spk->nilai - ($spk->nilai_bap)),
+                                        "id" => $spk->id,
+                                        "coa" => $spk->itempekerjaan->code.".00.00",
+                                        "pekerjaan" => $spk->itempekerjaan->name
+                                    );
+                                $start++; 
+                             }           
+                        }else{
+                            $nilai_sum_temp = $nilai_sum_temp + $spk->nilai;
+                            
+                        }                     
+                    }                                       
+                    
+                }
+                
+            }
+            
+        }
+
+        $carry_over = 0;
+        $total_nilaasi = 0;
+        if ( $array_cashflow != "" ){
+            foreach ($array_cashflow as $key => $value) {
+                $carry_over = $value["sisa"] + $carry_over;
+                $total_nilaasi = $value["nilaispk"] +  $total_nilaasi;
+            }
+        }
+
+        foreach ($budget_tahunan->carry_over as $key => $value) {
+            $array_carryover[$key] = array(
+                "no_spk" => $value->spk->no,
+                "pekerjaan" => $value->spk->name,
+                "nilai_spk" => $value->nilai,
+                "terbayar" => $value->spk->nilai_bap,
+                "sisa" => $value->spk->nilai - $value->spk->nilai_bap,
+                "januari" => $value->januari,
+                "februari" => $value->februari,
+                "maret" => $value->maret,
+                "april" => $value->april,
+                "mei" => $value->mei,
+                "juni" => $value->juni,
+                "juli" => $value->juli,
+                "agustus" => $value->agustus,
+                "september" => $value->september,
+                "oktober" => $value->oktober,
+                "november" => $value->november,
+                "desember" => $value->desember
+            );
+        }
+
+        $array = array(
+            "januari" => 0,
+            "februari" => 0,
+            "maret" => 0,
+            "april" => 0,
+            "mei" => 0,
+            "juni" => 0,
+            "juli" => 0,
+            "agustus" => 0,
+            "september" => 0,
+            "oktober" => 15000000,
+            "november" => 15000000,
+            "desember" => 15000000
+        );
+        
+
+        $array_monthly_cf = "";
+        foreach ($budget_tahunan->monthly_cash_flow as $key => $value) {
+            $array_monthly_cf .= $value .",";
+        }
+        $array_monthly_cf = trim($array_monthly_cf,",");
+
+        $array_monthly_co = "";
+        foreach ($budget_tahunan->monthly_budget_unit as $key => $value) {
+            $array_monthly_co .= $value .",";
+        }
+        $array_monthly_co = trim($array_monthly_co,",");
+
+        $array_monthly_total = "";
+
+        foreach ($array as $key => $value) {
+            $array_monthly_total .= $value .",";
+        }
+
+        return view("access::user.budget_tahunan_detail",compact("budget_tahunan","project","user","approval","effisiensi_netto","array_carryover","array_cashflow","carry_over","total_nilaasi","array_monthly_cf","array_monthly_co","array_monthly_total"));
     }
 
     public function budget_tahunan_approval(Request $request){

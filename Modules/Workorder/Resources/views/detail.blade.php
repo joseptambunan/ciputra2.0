@@ -73,6 +73,7 @@
               </div>
                                
               <div class="box-footer">
+                @if ( $workorder->detail_pekerjaan != "" && $workorder->details != "" )
                 @if ( $workorder->approval == "" )
                 <button type="submit" class="btn btn-primary">Simpan</button>
                 <button type="button" class="btn btn-info" onclick="woapprove('{{ $workorder->id }}')">Request Approve</button>
@@ -90,7 +91,12 @@
                     <button type="button" class="btn btn-info" onclick="woupdapprove('{{ $workorder->id }}')">Request Approve</button>
                   @endif
                 @endif
-                
+                @else
+                <ul>
+                  <li>Workorder harus memiliki pekerjaan</li>
+                  <li>Workorder harus memiliki unit</li>
+                </ul>
+                @endif
                 <a href="{{ url('')}}/workorder" class="btn btn-warning">Kembali</a>
               </div>
               
@@ -141,7 +147,6 @@
                         <td>COA</td>
                         <td>Item Pekerjaan</td>
                         <td>No. Budget Tahunan</td>
-                        <td>Total Budget Tahunan(Rp)</td>
                         <td>Volume</td>
                         <td>Satuan</td>
                         <td>Nilai(Rp)</td>
@@ -150,33 +155,25 @@
                        </tr>
                      </thead>
                      <tbody id="detail_item">
-                       @foreach ( $workorder->parent_id as $key => $value )
-                       @if ( $value['subtotal'] != "0")
-                        @if ( $value['total_budget'] == "0")
-                          @php
-                            $class = "background-color:grey;color:white;font-weight:bolder;";
-                            $label = "Tidak ada di Budget Tahunan. Menunggu Approval";
-                          @endphp
-                        @else
-                          @php
-                            $class = "";
-                            $label = number_format($value['total_budget']);
-                          @endphp
-                        @endif
-                        <tr style="{{ $class }}">
-                          <td>{{ $value['coa_code'] }}</td>
-                          <td>{{ $value['item_name'] }}</td>
-                          <td>{{ $value['budget_tahunan'] }}</td>
-                          <td>{{ $label }}</td>
-                          <td>{{ number_format($value['volume']) }}</td>
-                          <td>{{ $value['satuan'] }}</td>
-                          <td>{{ number_format($value['unitprice']) }}</td>
-                          <td>{{ number_format($value['subtotal']) }}</td>
+                       @foreach ( $workorder->detail_pekerjaan as $key => $value )
+                       <tr>
+                          <td>{{ $value->itempekerjaan->code or ''}}</td>
+                          <td>{{ $value->itempekerjaan->name or ''}}</td>
+                          <td>{{ $value->budget_tahunan->no}}</td>
+                          <td>{{ number_format($value->volume)}}</td>
+                          <td>{{ $value->itempekerjaan->details->satuan or ''}}</td>
+                          <td>{{ number_format($value->nilai)}}</td>
+                          <td>{{ number_format($value->volume * $value->nilai,2)}}</td>
                           <td>
-                            <button type="button" class="btn btn-danger" onclick="removepekerjaan('{{ $value['workorder_budget_id']}}')">Hapus Pekerjaan</button>
+                            @if ( $workorder->approval != "")
+                              @if ( $workorder->approval->approval_action_id == 7 )
+                              <button type="button" class="btn btn-danger" onclick="removepekerjaan('{{ $value->id }}')">Hapus Pekerjaan</button>
+                              @endif
+                            @else
+                              <button type="button" class="btn btn-danger" onclick="removepekerjaan('{{ $value->id }}')">Hapus Pekerjaan</button>
+                            @endif
                           </td>
                        </tr>
-                       @endif
                        @endforeach
                      </tbody>
                    </table> 
@@ -278,9 +275,13 @@
               @foreach ( $workorder->departmentFrom->budgets as $key => $value )
                 @if ( $value->project_id == $project->id )
                   @foreach ( $value->budget_tahunans as $key2 => $value2 )
-                    @if ( $value2->tahun_anggaran == date('Y') && $value2->nilai != "")
-                    <option value="{{ $value2->id }}">{{ $value2->no }} ( {{ $value2->budget->kawasan->name or 'Fasilitas Kota'}} )</option>
+                  @if ( $value2->approval != "" )
+                    @if ( $value2->approval->approval_action_id == 6 )
+                      @if ( $value2->tahun_anggaran == date('Y') && $value2->nilai != "")
+                        <option value="{{ $value2->id }}">{{ $value2->no }} ( {{ $value2->budget->kawasan->name or 'Fasilitas Kota'}} )</option>
+                      @endif
                     @endif
+                  @endif
                   @endforeach
                 @endif
               @endforeach

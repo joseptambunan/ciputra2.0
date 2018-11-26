@@ -25,7 +25,7 @@
         <div class="col-xs-12">
           <div class="box">
             <div class="box-header">
-              <h3 class="box-title">Data Proyek</h3>
+              <h3 class="box-title">Biaya Proyek</h3>
             </div>
             <!-- /.box-header -->
             <div class="box-body table-responsive">
@@ -35,21 +35,33 @@
                   <th rowspan="2">Proyek </th>
                   <th rowspan="2">Efisiensi(%)</th>
                   <th colspan="2">Luas(m2)</th>
-                  <th rowspan="3">Budget Awal(Rp)</th>
-                  <th rowspan="3">Budget Update(Rp)</th>
-                  <th colspan="2">HPP Budget Awal (Rp/m2)</th>
-                  <th colspan="2">HPP Update(Rp/m2)</th>
-                  <th rowspan="3">Total Kontrak(Rp)</th>
-                  <th rowspan="3">Total Terbayar(Rp)</th>
+                  <th colspan="6">Budget Devcost</th>
+                  <th colspan="2">Total Kontrak</th>
+                  <th colspan="2">Total Terbayar(Rp)</th>
+                  <th colspan="2">Hutang Bayar(Rp)</th>
+                  <th colspan="2">Hutang Bangun(Rp)</th>                  
+                  <th colspan="2">Budget Cash Out YTD(Rp)</th>
                   <th rowspan="3">Detail</th>
                 </tr>
                 <tr>
                   <th>Netto</th>
-                  <th>Brutto</th>
-                  <th>Netto</th>
                   <th>Brutto</th>                  
-                  <th>Netto</th>
-                  <th>Brutto</th>
+                  <th>Devcost Awal(Rp)</th>
+                  <th>Devcost Update Acc(Rp)</th>
+                  <th>Hpp Awal Netto(Rp/m2)</th>
+                  <th>Hpp Awal Brutto(Rp/m2)</th>                  
+                  <th>Hpp Update Acc Netto(Rp/m2)</th>
+                  <th>Hpp Update Acc Brutto(Rp/m2)</th>
+                  <th>Devcost(Rp)</th>
+                  <th>Concost(Rp)</th>                  
+                  <th>Devcost(Rp)</th>
+                  <th>Concost(Rp)</th>                
+                  <th>Devcost(Rp)</th>
+                  <th>Concost(Rp)</th>                
+                  <th>Devcost(Rp)</th>
+                  <th>Concost(Rp)</th>               
+                  <th>Devcost(Rp)</th>
+                  <th>Concost(Rp)</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -78,9 +90,18 @@
                   
                   <td>{{ number_format(0,2 ) }}</td> 
                   <td>{{ number_format(0,2 ) }}</td>
+                  <td>{{ number_format(0,2 ) }}</td>
                   @endif
                   <td>{{ number_format($detail->dev_cost_only,2 ) }}</td> 
-                  <td>{{ number_format($detail->nilai_realisasi,2 ) }}</td>              
+                  <td></td>               
+                  <td>{{ number_format($detail->nilai_realisasi,2 ) }}</td>    
+                  <td></td>     
+                  <td>{{ number_format($detail->dev_cost_only - $detail->nilai_realisasi,2 ) }}</td> 
+                  <td>{{ number_format(0,2 ) }}</td>              
+                  <td>{{ number_format($detail->total_devcost - $detail->dev_cost_only,2 ) }}</td>             
+                  <td>{{ number_format(0,2 ) }}</td> 
+                  <td>{{ number_format(0,2 ) }}</td> 
+                  <td>{{ number_format(0,2 ) }}</td> 
                   <td>
                     <a href="{{ url('/')}}/report/project/detail/?id={{ $detail->id}}" class="btn btn-info">Dashboard</a>
                   </td>

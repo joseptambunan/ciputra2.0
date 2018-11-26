@@ -59,5 +59,4 @@
       color:white;
     }
   </style>
-  <link rel="stylesheet" href="{{ url('/') }}/assets/dist/themes/default/style.min.css" />
 </head>

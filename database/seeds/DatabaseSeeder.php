@@ -19,12 +19,16 @@ class DatabaseSeeder extends Seeder
         $this->call(UserGroupsTableSeeder::class);
         $this->call(MappingperusahaansTableSeeder::class);
         $this->call(ItempekerjaansTableSeeder::class);
-        $this->call(BanksTableSeeder::class);
         $this->call(DocumentTypesTableSeeder::class);
         $this->call(CategoriesTableSeeder::class);
         $this->call(CategoryDetailsTableSeeder::class);
         $this->call(CategoryProjectsTableSeeder::class);
         $this->call(RekanansTableSeeder::class);
         $this->call(RekananGroupsTableSeeder::class);
+        $this->call(SpkRetensisTableSeeder::class);
+        $this->call(VosTableSeeder::class);
+        $this->call(PtsTableSeeder::class);
+        $this->call(ProjectPtsTableSeeder::class);
+        $this->call(ItempekerjaanDetailsTableSeeder::class);
     }
 }

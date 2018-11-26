@@ -163,8 +163,11 @@ class Budget extends Model
         $nilai = 0;
         foreach ($this->details as $key => $value) {
             # code...
-            if ( \Modules\Pekerjaan\Entities\Itempekerjaan::find($value->itempekerjaan_id)->group_cost == "1"){
-                $nilai = $nilai + ( $value->volume * $value->nilai);
+            if ( \Modules\Pekerjaan\Entities\Itempekerjaan::find($value->itempekerjaan_id) != "" ){
+              
+                if ( \Modules\Pekerjaan\Entities\Itempekerjaan::find($value->itempekerjaan_id)->group_cost == "1"){
+                    $nilai = $nilai + ( $value->volume * $value->nilai);
+                }  
             }
         }
         return $nilai ;

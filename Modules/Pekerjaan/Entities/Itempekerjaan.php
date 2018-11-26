@@ -8,6 +8,7 @@ use Modules\Spk\Entities\SpkDetail;
 use Modules\Spk\Entities\SpkvoUnit;
 use Modules\Project\Entities\UnitProgress;
 use Modules\Project\Entities\Project;
+use Modules\Budget\Entities\BudgetTahunanPeriode;
 
 class Itempekerjaan extends Model
 {
@@ -422,13 +423,10 @@ class Itempekerjaan extends Model
 
     public function getNilaiMasterSatuanAttribute(){
         $nilai = 0;
-        foreach ($this->child_item as $key => $value) {
-            foreach ($value->harga as $key2 => $value2) {
-                if ( $value2->nilai != ""  ){
-                    $nilai = $value2->nilai;
-                }
+        foreach ($this->harga as $key => $value) {
+            if ( $value->project_id == null ){
+                $nilai = $value->nilai;
             }
-            
         }
         return $nilai;
     }
@@ -470,5 +468,18 @@ class Itempekerjaan extends Model
 
     public function budget_type_details(){
         return $this->hasOne("Modules\Budget\Entities\BudgetTypeDetail","itempekerjaan_id");
+    }
+
+    public function getNilaiCashflowAttribute($budget_tahunan,$id,$type,$nilai){
+        $nilai = 0;
+        if ( $type = "Total"){
+            $budget_tahunan_periode = BudgetTahunanPeriode::where("budget_tahunan_id",$budget_tahunan)->where("itempekerjaan_id",$id)->get();
+            if ( count($budget_tahunan_periode) > 0 ){
+                foreach ($budget_tahunan_periode as $key => $value) {
+                    $nilai = ( $value->januari * $nilai ) + ( $value->februari * $nilai ) +( $value->maret * $nilai ) +( $value->april * $nilai ) +( $value->mei * $nilai ) +( $value->juni * $nilai ) +( $value->juli * $nilai ) +( $value->agustus * $nilai ) +( $value->september * $nilai ) +( $value->oktober * $nilai ) +( $value->november * $nilai ) +( $value->desember * $nilai ) ;  
+                }
+            }
+            return $nilai;
+        }
     }
 }

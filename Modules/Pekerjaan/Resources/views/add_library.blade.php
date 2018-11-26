@@ -56,29 +56,76 @@
                     </tr>
                   </thead>
                   <tbody id="itemlist">
+                    @php $start = 0; @endphp
                     @foreach ( $itempekerjaan->child_item as $key => $value )
-                    <!--Nilai yang diisi adalah nilai * volume -->
-                    @if ( $value->tag == 1 )
-                      @php  $class = "style=background-color:grey;color:white;font-weight:bolder"; $selected = "checked"; @endphp
-                    @else
-                      @php $class = ""; $selected = ""; @endphp
-                    @endif
-                    <tr {{ $class }}>
-                      <td><label><input type="radio" name="tag" class="minimal" value="{{ $value->id}}" {{ $selected }}></label></td>
-                      <td>{{ $value->code }}</td>
-                      <td>{{ $value->name }}</td>
-                      <td>{{ $value->details->satuan }}</td>
-                      <td>
-                        <input type="hidden" class="form-control" name="item_id_[{{ $key}}]" value="{{ $value->id}}">               
-                        @if ( $key > 0 )
-                        <input type="text" class="nilai_budgets form-control" name="nilai_[{{ $key}}]" value="{{ $value->nilai_library }}" autocomplete="off">
+                      @if ( $value->group_cost == 1 )
+                        @foreach ( $value->child_item as $key2 => $value2 )
+                          <tr {{ $class }}>
+                            <td><label><input type="radio" name="tag" class="minimal" value="{{ $value->id}}" {{ $selected }}></label></td>
+                            <td>{{ $value2->code }}</td>
+                            <td>{{ $value2->name }}</td>
+                            <td>{{ $value2->details->satuan }}</td>
+                            <td>
+                              <input type="hidden" class="form-control" name="item_id_[{{ $start}}]" value="{{ $value2->id}}">               
+                              @if ( $start > 0 )
+                              <input type="text" class="nilai_budgets form-control" name="nilai_[{{ $start}}]" value="{{ $value2->nilai_library }}" autocomplete="off">
+                              @else
+                              <input type="text" class="nilai_budgets form-control" name="nilai_[{{ $start}}]" value="{{ $nilai_library_satuan }}" autocomplete="off">
+                              @endif         
+                            </td>
+                            <td>{{ number_format($value2->nilai_lowest_library,2) }}</td>
+                            <td>{{ number_format($value2->nilai_max_library,2) }}</td>
+                          </tr>
+                          @php $start++; @endphp
+                        @endforeach
+                      @else
+
+                      <!--Nilai yang diisi adalah nilai * volume -->
+                        @if ( $value->tag == 1 )
+                          @php  $class = "style=background-color:grey;color:white;font-weight:bolder"; $selected = "checked"; @endphp
                         @else
-                        <input type="text" class="nilai_budgets form-control" name="nilai_[{{ $key}}]" value="{{ $nilai_library_satuan }}" autocomplete="off">
-                        @endif         
-                      </td>
-                      <td>{{ number_format($value->nilai_lowest_library,2) }}</td>
-                      <td>{{ number_format($value->nilai_max_library,2) }}</td>
-                    </tr>
+                          @php $class = ""; $selected = ""; @endphp
+                        @endif
+                        @if ( $value->group_cost == 2 )
+                          <tr {{ $class }}>
+                            <td><label><input type="radio" name="{{ $value->id }}" class="minimal" value="{{ $value->id}}" {{ $selected }}></label></td>
+                            <td>{{ $value->code }}</td>
+                            <td>{{ $value->name }}</td>
+                            <td>{{ $value->details->satuan }}</td>
+                            <td>
+                              <input type="hidden" class="form-control" name="item_id_[{{ $start}}]" value="{{ $value->id}}">               
+                              @if ( $start > 0 )
+                              <input type="text" class="nilai_budgets form-control" name="nilai_[{{ $start}}]" value="{{ $value->nilai_library }}" autocomplete="off">
+                              @else
+                              <input type="text" class="nilai_budgets form-control" name="nilai_[{{ $start}}]" value="{{ $nilai_library_satuan }}" autocomplete="off">
+                              @endif         
+                            </td>
+                            <td>{{ number_format($value->nilai_lowest_library,2) }}</td>
+                            <td>{{ number_format($value->nilai_max_library,2) }}</td>
+                          </tr>
+                          @php $start++; @endphp
+                          @foreach ( $value->child_item as $key2 => $value2 )
+                          <tr {{ $class }}>
+                            <td>&nbsp;</td>
+                            <td>{{ $value2->code }}</td>
+                            <td>{{ $value2->name }}</td>
+                            <td>{{ $value2->details->satuan }}</td>
+                            <td>
+                              <input type="hidden" class="form-control" name="item_id_[{{ $start}}]" value="{{ $value2->id}}">               
+                              @if ( $start > 0 )
+                              <input type="text" class="nilai_budgets form-control" name="nilai_[{{ $start}}]" value="{{ $value2->nilai_library }}" autocomplete="off">
+                              @else
+                              <input type="text" class="nilai_budgets form-control" name="nilai_[{{ $start}}]" value="{{ $nilai_library_satuan }}" autocomplete="off">
+                              @endif         
+                            </td>
+                            <td>{{ number_format($value2->nilai_lowest_library,2) }}</td>
+                            <td>{{ number_format($value2->nilai_max_library,2) }}</td>
+                          </tr>
+                          @php $start++; @endphp
+                          @endforeach
+                        
+                        @endif
+                      @endif
                     @endforeach
                   </tbody>
                 </table>

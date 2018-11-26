@@ -79,5 +79,7 @@ Route::group(['middleware' => 'web', 'prefix' => 'access', 'namespace' => 'Modul
 	Route::get("/budget/referensi","AccessController@budgetreferensi");
 	Route::get("/budget/approval/budget_item","AccessController@budgetdetail_approval");
 	Route::get("/budget/approval/approval_budget_awal","AccessController@approval_budget_awal");
+
+	Route::get('/budget/cashflow/referensi','AccessController@budgetcfreferensi');
 	
 });

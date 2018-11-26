@@ -14,10 +14,11 @@
 <script src="{{ url('/') }}/assets/users/dist/js/adminlte.min.js"></script>
 <!-- AdminLTE for demo purposes -->
 <script src="{{ url('/') }}/assets/users/dist/js/demo.js"></script>
-<!-- page script -->
-<script src="{{ url('/') }}/assets/dist/jstree.min.js"></script>
+
+<!-- ChartJS 1.0.1 -->
+<script src="{{ url('/') }}/assets/users/plugins/chartjs2/Chart.min.js"></script>
 <script>
-  $(function () {
+  /*$(function () {
     $("#example1").DataTable();
     $('#example2').DataTable({
       "paging": true,
@@ -27,7 +28,7 @@
       "info": true,
       "autoWidth": false
     });
-  });
+  });*/
 </script>
 <script type="text/javascript">
   function setapproved(values){

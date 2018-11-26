@@ -52,14 +52,14 @@
                         @endif
                       </td>
                       <td>
-                        @if ( (count($tender->penawarans)) == (count($tender->rekanans) * 2 ))
+                        @if ( (count($tender->penawarans)) >= (count($tender->rekanans) * 2 ))
                           
                           <a href="{{ url('/')}}/rekanan/user/tender/penawaran-step2?id={{$tender_rekanan->penawarans->take(2)->last()->id}}&step=2" class="btn btn-warning">Tambah Penawaran</a>
                       
                         @endif
                       </td>
                       <td>
-                        @if ( (count($tender->penawarans)) == (count($tender->rekanans) * 3 ))
+                        @if ( (count($tender->penawarans)) >= (count($tender->rekanans) * 3 ))
                          
                           <a href="{{ url('/')}}/rekanan/user/tender/penawaran-step3?id={{$tender_rekanan->penawarans->last()->id}}&step=3" class="btn btn-warning">Tambah Penawaran</a>
                          

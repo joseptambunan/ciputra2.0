@@ -41,10 +41,14 @@
                     <option value="">(pilih nama tender)</option>
                     @foreach ( $workorder as $key2 => $value2  )
                       @foreach ( $value2->rabs as $key => $value )
-                        @if ( $value->parent_id != "")
-                        @if ( count(Modules\Tender\Entities\Tender::where("rab_id",$value->id)->get()) <= 0 )
-                        <option value="{{ $value->id }}">{{ $value->no }} / {{ \Modules\Pekerjaan\Entities\Itempekerjaan::find($value->parent_id)->code }} - {{ \Modules\Pekerjaan\Entities\Itempekerjaan::find($value->parent_id)->name }}</option>
-                        @endif
+                        @if ( $value->approval != "" )
+                          @if ( $value->approval->approval_action_id == 6 )
+                            @if ( $value->parent_id != "")
+                              @if ( count(Modules\Tender\Entities\Tender::where("rab_id",$value->id)->get()) <= 0 )
+                                <option value="{{ $value->id }}">{{ $value->no }} / {{ \Modules\Pekerjaan\Entities\Itempekerjaan::find($value->parent_id)->code }} - {{ \Modules\Pekerjaan\Entities\Itempekerjaan::find($value->parent_id)->name }}</option>
+                              @endif
+                            @endif
+                          @endif
                         @endif
                       @endforeach
                     @endforeach
