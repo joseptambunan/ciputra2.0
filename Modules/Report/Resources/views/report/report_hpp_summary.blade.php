@@ -15,7 +15,7 @@
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <section class="content-header">
-      <h1>Data Proyek</h1>
+      <h1>HPP Development Cost Report ( summary )</h1>
 
     </section>
 

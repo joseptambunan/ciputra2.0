@@ -86,12 +86,12 @@
                               <td><input class="disable_unit" type="checkbox" name="asset[{{ $start}}]" value="Unit_{{ $value3->id }}" onClick="disablebtn('{{ $value3->id }}')"></td>
                               <td>{{ $array[$value3->status]}}</td>
                               <td>
-                                @if ( $value3->status == "2")
+                                @if ( $value3->status == "5")
                                 {{ $value3->updated_at->format('d/m/Y')}}
                                 @endif
                               </td>
                               <td>
-                                 @if ( $value3->status == "2")
+                                 @if ( $value3->status == "5")
                                   {{ date('d/m/Y', strtotime( $limit_bangun, strtotime($value3->updated_at)))  }}
                                  @php
                                   $date1 = new DateTime("now");
@@ -136,14 +136,7 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-  <footer class="main-footer">
-    <div class="pull-right hidden-xs">
-      <b>Version</b> 2.4.0
-    </div>
-    <strong>Copyright &copy; 2014-2016 <a href="https://adminlte.io">Almsaeed Studio</a>.</strong> All rights
-    reserved.
-  </footer>
-
+  @include("master/copyright")
   
   <!-- Add the sidebar's background. This div must be placed
        immediately after the control sidebar -->

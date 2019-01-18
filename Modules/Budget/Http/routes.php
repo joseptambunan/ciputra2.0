@@ -39,6 +39,10 @@ Route::group(['middleware' => 'web', 'prefix' => 'budget', 'namespace' => 'Modul
     Route::post('/cashflow/savenewadd-item','BudgetController@savenewitemcashflow');
     Route::get('/cashflow/views','BudgetController@viewcf');
     Route::get('/cashflow/referensi','BudgetController@referensicf');
+    Route::get('/cashflow/viewitemconcost','BudgetController@cashflowconcost');
+    Route::post('/cashflow/save-cashouttype','BudgetController@savecashouttype');
+    Route::post('/cashflow/removeco','BudgetController@removeco');
+    Route::post('/cashflow/removecoco','BudgetController@removecoco');
 
     Route::get('/revisibudget','BudgetController@revisibudget');
     Route::post('/save-budgetrevisi','BudgetController@saverevisi');
@@ -49,6 +53,7 @@ Route::group(['middleware' => 'web', 'prefix' => 'budget', 'namespace' => 'Modul
     Route::get('/item-revisi','BudgetController@additemrevisi');
     Route::post('/save-itemrevisi','BudgetController@savenewitemrevisi');
 
+    Route::get('/add-carryover','BudgetController@addcarryover');
     Route::post('/save-carryover','BudgetController@savecaryyover');
     Route::post('/delete-carryover','BudgetController@deletecarryover');
 
@@ -58,6 +63,7 @@ Route::group(['middleware' => 'web', 'prefix' => 'budget', 'namespace' => 'Modul
     Route::get("/cashflow/revisi-item/","BudgetController@revitemcashflow");
     Route::post("/cashflow/save-revitem","BudgetController@saverevitem");
     Route::get("/cashflow/approval","BudgetController@approval_history");
+    Route::get("/cashflow/revisi-item-cons/","BudgetController@revitemcashflowcons");
 
     Route::get("/draft","BudgetController@draft");
     Route::post("/approval-update","BudgetController@updateapproval");
@@ -74,4 +80,6 @@ Route::group(['middleware' => 'web', 'prefix' => 'budget', 'namespace' => 'Modul
     Route::post("/cashflow/save-monthlyco","BudgetController@itemsavemonthlyco");
     Route::get("/budget_tahunan/cashflow-concost","BudgetController@cashflowconcost");
     Route::post("/item-saveitemconcost","BudgetController@saveitemconcost");
+
+    Route::post("/item-viewconcost","BudgetController@itemviewconcost");
 });

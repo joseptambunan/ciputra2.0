@@ -177,19 +177,21 @@ class WorkorderController extends Controller
 
     public function savepekerjaan (Request $request){
 
-        foreach ($request->setwo as $key => $value) {
-            if ( $request->setwo[$key] != ""  && $request->volume[$value] != "" && $request->satuan[$value] != "" && $request->nilai[$value] != "" ){
+        if ( $request->setwo ){
+            foreach ($request->setwo as $key => $value) {
+                if ( $request->setwo[$key] != ""  && $request->volume[$value] != "" && $request->satuan[$value] != "" && $request->nilai[$value] != "" ){
 
-                $workorder = new WorkorderBudgetDetail;
-                $workorder->workorder_id = $request->workorder_id;
-                $workorder->budget_tahunan_id = $request->budget_tahunan;
-                $workorder->itempekerjaan_id = $request->item_id[$value];
-                $workorder->tahun_anggaran = date('Y');
-                $workorder->volume = str_replace(",", "",$request->volume[$value]);
-                $workorder->satuan = $request->satuan[$value];
-                $workorder->nilai = str_replace(",", "", $request->nilai[$value]);
-                $workorder->save();
-                
+                    $workorder = new WorkorderBudgetDetail;
+                    $workorder->workorder_id = $request->workorder_id;
+                    $workorder->budget_tahunan_id = $request->budget_tahunan;
+                    $workorder->itempekerjaan_id = $request->item_id[$value];
+                    $workorder->tahun_anggaran = date('Y');
+                    $workorder->volume = str_replace(",", "",$request->volume[$value]);
+                    $workorder->satuan = $request->satuan[$value];
+                    $workorder->nilai = str_replace(",", "", $request->nilai[$value]);
+                    $workorder->save();
+                    
+                }
             }
         }
 

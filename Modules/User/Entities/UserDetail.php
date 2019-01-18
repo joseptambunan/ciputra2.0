@@ -23,5 +23,7 @@ class UserDetail extends CustomModel
         return $this->belongsTo('Modules\User\Entities\Mappingperusahaan');
     }
 
-    
+     public function projectpt(){
+        return $this->belongsTo("Modules\Project\Entities\ProjectPt");
+    }
 }

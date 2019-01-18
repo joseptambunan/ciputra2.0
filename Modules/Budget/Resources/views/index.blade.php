@@ -41,12 +41,27 @@
                 <tr>
                   <td colspan="3">
                     @php $total = 0; @endphp
-                    @foreach ( $budget as $key => $value )
-                    @if ( $value->deleted_at == "" )
-                      @php $total = $total + $value->total_dev_cost;@endphp
-                    @endif
+                    @if ( $user->project_pt_users != "" )
+                    @foreach ( $user->project_pt_users as $key2 => $value2 )
+                      @foreach ( $budget as $key => $value )
+                        @if ( $value->pt_id == $value2->pt_id )
+                          @if ( $value->deleted_at == "" )
+                            @php $total = $total + $value->total_rencana_dev_cost;@endphp
+                          @endif
+                        @endif
+                      @endforeach
                     @endforeach
-                   <h3>Rp. {{ number_format($total)}}</h3></td>
+                  @endif
+                    
+                   <span>Total Rencana Budget Rp. {{ number_format($total)}}</span></td>
+                </tr>
+                <tr>
+                  <td colspan="3">
+                   <span>Total SPK : Rp. {{ number_format($project->total_nilai_kontrak)}}</span></td>
+                </tr>
+                <tr>
+                  <td colspan="3">
+                   <span>Total Budget : Rp. {{ number_format($total + $project->total_nilai_kontrak  )}}</span></td>
                 </tr>
                 <tr>
                   <td  style="background-color: grey;color:white;font-weight: bolder">&nbsp;</td>
@@ -57,7 +72,7 @@
                   <td>Brutto</td>
                   @if ( $project->luas > 0 )
                   <td>Luas Brutto  : {{ number_format($project->luas) }} m2</td>
-                  <td>Rp. {{ number_format($total/$project->luas,2)}}/m2</td>
+                  <td>Rp. {{ number_format($project->total_budget/$project->luas,2)}}/m2</td>
                   @else
                   <td>Luas Brutto  : {{ number_format(0) }} m2</td>
                   <td>Rp. {{ number_format(0,2)}}/m2</td>
@@ -69,7 +84,7 @@
                   @if ( $project->netto == "0")
                   <td>Rp. {{ number_format(0,2)}}/m2</td>
                   @else
-                  <td>Rp. {{ number_format($total/$project->netto,2)}}/m2</td>
+                  <td>Rp. {{ number_format($project->total_budget/$project->netto,2)}}/m2</td>
                   @endif
                 </tr>
               </table>             
@@ -81,7 +96,7 @@
                 <tr>
                   <td>Nomor Budget</td>
                   <td>Nilai DevCost(Rp)</td>
-                  <td>Hpp (Rp / m2)</td>
+                  <td>Hpp Netto (Rp / m2)</td>
                   <td>Kawasan</td>
                   <td>Start Date</td>
                   <td>End Date</td>                  
@@ -93,63 +108,69 @@
               </thead>
               <tbody>
                 @php $nilai = 0; @endphp
-                @foreach ( $budget as $key => $value )
-                @if ( $value->deleted_at == "")
+                @foreach ( $user->project_pt_users as $key2 => $value2 )
+                  @foreach ( $budget as $key => $value )
+                    @if ( $value2->pt_id == $value->pt_id )
+                      @if ( $value->deleted_at == "")
 
-                @php
-                  $array = array (
-                    "6" => array("label" => "Disetujui", "class" => "label label-success"),
-                    "7" => array("label" => "Ditolak", "class" => "label label-danger"),
-                    "1" => array("label" => "Dalam Proses", "class" => "label label-warning")
-                  )
-                @endphp
-                <tr>
-                  <td>{{ $value->no }}</td>
-                  <td>{{ number_format($value->total_dev_cost) }}</td>
-                  <td>
-                    @if ( $value->kawasan != "" )
-                      @if ( $value->kawasan->lahan_luas > 0 )
-                      {{ number_format( $value->total_dev_cost / $value->kawasan->lahan_luas,2 ) }}
-                      @endif
-                    @endif
-                  </td>
+                      @php
+                        $array = array (
+                          "6" => array("label" => "Disetujui", "class" => "label label-success"),
+                          "7" => array("label" => "Ditolak", "class" => "label label-danger"),
+                          "1" => array("label" => "Dalam Proses", "class" => "label label-warning")
+                        )
+                      @endphp
+                      <tr>
+                        <td>{{ $value->no }}</td>
+                        <td>{{ number_format($value->total_dev_cost) }}</td>
+                        <td>
+                          @if ( $value->kawasan != "" )
+                            @if ( $value->kawasan->netto_kawasan > 0 )
+                            {{ number_format( $value->total_dev_cost / $value->kawasan->netto_kawasan,2 ) }}
+                            @else
+                            {{ number_format(0,2)}}
+                            @endif
+                          @endif
+                        </td>
 
-                  <td>{{ $value->kawasan->name or '' }}</td>
-                  <td>{{ $value->start_date->format("d/m/Y")}}</td>
-                  <td>{{ $value->end_date->format("d/m/Y") }}</td>                  
-                  <!--td>Status</td-->
-                  <td>
-                    <a class="btn btn-warning" href="{{ url('/')}}/budget/detail?id={{ $value->id }}">Detail</a>                   
-                  </td>
-                  <td>
-                    @if ( $value->approval == "" )
-                     
-                    @else
-                      @if ( $value->approval->approval_action_id == 6 )
-                        @if ( count(\Modules\Budget\Entities\Budget::where("parent_id",$value->id)->get()) <= 0 )
-                          <a class="btn btn-success" href="{{ url('/')}}/budget/revisibudget?id={{ $value->id }}">Revisi</a>
-                        @else
-                          <a class="btn btn-success" href="{{ url('/')}}/budget/list-budgetrevisi?id={{ $value->id }}">Daftar Revisi</a>
-                        @endif
-                      @else
-                      
+                        <td>{{ $value->kawasan->name or '' }}</td>
+                        <td>{{ $value->start_date->format("d/m/Y")}}</td>
+                        <td>{{ $value->end_date->format("d/m/Y") }}</td>                  
+                        <!--td>Status</td-->
+                        <td>
+                          <a class="btn btn-warning" href="{{ url('/')}}/budget/detail?id={{ $value->id }}">Detail</a>                   
+                        </td>
+                        <td>
+                          @if ( $value->approval == "" )
+                           
+                          @else
+                            @if ( $value->approval->approval_action_id == 6 )
+                              @if ( count(\Modules\Budget\Entities\Budget::where("parent_id",$value->id)->get()) <= 0 )
+                                <a class="btn btn-success" href="{{ url('/')}}/budget/revisibudget?id={{ $value->id }}">Revisi</a>
+                              @else
+                                <a class="btn btn-success" href="{{ url('/')}}/budget/list-budgetrevisi?id={{ $value->id }}">Daftar Revisi</a>
+                              @endif
+                            @else
+                            
+                            @endif
+                          @endif
+                        </td>
+                        <td>
+                           @if ( $value->approval != "" )
+                            <span class="{{ $array[$value->approval->approval_action_id]['class'] }}">{{ $array[$value->approval->approval_action_id]['label'] }}</span>
+                            @if ( $value->approval->approval_action_id == "6")
+                            <a class="btn btn-primary" href="{{ url('/')}}/budget/cashflow/?id={{ $value->id }}">({{$value->budget_tahunans->count()}})Budget Cash Flow</a>
+                            @elseif ( $value->approval->approval_action_id == "7") 
+                            <button class="btn btn-info" href="{{ url('/')}}/budget/approval" onclick="updateapproval('{{ $value->id }}','{{ $value->approval->id }}')">Request Approval</button>
+                            @endif
+                          @else
+                          <button class="btn btn-info" id="btn_approval_{{$value->id}}" href="{{ url('/')}}/budget/approval" onclick="requestapproval('{{ $value->id }}')">Request Approval</button>
+                          @endif
+                        </td>
+                      </tr>
                       @endif
                     @endif
-                  </td>
-                  <td>
-                     @if ( $value->approval != "" )
-                      <span class="{{ $array[$value->approval->approval_action_id]['class'] }}">{{ $array[$value->approval->approval_action_id]['label'] }}</span>
-                      @if ( $value->approval->approval_action_id == "6")
-                      <a class="btn btn-primary" href="{{ url('/')}}/budget/cashflow/?id={{ $value->id }}">Budget Cash Flow</a>
-                      @elseif ( $value->approval->approval_action_id == "7") 
-                      <button class="btn btn-info" href="{{ url('/')}}/budget/approval" onclick="updateapproval('{{ $value->id }}','{{ $value->approval->id }}')">Request Approval</button>
-                      @endif
-                    @else
-                    <button class="btn btn-info" id="btn_approval_{{$value->id}}" href="{{ url('/')}}/budget/approval" onclick="requestapproval('{{ $value->id }}')">Request Approval</button>
-                    @endif
-                  </td>
-                </tr>
-                @endif
+                  @endforeach
                 @endforeach
               </tbody>
               </table>

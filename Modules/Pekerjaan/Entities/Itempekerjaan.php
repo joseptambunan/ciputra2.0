@@ -291,7 +291,7 @@ class Itempekerjaan extends Model
 
     public function getChildItemAttribute()
     {
-        return $this->where('parent_id', $this->id)->get();
+        return $this->where('parent_id', $this->id)->orderBy("code")->get();
     }
 
     public function getItemProgressAttribute(){

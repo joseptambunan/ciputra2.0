@@ -213,6 +213,17 @@ class AccessController extends Controller
                     $hpp_update->luas_book = $luas_book;
                     $hpp_update->luas_erem = $luas_erem;
                     $hpp_update->netto = $budget->project->netto;
+                    if ( $budget->project->netto > 0 ){
+                        $hpp_update->hpp_book = $budget->project->total_budget_dev_cost / $budget->project->netto;
+                    }else{
+                        $hpp_update->hpp_book = 0.0;
+                    }
+
+                    if ( $budget->project->hpp_update != "" ){
+                        $hpp_update->hpp_book_before = $budget->project->hpp_update->last()->hpp_book;
+                    }else{
+                        $hpp_update->hpp_book_before = 0;
+                    }
 
                     foreach ($budget->project->budgets as $key => $value) {                        
                         $hpp_update_detail = new HppUpdateDetail;
@@ -604,6 +615,12 @@ class AccessController extends Controller
             $effisiensi_netto = $budget_tahunan->total_devcost / $budget_tahunan->project->netto;
         }
 
+        if ( $budget_tahunan->budget->kawasan != "" ){
+            $asset_id = $budget_tahunan->budget->project_kawasan_id;
+        }else{
+            $asset_id = $budget_tahunan->budget->project_id;
+        }
+
         $spk = $budget_tahunan->budget->project->spks;
         foreach ($spk as $key => $value) {
             # code...
@@ -706,7 +723,50 @@ class AccessController extends Controller
             $array_monthly_total .= $value .",";
         }
 
-        return view("access::user.budget_tahunan_detail",compact("budget_tahunan","project","user","approval","effisiensi_netto","array_carryover","array_cashflow","carry_over","total_nilaasi","array_monthly_cf","array_monthly_co","array_monthly_total"));
+        $nilai_sisa_dev_cost = 0;
+        $nilai_sisa_con_cost = 0;
+        $spk = $budget_tahunan->budget->project->spks;
+        foreach ($spk as $key => $value) {
+            if ( $value->date->format("Y") <= date("Y")){
+                if ( $value->itempekerjaan->group_cost == 1 ){
+                    if ( $value->details != "" ){
+                        foreach ($value->details as $key2 => $value2) {
+                            if ( $value2->asset->id == $asset_id ){
+                                if ( $value->baps != "" ){
+                                    $bayar = $value->baps->sum("nilai_bap_2");
+                                }else{
+                                    $bayar = 0;
+                                }
+
+                                $sisa = $value->nilai - $bayar;
+                                if ( $sisa > 0 ){
+                                    $nilai_sisa_dev_cost = $sisa + $nilai_sisa_dev_cost;  
+                                }                         
+                            }
+                        }
+                    }
+                }else{
+                    if ( $value->tender->rab != "" ){
+                        if ( $value->tender->rab->budget_tahunan != "" ){
+                            if ( $value->tender->rab->budget_tahunan->budget->project_kawasan_id == $asset_id ){
+                                if ( $value->baps != "" ){
+                                    $bayar = $value->baps->sum("nilai_bap_2");
+                                }else{
+                                    $bayar = 0;
+                                }
+
+                                $sisa = $value->nilai - $bayar;
+                                if ( $sisa > 0 ){
+                                    $nilai_sisa_con_cost = $sisa + $nilai_sisa_con_cost;  
+                                } 
+                            }
+                        }
+                    }
+                }   
+            }                        
+        }
+
+        return view("access::user.budget_tahunan_detail",compact("budget_tahunan","project","user","approval","effisiensi_netto","array_carryover","array_cashflow","carry_over","total_nilaasi","array_monthly_cf","array_monthly_co","array_monthly_total","nilai_sisa_dev_cost","nilai_sisa_con_cost"));
     }
 
     public function budget_tahunan_approval(Request $request){
@@ -719,7 +779,15 @@ class AccessController extends Controller
         if ( isset($approval_id->id)){
             $approval_history = ApprovalHistory::find($approval_id->id);
             $approval_history->approval_action_id = $status;
-            $status = $approval_history->save();
+            $approval_history->description = $request->description;
+            $approval_history->save();
+
+            $highest = $budget_id->approval->histories->min("no_urut");
+            if ( $approval_history->no_urut == $highest){     
+                $approval_ac = Approval::find($budget_id->approval->id);
+                $approval_ac->approval_action_id = $status;
+                $status = $approval_ac->save();
+            }
             if ( $status ){
                 return response()->json( ["status" => "0"] );
             }else{

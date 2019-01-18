@@ -259,7 +259,7 @@
               <select class="form-control" id="item_coa">
                 <option value="">( pilih item pekerjaan )</option>
                 @foreach ( $rab->workorder->detail_pekerjaan as $key => $value )                
-                <option value="{{ $value->itempekerjaan->id}}">{{ $value->itempekerjaan->name }}</option>
+                <option value="{{ $value->itempekerjaan->id}}">{{ $value->itempekerjaan->code }} - {{ $value->itempekerjaan->name }}</option>
                 @endforeach
               </select>
             </div>

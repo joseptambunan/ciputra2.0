@@ -91,7 +91,7 @@ class TenderUnit extends CustomModel
  
         //No VO
         foreach ($this->unit_progress as $key => $value) {
-            if ( $value->spkvo_unit->head_type != "Modules\Spk\Entities\Vo" ){
+            if ( $value->spkvo_unit->head_type == "Modules\Spk\Entities\Spk" ){
                 $main_nilai = ( $value->volume * $value->nilai ) + $main_nilai;
                 $real_bobot_s =  ( ( $value->progresslapangan_percent * 100 ) / 100 ) * ( $value->bobot_rab ) ;
                 $real_bobot = $real_bobot + $real_bobot_s;                

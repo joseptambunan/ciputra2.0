@@ -161,16 +161,35 @@ class Budget extends Model
 
     public function getTotalDevCostAttribute(){
         $nilai = 0;
+        $nilai_devcost = 0;
+        $total_kontrak = 0;
         foreach ($this->details as $key => $value) {
             # code...
             if ( \Modules\Pekerjaan\Entities\Itempekerjaan::find($value->itempekerjaan_id) != "" ){
               
                 if ( \Modules\Pekerjaan\Entities\Itempekerjaan::find($value->itempekerjaan_id)->group_cost == "1"){
-                    $nilai = $nilai + ( $value->volume * $value->nilai);
-                }  
+                    $nilai_devcost = $nilai_devcost + ( $value->volume * $value->nilai);
+                } 
             }
         }
-        return $nilai ;
+
+        if ( $this->kawasan != "" ){
+            if ( $this->kawasan->HppDevCostReportSummary->count() > 0 ){
+                $total_kontrak = $this->kawasan->HppDevCostReportSummary->last()->total_kontrak;
+            }else{
+                $total_kontrak = 0;
+            }
+        }else{
+            foreach ($this->project->spks as $key => $value) {
+                foreach ($value->details as $key2 => $value2) {
+                    if ( $value2->asset_id == $this->project->id){
+                        $total_kontrak = $total_kontrak + ($value->nilai + $value->nilai_vo);
+                    }
+                }
+            }
+        }
+
+        return $nilai_devcost  + $total_kontrak;
     }
 
     public function getTotalConCostAttribute(){
@@ -181,7 +200,13 @@ class Budget extends Model
                 $nilai = $nilai + ( $value->volume * $value->nilai);
             }
         }
-        return $nilai ;
+
+        if ( $this->kawasan != "" ){
+
+            return $nilai + $this->kawasan->total_kontrak_con_cost ;
+        }else{
+            return $nilai;
+        }
     }
 
     public function approval_status(){
@@ -228,5 +253,32 @@ class Budget extends Model
         return $this->hasMany("Modules\BudgetDraft\Entities\BudgetDraft","budget_parent_id");
     }
 
-   
+    public function getTotalRencanaDevCostAttribute(){
+        $nilai = 0;
+        $nilai_devcost = 0;
+        $total_kontrak = 0;
+        foreach ($this->details as $key => $value) {
+            # code...
+            if ( \Modules\Pekerjaan\Entities\Itempekerjaan::find($value->itempekerjaan_id) != "" ){
+              
+                if ( \Modules\Pekerjaan\Entities\Itempekerjaan::find($value->itempekerjaan_id)->group_cost == "1"){
+                    $nilai_devcost = $nilai_devcost + ( $value->volume * $value->nilai);
+                } 
+            }
+        }
+
+       
+        return $nilai_devcost ;
+    }
+
+    public function getTotalRencanaConCostAttribute(){
+        $nilai = 0;
+        foreach ($this->details as $key => $value) {
+            # code...
+            if ( \Modules\Pekerjaan\Entities\Itempekerjaan::find($value->itempekerjaan_id)->group_cost == "2"){
+                $nilai = $nilai + ( $value->volume * $value->nilai);
+            }
+        }
+        return $nilai ;
+    }
 }

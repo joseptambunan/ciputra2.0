@@ -52,7 +52,7 @@
                 <label>PT</label>
                 <select class="form-control" name="pt_id" id="pt_id" required>
                   @foreach ( $project->pt as $key6 => $value6)
-                  <option value="{{ $value6->pt->id}}">{{ $value6->pt->name }}</option>
+                  <option value="{{ $value6->pt->id or ''}}">{{ $value6->pt->name or ''}}</option>
                   @endforeach
                 </select>
               </div>
@@ -124,13 +124,7 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-  <footer class="main-footer">
-    <div class="pull-right hidden-xs">
-      <b>Version</b> 2.4.0
-    </div>
-    <strong>Copyright &copy; 2014-2016 <a href="https://adminlte.io">Almsaeed Studio</a>.</strong> All rights
-    reserved.
-  </footer>
+  @include("master/copyright")
 
   
   <!-- Add the sidebar's background. This div must be placed

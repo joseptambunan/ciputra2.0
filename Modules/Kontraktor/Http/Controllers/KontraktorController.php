@@ -5,53 +5,38 @@ namespace Modules\Kontraktor\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
+use Modules\Project\Entities\Project;
 use Modules\Rekanan\Entities\RekananGroup;
-use Modules\User\Entities\User;
-use Modules\Kontraktor\Entities\Kontraktor;
-use Modules\Tender\Entities\Tender;
-use Modules\Pekerjaan\Entities\Itempekerjaan;
-use Modules\Tender\Entities\TenderRekanan;
-use Modules\Tender\Entities\TenderPenawaran;
-use Modules\Tender\Entities\TenderPenawaranDetail;
-
+use Modules\Country\Entities\Country;
+use Modules\Rekanan\Entities\Rekanan;
+use Modules\Globalsetting\Entities\Globalsetting;
 
 class KontraktorController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     * @return Response
-     */
 
     public function __construct()
     {
         $this->middleware('auth');
     }
 
+    /**
+     * Display a listing of the resource.
+     * @return Response
+     */
     public function index(Request $request)
     {
-        $user = User::find(\Auth::user()->id);
-        $rekanan = $user->rekanan;
-        return view('kontraktor::index',compact("user","rekanan"));
+        $project = Project::find($request->session()->get('project_id'));
+        $user = \Auth::user();
+        return view('kontraktor::index',compact("project","user"));
     }
 
     /**
      * Show the form for creating a new resource.
      * @return Response
      */
-    public function show(Request $request)
+    public function create()
     {
-        $tender = Tender::find($request->id);
-        $user = User::find(\Auth::user()->id);
-        $itempekerjaan = Itempekerjaan::find(292);
-        $rekanans = $tender->rekanans;
-        foreach ($rekanans as $key => $value) {
-            if ( $value->rekanan->group->id == $user->rekanan->id ){
-                $status = $value->is_pemenang;               
-                $rekanan = TenderRekanan::find($value->id);
-            }
-        }
-
-        return view('kontraktor::tender_detail',compact("tender","user","itempekerjaan","status","rekanan"));
+        return view('kontraktor::create');
     }
 
     /**
@@ -59,29 +44,47 @@ class KontraktorController extends Controller
      * @param  Request $request
      * @return Response
      */
-    public function tender(Request $request)
+    public function store(Request $request)
     {
-        $user = User::find(\Auth::user()->id);
-        $tender = $user->rekanan->tender;
-        return view("kontraktor::tender",compact("tender","user"));
+        $project = Project::find($request->session()->get('project_id'));
+        $rekanan_group = new RekananGroup;
+        $rekanan_group->npwp_no = $request->npwp_no;
+        $rekanan_group->profile_images = "1286785.png";
+        $rekanan_group->project_id = $project->id;
+        $rekanan_group->save();
+        $data['status'] = 0;
+        $data['id'] = $rekanan_group->id;
+        echo json_encode($data);
+    }   
+
+    /**
+     * Show the specified resource.
+     * @return Response
+     */
+    public function show(Request $request)
+    {
+        $project = Project::find($request->session()->get('project_id'));
+        $user = \Auth::user();
+        $rekanan_group = RekananGroup::find($request->id);
+        $country = Country::get();
+        if ( $rekanan_group->rekanans->count() <= 0 ){
+            $email = "";
+            $telepon = "";
+        }else{
+            $email = $rekanan_group->rekanans->first()->email;
+            $telepon = $rekanan_group->rekanans->first()->telp;
+        }
+
+        return view('kontraktor::show',compact("project","user","country","rekanan_group","telepon","email"));
     }
 
     /**
      * Show the form for editing the specified resource.
      * @return Response
      */
-    public function tenderadd(Request $request)
+    public function edit()
     {
-        $tender_rekanan = TenderRekanan::find($request->id);
-        $user = User::find(\Auth::user()->id);
-        $tender = $tender_rekanan->tender;
-        if ( count($tender_rekanan->penawarans) <= "0" ){
-            $penawaran = "1";
-        }else{
-            $penawaran = count($tender_rekanan->penawarans);
-        }
-        $itempekerjaan = Itempekerjaan::find($tender->rab->parent_id);
-        return view('kontraktor::tender_add',compact("user","tender","tender_rekanan","penawaran","itempekerjaan"));
+        return view('kontraktor::edit');
     }
 
     /**
@@ -91,6 +94,73 @@ class KontraktorController extends Controller
      */
     public function update(Request $request)
     {
+        $rekanan_group = RekananGroup::find($request->rekanan_group_id);
+        if (!file_exists ("./assets/rekanan/".$request->rekanan_group_id )) {
+            mkdir("./assets/rekanan/".$request->rekanan_group_id);
+            chmod("./assets/rekanan/".$request->rekanan_group_id,0755);
+        }
+
+        $global = Globalsetting::where("parameter","ppn")->get();
+        if ( count($global) > 0 ){
+            $ppn = $global->first()->value;
+        }else{
+            $ppn = 0;
+        }
+
+        $target_file = "./assets/rekanan/".$request->rekanan_group_id."/".$_FILES['npwp']['name'];
+            move_uploaded_file($_FILES["npwp"]["tmp_name"], $target_file);
+        $target_file_cv= "./assets/rekanan/".$request->rekanan_group_id."/".$_FILES['cv']['name'];
+            move_uploaded_file($_FILES["cv"]["tmp_name"], $target_file_cv);
+
+        if ( $rekanan_group->rekanans->count() <= 0 ){
+            $rekanan = new Rekanan;
+            $rekanan->rekanan_group_id = $rekanan_group->id;
+            $rekanan->name = $request->nama_perusahaan;
+            $rekanan->surat_alamat = $request->alamat_perusahaan;
+            $rekanan->telp = $request->telp_perusahaan;
+            $rekanan->email = $request->email_perusahaan;
+            $rekanan->cv = $_FILES['cv']['name'];
+            $rekanan->ppn = $ppn;
+            if ( $request->pkp == null ){
+                $rekanan->pkp_status = 2;
+            }else{
+                $rekanan->pkp_status = 1;
+            }
+            $rekanan->save();
+        }else{
+            $rekanan_child_id = $rekanan_group->rekanans->first()->id;
+            $rekanan = Rekanan::find($rekanan_child_id);            
+            $rekanan->rekanan_group_id = $rekanan_group->id;
+            $rekanan->name = $request->nama_perusahaan;
+            $rekanan->surat_alamat = $request->alamat_perusahaan;
+            $rekanan->telp = $request->telp_perusahaan;
+            $rekanan->email = $request->email_perusahaan;
+            $rekanan->cv = $_FILES['cv']['name'];
+            $rekanan->ppn = $ppn;
+            if ( $request->pkp == null ){
+                $rekanan->pkp_status = 2;
+            }else{
+                $rekanan->pkp_status = 1;
+            }
+
+            $rekanan->save();
+        }
+
+        if ( $request->pkp == null ){
+            $rekanan->coa_ppn = 2;
+        }else{
+            $rekanan->coa_ppn = 1;
+        }
+
+        $rekanan_group->name = $request->nama_perusahaan;
+        $rekanan_group->npwp_image = $_FILES['npwp']['name'];
+        $rekanan_group->npwp_kota = $request->kota;
+        $rekanan_group->npwp_alamat = $request->alamat_perusahaan;
+        $rekanan_group->description = $request->description;
+        $rekanan_group->save();
+        
+
+        return redirect("/kontraktor/detail/?id=".$rekanan_group->id );
     }
 
     /**
@@ -101,90 +171,15 @@ class KontraktorController extends Controller
     {
     }
 
-    public function savepenawaran(Request $request){
-
-        $tender_rekanan = TenderRekanan::find($request->tender_rekanan);
-
-        //$tender_penawaran_no = \App\Helpers\Document::new_number('TENDERPENAWARAN', $tender_rekanan->tender->rab->workorder->department_from);
-        if ( $request->penawaran == 1 ){
-            $penawaran = new TenderPenawaran;
-            $penawaran->tender_rekanan_id = $request->tender_rekanan;
-            $penawaran->no = null;
-            $penawaran->description = $request->description;
-            $penawaran->date = date("Y-m-d");
-            $penawaran->created_by = \Auth::user()->id;
-
-            if ( $_FILES['file_upload']['tmp_name'] != ""){
-                $array_mime = array("application/pdf","application/vnd.openxmlformats-officedocument.wordprocessingml.document","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet","application/vnd.ms-excel","application/msword");
-                $mime = mime_content_type($_FILES['file_upload']['tmp_name']);
-                if ( in_array($mime, $array_mime)){
-                    $target_file =  $_SERVER["DOCUMENT_ROOT"]."/assets/tender/".$tender_rekanan->tender->id."/".$_FILES['file_upload']['name'];
-                    move_uploaded_file($_FILES["file_upload"]["tmp_name"], $target_file);
-                    $penawaran->file_attachment = $_FILES['file_upload']['name'];
-                    $penawaran->save();
-                }else{
-                    print("<script type='text/javascript'>alert('Format file tidak bisa diterima. Silahkan upload sesuai format yang diminta');</script>");
-                }
-            }else{
-
-                $penawaran->save();
-            }
+    public function ceknpwp(Request $request){
+        $npwp = $request->npwp;
+        $kontraktor = RekananGroup::where("npwp_no",$npwp)->count();
+        if ( $kontraktor > 0) {
+            $data['status'] = 0;
         }else{
-            $penawaran_id = $tender_rekanan->penawarans->last()->id;
+            $data['status'] = 1;
         }
 
-
-        foreach ($request->input_rab_id as $key => $value) {
-            if ( $request->penawaran == 1 ){
-                if ( $request->input_nilai_[$key] != "" ){
-                    $nilai = str_replace(",","",$request->input_nilai_[$key]);
-                }else{
-                    $nilai = 0;
-                }
-                $tender_penawaran_detail = new TenderPenawaranDetail;
-                $tender_penawaran_detail->tender_penawaran_id = $penawaran->id;
-                $tender_penawaran_detail->rab_pekerjaan_id = $request->input_rab_id[$key];
-                $tender_penawaran_detail->keterangan = $request->input_rab_id[$key];
-                $tender_penawaran_detail->nilai = $nilai;
-                $tender_penawaran_detail->volume = $request->input_volume[$key];
-                $tender_penawaran_detail->save();
-            }
-        }
-
-        return redirect("/kontraktor/tender/detail?id=".$tender_rekanan->tender->id);
-    }
-
-    public function viewpenawaran(Request $request){
-        $penawaran = TenderPenawaran::find($request->id);
-        $itempekerjaan   = Itempekerjaan::find($penawaran->rekanan->tender->rab->parent_id);
-        $user = User::find(\Auth::user()->id);
-        $tender = $penawaran->rekanan->tender;
-        $tender_rekanan = $penawaran->rekanan;
-        return view("kontraktor::penawaran_detail",compact("penawaran","itempekerjaan","user","tender","tender_rekanan"));
-    }
-
-    public function updatepenawaran(Request $request){
-        foreach ($request->input_id_ as $key => $value) {
-            if ( $request->input_nilai_[$key]  == "" ){
-                $nilai = 0;
-            }else{
-                $nilai = str_replace(",", "", $request->input_nilai_[$key]);
-            }
-
-            $tender_penawaran_detail = TenderPenawaranDetail::find($request->input_id_[$key]);
-            $tender_penawaran_detail->nilai = $nilai;
-            $tender_penawaran_detail->save();
-        }
-
-        return redirect("/kontraktor/tender/detail?id=".$request->tender_id);
-    }
-
-    public function addpenawaran2(Request $request){
-        $tender_rekanan = TenderRekanan::find($request->id);
-        foreach ($tender_rekanan->penawarans as $key => $value) {
-            if ( $key == "1"){
-                $tender_detail = $value->details;
-            }
-        }
+        echo json_encode($data);
     }
 }

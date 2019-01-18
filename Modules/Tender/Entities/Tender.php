@@ -102,7 +102,7 @@ class Tender extends CustomModel
     }
 
     public function getProjectAttribute(){
-        return $this->rab->workorder->project->first();
+        return $this->rab->workorder->project;
     }
 
     public function getTenderApproveAttribute(){

@@ -42,22 +42,13 @@
                 <table class="table">
                   <thead class="head_table">
                     <tr>
-                      <td>COA</td>
+                      <td>COA Pekerjaan</td>
                       <td>Item Pekerjaan</td>
-                      <td>Total Budget SPK</td>
-                      <td>Total Budget Cash Flow</td>
-                      <td>Januari</td>
-                      <td>Februari</td>
-                      <td>Maret</td>
-                      <td>April</td>
-                      <td>Mei</td>
-                      <td>Juni</td>
-                      <td>Juli</td>
-                      <td>Agustus</td>
-                      <td>September</td>
-                      <td>Oktober</td>
-                      <td>November</td>
-                      <td>Desember</td>
+                      <td>No. SPK</td>
+                      <td>Nilai SPK</td>
+                      <td>Terbayar</td>
+                      <td>Sisa Terbayar</td>
+                      <td>Set to Carry Over</td>
                     </tr>
                   </thead>
                   <tbody id="itemlist">

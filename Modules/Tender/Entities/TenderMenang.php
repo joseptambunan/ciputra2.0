@@ -13,7 +13,7 @@ class TenderMenang extends CustomModel
 
     public function getPtAttribute()
     {
-        return $this->tender_rekanan->tender->rab->workorder->project->first()->pt_user->first()->pt;
+        return $this->tender_rekanan->tender->rab->workorder->project->first()->pt->first()->pt;
     }
 
     public function tender_rekanan()

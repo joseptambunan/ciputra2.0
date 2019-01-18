@@ -37,18 +37,12 @@
                 {{ csrf_field() }}
                 <div class="form-group">
                   <label>No. RAB</label>
-                  <select class="form-control" name="tender_rab">
+                  <select class="form-control select2" name="tender_rab">
                     <option value="">(pilih nama tender)</option>
-                    @foreach ( $workorder as $key2 => $value2  )
-                      @foreach ( $value2->rabs as $key => $value )
-                        @if ( $value->approval != "" )
-                          @if ( $value->approval->approval_action_id == 6 )
-                            @if ( $value->parent_id != "")
-                              @if ( count(Modules\Tender\Entities\Tender::where("rab_id",$value->id)->get()) <= 0 )
-                                <option value="{{ $value->id }}">{{ $value->no }} / {{ \Modules\Pekerjaan\Entities\Itempekerjaan::find($value->parent_id)->code }} - {{ \Modules\Pekerjaan\Entities\Itempekerjaan::find($value->parent_id)->name }}</option>
-                              @endif
-                            @endif
-                          @endif
+                    @foreach ( $workorder as $key => $value )                      
+                      @foreach ( $value->rabs as $key2 => $value2  )
+                        @if ( $value2->tenders->count() == 0 )
+                        <option value="{{ $value2->id }}">{{ $value2->no }} / {{ $value2->pekerjaans->last()->itempekerjaan->parent->code or '' }} - {{ $value2->pekerjaans->last()->itempekerjaan->parent->name or '' }}</option>
                         @endif
                       @endforeach
                     @endforeach
@@ -77,13 +71,7 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-  <footer class="main-footer">
-    <div class="pull-right hidden-xs">
-      <b>Version</b> 2.4.0
-    </div>
-    <strong>Copyright &copy; 2014-2016 <a href="https://adminlte.io">Almsaeed Studio</a>.</strong> All rights
-    reserved.
-  </footer>
+  @include("master/copyright")
 
   
   <!-- Add the sidebar's background. This div must be placed
@@ -94,5 +82,7 @@
 
 @include("master/footer_table")
 @include("rab::app")
+<!-- Select2 -->
+<script src="{{ url('/')}}/assets/bower_components/select2/dist/js/select2.full.min.js"></script>
 </body>
 </html>

@@ -38,11 +38,11 @@
               <input type="hidden" class="form-control" name="budget_detail_id" value="{{ $budgetdetail->id }}"> 
               <div class="form-group">
                 <label>Volume</label>
-                <input type="text" class="nilai_budget form-control" name="volume" id="volume" value="{{ number_format($budgetdetail->volume ) }}" required>
+                <input type="text" class="nilai_budget form-control" name="volume" id="volume" value="{{ number_format($budgetdetail->volume ) }}" onKeyUp="showbar();" required>
               </div>
               <div class="form-group">
                 <label>Nilai Harga Satuan</label>
-                <input type="text" class="nilai_budget form-control" name="nilai" id="nilai" value="{{ number_format($budgetdetail->nilai ) }}" required>
+                <input type="text" class="nilai_budget form-control" name="nilai" id="nilai" value="{{ number_format($budgetdetail->nilai ) }}" onKeyUp="showbar();" required>
               </div> 
               <div class="form-group">
                 <label>Keterangan</label>
@@ -50,7 +50,7 @@
               </div>          
               <div class="form-group">
                 <i class="fa fa-refresh ld ld-spin" id="loading" style="display: none;"></i>                
-                <button class="btn btn-info submitbtn" type="submit">Simpan</button>
+                <button class="btn btn-info submitbtn" type="submit" onClick="loadingbar();">Simpan</button>
                 <a class="btn btn-warning submitbtn" href="{{ url('/')}}/budget/detail?id={{ $budgetdetail->budget->id }}">Kembali</a>
               </div>
             </div>
@@ -137,6 +137,16 @@
 <script type="text/javascript">
   function setnilai(nilai){
     $("#nilai").val(nilai);
+  }
+
+  function loadingbar(){
+    $("#loading").show();
+    $(".submitbtn").hide();
+  }
+
+  function showbar(){    
+    $("#loading").hide();
+    $(".submitbtn").show();
   }
 </script>
 </script>

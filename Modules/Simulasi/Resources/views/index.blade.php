@@ -48,7 +48,7 @@
                   <tbody>
                   @php $start = 0; @endphp
                   @foreach ( $voucher as $key => $value )
-                  @if ( $value->project_id == 66 )
+                  @if ( $value->project_id == 9 )
                   @if ( $value->nilai > 0 )
                     <tr>
                       <td>{{ $start + 1  }}</td>

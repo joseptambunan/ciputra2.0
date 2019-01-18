@@ -11,4 +11,8 @@ class ItempekerjaanHarga extends Model
     public function project(){
     	return $this->belongsTo("Modules\Project\Entities\Project");
     }
+
+    public function details(){
+    	return $this->hasMany("Modules\Pekerjaan\Entities\ItempekerjaanHargaDetail");
+    }
 }

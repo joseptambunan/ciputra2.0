@@ -29,6 +29,7 @@
             <div class="box-body">
               <div class="col-md-6">
                 <a href="{{ url('/')}}/rekanan/add" class="btn btn-primary">Tambah Rekanan</a>
+                <a href="{{ url('/')}}/rekanan/usulan" class="btn btn-warning">Daftar Usulan Proyek</a>
               </div>
               <div class="col-md-12">
             	<table id="example3" class="table table-bordered table-hover">

@@ -8,6 +8,7 @@ $( document ).ready(function() {
     });
 
   $(".nilai_budgets").number(true);
+  $('.select2').select2()
 });
   
 $("#item_coa").change(function(){

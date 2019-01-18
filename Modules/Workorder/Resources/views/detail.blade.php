@@ -73,24 +73,24 @@
               </div>
                                
               <div class="box-footer">
-                @if ( $workorder->detail_pekerjaan != "" && $workorder->details != "" )
-                @if ( $workorder->approval == "" )
-                <button type="submit" class="btn btn-primary">Simpan</button>
-                <button type="button" class="btn btn-info" onclick="woapprove('{{ $workorder->id }}')">Request Approve</button>
-                @else
-                  @php
-                    $array = array (
-                      "6" => array("label" => "Disetujui", "class" => "label label-success"),
-                      "7" => array("label" => "Ditolak", "class" => "label label-danger"),
-                      "1" => array("label" => "Dalam Proses", "class" => "label label-warning")
-                    )
-                  @endphp
-                  <span class="{{ $array[$workorder->approval->approval_action_id]['class'] }}">{{ $array[$workorder->approval->approval_action_id]['label'] }}</span>
-                  <a href="{{ url('/')}}/workorder/approval_history/?id={{ $workorder->id}}" class="btn btn-primary">Histroy Approval</a>
-                  @if ( $workorder->approval->approval_action_id == "7")
-                    <button type="button" class="btn btn-info" onclick="woupdapprove('{{ $workorder->id }}')">Request Approve</button>
+                @if ( count($workorder->detail_pekerjaan) > 0 && count($workorder->details) > 0 )
+                  @if ( $workorder->approval == "" )
+                  <button type="submit" class="btn btn-primary">Simpan</button>
+                  <button type="button" class="btn btn-info" onclick="woapprove('{{ $workorder->id }}')">Request Approve</button>
+                  @else
+                    @php
+                      $array = array (
+                        "6" => array("label" => "Disetujui", "class" => "label label-success"),
+                        "7" => array("label" => "Ditolak", "class" => "label label-danger"),
+                        "1" => array("label" => "Dalam Proses", "class" => "label label-warning")
+                      )
+                    @endphp
+                    <span class="{{ $array[$workorder->approval->approval_action_id]['class'] }}">{{ $array[$workorder->approval->approval_action_id]['label'] }}</span>
+                    <a href="{{ url('/')}}/workorder/approval_history/?id={{ $workorder->id}}" class="btn btn-primary">Histroy Approval</a>
+                    @if ( $workorder->approval->approval_action_id == "7")
+                      <button type="button" class="btn btn-info" onclick="woupdapprove('{{ $workorder->id }}')">Request Approve</button>
+                    @endif
                   @endif
-                @endif
                 @else
                 <ul>
                   <li>Workorder harus memiliki pekerjaan</li>
@@ -190,9 +190,9 @@
                     @endif
                   @else
                     @if ( $workorder->approval->approval_action_id == "7")
-                      <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modal-info">
-                          Tambah Unit
-                      </button>
+                      <a class="btn btn-info" href="{{ url('/')}}/workorder/unit?id={{ $workorder->id}}">
+                        Tambah Unit
+                    </a>
                     @endif
                   @endif<br>
                   <table class="table table-bordered">
@@ -215,14 +215,17 @@
                             @if ( $workorder->approval == "" )
                             <button class="btn btn-danger" onclick="removeunitswo('{{ $value->id }}')">Delete</button>
                             @else
-                            @php
-                              $array = array (
-                                "6" => array("label" => "Disetujui", "class" => "label label-success"),
-                                "7" => array("label" => "Ditolak", "class" => "label label-danger"),
-                                "1" => array("label" => "Dalam Proses", "class" => "label label-warning")
-                              )
-                            @endphp
-                            <span class="{{ $array[$workorder->approval->approval_action_id]['class'] }}">{{ $array[$workorder->approval->approval_action_id]['label'] }}</span>
+                              @php
+                                $array = array (
+                                  "6" => array("label" => "Disetujui", "class" => "label label-success"),
+                                  "7" => array("label" => "Ditolak", "class" => "label label-danger"),
+                                  "1" => array("label" => "Dalam Proses", "class" => "label label-warning")
+                                )
+                              @endphp
+                              <span class="{{ $array[$workorder->approval->approval_action_id]['class'] }}">{{ $array[$workorder->approval->approval_action_id]['label'] }}</span>
+                              @if ( $workorder->approval->approval_action_id == 7 )
+                                <button class="btn btn-danger" onclick="removeunitswo('{{ $value->id }}')">Delete</button>
+                              @endif
                             @endif
                           </td>
                        </tr>
@@ -245,13 +248,7 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-  <footer class="main-footer">
-    <div class="pull-right hidden-xs">
-      <b>Version</b> 2.4.0
-    </div>
-    <strong>Copyright &copy; 2014-2016 <a href="https://adminlte.io">Almsaeed Studio</a>.</strong> All rights
-    reserved.
-  </footer>
+  @include("master/copyright")
 
   
   <!-- Add the sidebar's background. This div must be placed

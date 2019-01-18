@@ -27,7 +27,7 @@
    
             <!-- /.box-header -->
             <div class="box-body">
-              <form action="{{ url('/')}}/simulasi/store" method="post" name="form1"> 
+              <form action="{{ url('/')}}/simulasi/update" method="post" name="form1"> 
                 {{ csrf_field() }}
                 <div class="col-md-12">
                
@@ -53,7 +53,7 @@
                       <td>{{ $value->tender->no }}</td>
                       <td>{{ $value->tender->name }}</td>
                       <td>{{ $value->rekanan->name }}</td>
-                      <td>{{ $value->tender->project->name }}</td>
+                      <td>{{ $value->tender->rab->workorder->project->name }}</td>
                       <td>CONSTRUCTION AND DEVELOPMENT</td>
                       <td>
                         @if ( $value->doc_bayar_status == "0" )

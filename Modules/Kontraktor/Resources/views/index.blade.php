@@ -3,136 +3,80 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Admin QS | Kontraktor</title>
-  <!-- Tell the browser to be responsive to screen width -->
-  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
-  <!-- Bootstrap 3.3.7 -->
-  <link rel="stylesheet" href="{{ url('/') }}/assets/bower_components/bootstrap/dist/css/bootstrap.min.css">
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="{{ url('/') }}/assets/bower_components/font-awesome/css/font-awesome.min.css">
-  <!-- Ionicons -->
-  <link rel="stylesheet" href="{{ url('/') }}/assets/bower_components/Ionicons/css/ionicons.min.css">
-  <!-- DataTables -->
-  <link rel="stylesheet" href="{{ url('/') }}/assets/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
-  <!-- Theme style -->
-  <link rel="stylesheet" href="{{ url('/') }}/assets/dist/css/AdminLTE.min.css">
-  <!-- AdminLTE Skins. Choose a skin from the css/skins
-       folder instead of downloading all of them to reduce the load. -->
-  <link rel="stylesheet" href="{{ url('/') }}/assets/dist/css/skins/_all-skins.min.css">
-
-  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-  <!--[if lt IE 9]>
-  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-  <![endif]-->
-
-  <!-- Google Font -->
-  <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
-  <style type="text/css">
-    .head_table{
-      background-color: #009688;
-      color:white;
-      font-weight: bolder;
-    }
-  </style>
+  <title>Admin QS | Dashboard</title>
+  @include("master/header")
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
 
-  <header class="main-header">
-    <!-- Logo -->
-    <a href="#" class="logo">
-      <!-- mini logo for sidebar mini 50x50 pixels -->
-      <span class="logo-mini"><b>A</b>LT</span>
-      <!-- logo for regular state and mobile devices -->
-      <span class="logo-lg"><b>Admin</b>LTE</span>
-    </a>
-    <!-- Header Navbar: style can be found in header.less -->
-    <nav class="navbar navbar-static-top">
-      <!-- Sidebar toggle button-->
-      <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </a>
+  @include("master/sidebar_project")
 
-    </nav>
-  </header>
-  <aside class="main-sidebar">
-    @include("kontraktor::sidebar")  
-  </aside>
-
-  
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <h1>Data Rekanan Proyek <strong> {{ $project->name }}</strong></h1>
 
+    </section>
 
     <!-- Main content -->
     <section class="content">
       <div class="row">
         <div class="col-xs-12">
           <div class="box">
-            <div class="box-header">
-              <h5>Selamat Datang , <strong>{{ $rekanan->name }}</strong></h5>
-              
-            </div>
+   
             <!-- /.box-header -->
             <div class="box-body">
-              <!-- TO DO List -->              
-              <div class="box-header">
-                <i class="ion ion-clipboard"></i>
-                @if ( count($rekanan->rekanans) > 0 )
-                  @foreach ( $rekanan->rekanans as $key2 => $value2)
-                    @foreach ( $value2->tender_rekanans as $key3 => $value3 )
-                      <h3 class="box-title">Anda Memiliki undangan tender di bawah ini</h3>                       
-                    @endforeach
-                  @endforeach
-                @endif               
+              <div class="col-md-6">
+                <h3 class="header">Cek NPWP</h3>            	   
+                  {{ csrf_field() }}                  
+                  <div class="form-group">
+                    <label for="exampleInputEmail1">NPWP</label>
+                    <input type="text" name="npwp" id="npwp" class="form-control" autocomplete="off" data-inputmask='"mask":"99.999.999.9-999.999"' data-mask>
+                  </div>                  
+                  <div class="box-footer">
+                  <i class="fa fa-refresh ld ld-spin" id="loading" style="display: none;"></i>
+                    <button type="button" onclick="cekNpwp();" class="btn btn-primary submitbtn" id="btn_submit">Cek</button>
+                  </div>              	
               </div>
-              <!-- /.box-header -->
-              <div class="box-body col-md-3">
-                <!-- See dist/js/pages/dashboard.js to activate the todoList plugin -->
-                <ul class="todo-list">
-                  @if ( count($rekanan->rekanans) > 0 )
-                    @foreach ( $rekanan->rekanans as $key2 => $value2)
-                      @foreach ( $value2->tender_rekanans as $key3 => $value3 )
-                        @if ( count($value3->tender->spks) == "0")
-                        <li><span class="text"><a href="{{ url('/')}}/kontraktor/tender/detail?id={{ $value3->tender->id}}">{{ $value3->tender->no }}</a></span></li> 
-                        @endif
-                      @endforeach
+
+              <div class="col-md-12 table-responsive">
+                <table class="table table-bordered">
+                  <thead class="head_table">
+                    <tr>
+                      <td>Nama</td>
+                      <td>NPWP</td>
+                      <td>Alamat</td>
+                      <td>Email</td>
+                      <td>Telepon</td>
+                      <td>Status</td>
+                      <td>Detail</td>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @foreach ( $project->rekanans as $key => $value )   
+                      @if ( $value->rekanans->count() > 0 )                 
+                        <tr>
+                          <td>{{ $value->name or ''}}</td>
+                          <td>{{ $value->npwp_no or ''}}</td>
+                          <td>{{ $value->npwp_alamat or ''}}</td>
+                          <td>{{ $value->rekanans->first()->email or ''}}</td>
+                          <td>{{ $value->rekanans->first()->telp or ''}}</td>
+                          <td>
+                            @if ( $value->rekanans->first()->gabung_date == "")
+                              <span class="label label-warning">Dalam Pengecekan</span>
+                            @else
+                              <span class="label label-success">Diterima</span><br>
+                              <span>Tanggal : <strong>{{ $value->rekanans->first()->gabung_date }}</strong></span>
+                            @endif
+                          </td>
+                          <td><a class="btn btn-warning" href="{{ url('/')}}/kontraktor/detail/?id={{ $value->id }}">Detail</a></td>
+                        </tr>
+                      @endif
                     @endforeach
-                  @endif                                      
-                </ul>
+                  </tbody>
+                </table>
               </div>
-              <!-- /.box-body -->  
-              <br><br><br>
-              <h3 class="box-title"><strong><center>Data SPK</center></strong></h3>
-              <table id="example2" class="table table-bordered table-hover table-responsive">
-                <thead class="head_table">
-                <tr>
-                  <th>No.</th>
-                  <th>No Spk.</th>
-                  <th>Item Pekerjaan</th>
-                  <th>Project</th>
-                  <th>Detail</th>
-                </tr>
-                </thead>
-                <tbody>
-                  @foreach ( $rekanan->spks as $key => $value )
-                  <tr>
-                    <td>{{ $key + 1 }}</td>
-                    <td>{{ $value->no }}</td>
-                    <td>{{ \Modules\Pekerjaan\Entities\Itempekerjaan::find($value->itempekerjaan)->name }}</td>
-                    <td>{{ $value->project->name }}</td>
-                    <td><a class="btn btn-primary" href="{{ url('/')}}/kontraktor/spk/detail?id={{$value->id}}">Detail</a></td>
-                  </tr>
-                  @endforeach
-                </tbody>
-              </table>
             </div>
             <!-- /.box-body -->
           </div>
@@ -146,21 +90,18 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-  <footer class="main-footer">
-    <div class="pull-right hidden-xs">
-      <b>Version</b> 2.4.0
-    </div>
-    <strong>Copyright &copy; 2014-2016 <a href="https://adminlte.io">Almsaeed Studio</a>.</strong> All rights
-    reserved.
-  </footer>
-
- 
+  @include("master/copyright")
   <!-- Add the sidebar's background. This div must be placed
        immediately after the control sidebar -->
   <div class="control-sidebar-bg"></div>
 </div>
 <!-- ./wrapper -->
 
-@include("kontraktor::footer")
+@include("master/footer_table")
+
+<script src="{{ url('/')}}/assets/plugins/input-mask/jquery.inputmask.js"></script>
+<script src="{{ url('/')}}/assets/plugins/input-mask/jquery.inputmask.date.extensions.js"></script>
+<script src="{{ url('/')}}/assets/plugins/input-mask/jquery.inputmask.extensions.js"></script>
+@include("kontraktor::app")
 </body>
 </html>

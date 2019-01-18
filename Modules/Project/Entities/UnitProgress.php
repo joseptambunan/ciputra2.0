@@ -101,10 +101,17 @@ class UnitProgress extends CustomModel
 
     public function getBobotRabAttribute(){
         $nilai = 0;
-        if ( isset($this->spkvo_unit->spk_detail)){            
-            $volume = $this->spkvo_unit->spk_detail->spk->tender->rab->pekerjaans->where("itempekerjaan_id",$this->itempekerjaan_id)->first()->volume;
-            $nilai  = $this->spkvo_unit->spk_detail->spk->tender->rab->pekerjaans->where("itempekerjaan_id",$this->itempekerjaan_id)->first()->nilai;
-            return (( $volume * $nilai ) / $this->spkvo_unit->spk_detail->spk->tender->rab->nilai ) * 100 ;
+        if ( isset($this->spkvo_unit->spk_detail)){
+
+            if ( isset($this->spkvo_unit->spk_detail->spk->tender )){            
+                $volume = $this->spkvo_unit->spk_detail->spk->tender->rab->pekerjaans->where("itempekerjaan_id",$this->itempekerjaan_id)->first()->volume;
+                $nilai  = $this->spkvo_unit->spk_detail->spk->tender->rab->pekerjaans->where("itempekerjaan_id",$this->itempekerjaan_id)->first()->nilai;
+                return (( $volume * $nilai ) / $this->spkvo_unit->spk_detail->spk->tender->rab->nilai ) * 100 ;
+            }else{
+                return 0;
+            }
+        }else{
+            return 0;
         }
     }
 }

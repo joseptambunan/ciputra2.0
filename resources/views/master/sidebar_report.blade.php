@@ -56,11 +56,29 @@
             </span>
           </a>
           <ul class="treeview-menu" style="display: block;">
-            <li><a href="{{ url('/')}}/report/"><i class="fa fa-circle-o"></i> Home</a></li>
+            <li><a href="{{ url('/')}}/report/"><i class="fa fa-circle-o"></i> Master Data</a></li>
+            <li><a href="{{ url('/')}}/report/project/detail/?id={{$project->id}}"><i class="fa fa-circle-o"></i> Dashboard Proyek</a></li>
             <li><a href="{{ url('/')}}/report/project/document/?id={{ $project->id}}"><i class="fa fa-circle-o"></i> Dokumen</a></li>
             <li><a href="#"><i class="fa fa-circle-o"></i> Aktivitas</a></li>
-            <li><a href="{{ url('/')}}/report/project/budget/?id={{ $project->id}}"><i class="fa fa-circle-o"></i>Report HPP Summary</a></li>
-            <li><a href="{{ url('/')}}/report/project/budgetdetail/?id={{ $project->id}}"><i class="fa fa-circle-o"></i>Report HPP Detail</a></li>
+            <li class="treeview">
+              <a href="#">
+                <i class="fa fa-pie-chart"></i>
+                <span>Report</span>
+                <span class="pull-right-container">
+                  <i class="fa fa-angle-left pull-right"></i>
+                </span>
+              </a>
+              <ul class="treeview-menu">
+                <li><a href="{{ url('/')}}/report/project/budget/?id={{ $project->id}}"><i class="fa fa-circle-o"></i>Report HPP Summary</a></li>
+                <li><a href="{{ url('/')}}/report/project/budgetdetail/?id={{ $project->id}}"><i class="fa fa-circle-o"></i>Report HPP Detail</a></li>
+                <li><a href="{{ url('/')}}/report/project/costreport/?id={{ $project->id}}"><i class="fa fa-circle-o"></i>Cost Report</a></li>
+                <!-- <li><a href="#"><i class="fa fa-circle-o"></i>Kontraktor</a></li> -->
+                <li><a href="{{ url('/')}}/report/project/reportkawasan/?id={{ $project->id}}"><i class="fa fa-circle-o"></i>Kawasan</a></li>
+                <li><a href="{{ url('/')}}/report/project/reportpekerjaan/?id={{ $project->id}}"><i class="fa fa-circle-o"></i>Pekerjaan</a></li>
+                <li><a href="{{ url('/')}}/report/project/rakor/?id={{ $project->id}}"><i class="fa fa-circle-o"></i>RAKOR</a></li>
+                <li><a href="#"><i class="fa fa-circle-o"></i>RAKER</a></li>
+              </ul>
+            </li>                        
           </ul>
         </li>       
       </ul>

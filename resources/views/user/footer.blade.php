@@ -17,19 +17,7 @@
 
 <!-- ChartJS 1.0.1 -->
 <script src="{{ url('/') }}/assets/users/plugins/chartjs2/Chart.min.js"></script>
-<script>
-  /*$(function () {
-    $("#example1").DataTable();
-    $('#example2').DataTable({
-      "paging": true,
-      "lengthChange": false,
-      "searching": false,
-      "ordering": false,
-      "info": true,
-      "autoWidth": false
-    });
-  });*/
-</script>
+
 <script type="text/javascript">
   function setapproved(values){
     var budget_id = $("input[name^='budget_id']").serializeArray();

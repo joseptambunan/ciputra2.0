@@ -46,10 +46,11 @@
                 </thead>
                 <tbody>
                   @foreach ( $tenders as $key => $value )
+                  @if ( $value->spks->count() <= 0 )
                   <tr>
                     <td>{{ $value->no }}</td>
                     <td>{{ $value->rab->no or '-' }}</td>
-                    <td>{{ \Modules\Pekerjaan\Entities\Itempekerjaan::find($value->rab->parent_id)->name }}</td>
+                    <td>{{ \Modules\Pekerjaan\Entities\Itempekerjaan::find($value->rab->pekerjaans->last()->itempekerjaan->parent->id)->name }}</td>
                     <td>{{ number_format($value->rab->nilai)}}</td>
                     <td>{{ \App\User::find($value->created_by)->user_name or '-' }}</td>
                     <td>{{ $value->created_at }}</td>
@@ -71,6 +72,7 @@
                       @endif
                     </td>
                   </tr>
+                  @endif
                   @endforeach 
                 </tbody>
               </table>

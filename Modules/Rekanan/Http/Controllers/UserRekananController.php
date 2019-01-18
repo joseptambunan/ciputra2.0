@@ -192,7 +192,7 @@ class UserRekananController extends Controller
     public function addpenawaran(Request $request){
         $rekanan = TenderRekanan::find($request->id);
         $rab = $rekanan->tender->rab;
-        $itempekerjaan = Itempekerjaan::find($rab->parent_id);
+        $itempekerjaan = Itempekerjaan::find($rab->pekerjaans->last()->itempekerjaan->parent->id);
         $user = \Auth::user();
         $project = Project::find($request->session()->get('project_id'));
         $rekanan_group = RekananGroup::find($request->session()->get('rekanan_id'));
@@ -231,7 +231,7 @@ class UserRekananController extends Controller
         $tenderpenawaran = TenderPenawaran::find($request->id);
         $tenderRekanan = $tenderpenawaran->rekanan;
         $rab = $tenderRekanan->tender->rab;
-        $itempekerjaan = Itempekerjaan::find($rab->parent_id);
+        $itempekerjaan = Itempekerjaan::find($rab->pekerjaans->last()->itempekerjaan->parent->id);
         $user = \Auth::user();
         $project = Project::find($request->session()->get('project_id'));
         $penawaran_id = "";
@@ -249,7 +249,7 @@ class UserRekananController extends Controller
         $tenderpenawaran = TenderPenawaran::find($request->id);
         $tenderRekanan = $tenderpenawaran->rekanan;
         $rab = $tenderRekanan->tender->rab;
-        $itempekerjaan = Itempekerjaan::find($rab->parent_id);
+        $itempekerjaan = Itempekerjaan::find($rab->pekerjaans->last()->itempekerjaan->parent->id);
         $user = \Auth::user();
         $project = Project::find($request->session()->get('project_id'));
         $penawaran_id = "";
@@ -294,7 +294,7 @@ class UserRekananController extends Controller
         $rab = $tender->rab;
         $user = \Auth::user();
         $project = Project::find($request->session()->get('project_id'));
-        $itempekerjaan = Itempekerjaan::find($rab->parent_id);
+        $itempekerjaan = Itempekerjaan::find($rab->pekerjaans->last()->itempekerjaan->parent->id);
         $rekanan_group = RekananGroup::find($request->session()->get('rekanan_id'));
         return view("rekanan::user.detail_step3",compact("tender","itempekerjaan","user","project","rekanan_group"));
     }
@@ -332,7 +332,7 @@ class UserRekananController extends Controller
         $tenderpenawaran = TenderPenawaran::find($request->id);
         $tenderRekanan = $tenderpenawaran->rekanan;
         $rab = $tenderRekanan->tender->rab;
-        $itempekerjaan = Itempekerjaan::find($rab->parent_id);
+        $itempekerjaan = Itempekerjaan::find($rab->pekerjaans->last()->itempekerjaan->parent->id);
         $user = \Auth::user();
         $project = Project::find($request->session()->get('project_id'));
         $penawaran_id = "";

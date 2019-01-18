@@ -165,7 +165,7 @@ class PekerjaanController extends Controller
         $itempekerjaan->parent_id = $request->item_pekerjaan;
         $itempekerjaan->department_id = $parent->department_id;
         $itempekerjaan->group_cost = $parent->group_cost;
-        $itempekerjaan->code       = $request->code;
+        $itempekerjaan->code       = $parent->code.".".$parent->child_item->count();
         $itempekerjaan->name       = $request->item_child;
         $itempekerjaan->ppn        = $parent->ppn / 100;
         $itempekerjaan->tag        = $parent->tag;

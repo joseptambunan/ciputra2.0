@@ -51,4 +51,6 @@ Route::group(['middleware' => 'web', 'prefix' => 'project', 'namespace' => 'Modu
     Route::get('/unit-hadap','ProjectController@unithadap');
     Route::post('/save-hadap','ProjectController@savehadap');
     Route::post('/delete-hadap','ProjectController@deletehadap');
+
+    Route::post('/unit/senderems','ProjectController@senderems');
 });

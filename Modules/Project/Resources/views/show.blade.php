@@ -171,79 +171,83 @@
         <!-- Left col -->
 
         <section class="col-lg-7 connectedSortable">
-
           <!-- Custom tabs (Charts with tabs)-->
-
           <div class="nav-tabs-custom">
-
             <!-- Tabs within a box -->
-
             <ul class="nav nav-tabs pull-right">
-
-              <li class="active"><a href="#revenue-chart" data-toggle="tab">Budget </a></li>
-
+              <li class="active"><a href="#revenue-chart" data-toggle="tab">All </a></li><!-- 
+              <li><a href="#chart1" data-toggle="tab">CarryOut SPK </a></li>
+              <li><a href="#chart2" data-toggle="tab">CashOut CarryOver</a></li>
+              <li><a href="#chart3" data-toggle="tab">CashOut Realisasi</a></li> -->
             </ul>
-
             <div class="tab-content no-padding">
-
-              <!-- Morris chart - Sales -->
-
-              <div class="chart tab-pane active" id="revenue-chart" style="position: relative; height: 300px;"></div>
-
-              <div class="chart tab-pane" id="sales-chart" style="position: relative; height: 300px;"></div>
-
+              <div class="chart tab-pane active" id="revenue-chart" style="position: relative; height: 300px;">
+                <div class="chart">
+                  <canvas id="areaChart" style="height:250px"></canvas>
+                </div>
+              </div>
+              <div class="chart tab-pane" id="chart1" style="position: relative; height: 300px;">
+                <div class="chart">
+                  <canvas id="areaChart1" style="height:250px"></canvas>
+                </div>
+              </div>
+              <div class="chart tab-pane" id="chart2" style="position: relative; height: 300px;">
+                <div class="chart">
+                  <canvas id="areaChart2" style="height:250px"></canvas>
+                </div>
+              </div>
+              <div class="chart tab-pane" id="chart3" style="position: relative; height: 300px;">
+                <div class="chart">
+                  <canvas id="areaChart3" style="height:250px"></canvas>
+                </div>
+              </div>
+              <div class="box-body">
+                <small class="label label-danger">&nbsp;&nbsp;</small>Cash Out SPK<br>                
+                <small class="label label-primary">&nbsp;&nbsp;</small>Cash Out CarryOver<br>              
+                <small class="label label-warning">&nbsp;&nbsp;</small>Realisasi<br><br>
+                <table class="table">
+                  <thead class="head_table">
+                    <tr>
+                      <td>Jenis</td>
+                      <td>Rencana</td>
+                      <td>Realisasi</td>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Budget Cash Out SPK</td>
+                      <td style="text-align: right;">{{ number_format($nilai_cash_out)}}</td>
+                      <td style="text-align: right;">{{ number_format(0)}}</td>
+                    </tr>
+                    <tr>
+                      <td>Budget Cash Out Carry Over</td>
+                      <td style="text-align: right;">{{ number_format($nilai_carry_over)}}</td>
+                      <td style="text-align: right;">{{ number_format(0)}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <a class="btn btn-primary" href="{{ url('/')}}/report/cashflow/?id={{$project->id}}">Detail</a>
+              </div>
             </div>
-
           </div>
-
           <!-- /.nav-tabs-custom -->
-
-
-
-
-
-          <!-- /.box (chat box) -->
-
-
-
           <!-- TO DO List -->
-
           <div class="box box-primary">
-
             <div class="box-header">
-
               <i class="ion ion-clipboard"></i>
-
-
-
-              <h3 class="box-title">Data Umum</h3>
-
-
-
-          
-
+              <h3 class="box-title">Data Umum</h3>      
             </div>
-
             <!-- /.box-header -->
-
             <div class="box-body">
-
               @php $total = 0; $hpp_akhir = 0;@endphp
-
               @foreach ( $project->budgets as $key => $value )
-
               @if ( $value->deleted_at == "" )
-
                 @php $total = $total + $value->total_dev_cost;@endphp
-
               @endif
-
               @endforeach
-
               <h4>Luas Brutto yang belum ada site plan (m2)   : {{ number_format($project->luas_nonpengembangan,2) }} m2 </h4>
               <h4>Luas Brutto yang ada site plan(m2)   : {{ number_format($project->luas)}} m2 </h4>
               <h4>Luas Netto    : {{ number_format($project->netto)}} m2</h4>
-
               @if ( $project->luas > 0 )
               <h4>Sellable      : {{ number_format(($project->netto / $project->luas) * 100 ,2) }} %</h4>
               @else
@@ -251,10 +255,9 @@
               @endif
               <h4>Total Budget Devcost    : Rp. {{ number_format($project->total_budget,2) }} </h4>
               <h4>Total Kontrak Devcost  : Rp. {{ number_format($project->total_nilai_kontrak,2) }} </h4>
+              <h4>Total Kontrak Devcost yang dibayar : Rp. {{ number_format($project->nilai_report_terbayar_dev_cost,2) }} </h4>
 
-              <h4>Total Kontrak yang dibayar : Rp. {{ number_format($project->nilai_total_bap,2) }} </h4>
-
-              <h4>Hutang Bangun dan Hutang Bayar : Rp. {{ number_format( $project->total_budget - $project->nilai_total_bap,2)}}
+              <h4>Hutang Bangun Devcost dan Hutang Bayar Devcost: Rp. {{ number_format( ($project->total_budget - $project->total_nilai_kontrak) + ($project->total_nilai_kontrak - $project->nilai_report_terbayar_dev_cost) ,2)}}
 
               @if ( $project->netto <= 0 )
 
@@ -264,7 +267,10 @@
 
               <h4>HPP Dev Cost  : Rp. {{ number_format($hpp_akhir = ( $project->total_budget )/ $project->netto,2) }} / m2</h4>
               @endif
-
+              <br>
+              <h4>Total Kontrak Concost  : Rp. {{ number_format(0,2) }} </h4>
+              <h4>Total Kontrak Concost yang dibayar : Rp. {{ number_format(0,2) }} </h4>
+              <h4>Hutang Bangun Concost (0 unit) dan Hutang Bayar Concost : Rp. {{ number_format( 0,2)}}</h4>
               <h4>HPP Con Cost </h4>
               <table class="table table-bordered">
                 <thead class="head_table">
@@ -295,15 +301,7 @@
             </div>
 
           </div>
-
-          <!-- /.box -->
-
-
-
-         
-
-
-
+         <!-- /.box -->     
         </section>
 
         <!-- /.Left col -->
@@ -503,56 +501,22 @@
             </table>
             </form>
           </div>
-
         </section>
-
         <!-- right col -->
-
       </div>
-
       <!-- /.row (main row) -->
-
-
-
     </section>
-
     <!-- /.content -->
-
   </div>
-
   <!-- /.content-wrapper -->
-
-  <footer class="main-footer">
-
-    <div class="pull-right hidden-xs">
-
-      <b>Version</b> 2.4.0
-
-    </div>
-
-    <strong>Copyright &copy; 2014-2016 <a href="https://adminlte.io">Almsaeed Studio</a>.</strong> All rights
-
-    reserved.
-
-  </footer>
-
-
-
-
-
   <!-- Add the sidebar's background. This div must be placed
-
        immediately after the control sidebar -->
-
   <div class="control-sidebar-bg"></div>
-
 </div>
 
 <!-- ./wrapper -->
 
 
-
-@include("master/footer")
 
 </body>
 <script type="text/javascript">
@@ -562,5 +526,8 @@
   $("#hpp_update").number(true);
   $("#budget_update").number(true);
 </script>
+
+@include("master/footer")
+@include("report::chart")
 </html>
 

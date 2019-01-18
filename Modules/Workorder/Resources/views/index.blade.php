@@ -34,6 +34,7 @@
                 <thead class="head_table">
                 <tr>
                   <th>No. Workorder </th>
+                  <th>Nama</th>
                   <th>Nilai</th>
                   <th>Departemen</th>
                   <th>Dibuat oleh</th>
@@ -47,6 +48,7 @@
                   @foreach ( $workorder as $key => $value )
                   <tr>
                     <td>{{ $value->no }}</td>
+                    <td>{{ $value->name }}</td>
                     <td>{{ number_format($value->nilai) }}</td>
                     <td>{{ $value->departmentFrom->name }}</td>
                      <td>{{ \App\User::find($value->created_by)->user_name }}</td>

@@ -57,7 +57,7 @@
           </a>
           <ul class="treeview-menu" style="display: block;">
             <li><a href="{{ url('/')}}/access/"><i class="fa fa-circle-o"></i> Approval</a></li>
-            <li><a href="{{ url('/')}}/report/"><i class="fa fa-circle-o"></i> Report</a></li>
+            <li><a href="{{ url('/')}}/report/all"><i class="fa fa-circle-o"></i> Report</a></li>
             <li><a href="{{ url('/')}}/logout/"><i class="fa fa-circle-o"></i> Logout</a></li>
           </ul>
         </li>       

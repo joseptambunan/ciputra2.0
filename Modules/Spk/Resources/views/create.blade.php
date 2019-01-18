@@ -144,8 +144,6 @@
             </form>
             <!-- /.col -->
 
-            @if ( $spk->approval != "" )
-              @if ( $spk->approval->approval_action_id == "6")
                 <div class="col-md-12">
                   <div class="nav-tabs-custom"> 
                     <ul class="nav nav-tabs">                      
@@ -162,6 +160,7 @@
                       <div class="tab-pane" id="tab_8">
                         <div class="row">
                           <div class="col-md-12">  
+
                             <form action="{{ url('/')}}/spk/save-retensi" method="post" name="form1">
                               <input type="hidden" class="form-control" name="spk_id" value="{{ $spk->id }}">
                               {{ csrf_field() }}
@@ -207,7 +206,7 @@
                               <tbody>
                                 @foreach($spk->retensis as $key => $value )
                                 <tr>
-                                  <td>{{ $value->percent }}</td>
+                                  <td>{{ $value->percent * 100 }} %</td>
                                   <td>{{ $value->hari }}</td>
                                   <td>
                                     @if ( $spk->approval == "" )
@@ -229,7 +228,12 @@
                       <div class="tab-pane active" id="tab_7">
                         <div class="row">
                           <div class="col-md-12">                        
-                            <h4><strong>Type DP : {{ $spk->type->description or '' }}</strong></h4><br>
+                            <h4><strong>Type DP : {{ $spk->type->description or '' }}</strong></h4>
+                            <h4><strong>DP      : Rp. {{ number_format(( $spk->dp_percent / 100 ) * ($spk->nilai + $spk->nilai_vo )) }}</strong></h4>
+
+
+                        @if ( $spk->approval != "" )
+                          @if ( $spk->approval->approval_action_id == "7")
                             @if ( $spk->baps->count() <= 0 )
                             <form action="{{ url('/')}}/spk/update-dp" method="post" name="form1">
                               <input type="hidden" name="spk_id" value="{{ $spk->id }}">
@@ -288,6 +292,67 @@
                               </div>
                             </form>
                             <span id="total_dp_percent"></span> %<br>
+                          @endif
+                        @else
+                            @if ( $spk->baps->count() <= 0 )
+                            <form action="{{ url('/')}}/spk/update-dp" method="post" name="form1">
+                              <input type="hidden" name="spk_id" value="{{ $spk->id }}">
+                              {{ csrf_field() }}
+                              <div class="form-group">
+                                <select class="form-control" name="dp_type">
+                                  @foreach ( $spktype as $key3 => $value3 )
+                                  <option value="{{ $value3->id }}">{{ $value3->description }}</option>
+                                  @endforeach
+                                </select>
+                              </div>
+                              
+                              <div class="form-group">
+                                <label>DP Percent(%)</label>
+                                <input type="text" value="{{ $spk->dp_percent }}" name="dp_percent" class="form-control" autocomplete="off">
+                              </div>
+                              
+                              <div class="box-footer">
+                                @if ( $spk->approval != "" )
+                                  <button type="submit" class="btn btn-primary">Simpan</button>                 
+                                @endif
+                              </div>
+                            </form>
+                            @endif
+                            
+                            @if ( $spk->spk_type_id == "1")
+                              @if ( $spk->dp_percent != "" )
+                              <h3>DP : {{ number_format(($spk->dp_percent * $spk->nilai)/100,2 )}}</h3>
+                              @if ( count($spk->dp_pengembalians) <= 0 )
+                              <div class="form-group">
+                                  <label>Jumlah Periode Pengembalian DP</label>
+                                  <input type="number" value="" name="dp_termin" id="dp_termin" class="form-control" max="4"> 
+                                  <button type="button" class="btn btn-info" onClick="generatedptermin();">Generate</button>
+                              </div>  
+                              @endif
+                              @endif
+                            @else
+                            Minimum Progress : {{ $spk->pic_id or '0'}} %
+                            <form action="{{ url('/')}}/spk/minprogress" method="post" name="form1">
+                              {{ csrf_field()}}
+                              <input type="hidden" name="spk_id" value="{{ $spk->id }}">
+                              <div class="form-group">
+                                <label>Minimum Progress</label>
+                                <input type="text" class="form-control" name="min_progress_dp" autocomplete="off">
+                              </div>
+                              <div class="form-group">
+                                 <button type="submit" class="btn btn-info" onClick="generatedptermin();">Simpan</button>
+                              </div>
+                            </form>
+                            @endif
+                            
+                            <form action="{{url('/')}}/spk/save-dp" method="post">
+                              {{ csrf_field() }}
+                              <input type="hidden" name="spk_id_dp" id="spk_id_dp" value="{{ $spk->id }}"> 
+                              <div id="form1">
+                              </div>
+                            </form>
+                            <span id="total_dp_percent"></span> %<br>
+                        @endif
                             <table class="table table-bordered">
                               <thead class="head_table">
                                 <tr>
@@ -594,8 +659,7 @@
                     </div>
                   </div>
                 </div>
-              @endif
-            @endif
+            
           </div>
           <!-- /.row -->
         </div>
@@ -663,7 +727,7 @@
 
 <!--Report -->
 @if ( $spk->approval != "" )
-@if ( $spk->approval_approval_action_id == 6 )
+@if ( $spk->approval->approval_action_id == 6 )
 <style type="text/css">
   #dvContents_spk{
     font-size:8px;
@@ -759,15 +823,20 @@
               </td>
             </tr>
             <tr>
+              <!--
+                PKP Status = 1 kena PPn
+                PKP Status = 2 kena PPn 2 kali ppn normal
+              -->
               <td width="25%;">Nilai Kontrak</td>
               <td>
-                <span>DPP   : IDR {{ number_format($spk->nilai) }}</span><br>
-                @if ( $spk->rekanan->pkp_status == "2" )
-                <span>Ppn   : IDR {{ number_format(($spk->nilai * $spk->rekanan->ppn ) / 100 ,2 ) }}</span><br>
-                <span>Total : IDR {{ number_format( $spk->nilai + (($spk->nilai * $spk->rekanan->ppn ) / 100) ,2 ) }}</span><br>
+                <span>DPP   : IDR {{ number_format($spk->nilai,2) }}</span><br>
+                @if ( $spk->rekanan->pkp_status == "1" )
+                <span>Ppn   : IDR {{ number_format(($spk->nilai * $ppn ) / 100 ,2 ) }}</span><br>
+                <span>Total : IDR {{ number_format( $total =  $spk->nilai + (($spk->nilai * $ppn ) / 100) ,2 ) }}</span><br>
                 @else                
-                <span>Total : IDR {{ number_format( $spk->nilai,2 ) }}</span><br>
+                <span>Total : IDR {{ number_format( $total = $spk->nilai,2 ) }}</span><br>
                 @endif
+                <strong><i>{{ Terbilang::make($total)}}</i></strong>
               </td>
             </tr>
             <tr>
@@ -792,7 +861,7 @@
                 </ol>
                 <h3><u>CARA PEMBAYARAN</u></h3>
                 @if($spk->dp_percent != "" )
-                <li>Pembayaran pertama DP {{ number_format($spk->dp_percent,2) }} % sebesar Rp. {{ number_format($spk->dp_percent * $spk->nilai ,2) }} ( <em>Incld Profit, Pph &amp; </em><em>Ppn 10 %</em>), akan dibayarkan dalam batas waktu pencairan selama 21 hari dan akan dipotongkan secara proporsional atau minimum 25% dari DP selama 4x termyn (dipakai nilai yang terbesar), Jika progress termyn sudah  mencapai 50% pengembalian DP akan dipotongkan sebesar 100%.</li>
+                <li>Pembayaran pertama DP {{ number_format($spk->dp_percent,2) }} % sebesar Rp. {{ number_format(( $spk->dp_percent / 100) * $spk->nilai ,2) }} ( <em>Incld Profit, Pph &amp; </em> @if ( $spk->rekanan->pkp_status == "1" )<em>Ppn 10 %</em>@endif ), akan dibayarkan dalam batas waktu pencairan selama 21 hari dan akan dipotongkan secara proporsional atau minimum 25% dari DP selama 4x termyn (dipakai nilai yang terbesar), Jika progress termyn sudah  mencapai 50% pengembalian DP akan dipotongkan sebesar 100%.</li>
                 @endif
                 <li>Semua pembayaran  termyn dilakukan berdasarkan opname di lapangan dengan menyertakan Berita Acara  penyelesaian pekerjaan yang dibuat oleh Pihak Kedua yang ditanda tangani oleh  kedua belah Pihak.</li>
                 <span>SPK ini menjadi  bagian yang terikat  dari dokumen kontrak No.</span><br>
@@ -835,16 +904,20 @@
                 @endif
               </td>
               <td style="width: 25%;">
+                @if ( isset($list_ttd[1]))
                 <h1>&nbsp;</h1>
                 <h1>&nbsp;</h1>
                 <center><u>{{ $list_ttd[1]["user_name"] }}</u><br></span></center>
                 <center><span><strong>{{ $list_ttd[1]["user_jabatan"] }}</strong></span></center>
+                @endif
               </td>
               <td style="width: 25%;">
+                @if ( isset($list_ttd[0]))
                 <h1>&nbsp;</h1>
                 <h1>&nbsp;</h1>
                 <center><u>{{ $list_ttd[0]["user_name"] }}</u><br></span></center>
                 <center><span><strong>{{ $list_ttd[0]["user_jabatan"] }}</strong></span></center>
+                @endif
               </td>
             </tr>                 
           </table>

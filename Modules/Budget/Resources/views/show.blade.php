@@ -45,13 +45,15 @@
               <div class="form-group">
                 <label>PT</label>
                 <select class="form-control" name="department">
-                  @foreach ( $budget->project->pt as $key => $value )
-                      @if ( $value->pt->id == $budget->pt_id)
-                        <option value="{{ $value->pt->id }}" selected>{{ $value->pt->name }}</option>
-                      @else
-                        <option value="{{ $value->pt->id }}">{{ $value->pt->name }}</option>
-                      @endif
-                  @endforeach
+                 @if ( $user->project_pt_users != "" )
+                    @foreach ( $user->project_pt_users as $key2 => $value2 )
+                      @foreach ( $project->pt as $key => $value )
+                        @if ( $value2->pt_id == $value->pt->id )
+                          <option value="{{ $value->pt->id }}">{{ $value->pt->name }}</option>
+                        @endif
+                      @endforeach
+                    @endforeach
+                  @endif
                 </select>
               </div>
               <div class="form-group">
@@ -148,21 +150,13 @@
             </div>
             <!-- /.col -->
             <div class="col-md-12 table-responsive">
-              <h3>Nilai Dev Cost : Rp. {{ number_format($budget->total_dev_cost)}}</h3>
-              <h3>Nilai Con Cost : Rp. {{ number_format($budget->total_con_cost)}}</h3>
-              <h3>Nilai Budget   : Rp. {{ number_format($budget->nilai)}}</h3>
+              <h3>Nilai Dev Cost ( SPK + Sisa Renc. ): Rp. {{ number_format($budget->total_dev_cost)}}</h3>
+              <h3>Nilai Con Cost ( SPK + Sisa Renc. ): Rp. {{ number_format($budget->total_con_cost)}}</h3>
+              <h3>Nilai Budget Sisa Renc. (DC) : Rp. {{ number_format($budget->total_rencana_dev_cost)}}</h3>
+              <h3>Nilai Budget Sisa Renc. (CC) : Rp. {{ number_format($budget->total_rencana_con_cost)}}</h3>
               <br>
-              <input type="radio" name="all" onclick="showcoa('9')">Semua Pekerjaan<br>
-              <input type="radio" name="all" onclick="showcoa('0');">Yang belum memiliki budget<br>
-              <input type="radio" name="all" onclick="showcoa('1');">Yang sudah memilik budget<br>
-              @if ( $budget->approval == "" )
-                <a class="btn btn-primary" href="{{ url('/')}}/budget/item-budget?id={{ $budget->id }}">Tambah Item Pekerjaan</a>
-              @else
-                 @if ( $budget->approval->approval_action_id == "7" )
-                    <a class="btn btn-primary" href="{{ url('/')}}/budget/item-budget?id={{ $budget->id }}">Tambah Item Pekerjaan</a>
-                 @endif
-              @endif
-              <table class="table" style="padding: 0" id="example3">
+              
+            <table class="table" style="padding: 0" id="example3">
                 <thead class="head_table">
                   <tr>
                     <td>COA</td>
@@ -171,7 +165,7 @@
                     <td>Satuan</td>
                     <td>Harga Satuan(Rp)</td>
                     <td>Subtotal(Rp)</td>
-                    <td colspan="2">Perubahan Data</td>
+                    <td>Perubahan Data</td>
                   </tr>
                 </thead>
                 <tbody>
@@ -188,7 +182,7 @@
                       @if ( $value->itempekerjaan->code == "225.01" || $value->itempekerjaan->code == "225.04" || $value->itempekerjaan->code == "225.05" )                    
                       {{ $value->itempekerjaan->code or '' }}
                       @else
-                      {{ $value->itempekerjaan->child_item->first()->code or '' }}
+                      {{ $value->itempekerjaan->code or '' }}
                       @endif
                     </td>
                     <td>{{ $value->itempekerjaan->name }}</td>
@@ -196,22 +190,20 @@
                       <span id="label_volume_{{ $value->id }}">{{ number_format($value->volume) }}</span>
                       <input type="text" name="volume_{{ $value->id }}" id="volume_{{ $value->id }}" style="display: none;" class="form-control" value="{{ $value->volume }}">
                     </td>
-                    <td>{{ $value->satuan }}</td>
+                    <td>{{ $value->itempekerjaan->details->satuan or 'ls' }}</td>
                     <td>
                       <span id="label_nilai{{ $value->id }}">{{ number_format($value->nilai,2) }}</span>
                       <input type="text" name="nilai_{{ $value->id }}" id="nilai_{{ $value->id }}" style="display: none;" class="form-control" value="{{ $value->nilai }}">
                     </td>
                     <td>{{ number_format($value->volume * $value->nilai,2)}}</td>
-                    <td colspan="2">
+                    <td>
                        @if ( $budget->approval == "" )
                         <a class="btn btn-warning" id="btn_edit1_{{ $value->id }}" href="{{ url('/')}}/budget/referensi/?id={{ $value->id }}">Edit</a>
                         <button class="btn btn-success" id="btn_edit2_{{ $value->id }}" onclick="saveedit('{{ $value->id }}');" style="display: none;">Simpan</button>
-                        <button class="btn btn-danger" id="btn_remove_{{ $value->id }}" onclick="removeedit('{{ $value->id }}');">Delete</button>
                         @else
                           @if ( $budget->approval->approval_action_id == "7")
                             <a class="btn btn-warning" id="btn_edit1_{{ $value->id }}" href="{{ url('/')}}/budget/referensi/?id={{ $value->id }}">Edit</a>
                             <button class="btn btn-success" id="btn_edit2_{{ $value->id }}" onclick="saveedit('{{ $value->id }}');" style="display: none;">Simpan</button>
-                            <button class="btn btn-danger" id="btn_remove_{{ $value->id }}" onclick="removeedit('{{ $value->id }}');">Delete</button>
                           @else
                             @if ( $value->approval != "" )
                             <span class="{{ $array[$value->approval->approval_action_id]['class']}}">{{ $array[$value->approval->approval_action_id]["label"]}}</span>
@@ -238,14 +230,7 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-  <footer class="main-footer">
-    <div class="pull-right hidden-xs">
-      <b>Version</b> 2.4.0
-    </div>
-    <strong>Copyright &copy; 2014-2016 <a href="https://adminlte.io">Almsaeed Studio</a>.</strong> All rights
-    reserved.
-  </footer>
-
+  @include("master/copyright")
   
   <!-- Add the sidebar's background. This div must be placed
        immediately after the control sidebar -->
@@ -256,6 +241,12 @@
 @include("master/footer_table")
 @include("budget::app")
 <script type="text/javascript">
+  $(function () {
+      $('#example3').DataTable({
+        'searching' : true,
+        'paging' : false
+      });
+  });
   function showcoa(nilai){
     if ( nilai == 9 ){
       $(".nilai").show();

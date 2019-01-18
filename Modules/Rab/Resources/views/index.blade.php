@@ -46,11 +46,11 @@
                 </thead>
                 <tbody>
                   @foreach ( $workorder->rabs as $key => $value )
-                  @if ( $value->parent_id != "" )
+                  @if ( $value->pekerjaans->count() > 0 )
                   <tr>
                     <td>{{ $workorder->no }}</td>
                     <td>{{ $value->no }}</td>
-                    <td>{{ \Modules\Pekerjaan\Entities\Itempekerjaan::find($value->parent_id)->code }} - {{ \Modules\Pekerjaan\Entities\Itempekerjaan::find($value->parent_id)->name }}</td>
+                    <td>{{ \Modules\Pekerjaan\Entities\Itempekerjaan::find($value->pekerjaans->last()->itempekerjaan->parent->id)->code }} - {{ \Modules\Pekerjaan\Entities\Itempekerjaan::find($value->pekerjaans->last()->itempekerjaan->parent->id)->name }}</td>
                     <td>{{ number_format($value->nilai) }}</td>
                     <td>{{ \App\User::find($value->created_by)->user_name }}</td>
                     <td>{{ $value->created_at }}</td>

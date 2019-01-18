@@ -25,5 +25,8 @@ class RekananGroup extends CustomModel
     	return $this->hasOne("Modules\Rekanan\Entities\UserRekanan");
     }
 
+    public function project(){
+        return $this->belongsTo("Modules\Project\Entities\Project");
+    }
    
 }

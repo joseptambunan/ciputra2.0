@@ -48,7 +48,7 @@
             </a>
           </li>
           <li class="nav-item">
-            <a href="{{ url('/') }}/report/" class="nav-link">
+            <a href="{{ url('/') }}/report/all" class="nav-link">
               <i class="nav-icon fa fa-file"></i>
               <p>Report</p>
             </a>

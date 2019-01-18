@@ -274,33 +274,16 @@ class ProjectKawasan extends CustomModel
         $nilai_terbayar = 0;
         $project = $this->project;
         $proporsional = 0;
-        if ( $this->lahan_sellable == "0.0"){
-            $spks = $project->spks;
-            foreach ($spks as $key => $value) {
-                foreach ($value->baps as $key2 => $value2) {
-                    $nilai_terbayar = $nilai_terbayar + $value2->nilai;
+
+        foreach ($this->project->spks as $key => $value) {
+            foreach ($value->details as $key2 => $value2) {
+                if ( $value2->asset_id != "" ){
+                    if ( $value2->asset->id == $this->id ){
+                        $nilai_terbayar = $nilai_terbayar + $value->terbayar_verified;
+                    }
                 }
             }
-        }else{
-            /*$spks = $this->spk_details->spks;
-            foreach ($spks as $key => $value) {
-                foreach ($value->baps as $key2 => $value2) {
-                    $nilai_terbayar = $nilai_terbayar + $value2->nilai;
-                }
-            }*/
         }
-        /*$bap_project = BapDetail::where("asset_type","App\ProjectKawasan")->where("asset_id",$this->id)->get();
-        foreach ($bap_project as $key => $value) {
-            $nilai_terbayar = $nilai_terbayar +  $value->bap->nilai;
-        }*/
-
-        /*if ( $this->lahan_luas == 0 || $this->netto_kawasan == 0 ){
-            $proporsional = 0;
-        }else{
-            $proporsional = $nilai_terbayar * ( $this->netto_kawasan / $this->lahan_luas );
-        }
-
-        $nilai = $proporsional + $nilai ;*/
 
         return $nilai_terbayar;
 
@@ -395,24 +378,39 @@ class ProjectKawasan extends CustomModel
         $nilai = 0;
         $nilai_budget = 0;
         $rev = 0;
-        foreach ($this->budgets as $key => $value) {            
-            $nilai = $nilai + $value->nilai;            
+        $total_faskot = 0;
+        foreach ($this->budgets as $key => $value) {     
+            if ( $value->deleted_at == NULL ){
+                $nilai = $nilai + $value->total_dev_cost;  
+            }                 
         }
 
         //Proporsional
-        foreach ($this->project->budgets_all as $key => $value) {
+        foreach ($this->project->budgets as $key2 => $value2) {
+            if ( $value2->project_kawasan_id == NULL ) {
+                if ( $value2->deleted_at == NULL ){
+                    $total_faskot = $value2->total_dev_cost;
+                    //$id = $value2->id;
+                }
+            }
+        }
+
+        /*foreach ($this->project->budgets_all as $key => $value) {
             if ( $value->deleted_at == null ){
                 $nilai_budget = $nilai_budget + $value->total_dev_cost;
             }else{
                 $rev = $rev + 1;
             }
-        }
+        }*/
 
+        /*
         if ( $rev > 0 ){
             $total_faskot =  $nilai_budget + $this->project->dev_cost_only;
         }else{
-            $total_faskot = $nilai_budget;
-        }
+            $total_faskot = $nilai_budget + $this->project->dev_cost_only;
+        }*/
+
+
 
         if ( $this->lahan_luas > 0 ){
             $proporsional = ( $this->lahan_luas  / $this->project->luas ) * $total_faskot;
@@ -420,7 +418,7 @@ class ProjectKawasan extends CustomModel
             $proporsional = 0;
         }
        
-        return $nilai + $proporsional;
+        return  $proporsional + $nilai ;
     }
 
     public function getHppConCostAttribute(){
@@ -530,13 +528,24 @@ class ProjectKawasan extends CustomModel
             $nilai_project = $nilai_project + $value->nilai;
         }
 
-        if ( $this->lahan_sellable == 0 || $this->lahan_luas == 0 ){
-            /*$proporsional = 0;
-            $nilai = 0;*/
-            return $nilai_project;
+        if ( $this->lahan_luas == 0 ){
+            return 0;
         }else{
-            //return $nilai_project;
-            $proporsional = (( $this->lahan_sellable / $this->lahan_luas ) * $nilai_project) ;
+            $proporsional = 0;
+            foreach ($project->spks as $key => $value) {
+                if ( $value->itempekerjaan != "" ){
+                    if ( $value->itempekerjaan->group_cost == 1 ){
+                        foreach ($value->details as $key2 => $value2) {
+                            //if ( $value->itempekerjaan->group_cost == 1 ){             
+                                if ( $value2->asset_id == $this->id ){
+                                    $nilai = $nilai + ( $value->nilai + $value->nilai_vo );
+                                }
+                            //}
+                        }
+                    }
+                }
+                
+            }
             $nilai = $proporsional + $nilai;
         }
         
@@ -788,11 +797,11 @@ class ProjectKawasan extends CustomModel
     }
 
     public function HppDevCostReportSummary(){
-        return $this->hasMany("App\HppDevCostSummaryReport","project_kawasan_id");
+        return $this->hasMany("Modules\Project\Entities\HppDevCostSummaryReport","project_kawasan_id");
     }
 
     public function cost_report(){
-        return $this->hasMany("App\CostReport");
+        return $this->hasMany("Modules\Project\Entities\CostReport");
     }
 
     public function unit_type(){
@@ -920,4 +929,56 @@ class ProjectKawasan extends CustomModel
         return $proporsional;
     }
     
+    public function getNilaiLalaAttribute(){
+        $total_faskot = 0;
+        foreach ($this->project->budgets as $key => $value) {
+            if ( $value->project_kawasan_id == NULL ) {
+                if ( $value->deleted_at == NULL ){
+                    $total_faskot = $value->total_dev_cost;
+                }
+            }
+        }
+
+        return $total_faskot;
+    }
+
+     public function getTotalKontrakConCostAttribute(){
+        $nilai = 0;
+       
+
+        if ( $this->lahan_luas == 0 ){
+            return 0;
+        }else{
+            $proporsional = 0;
+            foreach ($this->project->spks as $key => $value) {
+                if ( $value->itempekerjaan != "" ){
+                if ( $value->itempekerjaan->group_cost == 2 ){ 
+                    if ( $this->id == $value->project_kawasan_id ){
+                        $nilai = $nilai + ($value->nilai + $value->nilai_vo);
+                    }
+                }
+                }
+            }
+
+
+        }
+        
+        
+        return $nilai;
+    }
+
+    public function getExcelSpkAttribute(){
+        foreach ($this->project->spks as $key => $value) {
+            if ( $value->itempekerjaan != "" ){
+                if ( $value->itempekerjaan->group_cost == 1 ){                    
+                    foreach ($value->details as $key2 => $value2) {
+                        if ( $value2->asset_id == $this->id ){
+                            echo $value->no.",".$value->name."<>".($value->nilai + $value->nilai_vo);
+                            echo "\n";
+                        }
+                    } 
+                }
+            }       
+        }    
+    }
 }

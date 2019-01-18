@@ -45,7 +45,6 @@
                     <tr>
                       <td>COA</td>
                       <td>Item Pekerjaan</td>
-                      <td>Volume Budget Global</td>
                       <td>Volume</td>
                       <td>Satuan</td>
                       <td>Harga Satuan(Rp)</td>
@@ -53,24 +52,20 @@
                     </tr>
                   </thead>
                   <tbody id="itemlist">
-                    @php $start = 0; @endphp
+                    @php $start = 0; $volume_master = ""; @endphp
                     @foreach ( $budget_tahunan->details as $key => $value )
-                      @if ( $value->itempekerjaans->group_cost == 2 )
+                      @if ( $value->itempekerjaans->group_cost == 2 && $value->itempekerjaans->code == "100.00")
                         <tr>
                           <td>{{ $value->itempekerjaans->code or ''}}</td>
-                          <td>{{ $value->itempekerjaans->name or ''}}</td>
-                          <td> 
-                            <input type="hidden" class="nilai_budget form-control" name="item_id_[$start]" id="item_id_{{$start}}" value="{{ $value->id}}" required>
-                            <input type="hidden" class="nilai_budget form-control" name="volume_[$start]" id="volume_master_{{$start}}" value="{{ $value->volume}}" required>
-                            {{ number_format($value->volume) }}
-                          </td>
+                          <td>{{ $value->itempekerjaans->name or ''}}</td>                          
                           <td>
-                             <input type="hidden" class="nilai_budget form-control" name="volume_[$start]" id="volume_master_{{$start}}" value="{{ $value->volume}}" required>
-                            <input type="text" class="nilai_budget form-control" name="volume_[$start]" id="volume_{{$start}}" value="{{ $value->volume}}" onKeyUp="cekmaster('{{ $start}}')" required>
+                            <input type="hidden" class="nilai_budget form-control" name="item_id_[{{$start}}]" id="item_id_{{$start}}" value="{{ $value->id}}" required>
+                             <input type="hidden" class="nilai_budget form-control" name="volume_[{{$start}}]" id="volume_master_{{$start}}" value="{{ $volume_master}}" required>
+                            <input type="text" class="nilai_budget form-control" name="volume_[{{$start}}]" id="volume_{{$start}}" value="{{ $value->volume}}" onKeyUp="cekmaster('{{ $start}}')" required>
                           </td>
-                          <td>{{ $value->satuan }}</td>
+                          <td>{{ $value->itempekerjaans->details->satuan }}</td>
                           <td>
-                            <input type="hidden" class="form-control" name="nilai_[$start]" id="nilai_{{$start}}" value="{{ $value->nilai}}">
+                            <input type="hidden" class="form-control" name="nilai_[{{$start}}]" id="nilai_{{$start}}" value="{{ $value->nilai}}">
                             {{ number_format($value->nilai )}}
                           </td>
                           <td><span id="subtotal_{{$start}}">{{ number_format($value->nilai * $value->volume )}}</span></td>
@@ -86,6 +81,8 @@
                   <thead class="head_table">
                     <tr>
                       <td>Unit Type</td>
+                      <td>LB/LT</td>
+                      <td>Harga Satuan</td>
                       <td>Jumlah Unit</td>
                       <td>Total Luas Unit(m2)</td>
                       <td>Januari</td>
@@ -104,30 +101,38 @@
                   </thead>
                   <tbody>
                     @if ( $budget_tahunan->budget->kawasan)
-                      @foreach ( $budget_tahunan->budget->kawasan->unit_type as $key => $value )
-                        <tr>
-                          <td>{{ $value->name }}</td>
-                          <td><span id="total_unit_{{$key}}">{{ $value->unit->count() }}</span></td>
-                          <td>
-                            <input type="hidden" name="unit_type_[{{$key}}]" id="unit_type_{{$key}}" value="{{ $value->id }}">
-                            <input type="hidden" name="luas_type_[{{$key}}]" id="luas_type_{{$key}}" value="{{ $value->luas_bangunan * $value->unit->count() }}" data-value="{{ $value->luas_bangunan}}">
-                            <input type="hidden" name="total_unit_type[{{$key}}]" id="total_unit_type_{{$key}}" value="{{ $value->unit->count()}}" data-value="">
-                            <span class="nilai_budget total_unit" id="total_luas_{{$key}}">{{ $value->unit->count() * $value->luas_bangunan }}</span>
-                          </td>
-                          <td><input type="text" class="form-control" name="januari_[{{$key}}]" id="januari_{{$key}}" onkeyup="summaryunit('{{ $key}}')" value="{{ $value->unit->count() }}"></td>
-                          <td><input type="text" class="form-control" name="fabruari_[{{$key}}]" id="februari_{{$key}}" onkeyup="summaryunit('{{ $key}}')" value="0"></td>
-                          <td><input type="text" class="form-control" name="maret_[{{$key}}]" id="maret_{{$key}}" onkeyup="summaryunit('{{ $key}}')" value="0"></td>
-                          <td><input type="text" class="form-control" name="april_[{{$key}}]" id="april_{{$key}}" onkeyup="summaryunit('{{ $key}}')" value="0"></td>
-                          <td><input type="text" class="form-control" name="mei_[{{$key}}]" id="mei_{{$key}}" onkeyup="summaryunit('{{ $key}}')" value="0"></td>
-                          <td><input type="text" class="form-control" name="juni_[{{$key}}]" id="juni_{{$key}}" onkeyup="summaryunit('{{ $key}}')" value="0"></td>
-                          <td><input type="text" class="form-control" name="juli_[{{$key}}]" id="juli_{{$key}}" onkeyup="summaryunit('{{ $key}}')" value="0"></td>
-                          <td><input type="text" class="form-control" name="agustus_[{{$key}}]" id="agustus_{{$key}}" onkeyup="summaryunit('{{ $key}}')" value="0"></td>
-                          <td><input type="text" class="form-control" name="september_[{{$key}}]" id="september_{{$key}}" onkeyup="summaryunit('{{ $key}}')" value="0"></td>
-                          <td><input type="text" class="form-control" name="oktober_[{{$key}}]" id="oktober_{{$key}}" onkeyup="summaryunit('{{ $key}}')" value="0"></td>
-                          <td><input type="text" class="form-control" name="november_[{{$key}}]" id="november_{{$key}}" onkeyup="summaryunit('{{ $key}}')" value="0"></td>
-                          <td><input type="text" class="form-control" name="desember_[{{$key}}]" id="desember_{{$key}}" onkeyup="summaryunit('{{ $key}}')" value="0"></td>
-                        </tr>
-                      @endforeach
+                      @if ( $budget_tahunan->budget_unit->count() <= 0 )
+                        @foreach ( $budget_tahunan->budget->kawasan->unit_type as $key => $value )
+                          @if ( $value->luas_bangunan > 0 )
+                          <tr>
+                            <td>{{ $value->name }}</td>
+                            <td>{{ $value->luas_bangunan or '0'}} / {{ $value->luas_tanah or '0'}}</td>
+                            <td><input type="text" class="nilai_budget form-control" name="harga_satuan[{{$key}}]" style="width: 100px;" value="{{ number_format($value->category->nilai )}}" /></td>
+                            <td><span id="total_unit_{{$key}}">{{ $value->unit->count() }}</span></td>
+                            <td>
+                              <input type="hidden" name="unit_type_[{{$key}}]" id="unit_type_{{$key}}" value="{{ $value->id }}">
+                              <input type="hidden" name="luas_type_[{{$key}}]" id="luas_type_{{$key}}" value="{{ $value->luas_bangunan * $value->unit->count() }}" data-value="{{ $value->luas_bangunan}}">
+                              <input type="hidden" name="total_unit_type[{{$key}}]" id="total_unit_type_{{$key}}" value="{{ $value->unit->count()}}" data-value="">
+                              <span class="nilai_budget total_unit" id="total_luas_{{$key}}">{{ $value->unit->count() * $value->luas_bangunan }}</span>
+                            </td>
+                            <td><input type="text" class="form-control" name="januari_[{{$key}}]" id="januari_{{$key}}" onkeyup="summaryunit('{{ $key}}')" value="{{ $value->unit->count() }}" style="width: 50px;"></td>
+                            <td><input type="text" class="form-control" name="fabruari_[{{$key}}]" id="februari_{{$key}}" onkeyup="summaryunit('{{ $key}}')" value="0" style="width: 50px;"></td>
+                            <td><input type="text" class="form-control" name="maret_[{{$key}}]" id="maret_{{$key}}" onkeyup="summaryunit('{{ $key}}')" value="0" style="width: 50px;"></td>
+                            <td><input type="text" class="form-control" name="april_[{{$key}}]" id="april_{{$key}}" onkeyup="summaryunit('{{ $key}}')" value="0" style="width: 50px;"></td>
+                            <td><input type="text" class="form-control" name="mei_[{{$key}}]" id="mei_{{$key}}" onkeyup="summaryunit('{{ $key}}')" value="0" style="width: 50px;"></td>
+                            <td><input type="text" class="form-control" name="juni_[{{$key}}]" id="juni_{{$key}}" onkeyup="summaryunit('{{ $key}}')" value="0" style="width: 50px;"></td>
+                            <td><input type="text" class="form-control" name="juli_[{{$key}}]" id="juli_{{$key}}" onkeyup="summaryunit('{{ $key}}')" value="0" style="width: 50px;"></td>
+                            <td><input type="text" class="form-control" name="agustus_[{{$key}}]" id="agustus_{{$key}}" onkeyup="summaryunit('{{ $key}}')" value="0" style="width: 50px;"></td>
+                            <td><input type="text" class="form-control" name="september_[{{$key}}]" id="september_{{$key}}" onkeyup="summaryunit('{{ $key}}')" value="0" style="width: 50px;"></td>
+                            <td><input type="text" class="form-control" name="oktober_[{{$key}}]" id="oktober_{{$key}}" onkeyup="summaryunit('{{ $key}}')" value="0" style="width: 50px;"></td>
+                            <td><input type="text" class="form-control" name="november_[{{$key}}]" id="november_{{$key}}" onkeyup="summaryunit('{{ $key}}')" value="0" style="width: 50px;"></td>
+                            <td><input type="text" class="form-control" name="desember_[{{$key}}]" id="desember_{{$key}}" onkeyup="summaryunit('{{ $key}}')" value="0" style="width: 50px;"></td>
+                          </tr>
+                          @endif
+                        @endforeach
+                      @else
+
+                      @endif
                     @endif
                   </tbody>
                 </table>
@@ -147,14 +152,7 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-  <footer class="main-footer">
-    <div class="pull-right hidden-xs">
-      <b>Version</b> 2.4.0
-    </div>
-    <strong>Copyright &copy; 2014-2016 <a href="https://adminlte.io">Almsaeed Studio</a>.</strong> All rights
-    reserved.
-  </footer>
-
+  @include("master/copyright")
   
   <!-- Add the sidebar's background. This div must be placed
        immediately after the control sidebar -->

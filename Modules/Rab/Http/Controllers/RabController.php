@@ -284,23 +284,56 @@ class RabController extends Controller
                 $html .= "</tr>";
                 
                 foreach ($value3->child_item as $key5 => $value5) {
-                    $html .= "<tr>";
-                    $html .= "<td><strong>".$value5->code."</strong></td>";
-                    $html .= "<td style='background-color: white;color:black;' onclick='showhide(".$value5->id.")' data-attribute='1' id='btn_".$value5->id."'>".$value5->name."</td>";
-                    $html .= "<td><input type='hidden' class='form-control' name='item_id[".$start."]' value='".$value5->id."'/><input type='text' class='form-control' name='volume_[".$start."]' onkeyup='summary(".$start.")' value='0' autocomplete='off'/><input type='hidden' class='form-control' name='code[".$start."]' value='".$value5->code."' autocomplete='off'/></td>";
-                    $html .= "<td><input type='text' class='form-control' name='satuan_[".$start."]' value='".$value5->details->satuan."' autocomplete='off'/></td>";
-                    $html .= "<td><input type='text' class='form-control nilai_budgets' name='nilai_[".$start."]' value=''  onkeyup='summary(".$start.")'/></td>";
-                    $html .= "<td><span id='total_".$start."'></span></td>";
-                    $html .= "</tr>";
+                    if ( count($value5->child_item) > 0 ){
+
+                        foreach ($value5->child_item as $key6 => $value6) {
+                            if ( $value6->details != "" ){
+                                $satuan = $value6->details->satuan;
+                            }else{
+                                $satuan = "ls";
+                            }
+
+                            $html .= "<tr>";
+                            $html .= "<td><strong>".$value6->code."</strong></td>";
+                            $html .= "<td style='background-color: white;color:black;' onclick='showhide(".$value6->id.")' data-attribute='1' id='btn_".$value6->id."'>".$value6->name."</td>";
+                            $html .= "<td><input type='hidden' class='form-control' name='item_id[".$start."]' value='".$value6->id."'/><input type='text' class='form-control' name='volume_[".$start."]' onkeyup='summary(".$start.")' value='0' autocomplete='off'/><input type='hidden' class='form-control' name='code[".$start."]' value='".$value6->code."' autocomplete='off'/></td>";
+                            $html .= "<td><input type='text' class='form-control' name='satuan_[".$start."]' value='".$satuan."' autocomplete='off'/></td>";
+                            $html .= "<td><input type='text' class='form-control nilai_budgets' name='nilai_[".$start."]' value=''  onkeyup='summary(".$start.")'/></td>";
+                            $html .= "<td><span id='total_".$start."'></span></td>";
+                            $html .= "</tr>";
+                            $start++;  
+                        }
+
+
+                    }else{
+                        if ( $value5->details != "" ){
+                            $satuan = $value3->details->satuan;
+                        }else{
+                            $satuan = "ls";
+                        }
+                        $html .= "<tr>";
+                        $html .= "<td><strong>".$value5->code."</strong></td>";
+                        $html .= "<td style='background-color: white;color:black;' onclick='showhide(".$value5->id.")' data-attribute='1' id='btn_".$value5->id."'>".$value5->name."</td>";
+                        $html .= "<td><input type='hidden' class='form-control' name='item_id[".$start."]' value='".$value5->id."'/><input type='text' class='form-control' name='volume_[".$start."]' onkeyup='summary(".$start.")' value='0' autocomplete='off'/><input type='hidden' class='form-control' name='code[".$start."]' value='".$value5->code."' autocomplete='off'/></td>";
+                        $html .= "<td><input type='text' class='form-control' name='satuan_[".$start."]' value='".$satuan."' autocomplete='off'/></td>";
+                        $html .= "<td><input type='text' class='form-control nilai_budgets' name='nilai_[".$start."]' value=''  onkeyup='summary(".$start.")'/></td>";
+                        $html .= "<td><span id='total_".$start."'></span></td>";
+                        $html .= "</tr>";
+                    }
+                    
                     $start++;  
                 }
             }else{
-
+                if ( $value3->details != "" ){
+                    $satuan = $value3->details->satuan;
+                }else{
+                    $satuan = "ls";
+                }
                 $html .= "<tr>";
                 $html .= "<td><strong>".$value3->code."</strong></td>";
                 $html .= "<td style='background-color: white;color:black;' onclick='showhide(".$value3->id.")' data-attribute='1' id='btn_".$value3->id."'>".$value3->name."</td>";
                 $html .= "<td><input type='hidden' class='form-control' name='item_id[".$start."]' value='".$value3->id."'/><input type='hidden' class='form-control' name='code[".$start."]' value='".$value3->code."'/><input type='text' class='form-control' name='volume_[".$start."]' value='0' autocomplete='off'/></td>";
-                $html .= "<td><input type='text' class='form-control ' name='satuan_[".$start."]' value='".$value3->details->satuan."' autocomplete='off' required/></td>";
+                $html .= "<td><input type='text' class='form-control ' name='satuan_[".$start."]' value='".$satuan."' autocomplete='off' required/></td>";
                 $html .= "<td><input type='text' class='form-control nilai_budget' name='nilai_[".$start."]'value='' autocomplete='off'/></td>";
                 $html .= "<td><span id='total_{{ $start }}' ></span></td>";
                 $html .= "</tr>";
@@ -327,5 +360,12 @@ class RabController extends Controller
         $project = Project::find($request->session()->get('project_id'));
         $user = \Auth::user();
         return view("rab::approval_history",compact("rab","approval","project","user"));
+    }
+
+    public function selectpekerjaan(Request $request){
+        $rab = Rab::find($request->id);
+        $project = Project::find($request->session()->get('project_id'));
+        $user = \Auth::user();
+        return view("rab::rab_pekerjaan",compact("user","project","rab"));
     }
 }

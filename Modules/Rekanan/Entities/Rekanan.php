@@ -58,4 +58,8 @@ class Rekanan extends CustomModel
     public function spks(){
         return $this->hasMany("Modules\Spk\Entities\Spk");
     }
+
+    public function project(){
+        return $this->belongsTo("Modules\Project\Entities\Project");
+    }
 }

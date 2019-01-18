@@ -40,7 +40,8 @@
 
       <!-- Sidebar Menu -->
       <nav class="mt-2">
-        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">          
+        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">  
+                 
           <li class="nav-item">
             <a href="{{ url('/')}}/report/project/detail/?id={{ $budget->project->id }}" class="nav-link">
               <i class="nav-icon fa fa-file"></i>

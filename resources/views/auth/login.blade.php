@@ -33,13 +33,17 @@
   </div>
   <!-- /.login-logo -->
   <div class="login-box-body">
+    <center><strong><h1>CPMS</h1></strong></center>
+    <center><u><span style="font-size:15px;">Contract and Procurement Management System</span></u></center>
     <img class="img img-responsive" src="{{ url('/')}}/assets/dist/img/login_logo.png ">
     <form action="{{ route('login') }}" method="post">
       {{ csrf_field() }}
       <div class="form-group has-feedback">
+        <label>Username </label>
         <input type="text" class="form-control" name="user_login" autocomplete="off">
       </div>
       <div class="form-group has-feedback">
+        <label>Password</label>
         <input type="password" class="form-control" name="password" autocomplete="off">
       </div>
       <div class="row">

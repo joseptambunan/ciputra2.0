@@ -21,11 +21,12 @@ use Modules\Project\Entities\ProjectPtUser;
 use Modules\Department\Entities\Department;
 use Modules\Pt\Entities\Pt;
 use Modules\Project\Entities\ProjectPt;
+use Modules\Project\Entities\UnitType;
 use Modules\Budget\Entities\BudgetType;
 use Modules\Budget\Entities\BudgetCarryOverCashflow;
 use Modules\Budget\Entities\BudgetTahunanUnit;
 use Modules\Budget\Entities\BudgetTahunanUnitPeriode;
-use Modules\Project\Entities\UnitType;
+use Modules\Budget\Entities\BudgetTahunanUnitPeriodeDetail;
 
 class BudgetController extends Controller
 {
@@ -86,7 +87,7 @@ class BudgetController extends Controller
         $budget->created_by = \Auth::user()->id;
         $budget->save();
 
-        $budget_type = BudgetType::get();
+        /*$budget_type = BudgetType::get();
         foreach ($budget_type as $key => $value) {
             if ( $value->itempekerjaan_id == 1 ){
                 foreach ($value->details as $key2 => $value2) {
@@ -97,6 +98,58 @@ class BudgetController extends Controller
                     $budgetDetail->volume = 0;
                     $budgetDetail->satuan = $value2->itempekerjaan->details->satuan;
                     $budgetDetail->save();
+                }
+            }
+        }*/
+
+        $itempekerjaan = Itempekerjaan::get();
+        foreach ($itempekerjaan as $key => $value) {
+            if ( $value->parent_id == null ){
+
+                if ( $request->iskawasan == "" ){
+                    if ( $value->code == "240" ){
+                        foreach ($value->child_item as $key2 => $value2) {
+                            $budgetDetail = new BudgetDetail;
+                            $budgetDetail->budget_id = $budget->id;
+                            $budgetDetail->itempekerjaan_id = $value2->id;
+                            $budgetDetail->nilai = str_replace(",", "", $value2->nilai_master_satuan);
+                            $budgetDetail->volume = 0;
+                            if ( $value2->details != "" ){
+                                $budgetDetail->satuan = $value2->details->satuan;
+                            }else{
+                                $budgetDetail->satuan = 'ls';
+                            }
+                            $budgetDetail->save();
+                        }
+                    }
+                }else{
+                    if ( $value->code != "240" ){
+                        if ( $value->group_cost == 1 ){
+                            $budgetDetail = new BudgetDetail;
+                            $budgetDetail->budget_id = $budget->id;
+                            $budgetDetail->itempekerjaan_id = $value->id;
+                            $budgetDetail->nilai = str_replace(",", "", $value->nilai_master_satuan);
+                            $budgetDetail->volume = 0;
+                            if ( $value->details != "" ){
+                                $budgetDetail->satuan = $value->details->satuan;
+                            }else{
+                                $budgetDetail->satuan = 'ls';
+                            }
+                            $budgetDetail->save();
+                        } elseif ( $value->id == 292 ){
+                            $budgetDetail = new BudgetDetail;
+                            $budgetDetail->budget_id = $budget->id;
+                            $budgetDetail->itempekerjaan_id = $value->id;
+                            $budgetDetail->nilai = str_replace(",", "", $value->nilai_master_satuan);
+                            $budgetDetail->volume = 0;
+                            if ( $value->details != "" ){
+                                $budgetDetail->satuan = $value->details->satuan;
+                            }else{
+                                $budgetDetail->satuan = 'ls';
+                            }
+                            $budgetDetail->save();
+                        }
+                    }                    
                 }
             }
         }
@@ -138,8 +191,8 @@ class BudgetController extends Controller
         }else{
             $budget->project_kawasan_id = $request->kawasan;
         }
-        $budget->start_date = date("Y-m-d H:i:s",strtotime($request->start_date));
-        $budget->end_date = date("Y-m-d H:i:s",strtotime($request->end_date));
+        $budget->start_date = date("Y-m-d H:i:s.u",strtotime($request->start_date));
+        $budget->end_date = date("Y-m-d H:i:s.u",strtotime($request->end_date));
         $budget->description = $request->description;
         $budget->save();
 
@@ -265,23 +318,43 @@ class BudgetController extends Controller
         $start = 0;
         foreach ($budget->details as $key => $value) {
             $start = 0;
-            foreach ($value->itempekerjaan->child_item as $key1 => $value1) {
-                if ( $start == 0 ){
-                    $volume = $value->volume;
-                    $nilai = $value->nilai;
-                }else{
-                    $volume = 0;
-                    $nilai = 0;
-                }
+            if ( $value->itempekerjaan->group_cost == 1 ){
+                foreach ($value->itempekerjaan->child_item as $key1 => $value1) {
+                    if ( $start == 0 ){
+                        $volume = $value->volume;
+                        $nilai = $value->nilai;
+                    }else{
+                        $volume = 0;
+                        $nilai = 0;
+                    }
+                    $budgetDetail = new BudgetTahunanDetail;
+                    $budgetDetail->budget_tahunan_id = $budget_tahunan->id;
+                    $budgetDetail->itempekerjaan_id = $value1->id;
+                    $budgetDetail->nilai = $nilai;
+                    $budgetDetail->volume = $volume;
+                    if ( $value1->details != "" ){
+                        $budgetDetail->satuan = $value1->details->satuan;
+                    }else{
+                        $budgetDetail->satuan = 'ls';
+                    }
+                    $budgetDetail->save();
+                    $start++;
+                }   
+            }else{
+               
                 $budgetDetail = new BudgetTahunanDetail;
                 $budgetDetail->budget_tahunan_id = $budget_tahunan->id;
-                $budgetDetail->itempekerjaan_id = $value1->id;
-                $budgetDetail->nilai = $nilai;
-                $budgetDetail->volume = $volume;
-                $budgetDetail->satuan = $value1->details->satuan;
+                $budgetDetail->itempekerjaan_id = 293;
+                $budgetDetail->nilai = $value->nilai;
+                $budgetDetail->volume = $value->volume;
+                if ( $value->itempekerjaan->details != "" ){
+                    $budgetDetail->satuan = $value->itempekerjaan->details->satuan;
+                }else{
+                    $budgetDetail->satuan = 'ls';
+                }
                 $budgetDetail->save();
                 $start++;
-            }            
+            }                     
         }
         return redirect("/budget/cashflow/detail-cashflow?id=".$budget_tahunan->id);
     }
@@ -306,6 +379,14 @@ class BudgetController extends Controller
         }else{
             $budget_devcost = $budget->id;
         }
+
+
+        if ( $budget_tahunan->budget->kawasan != "" ){
+            $asset_id = $budget_tahunan->budget->project_kawasan_id;
+        }else{
+            $asset_id = $budget_tahunan->budget->project_id;
+        }
+        
         foreach ($spk as $key => $value) {
             # code...
             $spk = \Modules\Spk\Entities\Spk::find($value->id);
@@ -317,19 +398,21 @@ class BudgetController extends Controller
                         $budgetdetail = \Modules\Budget\Entities\BudgetDetail::where("itempekerjaan_id",$pekerjaan->id)->where("budget_id",$budget_devcost)->get();
                         if ( count($budgetdetail) > 0 ){ 
                             $exp = explode("/", $spk->no);  
-                            if ( $exp[5] == "17"){     
-                                //if ( ($spk->nilai - round($spk->nilai_bap)) > 0 ){
-                                    $array_cashflow[$start] = array(
-                                        "nospk" => $spk->no,
-                                        "nilaispk" => $spk->nilai,
-                                        "bap" =>$spk->nilai_bap,
-                                        "sisa" => ($spk->nilai - ($spk->nilai_bap)),
-                                        "id" => $spk->id,
-                                        "coa" => $spk->itempekerjaan->code.".00.00",
-                                        "pekerjaan" => $spk->itempekerjaan->name
-                                    );
-                                $start++; 
-                             }           
+                            if ( count($exp) > 5 ){                                
+                                if ( $exp[5] <= date("Y")){     
+                                    //if ( ($spk->nilai - round($spk->nilai_bap)) > 0 ){
+                                        $array_cashflow[$start] = array(
+                                            "nospk" => $spk->no,
+                                            "nilaispk" => $spk->nilai,
+                                            "bap" =>$spk->nilai_bap,
+                                            "sisa" => ($spk->nilai - ($spk->nilai_bap)),
+                                            "id" => $spk->id,
+                                            "coa" => $spk->itempekerjaan->code.".00.00",
+                                            "pekerjaan" => $spk->itempekerjaan->name
+                                        );
+                                    $start++; 
+                                 }
+                            }           
                         }else{
                             $nilai_sum_temp = $nilai_sum_temp + $spk->nilai;
                             
@@ -373,7 +456,55 @@ class BudgetController extends Controller
             );
         }
 
-        return view("budget::detail_cashflow2",compact("budget_tahunan","user","budget","start_date","end_date","array_cashflow","project","carry_over","array_carryover"));
+        $nilai_sisa_dev_cost = 0;
+        $nilai_sisa_con_cost = 0;
+        $spk = $budget_tahunan->budget->project->spks;
+        foreach ($spk as $key => $value) {
+            if ( $value->date->format("Y") <= date("Y")){
+                if ( $value->itempekerjaan != "" ){
+                    if ( $value->itempekerjaan->group_cost == 1 ){
+                        if ( $value->details != "" ){
+                            foreach ($value->details as $key2 => $value2) {
+                                if ( $value2->asset != "" ){
+                                    if ( $value2->asset->id == $asset_id ){
+                                        if ( $value->baps != "" ){
+                                            $bayar = $value->terbayar_verified / 1.1;
+                                        }else{
+                                            $bayar = 0;
+                                        }
+
+                                        $sisa = ( $value->nilai + $value->nilai_vo ) - $bayar;
+                                        if ( $sisa > 0 ){
+                                            $nilai_sisa_dev_cost = $sisa + $nilai_sisa_dev_cost;  
+                                        }                         
+                                    }
+                                }                            
+                            }
+                        }
+                    }else{
+                        if ( $value->tender->rab != "" ){
+                            if ( $value->tender->rab->budget_tahunan != "" ){
+                                if ( $value->tender->rab->budget_tahunan->budget->project_kawasan_id == $asset_id ){
+                                    if ( $value->baps != "" ){
+                                        $bayar = $value->baps->sum("nilai_bap_2");
+                                    }else{
+                                        $bayar = 0;
+                                    }
+
+                                    $sisa = $value->nilai - $bayar;
+                                    if ( $sisa > 0 ){
+                                        $nilai_sisa_con_cost = $sisa + $nilai_sisa_con_cost;  
+                                    } 
+                                }
+                            }
+                        }
+                    }
+                }
+                   
+            }                        
+        }
+
+        return view("budget::detail_cashflow2",compact("budget_tahunan","user","budget","start_date","end_date","array_cashflow","project","carry_over","array_carryover","nilai_sisa_dev_cost","nilai_sisa_con_cost"));
     }
 
     public function updatecashflow(Request $request){
@@ -581,7 +712,7 @@ class BudgetController extends Controller
 
     public function saverevisi(Request $request){
         $budget_awal = Budget::find($request->budget_id);
-        $budget_awal->deleted_at = date("Y-m-d H:i:s");
+        $budget_awal->deleted_at = date("Y-m-d H:i:s.u");
         $budget_awal->save();
 
         $budget = new Budget;
@@ -599,7 +730,7 @@ class BudgetController extends Controller
         $budget->created_by = \Auth::user()->id;
         $budget->save();
 
-        foreach ($budget_awal->details as $key => $value) {
+        /*foreach ($budget_awal->details as $key => $value) {
             $budgetDetail = new BudgetDetail;
             $budgetDetail->budget_id = $budget->id;
             $budgetDetail->itempekerjaan_id = $value->itempekerjaan_id;
@@ -607,6 +738,58 @@ class BudgetController extends Controller
             $budgetDetail->volume = $value->volume;
             $budgetDetail->satuan = $value->satuan;
             $budgetDetail->save();
+        }*/
+        
+        $itempekerjaan = Itempekerjaan::get();
+        foreach ($itempekerjaan as $key => $value) {
+            if ( $value->parent_id == null ){
+
+                if ( $budget_awal->project_kawasan_id == "" ){
+                    if ( $value->code == "240" ){
+                        foreach ($value->child_item as $key2 => $value2) {
+                            $budgetDetail = new BudgetDetail;
+                            $budgetDetail->budget_id = $budget->id;
+                            $budgetDetail->itempekerjaan_id = $value2->id;
+                            $budgetDetail->nilai = str_replace(",", "", $value2->nilai_master_satuan);
+                            $budgetDetail->volume = 0;
+                            if ( $value2->details != "" ){
+                                $budgetDetail->satuan = $value2->details->satuan;
+                            }else{
+                                $budgetDetail->satuan = 'ls';
+                            }
+                            $budgetDetail->save();
+                        }
+                    }
+                }else{
+                    if ( $value->code != "240" ){
+                        if ( $value->group_cost == 1 ){
+                            $budgetDetail = new BudgetDetail;
+                            $budgetDetail->budget_id = $budget->id;
+                            $budgetDetail->itempekerjaan_id = $value->id;
+                            $budgetDetail->nilai = str_replace(",", "", $value->nilai_master_satuan);
+                            $budgetDetail->volume = 0;
+                            if ( $value->details != "" ){
+                                $budgetDetail->satuan = $value->details->satuan;
+                            }else{
+                                $budgetDetail->satuan = 'ls';
+                            }
+                            $budgetDetail->save();
+                        } elseif ( $value->id == 292 ){
+                            $budgetDetail = new BudgetDetail;
+                            $budgetDetail->budget_id = $budget->id;
+                            $budgetDetail->itempekerjaan_id = $value->id;
+                            $budgetDetail->nilai = str_replace(",", "", $value->nilai_master_satuan);
+                            $budgetDetail->volume = 0;
+                            if ( $value->details != "" ){
+                                $budgetDetail->satuan = $value->details->satuan;
+                            }else{
+                                $budgetDetail->satuan = 'ls';
+                            }
+                            $budgetDetail->save();
+                        }
+                    }                    
+                }
+            }
         }
         //$approval = \App\Helpers\Document::make_approval('Modules\Budget\Entities\Budget',$budget->id);
         return redirect("budget/detail/?id=".$budget->id);
@@ -663,15 +846,19 @@ class BudgetController extends Controller
     }
 
     public function savecaryyover(Request $request){
-        foreach ($request->settospk as $key => $value) {
-            if ( $request->settospk[$key] != "" ){
-                $budgetDetail = new BudgetCarryOver;
-                $budgetDetail->budget_tahunan_id = $request->carryover_budget_id;
-                $budgetDetail->spk_id = $request->settospk[$key];
-                $budgetDetail->save();
+
+        if ( $request->settospk ){
+
+            foreach ($request->settospk as $key => $value) {
+                if ( $request->settospk[$key] != "" ){
+                    $budgetDetail = new BudgetCarryOver;
+                    $budgetDetail->budget_tahunan_id = $request->budget_id;
+                    $budgetDetail->spk_id = $request->settospk[$key];
+                    $budgetDetail->save();
+                }
             }
         }
-         return redirect("budget/cashflow/detail-cashflow/?id=".$request->carryover_budget_id);
+         return redirect("budget/cashflow/detail-cashflow/?id=".$request->budget_id);
     }
 
     public function deletecarryover(Request $request){
@@ -983,43 +1170,62 @@ class BudgetController extends Controller
 
     public function saveitemconcost(Request $request){
         $user = \Auth::user();
-        foreach ($request->item_id_ as $key => $value) {            
+        $budget_tahunan = BudgetTahunan::find($request->budget_tahunan_id);
+        foreach ($request->item_id_ as $key => $value) {  
+                 
             $budget_tahunan_detail = BudgetTahunanDetail::find($request->item_id_[$key]);
             $budget_tahunan_detail->volume = str_replace(",", "", $request->volume_[$key]);
             $budget_tahunan_detail->save();
         }   
 
+        if ( $budget_tahunan->budget_unit != "" ){
+            foreach ($budget_tahunan->budget_unit as $key => $value) {
+                $del_budget_unit = BudgetTahunanUnit::find($value->id);
+                $del_budget_unit = $del_budget_unit->delete();
+            }
+        }
+
         foreach ($request->unit_type_ as $key => $value) {
             $unit_type = UnitType::find($request->unit_type_[$key]);
+            if ( $request->harga_satuan[$key] != "" ){
+                $budget_tahunan_unit = new BudgetTahunanUnit;
+                $budget_tahunan_unit->budget_tahunan_id = $request->budget_tahunan_id;
+                $budget_tahunan_unit->harga_satuan = str_replace(",", "", $request->harga_satuan[$key]);
+                $budget_tahunan_unit->unit_type_id = $request->unit_type_[$key];
+                $budget_tahunan_unit->volume = $request->total_unit_type[$key] * $unit_type->luas_bangunan;
+                $budget_tahunan_unit->satuan = 'm2';
+                $budget_tahunan_unit->total_unit = $request->total_unit_type[$key];
+                $budget_tahunan_unit->created_by = $user->id;
+                $budget_tahunan_unit->save();
 
-            $budget_tahunan_unit = new BudgetTahunanUnit;
-            $budget_tahunan_unit->budget_tahunan_id = $request->budget_tahunan_id;
-            $budget_tahunan_unit->unit_type_id = $request->unit_type_[$key];
-            $budget_tahunan_unit->volume = $request->total_unit_type[$key] * $unit_type->luas_bangunan;
-            $budget_tahunan_unit->satuan = 'm2';
-            $budget_tahunan_unit->total_unit = $request->total_unit_type[$key];
-            $budget_tahunan_unit->created_by = $user->id;
-            $budget_tahunan_unit->save();
-
-            $budget_tahunan_unit_detail = new BudgetTahunanUnitPeriode;
-            $budget_tahunan_unit_detail->budget_tahunan_unit_id = $budget_tahunan_unit->id;
-            $budget_tahunan_unit_detail->created_by = $user->id;
-            $budget_tahunan_unit_detail->januari = $request->januari_[$key];
-            $budget_tahunan_unit_detail->februari = $request->februari_[$key];
-            $budget_tahunan_unit_detail->maret = $request->maret_[$key];
-            $budget_tahunan_unit_detail->april = $request->april_[$key];
-            $budget_tahunan_unit_detail->mei = $request->mei_[$key];
-            $budget_tahunan_unit_detail->juni = $request->juni_[$key];
-            $budget_tahunan_unit_detail->juli = $request->juli_[$key];
-            $budget_tahunan_unit_detail->agustus = $request->agustus_[$key];
-            $budget_tahunan_unit_detail->september = $request->september_[$key];
-            $budget_tahunan_unit_detail->oktober = $request->oktober_[$key];
-            $budget_tahunan_unit_detail->november = $request->november_[$key];
-            $budget_tahunan_unit_detail->desember = $request->desember_[$key];
-            $budget_tahunan_unit_detail->save();
+                $budget_tahunan_unit_detail = new BudgetTahunanUnitPeriode;
+                $budget_tahunan_unit_detail->budget_tahunan_unit_id = $budget_tahunan_unit->id;
+                $budget_tahunan_unit_detail->created_by = $user->id;
+                $budget_tahunan_unit_detail->januari = $request->januari_[$key];
+                $budget_tahunan_unit_detail->februari = $request->februari_[$key];
+                $budget_tahunan_unit_detail->maret = $request->maret_[$key];
+                $budget_tahunan_unit_detail->april = $request->april_[$key];
+                $budget_tahunan_unit_detail->mei = $request->mei_[$key];
+                $budget_tahunan_unit_detail->juni = $request->juni_[$key];
+                $budget_tahunan_unit_detail->juli = $request->juli_[$key];
+                $budget_tahunan_unit_detail->agustus = $request->agustus_[$key];
+                $budget_tahunan_unit_detail->september = $request->september_[$key];
+                $budget_tahunan_unit_detail->oktober = $request->oktober_[$key];
+                $budget_tahunan_unit_detail->november = $request->november_[$key];
+                $budget_tahunan_unit_detail->desember = $request->desember_[$key];
+                $budget_tahunan_unit_detail->save();
+            }
         }
         
-
+        if ( $budget_tahunan->budget_unit->count() > 0 ){
+            foreach ($request->item_id_ as $key => $value) {  
+                 
+                $budget_tahunan_detail = BudgetTahunanDetail::find($request->item_id_[$key]);
+                $budget_tahunan_detail->volume = str_replace(",", "", $request->volume_[$key]);
+                $budget_tahunan_detail->nilai = $budget_tahunan->budget_unit->avg("harga_satuan");
+                $budget_tahunan_detail->save();
+            } 
+        }
         return redirect("budget/cashflow/detail-cashflow/?id=".$budget_tahunan_detail->budget_tahunan_id);
     }
 
@@ -1039,5 +1245,190 @@ class BudgetController extends Controller
         $budget_tahunan = BudgetTahunan::find($request->budget_tahunan_id);
         return view("budget::item_referensi_cf",compact("user","project","itempekerjaan","harga","budget_tahunan"));
     }
-    
+
+    public function revitemcashflowcons(Request $request){
+        $budget_tahunan = BudgetTahunan::find($request->budget);
+        $user = \Auth::user();
+        $project = Project::find($request->session()->get('project_id'));
+        $volume_master = 0;
+        foreach ($budget_tahunan->budget->details as $key => $value) {
+            if ( $value->itempekerjaan->group_cost == 2 ){
+                $volume_master = $volume_master + $value->volume;
+            }
+        }
+
+        return view("budget::item_tahunan_concost",compact("user","project","budget_tahunan","volume_master"));
+    }
+
+    public function addcarryover(Request $request){
+        $array_spk_co = array();
+        $budget_tahunan = BudgetTahunan::find($request->id);
+        $user = \Auth::user();
+        $project = Project::find($request->session()->get('project_id'));
+        $start = 0;
+
+        if ( $budget_tahunan->budget->kawasan == null ){
+            $asset_id = $project->id;
+        }else{
+            $asset_id = $budget_tahunan->budget->kawasan->id; 
+        }
+
+        $spk = $budget_tahunan->budget->project->spks;
+        foreach ($spk as $key => $value) {
+
+            if ( $value->itempekerjaan != "" ){
+                //if ( $value->itempekerjaan->group_cost == 1 ){
+                    if ( $value->details != "" ){
+                        foreach ($value->details as $key2 => $value2) {
+                            if ( $value2->asset != "" ){
+                                if ( $value2->asset->id == $asset_id ){
+                                    if ( $value->baps != "" ){
+                                        $bayar = ( $value->terbayar_verified / 1.1 );
+                                    }else{
+                                        $bayar = 0;
+                                    }
+
+                                    $sisa = ( $value->nilai + $value->nilai_vo) - $bayar;
+                                    if ( $sisa > 0 ){
+                                        $array_spk_co[$start] = array(
+                                            "no_spk" => $value->no,
+                                            "id_spk" => $value->id,
+                                            "coa" => $value->itempekerjaan->code,
+                                            "nama_pekerjaan" => $value->itempekerjaan->name,
+                                            "nilai_spk" => $value->nilai + $value->nilai_vo,
+                                            "terbayar" => $bayar,
+                                            "sisa" => $value->nilai - $bayar,
+                                            "nama_spk" => $value->name
+                                        );
+                                        $start++;
+                                    }                            
+                                }
+                            }
+                            
+                        }
+                    }
+                //}            
+            }
+        }
+
+        return view("budget::item_co",compact("user","project","budget_tahunan","array_spk_co"));
+    }
+
+    public function savecashouttype(Request $request){
+
+        $budget_tahunan_periode = BudgetTahunanUnitPeriode::find($request->budget_unit_id);
+        $array_bulanan = array(
+            'januari' => 1,
+            'februari' => 2,
+            'maret' => 3,
+            'april' => 4,
+            'mei' => 5,
+            'juni' => 6,
+            'juli' => 7,
+            'agustus' => 8,
+            'september' => 9,
+            'oktober' => 10,
+            'november' => 11,
+            'desember' => 12
+        );
+
+        $budget_tahunan_unit_periode_detail = new BudgetTahunanUnitPeriodeDetail;
+        $budget_tahunan_unit_periode_detail->budget_tahunan_periode = $request->budget_unit_id;
+        $budget_tahunan_unit_periode_detail->month = $array_bulanan[$request->budget_unit_bulan];
+        $budget_tahunan_unit_periode_detail->januari = $request->januari_unit;
+        $budget_tahunan_unit_periode_detail->februari = $request->februari_unit;
+        $budget_tahunan_unit_periode_detail->maret = $request->maret_unit;
+        $budget_tahunan_unit_periode_detail->april = $request->april_unit;
+        $budget_tahunan_unit_periode_detail->mei = $request->mei_unit;
+        $budget_tahunan_unit_periode_detail->juni = $request->juni_unit;
+        $budget_tahunan_unit_periode_detail->juli = $request->juli_unit;
+        $budget_tahunan_unit_periode_detail->agustus = $request->agustus_unit;
+        $budget_tahunan_unit_periode_detail->september = $request->september_unit;
+        $budget_tahunan_unit_periode_detail->oktober = $request->oktober_unit;
+        $budget_tahunan_unit_periode_detail->november = $request->november_unit;
+        $budget_tahunan_unit_periode_detail->desember = $request->desember_unit;
+        $budget_tahunan_unit_periode_detail->save();
+
+        return redirect("/budget/cashflow/detail-cashflow?id=".$budget_tahunan_periode->budget_unit->budget_tahunan->id);
+    }
+
+    public function itemviewconcost(Request $request){
+        $budget_unit = BudgetTahunanUnitPeriode::find($request->id);
+        $data['status'] = 1;
+        $data['total'] = 0;
+        $array_bulan = array(
+            'januari' => 1,
+            'februari' => 2, 
+            'maret' => 3,
+            'april' => 4,
+            'mei' => 5,
+            'juni' => 6,
+            'juli' => 7,
+            'agustus' => 8,
+            'september' => 9,
+            'oktober' => 10,
+            'november' => 11,
+            'desember' => 12
+        );
+
+
+        $array_cashout = array(
+            'januari' => 0,
+            'februari' => 0,
+            'maret' => 0,
+            'april' => 0,
+            'mei' => 0,
+            'juni' => 0,
+            'juli' => 0,
+            'agustus' => 0,
+            'september' => 0,
+            'oktober' => 0,
+            'november' => 0,
+            'desember' => 0
+        );
+
+        foreach ($budget_unit->details as $key => $value) {
+            if ( $value->month == $array_bulan[$request->bulan] ){
+                $array_cashout = array(
+                    'januari' => $value->januari,
+                    'februari' => $value->februari,
+                    'maret' => $value->maret,
+                    'april' => $value->april,
+                    'mei' => $value->mei,
+                    'juni' => $value->juni,
+                    'juli' => $value->juli,
+                    'agustus' => $value->agustus,
+                    'september' => $value->september,
+                    'oktober' => $value->oktober,
+                    'november' => $value->november,
+                    'desember' => $value->desember
+                );
+                $data['status'] = "0";
+                $data['array_cashout'] = $array_cashout;
+                $data['total'] = $value->januari + $value->februari + $value->maret + $value->april + $value->mei + $value->juni + $value->juli + $value->agustus + $value->september + $value->oktober + $value->november + $value->desember ;
+             }
+        }
+
+        echo json_encode($data);
+    }
+
+    public function removeco(Request $request ){
+        $budget_carry_over = BudgetCarryOver::find($request->id);
+        $status = $budget_carry_over->delete();
+        if ( $status ){
+            return response()->json( ["status" => "0"] );
+        }else{
+            return response()->json( ["status" => "1"] );
+        }
+    }
+
+    public function removecoco(Request $request){
+        $budget_carry_over = BudgetCarryOverCashflow::find($request->id);
+        $status = $budget_carry_over->delete();
+        if ( $status ){
+            return response()->json( ["status" => "0"] );
+        }else{
+            return response()->json( ["status" => "1"] );
+        }
+    }
 }

@@ -52,8 +52,8 @@
               <div class="form-group">
                 <label>Tahun Anggaran</label>
                 <select name="tahun_anggaran" class="form-control">
-                  @for($i=2018; $i <= 2018; $i++ )
-                  <option value="{{ $i }}">{{ $i }}</option>
+                  @for($i=date("Y"); $i < (date("Y") + 2 ); $i++ )
+                    <option value="{{ $i }}">{{ $i }}</option>
                   @endfor
                 </select>
               </div>
@@ -126,13 +126,7 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-  <footer class="main-footer">
-    <div class="pull-right hidden-xs">
-      <b>Version</b> 2.4.0
-    </div>
-    <strong>Copyright &copy; 2014-2016 <a href="https://adminlte.io">Almsaeed Studio</a>.</strong> All rights
-    reserved.
-  </footer>
+    @include("master/copyright")
 
   
   <!-- Add the sidebar's background. This div must be placed

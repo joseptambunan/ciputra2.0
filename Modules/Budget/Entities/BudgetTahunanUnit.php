@@ -19,4 +19,5 @@ class BudgetTahunanUnit extends Model
     public function details(){
     	return $this->hasMany("Modules\Budget\Entities\BudgetTahunanUnitPeriode");
     }
+    
 }

@@ -123,8 +123,10 @@ class RekananController extends Controller
 
         if ( $request->pkp == null ){
             $rekanan_group->coa_ppn = 2;
+            $rekanan_group->pkp_status = 2;
         }else{
             $rekanan_group->coa_ppn = 1;
+            $rekanan_group->pkp_status = 1;
         }
 
         $rekanan_group->save();
@@ -229,5 +231,25 @@ class RekananController extends Controller
         $rekanan_user->email = $request->email_2;
         $rekanan_user->save();
         return redirect("/rekanan/detail?id=".$request->rekanan_group_id);  
+    }
+
+    public function usulan(Request $request){
+        $rekanan_group = RekananGroup::get();
+        $user = \Auth::user();
+        return view("rekanan::usulan",compact("rekanan_group","user"));
+    }
+
+    public function saveusulan(Request $request){
+        if ( isset($request->status_)){
+            foreach ($request->status_ as $key => $value) {
+                echo $request->status_[$key];
+                /*$rekanan = Rekanan::find($request->status_[$key]);
+                $rekanan->gabung_date = date("Y-m-d H:i:s.u");
+                $rekanan->save();*/
+            }
+        }
+        $rekanan_group = RekananGroup::get();
+        $user = \Auth::user();
+        return redirect("/rekanan/usulan");
     }
 }

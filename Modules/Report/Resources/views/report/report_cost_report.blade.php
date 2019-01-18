@@ -1,109 +1,141 @@
 <!DOCTYPE html>
 <html>
-@include('user.header')
-<body class="hold-transition sidebar-mini">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>User QS | Dashboard</title>
+  @include("master/header")
+</head>
+<body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
- 
-  <!-- /.navbar -->
-  @include('user.sidebar')
-  <style type="text/css">
-    .DTFC_LeftBodyLiner{
-      overflow: hidden !important;
-    }
-  </style>
+
+  @include('master/sidebar_report')
+
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <h1>Cost Report</h1>
+
+    </section>
 
     <!-- Main content -->
-    <section class="content" style="font-size:17px;">
+    <section class="content">
       <div class="row">
-        <div class="col-12">
-
-          <div class="card">
-            <div class="card-header">              
-              <a class="btn btn-warning" href="{{ url('/')}}/user/report/document?id={{ $project->id}}">Back</a>
-              <h3 class="card-title">Data Cost Report</h3>
+        <div class="col-xs-12">
+          <div class="box">
+            <div class="box-header">
+              <h3 class="box-title">Data Proyek <strong>{{ $project->name }}</strong></h3>
             </div>
-            <!-- /.card-header -->
-            <div class="card-body">
-              <h4>Nama Proyek : <strong>{{ $project->name or  '' }}</strong></h4>
-              <h4>Periode : 01/01/{{ date('Y')}} s/d {{ date("d M Y") }} </h4>
-              <table id="example3" class="table table-bordered" style="font-size: 12px;">
-                <thead>
-                <tr style="background-color: #17a2b8;color: white;font-weight: bolder;overflow: hidden;">
-                  <th>Kawasan</th>
-                  <th rowspan="3">Tgl SPK</th>
-                  <th rowspan="3">Acuan SPK</th>
-                  <th rowspan="3">Pekerjaan</th>
-                  <th rowspan="3">Rekanan</th>
-                  <th rowspan="3">Tgl ST1</th>
-                  <th rowspan="3">Tgl ST2</th>
-                  <th rowspan="3">RAB/ Budget</th>
-                  <th rowspan="2" colspan="3">Kontrak</th>
-                  <th rowspan="3">Progress Lapangan</th>
-                  <th rowspan="3">Progress BAP</th>
-                  <th rowspan="3">BAP Terbayar</th>
-                  <th rowspan="2" colspan="2">Saldo</th>
-                </tr>
-                <tr style="background-color: #17a2b8;color: white;font-weight: bolder;overflow: hidden;">
-                  <th>Pekerjaan</th>
-                </tr>
-                <tr style="background-color: #17a2b8;color: white;font-weight: bolder;overflow: hidden;">
-                  <th>Nomor SPK</th>
-                  <th>SPK</th>
-                  <th>VO</th>
-                  <th>Total</th>
-                  <th>Budget</th>
-                  <th>Total</th>
-                </tr>
+            <!-- /.box-header -->
+            <div class="box-body table-responsive">
+              <table id="example2" class="table  table-bordered table-hover" cellpadding="0" cellspacing="0">
+                <thead  style="background-color: greenyellow;">
+                  <tr>
+                    <th>Kawasan</th>
+                    <th rowspan="3">Tgl SPK</th>
+                    <th rowspan="3">Acuan SPK</th>
+                    <th rowspan="3">Pekerjaan</th>
+                    <th rowspan="3">Rekanan</th>
+                    <th rowspan="3">Tgl ST1</th>
+                    <th rowspan="3">Tgl ST2</th>
+                    <th rowspan="3">RAB/ Budget(Rp)</th>
+                    <th rowspan="2" colspan="3">Kontrak(Rp)</th>
+                    <th rowspan="3">Progress Lapangan(%)</th>
+                    <th rowspan="3">Progress BAP(%)</th>
+                    <th rowspan="3">BAP Terbayar(Rp)</th>
+                    <th rowspan="2" colspan="2">Saldo(Rp)</th>
+                  </tr>
+                  <tr>
+                    <th>Pekerjaan</th>
+                  </tr>
+                  <tr>
+                    <th>Nomor SPK</th>
+                    <th>SPK</th>
+                    <th>VO</th>
+                    <th>Total</th>
+                    <th>Budget</th>
+                    <th>Total</th>
+                  </tr>
                 </thead>
                 <tbody>
-                  @foreach ( $project->kawasans as $key => $value )
-                  <tr style="text-transform: uppercase;background-color: grey;color:white;overflow: hidden;">
-                    <td style="background-color: grey;" onclick="showchild('{{ $value->id }}');" data-attribute='1' id='btn_{{$value->id}}'><strong>{!! $value->name !!}</strong></td>
-                    <td>&nbsp;</td>
-                    <td>&nbsp;</td>
-                    <td>&nbsp;</td>
-                    <td>&nbsp;</td>
-                    <td>&nbsp;</td>
-                    <td>&nbsp;</td>
-                    <td>&nbsp;</td>
-                    <td>&nbsp;</td>
-                    <td>&nbsp;</td>
-                    <td>&nbsp;</td>
-                    <td>&nbsp;</td>
-                    <td>&nbsp;</td>                    
-                    <td>&nbsp;</td>
-                    <td>&nbsp;</td>
-                    <td>&nbsp;</td>
-                  </tr>
-                  @foreach( $value->cost_report as $key2 => $value2 )
-                  <tr style="text-align: right;background-color: white;" class="itempekerjaan item_{{$value->id}}">
-                    <td>{{ $value2->spk->no }}</td>
-                    <td>{{ $value2->spk->date->format("d/m/y") }}</td>
-                    <td>{{ $value2->spk->description }}</td>
-                    <td>{{ $value2->spk->itempekerjaan->name }}</td>
-                    <td>{{ $value2->spk->rekanan->name or '' }}</td>
-                    <td>{{ $value2->spk->st_1 }}</td>
-                    <td>{{ $value2->spk->st_2 }}</td>
-                    <td>{{ $value2->spk->st_2->tender_rekanan->tender->rab->nilai or '' }}</td>
-                    <td>{{ number_format($value2->spk->nilai,2) }}</td>
-                    <td>{{ number_format($value2->spk->nilai_vo,2) }}</td>
-                    <td>{{ number_format($value2->spk->nilai + $value2->spk->nilai_vo,2) }}</td>
-                    <td>{{ number_format($value2->spk->nilai_progress,2) * 100 }} %</td>                   
-                    <td>{{ number_format($value2->spk->nilai_progress_bap,2) * 100 }} %</td>
-                    <td>{{ number_format($value2->spk->nilai_progress_bap * $value2->spk->nilai,2) }}</td>
-                    <td>{{ number_format($value2->spk->nilai,2) }}</td>
-                    <td>{{ number_format( $value2->spk->nilai - ($value2->spk->nilai_progress_bap * $value2->spk->nilai),2) }};</td>
-                  </tr>
-                  @endforeach
+                  @foreach ( $array_costreport as $key => $value )
+                    <tr>
+                      <td><strong>{{ $value['kawasan'] }}</strong></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                    </tr>
+                    @foreach( $value['itempekerjaan'] as $key2 => $value2 )
+                    <tr style="background-color: grey;font-weight: bolder;color:white;">
+                      <td><i><span>{{ $value2['name']}}</span></i></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td>{{ number_format($value2['total_rab'])}}</td>
+                      <td>{{ number_format($value2['total_kontrak'])}}</td>
+                      <td>{{ number_format($value2['total_vo'])}}</td>
+                      <td>{{ number_format($value2['total_spk'])}}</td>
+                      <td>{{ number_format($value2['rata_progress'])}}</td>
+                      <td>{{ number_format($value2['rata_diakui'])}}</td>
+                      <td>{{ number_format($value2['total_terbayar'])}}</td>
+                      <td>{{ number_format($value2['total_saldo_budget'])}}</td>
+                      <td>{{ number_format($value2['total_saldo_terbayar'])}}</td>
+                    </tr>
+                    @foreach( $array_spk as $key3 => $value3 )
+                      @php $nilai_rab = 0; @endphp
+                      @if ( $value3['code'] == $value2['code'])
+                        @if ( $value3['project_kawasan_id'] == $value['kawasan'])
+                        <tr>
+                          <td>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<span>{{ $value3['spk_no']}}</span><br>                            
+                            <a href="#" class="btn-xs btn-primary">Detail</a>
+                          </td>
+                          <td>{{ $value3['date']}}</td>
+                          <td>
+                            {{ $value3['acuan']}}<br>
+                            <a href="#" class="btn-xs btn-primary">Detail</a>
+                          </td>
+                          <td>{{ $value3['rekanan']}}</td>
+                          <td>{{ $value3['st_1']}}</td>
+                          <td>{{ $value3['st_2']}}</td>
+                          <td>{{ number_format($value3['rab'])}}</td>
+                          <td>{{ number_format($value3['nilai'])}}</td>
+                          <td>{{ number_format($value3['nilai_vo'])}}</td>
+                          <td>{{ number_format($value3['total'])}}</td>
+                          <td>{{ number_format($value3['lapangan'],2)}}</td>
+                          <td>{{ number_format($value3['diakui'],2)}}</td>
+                          <td>{{ number_format($value3['terbayar'])}}</td>
+                          <td>{{ number_format($value3['saldo'])}}</td>
+                          <td>{{ number_format($value3['sisa'])}}</td>
+                        </tr>
+                        @endif
+                      @endif
+                    @endforeach
+                    @endforeach
                   @endforeach
                 </tbody>
               </table>
             </div>
-            <!-- /.card-body -->
+            <!-- /.box-body -->
           </div>
-          <!-- /.card -->
+          <!-- /.box -->
+
         </div>
         <!-- /.col -->
       </div>
@@ -112,53 +144,15 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-  <footer class="main-footer">
-    <div class="float-right d-none d-sm-block">
-      <b>Version</b> 3.0.0-alpha
-    </div>
-    <strong>Copyright &copy; 2014-2018 <a href="http://adminlte.io">AdminLTE.io</a>.</strong> All rights
-    reserved.
-  </footer>
-
-
+ @include("master/copyright")
+  
+  <!-- Add the sidebar's background. This div must be placed
+       immediately after the control sidebar -->
+  <div class="control-sidebar-bg"></div>
 </div>
 <!-- ./wrapper -->
-@include('user.footer')
-<script type="text/javascript" src="https://cdn.datatables.net/fixedcolumns/3.2.4/js/dataTables.fixedColumns.min.js"></script>
-<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/fixedcolumns/3.0.2/css/dataTables.fixedColumns.css">
-<script type="text/javascript">
-  $(document).ready(function() {
-    $('#example3').DataTable( {
-        scrollY:        600,
-        scrollX:        true,
-        scrollCollapse: true,
-        paging:         false,
-        ordering : false,
-        fixedColumns : {
-          leftColumns : 1
-        }
-    } );
 
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-Token': $('input[name=_token]').val()
-        }
-    });
-   
-  });
+@include("master/footer_table")
 
-  function showchild(id){
-    if ( $("#btn_" +id).attr("data-attribute") == "1"){
-      $(".itempekerjaan").hide();
-      $(".item_" + id).show(1000);
-      $("#btn_" +id).attr("data-attribute","0");
-    }else{
-      $(".itempekerjaan").hide();
-      $(".item_" + id).hide(1000);
-      $("#btn_" +id).attr("data-attribute","1");
-    }
-    
-  }
-</script>
 </body>
 </html>

@@ -1,10 +1,48 @@
-<script src="{{ url('/')}}/assets/plugins/jquery.number.min.js"></script>
 <script type="text/javascript">
-	$(function(){
-		$(".nilai_budget").number(true,2);
-	})
+$( document ).ready(function() {
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-Token': $('input[name=_token]').val()
+        }
+  	});
 
-	function submitform(){
-		$("#form1").submit();
-	}
+  	$('.select2').select2();
+});
+
+function cekNpwp(){
+	var request = $.ajax({
+		url : "{{ url('/')}}/kontraktor/ceknpwp",
+		dataType : "json",
+		data : {
+			npwp : $("#npwp").val()
+		},
+		type : "post"
+	});	
+
+	request.done(function(data){
+		if ( data.status == 0 ){
+			alert("Rekanan sudah didaftarkan");
+		}else{
+			if ( confirm("Rekanan belum didaftarkan. Apakah anda ingin menambah ke dalam rekanan ?")){
+				var request2 = $.ajax({
+					url : "{{ url('/')}}/kontraktor/store",
+					dataType : "json",
+					data : {
+						npwp_no : $("#npwp").val()
+					},
+					type : "post"
+				});
+
+				request2.done(function(data){
+					if ( data.status == "0"){
+						window.location.href = "/kontraktor/detail/?id=" + data.id;
+					}
+				})
+			}else{
+				return false;
+			}
+		}
+	});
+}
+
 </script>

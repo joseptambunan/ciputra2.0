@@ -34,6 +34,7 @@
                 <thead class="head_table">
                 <tr>
                   <th>No. SPK </th>
+                  <th>COA</th>
                   <th>Pekerjaan</th>
                   <th>Department From</th>
                   <th>Nilai</th>
@@ -47,10 +48,11 @@
                   @if ( $value->tender != "" )
                   <tr>
                     <td>{{ $value->no }}</td>
+                    <td>{{ $value->itempekerjaan->code or '' }}</td>
                     <td>{{ $value->name }}</td>
                     <td>{{ $value->tender->rab->workorder->departmentFrom->name or '' }}</td>
                     <td>{{ number_format($value->nilai) }}</td>
-                    <td>{{ $value->created_at }}</td>
+                    <td>{{ $value->date->format("d/M/Y") }}</td>
                     <td><a href="{{ url('/')}}/spk/detail?id={{ $value->id }}" class="btn btn-warning">Detail</td>
                     <td>
                       @if ( $value->approval == "" )

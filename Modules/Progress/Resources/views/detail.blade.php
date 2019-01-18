@@ -69,11 +69,13 @@
                       <td>&nbsp;</td>
                     </tr>
                     @foreach ( $spk->tender->units as $key => $value )
+                   
                     <tr>
                       <td>{{ $value->rab_unit->asset->name }}</td>
                       <td>{{ number_format($value->progress * count($spk->details),2) }}</td>
                       <td><a class="btn btn-primary" href="{{ url('/')}}/progress/create?id={{ $value->id }}&spk={{ $spk->id }}">Tambah Progress</a></td>
                     </tr>
+                   
                     @endforeach
                   </tbody>
                 </table>

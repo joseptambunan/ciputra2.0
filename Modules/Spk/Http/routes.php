@@ -39,4 +39,9 @@ Route::group(['middleware' => 'web', 'prefix' => 'spk', 'namespace' => 'Modules\
     Route::post('/create-progress','SpkController@setprogress');
 
     Route::get('/sik-unit','SpkController@sikunit');
+
+    //Master SPK
+    Route::get('/tipe','SpkMasterController@index');
+    Route::post('/delete-tipe','SpkMasterController@destroy');
+    Route::post('/save-tipe','SpkMasterController@store');
 });

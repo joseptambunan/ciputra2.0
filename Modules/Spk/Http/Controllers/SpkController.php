@@ -30,6 +30,7 @@ use Modules\Spk\Entities\SuratInstruksiUnit;
 use Modules\Tender\Entities\TenderUnit;
 use Modules\Rab\Entities\RabUnit;
 use Modules\User\Entities\User;
+use Modules\Globalsetting\Entities\Globalsetting;
 
 class SpkController extends Controller
 {
@@ -68,7 +69,13 @@ class SpkController extends Controller
             $is_instruksilangsung = FALSE;
         }
 
-        $itempekerjaan = Itempekerjaan::find($tender->rab->parent_id);
+        $itempekerjaan = Itempekerjaan::find($tender->rab->pekerjaans->last()->itempekerjaan->parent->id);
+        $budget = $tender->rab->budget_tahunan->budget;
+        if ( $budget->project_kawasan_id == NULL ){
+            $project_kawasan_id = NULL;
+        }else{
+            $project_kawasan_id = $budget->project_kawasan_id;
+        }
 
         $spk = new Spk;
         $spk->project_id = $tender->project->id;
@@ -79,7 +86,9 @@ class SpkController extends Controller
         $spk->is_instruksilangsung = $is_instruksilangsung;
         $spk->start_date = date("Y-m-d H:i:s");
         $spk->created_by = \Auth::user()->id;
+        $spk->date = date("Y-m-d H:i:s");
         $spk->coa_pph_default_id =  $tender->menangs->first()->tender_rekanan->rekanan->group->pph_percent;
+        $spk->project_kawasan_id = $project_kawasan_id;
         $spk->save();
 
         /* Save Unit */
@@ -99,7 +108,7 @@ class SpkController extends Controller
                 $unit_progress = new UnitProgress;
                 $unit_progress->project_id = $tender->project->id;
                 $unit_progress->unit_id = $value->id;
-                $unit_progress->unit_type = $value->rab_unit->asset_type;
+                $unit_progress->unit_type = "Modules\Tender\Entities\TenderUnit";
                 $unit_progress->itempekerjaan_id = $value2->rab_pekerjaan->itempekerjaan_id;
                 $unit_progress->urutitem = $key2+1;
                 $unit_progress->termin = $key2+1;
@@ -198,6 +207,7 @@ class SpkController extends Controller
         $ttd_kedua = "";
         $tmp_ttd_pertama = array();
         $start = 0;
+        $ppn = Globalsetting::where("parameter","ppn")->first()->value;
         foreach ($progress as $key => $value) {
             $termyn[$key] = 0 ;
         }
@@ -238,7 +248,11 @@ class SpkController extends Controller
                 }
             }
         }
-        return view('spk::create',compact("itempekerjaan","tender_menang","project","user","spk","spktype","termyn","list_ttd","ttd_pertama"));
+
+       /* echo "<pre>";
+        print_r($ttd_pertama);
+        die;*/
+        return view('spk::create',compact("itempekerjaan","tender_menang","project","user","spk","spktype","termyn","list_ttd","ttd_pertama","ppn"));
     }
 
     /**
@@ -411,7 +425,7 @@ class SpkController extends Controller
         $bap->nilai_bap_2 = $request->nilai_bap_2;
         $bap->nilai_bap_3 = $request->nilai_bap_3;
         $bap->percentage = $request->percentage;
-        $bap->percentage_lapangan = $request->percentage_lapangan;
+        $bap->percentage_lapangan = round($request->percentage_lapangan,2);
         $bap->percentage_sebelumnyas = $request->percentage_sebelumnya;
         $bap->nilai_bap_dibayar = $request->nilai_bap_dibayar;
         $bap->nilai_retensi = $request->nilai_retensi;
@@ -821,5 +835,9 @@ class SpkController extends Controller
         $spkvo_unit_id->delete();
         $unitprogress->delete();
         return response()->json( ["status" => "0"] );
+    }
+
+    public function download(Request $request){
+
     }
 }

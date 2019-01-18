@@ -53,7 +53,7 @@ class TenderController extends Controller
     {
         $user = \Auth::user();
         $project = Project::find($request->session()->get('project_id'));
-        $workorder = Workorder::where("budget_tahunan_id",$project->id)->get();
+        $workorder = Workorder::get();
         return view('tender::create',compact("user","project","workorder"));
     }
 
@@ -65,7 +65,7 @@ class TenderController extends Controller
     public function store(Request $request)
     {
         $rab = Rab::find($request->tender_rab);
-        $itempekerjaan = Itempekerjaan::find($rab->parent_id);
+        $itempekerjaan = Itempekerjaan::find($rab->pekerjaans->last()->itempekerjaan->parent->id);
         $department_from = $rab->workorder->department_from;
         $project = Project::find($request->session()->get('project_id'));
         $tender = new Tender;
@@ -74,7 +74,11 @@ class TenderController extends Controller
         $tender->name = "Tender-".$itempekerjaan->code."-".$itempekerjaan->name;
         $tender->no = $tender_no;
         $tender->save();
-        mkdir("./assets/tender/".$tender->id);
+
+        if (!file_exists("./assets/tender/".$tender->id)) {
+            mkdir("./assets/tender/".$tender->id);
+        }
+
         foreach ($rab->units as $key => $value) {
             $tender_unit = new TenderUnit;
             $tender_unit->tender_id = $tender->id;
@@ -96,7 +100,7 @@ class TenderController extends Controller
         $project = Project::find($request->session()->get('project_id'));
         $rekanan = Rekanan::get();
         $rab = $tender->rab;
-        $itempekerjaan = Itempekerjaan::find($rab->parent_id);
+        $itempekerjaan = Itempekerjaan::find($rab->pekerjaans->last()->itempekerjaan->parent->id);
         $global_setting = Globalsetting::get();
         $data = array();
         foreach ($global_setting as $key => $value) {
@@ -305,7 +309,7 @@ class TenderController extends Controller
     public function addpenawaran(Request $request){
         $rekanan = TenderRekanan::find($request->id);
         $rab = $rekanan->tender->rab;
-        $itempekerjaan = Itempekerjaan::find($rab->parent_id);
+        $itempekerjaan = Itempekerjaan::find($rab->pekerjaans->last()->itempekerjaan->parent->id);
         $user = \Auth::user();
         $project = Project::find($request->session()->get('project_id'));
         return view("tender::detail_rab",compact("rab","itempekerjaan","rekanan","user","project"));
@@ -342,7 +346,7 @@ class TenderController extends Controller
         $rab = $tender->rab;
         $user = \Auth::user();
         $project = Project::find($request->session()->get('project_id'));
-        $itempekerjaan = Itempekerjaan::find($rab->parent_id);
+        $itempekerjaan = Itempekerjaan::find($rab->pekerjaans->last()->itempekerjaan->parent->id);
         return view("tender::detail_step2",compact("tender","itempekerjaan","user","project"));
     }
 
@@ -388,7 +392,7 @@ class TenderController extends Controller
         $tenderpenawaran = TenderPenawaran::find($request->id);
         $tenderRekanan = $tenderpenawaran->rekanan;
         $rab = $tenderRekanan->tender->rab;
-        $itempekerjaan = Itempekerjaan::find($rab->parent_id);
+        $itempekerjaan = Itempekerjaan::find($rab->pekerjaans->last()->itempekerjaan->parent->id);
         $user = \Auth::user();
         $project = Project::find($request->session()->get('project_id'));
         $penawaran_id = "";
@@ -462,7 +466,7 @@ class TenderController extends Controller
         $rab = $tender->rab;
         $user = \Auth::user();
         $project = Project::find($request->session()->get('project_id'));
-        $itempekerjaan = Itempekerjaan::find($rab->parent_id);
+        $itempekerjaan = Itempekerjaan::find($rab->pekerjaans->last()->itempekerjaan->parent->id);
         return view("tender::detail_step3",compact("tender","itempekerjaan","user","project"));
     }
 
@@ -495,7 +499,7 @@ class TenderController extends Controller
         $tenderpenawaran = TenderPenawaran::find($request->id);
         $tenderRekanan = $tenderpenawaran->rekanan;
         $rab = $tenderRekanan->tender->rab;
-        $itempekerjaan = Itempekerjaan::find($rab->parent_id);
+        $itempekerjaan = Itempekerjaan::find($rab->pekerjaans->last()->itempekerjaan->parent->id);
         $user = \Auth::user();
         $project = Project::find($request->session()->get('project_id'));
         $penawaran_id = "";
@@ -640,7 +644,6 @@ class TenderController extends Controller
     public function searchreferensi(Request $request){
         $html = "";
         $start = 0;
-        $itempekerjaan = Itempekerjaan::find($request->itempekerjaan);
         if ( $request->itempekerjaan == "all"){
             $rekanan_group = RekananGroup::get();
             foreach ($rekanan_group as $key => $value) {

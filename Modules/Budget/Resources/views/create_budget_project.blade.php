@@ -43,9 +43,15 @@
               <div class="form-group">
                 <label>PT</label>
                 <select class="form-control" name="pt_id">
-                  @foreach ( $project->pt as $key => $value )
-                  <option value="{{ $value->pt->id }}">{{ $value->pt->name }}</option>
-                  @endforeach
+                  @if ( $user->project_pt_users != "" )
+                    @foreach ( $user->project_pt_users as $key2 => $value2 )
+                      @foreach ( $project->pt as $key => $value )
+                        @if ( $value2->pt_id == $value->pt->id )
+                          <option value="{{ $value->pt->id }}">{{ $value->pt->name }}</option>
+                        @endif
+                      @endforeach
+                    @endforeach
+                  @endif
                 </select>
               </div>
               <div class="form-group">
@@ -61,11 +67,17 @@
               <div class="form-group">
                 <label>Kawasan <i><strong>*(jika tidak dicentang, budget akan dibuat untuk Fasilitas Kota)</strong></i></label>
                 <input type="checkbox" name="iskawasan" id="iskawasan" onClick="setkawasan();">
-                <select class="form-control" name="kawasan" id="kawasan" style="display: none;" >
-                  @foreach ( $project->kawasans as $key2 => $value2 )
-                  <option value="{{ $value2->id }}">{{ $value2->name }}</option>
-                  @endforeach 
-                </select>
+                @if ( $user->project_pt_users != "" )
+                @foreach ( $user->project_pt_users as $key2 => $value2 )                
+                  <select class="form-control" name="kawasan" id="kawasan" style="display: none;" >
+                    @foreach ( $project->kawasans as $key3 => $value3 )
+                     @if ( $value3->budgets->count() <= 0 )
+                        <option value="{{ $value3->id }}">{{ $value3->name }}</option>
+                     @endif
+                    @endforeach
+                  </select>                  
+                @endforeach
+                @endif
               </div>
               <div class="form-group">
                 <label>Start Date</label>
@@ -82,6 +94,7 @@
               <div class="box-footer">               
                 <i class="fa fa-refresh ld ld-spin" id="loading" style="display: none;"></i>
                 <button type="submit" class="btn btn-primary submitbtn" id="btn_submit">Simpan</button>
+                <a class="btn btn-warning" href="{{ url('/')}}/budget/proyek">Kembali</a>
               </div>
               </form>
               <!-- /.form-group -->
@@ -103,13 +116,7 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-  <footer class="main-footer">
-    <div class="pull-right hidden-xs">
-      <b>Version</b> 2.4.0
-    </div>
-    <strong>Copyright &copy; 2014-2016 <a href="https://adminlte.io">Almsaeed Studio</a>.</strong> All rights
-    reserved.
-  </footer>
+    @include("master/copyright")
 
   
   <!-- Add the sidebar's background. This div must be placed

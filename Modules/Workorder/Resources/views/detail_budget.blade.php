@@ -66,22 +66,50 @@
                       </tr>
                     </thead>
                     <tbody>
-                      @foreach ( $budget_tahunan->details as $key => $value )
-                      @if ( $value->nilai > 0 && $value->volume > 0 )
-                        <tr>
-                          <td><input type="checkbox" name="setwo[{{ $key}}]" value="{{ $key}}"></td>
-                          <td>{{ $value->itempekerjaans->code or ''}}</td>
-                          <td>{{ $value->itempekerjaans->name or ''}}</td>
-                          <td>{{ number_format($value->nilai * $value->volume,2 )}}</td>
-                          <td>{{ number_format($value->nilai * $value->volume,2) }}</td>
-                         <td>
-                            <input type="hidden" name="item_id[{{ $key}}]" class="form-control" value="{{ $value->itempekerjaans->id or ''}}">
-                            <input type="text" name="volume[{{ $key}}]" class="form-control nilai_budget" value="{{ number_format($value->volume,2) }}">
-                          </td>
-                          <td><input type="hidden" name="satuan[{{ $key}}]" class="form-control" value="{{ $value->itempekerjaans->details->satuan }}"><input type="text" class="form-control" value="{{ $value->itempekerjaans->details->satuan }}" readonly></td>
-                          <td><input type="text" name="nilai[{{ $key}}]" class="form-control nilai_budget" value="{{ number_format($value->nilai,2)}}"></td>   
-                          <td><span id="">0</span></td>  
+                      @php $start = 0; @endphp
+                      @foreach ( $budget_tahunan->total_parent_item as $key => $value )
+                      @if ( $value['nilai'] > 0 && $value['volume'] > 0 )
+                        @php $itempekerjaan = \Modules\Pekerjaan\Entities\Itempekerjaan::find($value['id']); @endphp
+                        <tr style="background-color: grey;color:white;font-weight: bolder">
+                          <td>&nbsp;</td>
+                          <td>{{ $itempekerjaan->code or ''}}</td>
+                          <td>{{ $itempekerjaan->name or ''}}</td>
+                          <td>{{ number_format($value['nilai'] * $value['volume'],2 )}}</td>
+                          <td>{{ number_format($value['nilai'] * $value['volume'],2) }}</td>
+                          <td>&nbsp;</td>
+                          <td>&nbsp;</td>   
+                          <td>&nbsp;</td>  
+                          <td>&nbsp;</td>
                         </tr>
+                        @if ( $itempekerjaan->group_cost == 1 )
+                          @foreach ( $itempekerjaan->child_item as $key2 => $value2 )
+                          <tr>
+                            <td><input type="checkbox" name="setwo[{{ $start}}]" value="{{ $start}}"></td>
+                            <td>{{ $value2->code or ''}}</td>
+                            <td>{{ $value2->name or ''}}</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>
+                              <input type="hidden" name="item_id[{{ $start}}]" class="form-control" value="{{ $value2->id or ''}}">
+                              <input type="text" name="volume[{{ $start}}]" class="form-control nilai_budget" value="{{ number_format($value2->volume,2) }}">
+                            </td>
+                            <td><input type="hidden" name="satuan[{{ $start}}]" class="form-control" value="{{ $value2->details->satuan or 'ls' }}"><input type="text" class="form-control" value="{{ $value2->details->satuan or 'ls' }}" readonly></td>
+                            @if ( count($value2->harga) > 0 )
+                            <td><input type="text" name="nilai[{{ $start}}]" class="form-control nilai_budget" value="{{ number_format($value2->harga->last()->nilai,2)}}"></td>   
+                            @else                            
+                            <td><input type="text" name="nilai[{{ $start}}]" class="form-control nilai_budget" value="0"></td>   
+                            @endif
+                            <td><span id="">0</span></td>  
+                          </tr>
+                          @php $start++; @endphp
+                          @endforeach
+                        @else
+                          <tr>
+                            <td><input type="checkbox" name="setwo[{{ $start}}]" value="{{ $start}}"></td>
+                            <td>{{ $value2->code or ''}}</td>
+                            <td>{{ $value2->name or ''}}</td>
+                          </tr>
+                        @endif
                       @endif
                       @endforeach
                     </tbody>

@@ -106,22 +106,37 @@ class Rab extends Model
     }
 
     public function getParentIdAttribute(){
-        $code = array();
+        /*$code = array();
         $id = "";
+        $id_code = "";
         if ( count($this->pekerjaans) > 0 ){
             foreach ($this->pekerjaans as $key => $value) {
                 //echo $value->itempekerjaan->code;
                 //echo "\n";
-                $id_code = explode(".",$value->itempekerjaan->code);
-                $code[$key] = $id_code[0].".".$id_code[1];
+                if ( $id_code != "" ){
+                    if ( count($id_code) > 2 ){                    
+                        $id_code = explode(".",$value->itempekerjaan->code);
+                        $code[$key] = $id_code[0].".".$id_code[1];
+                    } else{
+                        $code[$key] = $id_code[0];
+                    }
+                }
             }
             $unique = array_unique($code);
             $val = array_values($unique);
-           
-            $id = \Modules\Pekerjaan\Entities\Itempekerjaan::where("code",$val[0])->get()->first()->id;
-        }
+            if ( count($val) > 0 ){
+
+                $id = \Modules\Pekerjaan\Entities\Itempekerjaan::where("code",$val[0])->get()->first()->id;
+            }else{
+                $id = "";
+            }*/
         
-        return $id;
+        if ( $this->pekerjaans->count() > 0 ){
+
+            return $this->pekerjaans->last()->itempekerjaan->parent->id;
+        }else{
+            return "";
+        }
     }
 
     public function budget_tahunan(){

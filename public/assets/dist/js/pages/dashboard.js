@@ -125,33 +125,35 @@ $(function () {
   });
 
   /* Morris.js Charts */
-  // Sales chart
+
+  /* // Sales chart
   var area = new Morris.Area({
     element   : 'revenue-chart',
     resize    : true,
     data      : [
-      { y: '2011 Q1', item1: 2666, item2: 2666 },
-      { y: '2011 Q2', item1: 2778, item2: 2294 },
-      { y: '2011 Q3', item1: 4912, item2: 1969 },
-      { y: '2011 Q4', item1: 3767, item2: 3597 },
-      { y: '2012 Q1', item1: 6810, item2: 1914 },
-      { y: '2012 Q2', item1: 5670, item2: 4293 },
-      { y: '2012 Q3', item1: 4820, item2: 3795 },
-      { y: '2012 Q4', item1: 15073, item2: 5967 },
-      { y: '2013 Q1', item1: 10687, item2: 4460 },
-      { y: '2013 Q2', item1: 8432, item2: 5713 }
+      { y: 'Jan', item1: 1 },
+      { y: 'Feb', item1: 2778 },
+      { y: 'Mar', item1: 4912 },
+      { y: 'Apr', item1: 3767 },
+      { y: 'Mei', item1: 6810 },
+      { y: 'Juni', item1: 5670 },
+      { y: 'Juli', item1: 4820 },
+      { y: 'Agu', item1: 15073 },
+      { y: 'Sept', item1: 10687 },
+      { y: 'Okt', item1: 8432 }
     ],
     xkey      : 'y',
-    ykeys     : ['item1', 'item2'],
-    labels    : ['Item 1', 'Item 2'],
-    lineColors: ['#a0d0e0', '#3c8dbc'],
+    ykeys     : ['item1'],
+    labels    : ['Item 1'],
+    lineColors: ['#a0d0e0'],
     hideHover : 'auto'
-  });
-  var line = new Morris.Line({
+  }); */
+
+ /*  var line = new Morris.Line({
     element          : 'line-chart',
     resize           : true,
     data             : [
-      { y: '2011 Q1', item1: 2666 },
+      { y: '2011 Q1', item1: 0 },
       { y: '2011 Q2', item1: 2778 },
       { y: '2011 Q3', item1: 4912 },
       { y: '2011 Q4', item1: 3767 },
@@ -175,10 +177,10 @@ $(function () {
     gridLineColor    : '#efefef',
     gridTextFamily   : 'Open Sans',
     gridTextSize     : 10
-  });
+  }); */
 
   // Donut Chart
-  var donut = new Morris.Donut({
+  /* var donut = new Morris.Donut({
     element  : 'sales-chart',
     resize   : true,
     colors   : ['#3c8dbc', '#f56954', '#00a65a'],
@@ -197,7 +199,7 @@ $(function () {
     line.redraw();
   });
 
-  /* The todo list plugin */
+  /* The todo list plugin 
   $('.todo-list').todoList({
     onCheck  : function () {
       window.console.log($(this), 'The element has been checked');
@@ -205,6 +207,6 @@ $(function () {
     onUnCheck: function () {
       window.console.log($(this), 'The element has been unchecked');
     }
-  });
+  }); */
 
 });

@@ -67,45 +67,34 @@
                 <tbody>
                 @foreach ( $project as $key => $value )
                 @if ( $value->project_pts)
-                @php $detail = $value->project_pts->project; @endphp
-                <tr>
-                  <td>{{ $detail->name }}</td>
-                  <td>{{ number_format($detail->efisiensi * 100,2 ) }} %</td>  
-                  <td>{{ number_format($detail->netto,2 ) }}</td>  
-                  <td>{{ number_format($detail->luas,2 ) }}</td> 
-                  @if ( count($detail->hpp_update) > 0 && $detail->hpp_netto_awal > 0 ) 
-                  <td>{{ number_format($detail->hpp_update->first()->nilai_budget,2 ) }}</td> 
-                  <td>{{ number_format($detail->total_devcost,2 ) }}</td>
-
-                  <td>{{ number_format($detail->hpp_update->first()->nilai_budget / $detail->netto,2 ) }}</td> 
-                  <td>{{ number_format($detail->hpp_update->first()->nilai_budget / $detail->luas,2 ) }}</td>
-
-                  <td>{{ number_format($detail->hpp_devcost_upd,2 ) }}</td> 
-                  <td>{{ number_format($detail->hpp_update->last()->nilai_budget / $detail->luas,2 ) }}</td>
-                  @else
-                  <td>{{ number_format(0,2 ) }}</td>
-
-                  <td>{{ number_format(0,2 ) }}</td> 
-                  <td>{{ number_format(0,2 ) }}</td>
-                  
-                  <td>{{ number_format(0,2 ) }}</td> 
-                  <td>{{ number_format(0,2 ) }}</td>
-                  <td>{{ number_format(0,2 ) }}</td>
+                  @php $detail = $value->project_pts->project; @endphp
+                  @if ( count($detail->new_hpp_con_cost_summary) > 0 && count($detail->hpp_dev_cost_summary_report) > 0 )
+                    <tr>
+                      <td>{{ $detail->name }}</td>
+                      <td>{{ number_format($detail->efisiensi * 100,2 ) }} %</td>  
+                      <td>{{ number_format($detail->netto,2 ) }}</td>  
+                      <td>{{ number_format($detail->luas,2)}}</td>
+                      <td style="text-align: right;">{{ number_format($detail->budget_dev_cost_awal,2)}}</td>
+                      <td style="text-align: right;">{{ number_format($detail->budget_dev_cost_upd,2)}}</td>
+                      <td>{{ number_format($detail->hpp_dev_cost_awal_netto,2)}}</td>
+                      <td>{{ number_format($detail->hpp_dev_cost_awal_brutto,2)}}</td>
+                      <td>{{ number_format($detail->hpp_dev_cost_upd_netto,2)}}</td>
+                      <td>{{ number_format($detail->hpp_dev_cost_upd_brutto,2)}}</td>
+                      <td style="text-align: right;">{{ number_format($total_kontrak = $detail->hpp_dev_cost_summary_report->last()->total_kontrak,2)}}</td>
+                      <td style="text-align: right;">{{ number_format($detail->new_hpp_con_cost_summary->last()->total_kontrak)}}</td>
+                      <td style="text-align: right;">{{ number_format($total_terbayar = $detail->hpp_dev_cost_summary_report->last()->total_kontrak_terbayar,2)}}</td>
+                      <td style="text-align: right;">{{ number_format($detail->new_hpp_con_cost_summary->last()->total_kontrak_terbayar)}}</td>
+                      <td style="text-align: right;">{{ number_format($total_kontrak - $total_terbayar )}}</td>
+                      <td style="text-align: right;">{{ number_format($detail->new_hpp_con_cost_summary->last()->total_kontrak - $detail->new_hpp_con_cost_summary->last()->total_kontrak_terbayar)}}</td>
+                      <td style="text-align: right;">{{ number_format($detail->budget_dev_cost_upd - $total_kontrak )}}</td>
+                      <td style="text-align: right;">{{ number_format($detail->hutang_bangun_con_cost)}}</td>
+                      <td style="text-align: right;">{{ number_format($detail->real_cash_out_dev_cost )}}</td>
+                      <td style="text-align: right;">{{ number_format($detail->real_cash_out_con_cost )}}</td>
+                      <td>
+                        <a href="{{ url('/')}}/report/project/detail/?id={{ $detail->id}}" class="btn btn-info">Dashboard</a>
+                      </td>
+                    </tr>
                   @endif
-                  <td>{{ number_format($detail->dev_cost_only,2 ) }}</td> 
-                  <td></td>               
-                  <td>{{ number_format($detail->nilai_realisasi,2 ) }}</td>    
-                  <td></td>     
-                  <td>{{ number_format($detail->dev_cost_only - $detail->nilai_realisasi,2 ) }}</td> 
-                  <td>{{ number_format(0,2 ) }}</td>              
-                  <td>{{ number_format($detail->total_devcost - $detail->dev_cost_only,2 ) }}</td>             
-                  <td>{{ number_format(0,2 ) }}</td> 
-                  <td>{{ number_format(0,2 ) }}</td> 
-                  <td>{{ number_format(0,2 ) }}</td> 
-                  <td>
-                    <a href="{{ url('/')}}/report/project/detail/?id={{ $detail->id}}" class="btn btn-info">Dashboard</a>
-                  </td>
-                </tr>
                 @endif
                 @endforeach
               </table>

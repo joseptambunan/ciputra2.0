@@ -17,7 +17,7 @@
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <section class="content-header">
-      <h1>Data Kawasan</h1>
+      <h1>Data Blok</h1>
 
     </section>
 
@@ -31,7 +31,7 @@
         <div class="box-body">
           <div class="row">
             <div class="col-md-6">              
-              <h3 class="box-title">Tambah Data Kawasan</h3>
+              <h3 class="box-title">Edit Data Blok</h3>
               <form action="{{ url('/')}}/project/update-blok" method="post" name="form1">
                 {{ csrf_field() }}
               <input type="hidden" name="blok_id" name="blok_id" value="{{ $blok->id }}">

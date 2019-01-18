@@ -50,6 +50,20 @@
                 <input type="text" class="form-control" name="name" value="{{ $project->name }}" disabled>
               </div>
               <div class="form-group">
+                <label>Nama PT</label>
+                <select class="form-control" name="pt_id">
+                  @if ( $user->project_pt_users != "" )
+                    @foreach ( $user->project_pt_users as $key2 => $value2 )
+                      @foreach ( $project->pt as $key => $value )
+                        @if ( $value2->pt_id == $value->pt->id )
+                          <option value="{{ $value->pt->id }}">{{ $value->pt->name }}</option>
+                        @endif
+                      @endforeach
+                    @endforeach
+                  @endif
+                </select>
+              </div>
+              <div class="form-group">
                 <label>Luas Brutto yang belum ada site plan (m2) </label>
                 <input type="text" class="form-control" name="luas_nonpengembangan" id="luas_nonpengembangan" value="{{ number_format($project->luas_nonpengembangan,2) }}">
               </div>

@@ -295,12 +295,12 @@ function removecarry(id){
   }
 }
 
-function countPercentage(bln){
+function countPercentage(bln,co){
   //console.log(bln);
   var percent = parseInt($("#"+bln).val());
   var sub2 = parseInt($("#label_budget_" + $("#item_id_monthly").val()).attr("data-value"));
   var sub = percent * ( parseInt(sub2)) / 100;
-  var total = parseInt($("#total_sub").val());
+  var total = parseInt($("#total_sub" + co).val());
 
 
   /*if ( total > sub2 ){

@@ -52,7 +52,7 @@
                 
                  <tr>
                     <td>{{ $key + 1 }}</td>
-                    <td>{{ $value->cluster->name }}</td>
+                    <td>{{ $value->cluster->name or '' }}</td>
                     <td>
                       <span id="label_{{ $value->id }}">{{ $value->kode }}</span>
                       <input type="text" name="input_kode{{ $value->id }}" id="input_kode{{ $value->id }}" style="display: none;" value="{{ $value->kode }}">

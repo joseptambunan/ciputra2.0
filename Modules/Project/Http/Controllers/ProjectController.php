@@ -27,6 +27,7 @@ use Modules\Project\Entities\UnitTypeCategoryDetail;
 use Illuminate\Support\Facades\DB;
 use Modules\Project\Entities\ProjectPt;
 use Modules\Pt\Entities\Pt;
+use Modules\Budget\Entities\BudgetTahunanPeriode;
 
 class ProjectController extends Controller
 {
@@ -96,7 +97,154 @@ class ProjectController extends Controller
         if ( ($request->session()->get('level'))) {
             $level = "superadmin";
         }
-        return view('project::show',compact("project","user","level"));
+
+        $arrayBulananCashOut = array(
+            "januari" => 0,
+            "februari" => 0,
+            "maret" => 0,
+            "april" => 0,
+            "mei" => 0,
+            "juni" => 0,
+            "juli" => 0,
+            "agustus" => 0,
+            "september" => 0,
+            "oktober" => 0,
+            "november" => 0,
+            "desember" => 0
+        );
+
+        $arrayCarryOverCashOut = array(
+            "januari" => 0,
+            "februari" => 0,
+            "maret" => 0,
+            "april" => 0,
+            "mei" => 0,
+            "juni" => 0,
+            "juli" => 0,
+            "agustus" => 0,
+            "september" => 0,
+            "oktober" => 0,
+            "november" => 0,
+            "desember" => 0
+        );
+
+        $arrayRealisasi = array(
+            "januari" => 0,
+            "februari" => 0,
+            "maret" => 0,
+            "april" => 0,
+            "mei" => 0,
+            "juni" => 0,
+            "juli" => 0,
+            "agustus" => 0,
+            "september" => 0,
+            "oktober" => 0,
+            "november" => 0,
+            "desember" => 0
+        );
+
+        foreach ($project->budget_tahunans as $key => $value) {
+            if ( $value->tahun_anggaran == date("Y")){
+                //Budget SPK 
+                foreach ($value->details as $key2 => $value2) {
+                    $budget_cf = BudgetTahunanPeriode::where("budget_id",$value->id)->where("itempekerjaan_id",$value2->itempekerjaan_id)->get();
+                    if ( count($budget_cf) > 0 ){
+                        $spk = $value2->volume * $value2->nilai;
+                        foreach ($budget_cf as $key3 => $value3) {
+
+                            $arrayBulananCashOut["januari"] =  $arrayBulananCashOut["januari"] + (($value3->januari/100) * $spk);
+                            $arrayBulananCashOut["februari"] = $arrayBulananCashOut["februari"] + (($value3->februari/100) * $spk);
+                            $arrayBulananCashOut["maret"] = $arrayBulananCashOut["maret"] + (($value3->maret/100) * $spk);
+                            $arrayBulananCashOut["april"] = $arrayBulananCashOut["april"] + (($value3->april/100) * $spk);
+                            $arrayBulananCashOut["mei"] = $arrayBulananCashOut["mei"] + (($value3->mei/100) * $spk);
+                            $arrayBulananCashOut["juni"] = $arrayBulananCashOut["juni"] + (($value3->juni/100) * $spk);
+                            $arrayBulananCashOut["juli"] = $arrayBulananCashOut["juli"] + (($value3->juli/100) * $spk);
+                            $arrayBulananCashOut["agustus"] = $arrayBulananCashOut["agustus"] + (($value3->agustus/100) * $spk);
+                            $arrayBulananCashOut["september"] = $arrayBulananCashOut["september"] + (($value3->september/100) * $spk);
+                            $arrayBulananCashOut["oktober"] = $arrayBulananCashOut["oktober"] + (($value3->oktober/100) * $spk);
+                            $arrayBulananCashOut["november"] = $arrayBulananCashOut["november"] + (($value3->november/100) * $spk);
+                            $arrayBulananCashOut["desember"] = $arrayBulananCashOut["desember"] + (($value3->desember/100) * $spk);
+                        }
+                    }
+                }
+
+                //Budget Carry Over 
+                foreach ($value->carry_over as $key3 => $value3) {
+                    if ( $value3->hutang_bayar != "" ){
+                        $sisa = $value3->hutang_bayar;
+                    }else{
+                        $sisa = $value3->spk->nilai - $value3->spk->terbayar_verified;
+                    }
+                    foreach ($value3->cash_flows as $key4 => $value4) {
+                        $arrayCarryOverCashOut["januari"] =  $arrayCarryOverCashOut["januari"] + (($value4->januari/100) * $sisa);
+                        $arrayCarryOverCashOut["februari"] = $arrayCarryOverCashOut["februari"] + (($value4->februari/100) * $sisa);
+                        $arrayCarryOverCashOut["maret"] = $arrayCarryOverCashOut["maret"] + (($value4->maret/100) * $sisa);
+                        $arrayCarryOverCashOut["april"] = $arrayCarryOverCashOut["april"] + (($value4->april/100) * $sisa);
+                        $arrayCarryOverCashOut["mei"] = $arrayCarryOverCashOut["mei"] + (($value4->mei/100) * $sisa);
+                        $arrayCarryOverCashOut["juni"] = $arrayCarryOverCashOut["juni"] + (($value4->juni/100) * $sisa);
+                        $arrayCarryOverCashOut["juli"] = $arrayCarryOverCashOut["juli"] + (($value4->juli/100) * $sisa);
+                        $arrayCarryOverCashOut["agustus"] = $arrayCarryOverCashOut["agustus"] + (($value4->agustus/100) * $sisa);
+                        $arrayCarryOverCashOut["september"] = $arrayCarryOverCashOut["september"] + (($value4->september/100) * $sisa);
+                        $arrayCarryOverCashOut["oktober"] = $arrayCarryOverCashOut["oktober"] + (($value4->oktober/100) * $sisa);
+                        $arrayCarryOverCashOut["november"] = $arrayCarryOverCashOut["november"] + (($value4->november/100) * $sisa);
+                        $arrayCarryOverCashOut["desember"] = $arrayCarryOverCashOut["desember"] + (($value4->desember/100) * $sisa);
+                    }
+                }
+            }
+        }
+        
+        foreach ($project->voucher as $key => $value) {
+            if ( $value->pencairan_date != NULL ){
+                $month = $value->pencairan_date->format("M");
+            }
+
+            if ( $month == "01"){
+                $arrayRealisasi["januari"] = $arrayRealisasi["januari"] + $value->nilai;
+            }elseif( $month == "02"){
+                $arrayRealisasi["februari"] = $arrayRealisasi["februari"] + $value->nilai;
+            }elseif( $month == "03"){
+                $arrayRealisasi["maret"] = $arrayRealisasi["maret"] + $value->nilai;
+            }elseif( $month == "04"){
+                $arrayRealisasi["april"] = $arrayRealisasi["april"] + $value->nilai;
+            }elseif( $month == "05"){
+                $arrayRealisasi["mei"] = $arrayRealisasi["mei"] + $value->nilai;
+            }elseif( $month == "06"){
+                $arrayRealisasi["juni"] = $arrayRealisasi["juni"] + $value->nilai;
+            }elseif( $month == "07"){
+                $arrayRealisasi["juli"] = $arrayRealisasi["juli"] + $value->nilai;
+            }elseif( $month == "08"){
+                $arrayRealisasi["agustus"] = $arrayRealisasi["agustus"] + $value->nilai;
+            }elseif( $month == "09"){
+                $arrayRealisasi["september"] = $arrayRealisasi["september"] + $value->nilai;
+            }elseif( $month == "10"){
+                $arrayRealisasi["oktober"] = $arrayRealisasi["oktober"] + $value->nilai;
+            }elseif( $month == "11"){
+                $arrayRealisasi["november"] = $arrayRealisasi["november"] + $value->nilai;
+            }elseif( $month == "12"){
+                $arrayRealisasi["desember"] = $arrayRealisasi["desember"] + $value->nilai;
+            }
+        }
+        $variabel_cash_out = "";
+        $nilai_cash_out = 0;
+        foreach ($arrayBulananCashOut as $key => $value) {
+            $variabel_cash_out .= $value.",";
+            $nilai_cash_out = $nilai_cash_out + $value;
+        }
+        $variabel_cash_out = trim($variabel_cash_out,",");
+
+        $variabel_carry_over = "";
+        $nilai_carry_over= 0;
+        foreach ($arrayCarryOverCashOut as $key => $value) {
+            $variabel_carry_over .= $value.",";
+            $nilai_carry_over = $nilai_carry_over + $value;
+        }
+        $variabel_carry_over = trim($variabel_carry_over,",");
+
+        $variabel_realiasasi = "";
+        foreach ($arrayRealisasi as $key => $value) {
+            $variabel_realiasasi .= $value.",";
+        }
+        return view('project::show',compact("project","user","level","variabel_cash_out","variabel_carry_over","variabel_realiasasi","nilai_cash_out","nilai_carry_over"));
     }
 
     /**
@@ -175,7 +323,7 @@ class ProjectController extends Controller
         $status = $project_kawasan->save();
 
         //Save to EREM
-        $project = Project::find($request->project_id);
+        /*$project = Project::find($request->project_id);
         $project_id_erem = $project->project_id;
 
         $project_pt = ProjectPt::where("project_id",$request->project_id)->get();
@@ -186,13 +334,15 @@ class ProjectController extends Controller
         }else{
             $pt = "";
         }
+
         $users = DB::connection('sqlsrv3')->table('dbo.mh_cluster')->get();
         $ins_erem = DB::connection('sqlsrv3')->insert('insert into [dbo].[mh_cluster] (project_id, pt_id,code,cluster,description,Addon,Addby,Modion,Modiby) values (?, ?, ?, ?, ?, ?, ?, ?, ?)', [$project_id_erem, $pt,$request->kode_kawasan,$request->nama_kawasan,$request->nama_kawasan,date("Y-m-d H:i:s.000"),7534,date("Y-m-d H:i:s.000"),$authuser->user_id]);
         $get_last = DB::connection('sqlsrv3')->table('dbo.mh_cluster')->where('project_id', $project_id_erem)->get();
+        
         $cluster_id = $get_last->last();
         $project_kawasan_upd = ProjectKawasan::find($project_kawasan->id);
         $project_kawasan_upd->cluster_id = $cluster_id->cluster_id;
-        $project_kawasan_upd->save();
+        $project_kawasan_upd->save();*/
         return redirect("/project/kawasan/");
     }
 
@@ -244,7 +394,7 @@ class ProjectController extends Controller
         $status  = $blok->save();
 
         //Save to EREM
-        $authuser = \Auth::user();
+        /*$authuser = \Auth::user();
         $project = Project::find($request->project_id);
         $project_id_erem = $project->project_id;
 
@@ -259,14 +409,14 @@ class ProjectController extends Controller
         }else{
             $pt = "";
         }
-        $users = DB::connection('sqlsrv3')->table('dbo.m_block')->get();
+        /*$users = DB::connection('sqlsrv3')->table('dbo.m_block')->get();
         $ins_erem = DB::connection('sqlsrv3')->insert('insert into [dbo].[m_block] (project_id, pt_id,cluster_id,code,block,description,Addon,Addby,Modion,Modiby) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [$project_id_erem, $pt,$cluster_id,$request->kode,$request->name,$request->description,date("Y-m-d H:i:s.000"),7534,date("Y-m-d H:i:s.000"),$authuser->user_id]);
         $get_last = DB::connection('sqlsrv3')->table('dbo.m_block')->where('cluster_id', $cluster_id)->get();
         $block_id = $get_last->last();
 
         $blok = Blok::find($blok->id);
         $blok->block_id = $block_id->block_id;
-        $blok->save();
+        $blok->save();*/
         return redirect("/project/bloks/?id=".$request->projectkawasan);
     }
 
@@ -286,7 +436,7 @@ class ProjectController extends Controller
         $blok->save();
 
         $cluster_id = $blok->kawasan->cluster_id;
-        $update_cluster = DB::connection('sqlsrv3')->table('dbo.m_block')->where('block_id', $blok->block_id)->update(['cluster_id' => $cluster_id,'Modiby' => $authuser->user_id, "Modion" => date("Y-m-d H:i:s.000")]);
+       /* $update_cluster = DB::connection('sqlsrv3')->table('dbo.m_block')->where('block_id', $blok->block_id)->update(['cluster_id' => $cluster_id,'Modiby' => $authuser->user_id, "Modion" => date("Y-m-d H:i:s.000")]);*/
         return redirect("/project/bloks/?id=".$blok->kawasan->id);
     }
 
@@ -351,14 +501,14 @@ class ProjectController extends Controller
         $unit_type->save();
 
         //Save to EREM
-        if ( $request->luas > 0 ){
+        /*if ( $request->luas > 0 ){
             $productcategory = 1;
         }else{
             $productcategory = 2;
         }
 
         $authuser = \Auth::user();
-
+/*
         $users = DB::connection('sqlsrv3')->table('dbo.mh_type')->get();
         $ins_erem = DB::connection('sqlsrv3')->insert('insert into [dbo].[mh_type] (productcategory_id,cluster_id,code,name,land_size,building_size,electricity,building_class,floor_size,floor,bedroom,bathroom,Addon,Addby,Modion,Modiby) values (?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?)', [
             $productcategory, 
@@ -384,7 +534,7 @@ class ProjectController extends Controller
         $type = UnitType::find($unit_type->id);
         $type->type_id = $type_id->type_id;
         $type->save();
-
+*/
 
         return redirect("project/templatepekerjaan?id=".$unit_type->id);
     }
@@ -516,9 +666,9 @@ class ProjectController extends Controller
         }
 
         //Save to EREM
-        $category = Category::find($request->master_tipe);
+        /*$category = Category::find($request->master_tipe);
         $authuser = \Auth::user();
-        $update_cluster = DB::connection('sqlsrv3')->table('dbo.mh_type')->where('type_id', $unit_type->type_id)->update(['building_class' => $category->name,'Modiby' => $authuser->user_id, "Modion" => date("Y-m-d H:i:s.000")]);
+       /* $update_cluster = DB::connection('sqlsrv3')->table('dbo.mh_type')->where('type_id', $unit_type->type_id)->update(['building_class' => $category->name,'Modiby' => $authuser->user_id, "Modion" => date("Y-m-d H:i:s.000")]);*/
         return redirect("/project/templatepekerjaan/?id=".$request->unit_type);
     }
 
@@ -668,53 +818,55 @@ class ProjectController extends Controller
             $project_units->status = $request->is_status;
             $status = $project_units->save();
 
-             //Save to EREM        
-            $authuser = \Auth::user();   
-            if ( $request->luas_bangunan > 0 ){
-                $productcategory = 1;
-            }else{
-                $productcategory = 2;
-            }
-            $authuser = \Auth::user();
-            $project_pt_erem = Project::find($request->project_id)->project_id;
-            $projectkawasan = ProjectKawasan::find($request->projectkawasan);
-            $pt = Pt::find($request->pt_id);
-            $datatype = UnitType::find($request->unit_type);
+            //Save to EREM    
+            /*if ( $request->is_status == 1 ){
+                $authuser = \Auth::user();   
+                if ( $request->luas_bangunan > 0 ){
+                    $productcategory = 1;
+                }else{
+                    $productcategory = 2;
+                }
+                $authuser = \Auth::user();
+                $project_pt_erem = Project::find($request->project_id)->project_id;
+                $projectkawasan = ProjectKawasan::find($request->projectkawasan);
+                $pt = Pt::find($request->pt_id);
+                $datatype = UnitType::find($request->unit_type);
 
-            if ( $request->is_status == 0 ){
-                $is_readystock = 0;
-            }else{
-                $is_readystock = 1;
-            }
+                if ( $request->is_status == 0 ){
+                    $is_readystock = 0;
+                }else{
+                    $is_readystock = 1;
+                }
 
-            //$users = DB::connection('sqlsrv3')->table('dbo.m_unit')->get();
-            /*$ins_erem = DB::connection('sqlsrv3')->insert('insert into [dbo].[m_unit] (project_id,pt_id,cluster_id,unit_number,productcategory_id,type_id,land_size,building_size,floor_size,floor,electricity,block_id,is_readystock,state_admistrative,Addon,Addby,Modion,Modiby) values (?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?,?,?)', [
-                $project_pt_erem, 
-                $pt->pt_id,
-                $projectkawasan->cluster_id,
-                $unit_no,
-                $productcategory,
-                $datatype->type_id,
-                str_replace(",", "", $request->luas_tanah),
-                str_replace(",", "", $request->luas_bangunan),
-                $request->luas_bangunan,
-                $datatype->lantai,
-                $datatype->electricity,
-                $blok->block_id,
-                $is_readystock,
-                1,
-                date("Y-m-d H:i:s.000"),
-                7534,
-                date("Y-m-d H:i:s.000"),
-                $authuser->user_id]
-            );
+                //$users = DB::connection('sqlsrv3')->table('dbo.m_unit')->get();
+                $ins_erem = DB::connection('sqlsrv3')->insert('insert into [dbo].[m_unit] (project_id,pt_id,cluster_id,unit_number,productcategory_id,type_id,land_size,building_size,floor_size,floor,electricity,block_id,is_readystock,state_admistrative,Addon,Addby,Modion,Modiby) values (?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?,?,?)', [
+                    $project_pt_erem, 
+                    $pt->pt_id,
+                    $projectkawasan->cluster_id,
+                    $unit_no,
+                    $productcategory,
+                    $datatype->type_id,
+                    str_replace(",", "", $request->luas_tanah),
+                    str_replace(",", "", $request->luas_bangunan),
+                    $request->luas_bangunan,
+                    $datatype->lantai,
+                    $datatype->electricity,
+                    $blok->block_id,
+                    $is_readystock,
+                    1,
+                    date("Y-m-d H:i:s.000"),
+                    7534,
+                    date("Y-m-d H:i:s.000"),
+                    $authuser->user_id]
+                );
 
-            $get_last = DB::connection('sqlsrv3')->table('dbo.m_unit')->get();
-            $unit_id = $get_last->last();
+                $get_last = DB::connection('sqlsrv3')->table('dbo.m_unit')->get();
+                $unit_id = $get_last->last();
 
-            $unit = Unit::find($project_units->id);
-            $unit->unit_id = $unit_id->unit_id;
-            $unit->save();*/
+                $unit = Unit::find($project_units->id);
+                $unit->unit_id = $unit_id->unit_id;
+                $unit->save();
+            }  */ 
         }
 
         return redirect("project/units/?id=".$request->blok);
@@ -752,6 +904,56 @@ class ProjectController extends Controller
         $unit->tag_kategori = $request->tag_kategori;
         $unit->status = $request->is_status;
         $unit->save();
+
+        //Save to EREM    
+        /*if ( $request->is_status == 1 ){
+            $authuser = \Auth::user();   
+            if ( $request->luas_bangunan > 0 ){
+                $productcategory = 1;
+            }else{
+                $productcategory = 2;
+            }
+            $authuser = \Auth::user();
+            $project_pt_erem = Project::find($request->project_id)->project_id;
+            $projectkawasan = ProjectKawasan::find($request->projectkawasan);
+            $pt = Pt::find($request->pt_id);
+            $datatype = UnitType::find($request->unit_type);
+
+            if ( $request->is_status == 0 ){
+                $is_readystock = 0;
+            }else{
+                $is_readystock = 1;
+            }
+
+            //$users = DB::connection('sqlsrv3')->table('dbo.m_unit')->get();
+            $ins_erem = DB::connection('sqlsrv3')->insert('insert into [dbo].[m_unit] (project_id,pt_id,cluster_id,unit_number,productcategory_id,type_id,land_size,building_size,floor_size,floor,electricity,block_id,is_readystock,state_admistrative,Addon,Addby,Modion,Modiby) values (?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?,?,?)', [
+                $project_pt_erem, 
+                $pt->pt_id,
+                $projectkawasan->cluster_id,
+                $unit_no,
+                $productcategory,
+                $datatype->type_id,
+                str_replace(",", "", $request->luas_tanah),
+                str_replace(",", "", $request->luas_bangunan),
+                $request->luas_bangunan,
+                $datatype->lantai,
+                $datatype->electricity,
+                $blok->block_id,
+                $is_readystock,
+                1,
+                date("Y-m-d H:i:s.000"),
+                7534,
+                date("Y-m-d H:i:s.000"),
+                $authuser->user_id]
+            );
+
+            $get_last = DB::connection('sqlsrv3')->table('dbo.m_unit')->get();
+            $unit_id = $get_last->last();
+
+            $unit = Unit::find($project_units->id);
+            $unit->unit_id = $unit_id->unit_id;
+            $unit->save();
+        }  */ 
         return redirect("/project/units/?id=".$unit->blok->id);
     }
 
@@ -857,12 +1059,68 @@ class ProjectController extends Controller
         $project_history->project_id = $request->session()->get('project_id');
         $project_history->luas_dikembangkan = str_replace(",","",$request->luas);
         $project_history->luas_non_pengembangan  = str_replace(",","",$request->luas_nonpengembangan);
-        $project_history->created_at = date("Y-m-d H:i:s.u");
         $project_history->created_by = \Auth::user()->id;
+        $project_history->pt_id = $request->pt_id;
         $project_history->save();
 
         return redirect("project/data-umum/");
     }
 
 
+    public function senderems(Request $request) {
+        if ( isset($request->unit_) ){
+            foreach ($request->unit_ as $key => $value) {
+                $unit = Unit::find($request->unit_[$key]);
+                $unit->status = 1;
+                $unit->save();
+                /*$authuser = \Auth::user();   
+                if ( $request->luas_bangunan > 0 ){
+                    $productcategory = 1;
+                }else{
+                    $productcategory = 2;
+                }
+                $authuser = \Auth::user();
+                $project_pt_erem = Project::find($request->project_id)->project_id;
+                $projectkawasan = ProjectKawasan::find($request->projectkawasan);
+                $pt = Pt::find($request->pt_id);
+                $datatype = UnitType::find($request->unit_type);
+
+                if ( $request->is_status == 0 ){
+                    $is_readystock = 0;
+                }else{
+                    $is_readystock = 1;
+                }
+
+                //$users = DB::connection('sqlsrv3')->table('dbo.m_unit')->get();
+                $ins_erem = DB::connection('sqlsrv3')->insert('insert into [dbo].[m_unit] (project_id,pt_id,cluster_id,unit_number,productcategory_id,type_id,land_size,building_size,floor_size,floor,electricity,block_id,is_readystock,state_admistrative,Addon,Addby,Modion,Modiby) values (?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?,?,?)', [
+                    $project_pt_erem, 
+                    $pt->pt_id,
+                    $projectkawasan->cluster_id,
+                    $unit_no,
+                    $productcategory,
+                    $datatype->type_id,
+                    str_replace(",", "", $request->luas_tanah),
+                    str_replace(",", "", $request->luas_bangunan),
+                    $request->luas_bangunan,
+                    $datatype->lantai,
+                    $datatype->electricity,
+                    $blok->block_id,
+                    $is_readystock,
+                    1,
+                    date("Y-m-d H:i:s.000"),
+                    7534,
+                    date("Y-m-d H:i:s.000"),
+                    $authuser->user_id]
+                );
+
+                $get_last = DB::connection('sqlsrv3')->table('dbo.m_unit')->get();
+                $unit_id = $get_last->last();
+
+                $unit = Unit::find($project_units->id);
+                $unit->unit_id = $unit_id->unit_id;
+                $unit->save();*/                
+            }
+        }
+        return redirect("/project/units/?id=".$request->blok_id);
+    }
 }
