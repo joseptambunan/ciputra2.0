@@ -1,0 +1,102 @@
+<?php
+
+use Illuminate\Database\Seeder;
+
+class DatabaseSeeder extends Seeder
+{
+    /**
+     * Seed the application's database.
+     *
+     * @return void
+     */
+    public function run()
+    {
+        // $this->call(UsersTableSeeder::class);
+        //$this->call(ApprovalsTableSeeder::class);
+        /*$this->call(UserDetailsTableSeeder::class);
+        $this->call(UserJabatansTableSeeder::class);
+        $this->call(UserRekanansTableSeeder::class);
+        $this->call(UserGroupsTableSeeder::class);
+        $this->call(MappingperusahaansTableSeeder::class);
+        $this->call(ItempekerjaansTableSeeder::class);
+        $this->call(DocumentTypesTableSeeder::class);
+        $this->call(CategoriesTableSeeder::class);
+        $this->call(CategoryDetailsTableSeeder::class);
+        $this->call(CategoryProjectsTableSeeder::class);
+        $this->call(RekanansTableSeeder::class);
+        $this->call(RekananGroupsTableSeeder::class);*/
+         /*$this->call(BudgetCarryOverCashflowsTableSeeder::class);
+         $this->call(BudgetCarryOversTableSeeder::class);
+         $this->call(BudgetDetailsTableSeeder::class);
+         $this->call(BudgetsTableSeeder::class);
+         $this->call(BudgetTahunanCashFlowsTableSeeder::class);
+         $this->call(BudgetTahunanDetailsTableSeeder::class);
+         $this->call(BudgetTahunanPeriodesTableSeeder::class);
+         $this->call(BudgetTahunansTableSeeder::class);*/
+         $this->call(CountrySeeder::class);
+         $this->call(GlobalsettingsTableSeeder::class);
+         $this->call(PtsTableSeeder::class);
+         $this->call(ProjectsTableSeeder::class);
+         $this->call(ProjectKawasansTableSeeder::class);
+         $this->call(ProjectPtsTableSeeder::class);
+         $this->call(ProvinceTableSeeder::class);
+         $this->call(CityTableSeeder::class);
+         /*$this->call(RabPekerjaansTableSeeder::class);
+         $this->call(RabsTableSeeder::class);
+         $this->call(RabUnitsTableSeeder::class);
+         $this->call(SpkDetailsTableSeeder::class);
+         $this->call(SpkPengembaliansTableSeeder::class);
+         $this->call(SpkRetensisTableSeeder::class);
+         $this->call(SpksTableSeeder::class);
+         $this->call(SpkTermynsTableSeeder::class);
+         $this->call(SpkTypesTableSeeder::class);
+         $this->call(SpkvoUnitsTableSeeder::class);
+         $this->call(TenderDocumentApprovalsTableSeeder::class);
+         $this->call(TenderDocumentsTableSeeder::class);
+         $this->call(TenderKorespondensisTableSeeder::class);
+         $this->call(TenderMenangDetailsTableSeeder::class);
+         $this->call(TenderMenangsTableSeeder::class);
+         $this->call(TenderPenawaranDetailsTableSeeder::class);
+         $this->call(TenderPenawaransTableSeeder::class);
+         $this->call(TenderRekanansTableSeeder::class);
+         $this->call(TendersTableSeeder::class);
+         $this->call(UnitProgressDetailsTableSeeder::class);
+         $this->call(UnitProgressesTableSeeder::class);
+         $this->call(UnitsTableSeeder::class);
+         $this->call(UnitTypeCategoriesTableSeeder::class);
+         $this->call(UnitTypeCategoryDetailsTableSeeder::class);
+         $this->call(UnitTypesTableSeeder::class);
+         $this->call(UsersTableSeeder::class);
+         $this->call(VosTableSeeder::class);
+         $this->call(VoucherDetailsTableSeeder::class);
+         $this->call(VouchersTableSeeder::class);
+         $this->call(WorkorderBudgetDetailsTableSeeder::class);
+         $this->call(WorkorderDetailsTableSeeder::class);
+         $this->call(WorkordersTableSeeder::class);*/
+        $this->call(ApprovalActionsTableSeeder::class);
+        $this->call(ApprovalHistoriesTableSeeder::class);
+        $this->call(ApprovalReferencesTableSeeder::class);
+        $this->call(AssetsTableSeeder::class);
+        $this->call(AssetDetailsTableSeeder::class);
+        $this->call(BapsTableSeeder::class);
+        $this->call(BapDetailsTableSeeder::class);
+        $this->call(BapDetailItempekerjaansTableSeeder::class);
+        $this->call(BloksTableSeeder::class);
+        $this->call(BudgetPeriodesTableSeeder::class);
+        $this->call(BudgetTahunanUnitsTableSeeder::class);
+        $this->call(BudgetTahunanUnitPeriodesTableSeeder::class);
+        $this->call(BudgetTahunanUnitPeriodeDetailsTableSeeder::class);
+        $this->call(CitiesTableSeeder::class);
+        $this->call(CountriesTableSeeder::class);
+        $this->call(DepartmentsTableSeeder::class);
+        $this->call(DivisionsTableSeeder::class);
+        $this->call(EscrowsTableSeeder::class);
+        $this->call(HppConCostDetailReportsTableSeeder::class);
+        $this->call(HppConCostSummaryReportsTableSeeder::class);
+        $this->call(HppDevelopmentCostsTableSeeder::class);
+        $this->call(HppDevCostReportsTableSeeder::class);
+        $this->call(HppDevCostSummaryReportsTableSeeder::class);
+        $this->call(HppUpdatesTableSeeder::class);
+        $this->call(HppUpdateDetailsTableSeeder::class);
+    }
+}
