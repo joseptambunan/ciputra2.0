@@ -45,6 +45,5 @@ GO
 ALTER TABLE dbo.rekanan_groups ADD cv VARCHAR(512) NULL  ;  
 GO 
 
-ALTER TABLE dbo.spks ADD project_kawasan_id INT NULL ;  
-GO 
+
 
