@@ -68,7 +68,7 @@
                 @foreach ( $project as $key => $value )
                 @if ( $value->project_pts)
                   @php $detail = $value->project_pts->project; @endphp
-                  @if ( count($detail->new_hpp_con_cost_summary) > 0 && count($detail->hpp_dev_cost_summary_report) > 0 )
+                  
                     <tr>
                       <td>{{ $detail->name }}</td>
                       <td>{{ number_format($detail->efisiensi * 100,2 ) }} %</td>  
@@ -94,7 +94,7 @@
                         <a href="{{ url('/')}}/report/project/detail/?id={{ $detail->id}}" class="btn btn-info">Dashboard</a>
                       </td>
                     </tr>
-                  @endif
+                  
                 @endif
                 @endforeach
               </table>
