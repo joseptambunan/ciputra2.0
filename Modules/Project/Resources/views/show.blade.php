@@ -68,7 +68,7 @@
 
             </div>
 
-            <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+            <a href="{{ url('/')}}/spks" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
 
           </div>
 
@@ -84,9 +84,9 @@
 
             <div class="inner">
 
-              <h3>{{ number_format( $project->percentage_budget )}}<sup style="font-size: 20px">%</sup></h3>
+              <h3>{{ number_format( $project->percentage_budget,2 )}}<sup style="font-size: 20px">%</sup></h3>
 
-              <p>Budget</p>
+              <p>Realiasasi</p>
 
             </div>
 

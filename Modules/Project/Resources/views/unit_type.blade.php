@@ -66,15 +66,15 @@
                       Kategori : <strong>{{ $value->category->category_project->category_detail->category->name or '-'}} {{ $value->category->category_project->category_detail->sub_type or '-'}}</strong><br>
                     </td>
                     <td>
-                      <span id="luas_{{ $value->id }}">{{ $value->luas_bangunan }}</span>
+                      <span id="luas_{{ $value->id }}">{{ $value->luas_bangunan or '' }}</span>
                       <input type="text" name="input_luas_{{ $value->id }}" id="input_luas_{{ $value->id }}" style="display: none;" value="{{ $value->luas_bangunan }}">
                     </td>
                     <td>
-                      <span id="luastanah_{{ $value->id }}">{{ $value->luas_tanah }}</span>
+                      <span id="luastanah_{{ $value->id }}">{{ $value->luas_tanah or '' }}</span>
                       <input type="text" name="input_luastanah_{{ $value->id }}" id="input_luastanah_{{ $value->id }}" style="display: none;" value="{{ $value->luas_tanah }}">
                     </td>
                     <td>
-                      <span id="listrik_{{ $value->id }}">{{ $value->listrik }}</span>
+                      <span id="listrik_{{ $value->id }}">{{ $value->listrik or '' }}</span>
                       <input type="text" name="input_listrik_{{ $value->id }}" id="input_listrik_{{ $value->id }}" style="display: none;" value="{{ $value->listrik }}">
                     </td>
                     <td>

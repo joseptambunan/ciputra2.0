@@ -230,6 +230,14 @@ class ProjectController extends Controller
             $variabel_cash_out .= $value.",";
             $nilai_cash_out = $nilai_cash_out + $value;
         }
+
+        $nilai_con_cost = 0;
+        foreach ($project->budget_tahunans as $key => $value) {
+            if ( $value->tahun_anggaran == date("Y")){
+                $nilai_con_cost = $nilai_con_cost + $value->nilai_cash_out_con_cost;
+            }
+        }
+        $nilai_cash_out = $nilai_cash_out + $nilai_con_cost;
         $variabel_cash_out = trim($variabel_cash_out,",");
 
         $variabel_carry_over = "";
@@ -238,6 +246,7 @@ class ProjectController extends Controller
             $variabel_carry_over .= $value.",";
             $nilai_carry_over = $nilai_carry_over + $value;
         }
+        //echo $variabel_carry_over."<>".$nilai_carry_over;
         $variabel_carry_over = trim($variabel_carry_over,",");
 
         $variabel_realiasasi = "";

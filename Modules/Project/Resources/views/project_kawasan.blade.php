@@ -81,7 +81,7 @@
                     </td>
                     <td>
                       @if ( $value->netto_kawasan > 0 )
-                      {{ }}, {{ number_format( ( $value->total_budget  )/ $value->netto_kawasan,2)}}
+                       {{ number_format( ( $value->total_budget  )/ $value->netto_kawasan,2)}}
                       @else
                       {{ number_format(0,2)}}
                       @endif

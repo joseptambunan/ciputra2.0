@@ -278,7 +278,8 @@ class ProjectKawasan extends CustomModel
         foreach ($this->project->spks as $key => $value) {
             foreach ($value->details as $key2 => $value2) {
                 if ( $value2->asset_id != "" ){
-                    if ( $value2->asset->id == $this->id ){
+                    if ( $value2->asset_id == $this->id ){
+     
                         $nilai_terbayar = $nilai_terbayar + $value->terbayar_verified;
                     }
                 }
@@ -534,15 +535,21 @@ class ProjectKawasan extends CustomModel
             $proporsional = 0;
             foreach ($project->spks as $key => $value) {
                 if ( $value->itempekerjaan != "" ){
+                    if ( $value->itempekerjaan != "" ){
                     if ( $value->itempekerjaan->group_cost == 1 ){
                         foreach ($value->details as $key2 => $value2) {
                             //if ( $value->itempekerjaan->group_cost == 1 ){             
                                 if ( $value2->asset_id == $this->id ){
+                                    //if ( $value->nilai_vo != 0 ){
+                                        echo $value->no."<>".$value->nilai."<>".$value->nilai_vo;
+                                        echo "\n";
+                                    //}
                                     $nilai = $nilai + ( $value->nilai + $value->nilai_vo );
                                 }
                             //}
                         }
                     }
+                }
                 }
                 
             }
@@ -813,11 +820,13 @@ class ProjectKawasan extends CustomModel
         $summary_kontrak = $this->project->dev_cost_only;
 
         foreach ($this->project->spks as $key => $value) {
-            if ( $value->itempekerjaan->group_cost == 1 ){  
-                if ( $value->tender->rab->budget_tahunan != "" ){
-                    if ( $value->tender->rab->budget_tahunan->kawasan != "" ){
-                        if ( $value->tender->rab->budget_tahunan->kawasan->id == $this->id ){
-                            $nilai = $value->nilai + $nilai;
+            if ( $value->itempekerjaan != "" ){
+                if ( $value->itempekerjaan->group_cost == 1 ){  
+                    if ( $value->tender->rab->budget_tahunan != "" ){
+                        if ( $value->tender->rab->budget_tahunan->kawasan != "" ){
+                            if ( $value->tender->rab->budget_tahunan->kawasan->id == $this->id ){
+                                $nilai = $value->nilai + $nilai;
+                            }
                         }
                     }
                 }
@@ -874,9 +883,11 @@ class ProjectKawasan extends CustomModel
         $nilai_proporsional = 0;
         if ( $year == "" ){
             foreach ($this->project->spks as $key => $value) {
-                if ( $value->itempekerjaan->group_cost == 1 ){                    
-                    if ( $value->date->format("Y") == date("Y")){
-                        $nilai_proporsional = $value->nilai + $nilai_proporsional;
+                if ( $value->itempekerjaan != "" ){
+                    if ( $value->itempekerjaan->group_cost == 1 ){                    
+                        if ( $value->date->format("Y") == date("Y")){
+                            $nilai_proporsional = $value->nilai + $nilai_proporsional;
+                        }
                     }
                 }
             }
@@ -952,11 +963,13 @@ class ProjectKawasan extends CustomModel
             $proporsional = 0;
             foreach ($this->project->spks as $key => $value) {
                 if ( $value->itempekerjaan != "" ){
-                if ( $value->itempekerjaan->group_cost == 2 ){ 
-                    if ( $this->id == $value->project_kawasan_id ){
-                        $nilai = $nilai + ($value->nilai + $value->nilai_vo);
+                    if ( $value->itempekerjaan->group_cost == 2 ){ 
+                        if ( $this->id == $value->project_kawasan_id ){
+                             echo $value->no."<>".$value->nilai."<>".$value->nilai_vo;
+                                    echo "\n";
+                            $nilai = $nilai + ($value->nilai + $value->nilai_vo);
+                        }
                     }
-                }
                 }
             }
 

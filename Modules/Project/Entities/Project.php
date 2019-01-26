@@ -444,13 +444,24 @@ class Project extends Model
 
     public function getPercentageBudgetAttribute(){
         $nilai = 0;
-        if ( $this->nilai_budget_total == 0 ){
+        /*if ( $this->nilai_budget_total == 0 ){
             return $nilai ;
         }else{
             $nilai = $this->nilai_total_bap / $this->nilai_budget_total;
+        }*/
+        foreach ($this->voucher as $key => $value) {
+            if ( $value->date->format("Y") == date("Y")){
+                $nilai = $nilai + $value->nilai;
+            }
         }
 
-        return $nilai;
+        if ( $this->total_budget > 0 ){
+            return ( $nilai / $this->total_budget ) * 100 ;
+        }else{
+            return 0;
+        }
+
+        //return $nilai;
     }
 
     public function getTotalRekananAttribute(){
@@ -1582,7 +1593,7 @@ class Project extends Model
         foreach ($this->spks as $key => $value) {
             foreach ($value->details as $key2 => $value2) {
                 if ( $value2->asset_id == $this->id ){
-                    $nilai = $nilai + ($value->terbayar_verified);
+                    $nilai = $nilai + ($value->nilai + $value->nilai_vo);
                     
                 }
             }
@@ -1593,7 +1604,7 @@ class Project extends Model
         foreach ($this->kawasans as $key2 => $value2) {
             foreach ($this->spks as $key3 => $value3) {
                 if ( $value3->asset_id == $this->id ){
-                    $nilai = $nilai + ($value3->terbayar_verified);                    
+                    $nilai = $nilai + ($value3->nilai + $value->nilai_vo);                    
                 }
             }
             echo "Cluster => ".$value2->name."<>".$nilai;
@@ -1687,6 +1698,36 @@ class Project extends Model
         }
         return $nilai;
 
+    }
+
+    public function getTotalSpkFaskotTerbayarAttribute(){
+        $nilai = 0;
+        $start = 0;
+        $nilai_all = 0;
+        foreach ($this->spks as $key => $value) {
+            foreach ($value->details as $key2 => $value2) {
+                if ( $value2->asset_id == $this->id ){
+                    $nilai = $nilai + $value->terbayar_verified ;
+                    
+                }
+            }
+        }
+        echo "Faskot => ".$nilai;
+        echo "\n";
+        $nilai_all = 0;
+        foreach ($this->kawasans as $key2 => $value2) {
+            foreach ($this->spks as $key3 => $value3) {
+                if ( $value3->asset_id == $this->id ){
+                    $nilai_all = $nilai_all +  $value->terbayar_verified;                    
+                }
+            }
+            echo "Cluster => ".$value2->name."<>".$nilai_all;
+            echo "\n";
+        }
+        
+
+
+        return $nilai + $nilai_all ; 
     }
 
    
