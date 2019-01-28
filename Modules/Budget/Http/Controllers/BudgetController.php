@@ -389,32 +389,32 @@ class BudgetController extends Controller
         
         foreach ($spk as $key => $value) {
             # code...
-            $spk = \Modules\Spk\Entities\Spk::find($value->id);
-            $nilai = $spk->nilai;
-            if ( ($spk->progresses != "" )) {
-                if ( isset($spk->progresses->first()->itempekerjaan)) {
-                    $pekerjaan = \Modules\Pekerjaan\Entities\Itempekerjaan::where("code",$spk->progresses->first()->itempekerjaan->parent->code)->get()->first();
+            $spk_2 = \Modules\Spk\Entities\Spk::find($value->id);
+            $nilai = $spk_2->nilai;
+            if ( ($spk_2->progresses != "" )) {
+                if ( isset($spk_2->progresses->first()->itempekerjaan)) {
+                    $pekerjaan = \Modules\Pekerjaan\Entities\Itempekerjaan::where("code",$spk_2->progresses->first()->itempekerjaan->parent->code)->get()->first();
                     if ( isset($pekerjaan->group_cost)){
                         $budgetdetail = \Modules\Budget\Entities\BudgetDetail::where("itempekerjaan_id",$pekerjaan->id)->where("budget_id",$budget_devcost)->get();
                         if ( count($budgetdetail) > 0 ){ 
-                            $exp = explode("/", $spk->no);  
+                            $exp = explode("/", $spk_2->no);  
                             if ( count($exp) > 5 ){                                
                                 if ( $exp[5] <= date("Y")){     
                                     //if ( ($spk->nilai - round($spk->nilai_bap)) > 0 ){
                                         $array_cashflow[$start] = array(
-                                            "nospk" => $spk->no,
-                                            "nilaispk" => $spk->nilai,
-                                            "bap" =>$spk->nilai_bap,
-                                            "sisa" => ($spk->nilai - ($spk->nilai_bap)),
-                                            "id" => $spk->id,
-                                            "coa" => $spk->itempekerjaan->code.".00.00",
-                                            "pekerjaan" => $spk->itempekerjaan->name
+                                            "nospk" => $spk_2->no,
+                                            "nilaispk" => $spk_2->nilai,
+                                            "bap" =>$spk_2->nilai_bap,
+                                            "sisa" => ($spk_2->nilai - ($spk_2->nilai_bap)),
+                                            "id" => $spk_2->id,
+                                            "coa" => $spk_2->itempekerjaan->code.".00.00",
+                                            "pekerjaan" => $spk_2->itempekerjaan->name
                                         );
                                     $start++; 
                                  }
                             }           
                         }else{
-                            $nilai_sum_temp = $nilai_sum_temp + $spk->nilai;
+                            $nilai_sum_temp = $nilai_sum_temp + $spk_2->nilai;
                             
                         }                     
                     }                                       
@@ -458,7 +458,7 @@ class BudgetController extends Controller
 
         $nilai_sisa_dev_cost = 0;
         $nilai_sisa_con_cost = 0;
-        $spk = $budget_tahunan->budget->project->spks;
+        //$spk = $budget_tahunan->budget->project->spks;
         foreach ($spk as $key => $value) {
             if ( $value->date->format("Y") <= date("Y")){
                 if ( $value->itempekerjaan != "" ){
@@ -496,6 +496,17 @@ class BudgetController extends Controller
                                         $nilai_sisa_con_cost = $sisa + $nilai_sisa_con_cost;  
                                     } 
                                 }
+                            }elseif( $value->project_kawasan_id == $asset_id){
+                                if ( $value->baps != "" ){
+                                    $bayar = $value->baps->sum("nilai_bap_2");
+                                }else{
+                                    $bayar = 0;
+                                }
+
+                                $sisa = $value->nilai - $bayar;
+                                if ( $sisa > 0 ){
+                                    $nilai_sisa_con_cost = $sisa + $nilai_sisa_con_cost;  
+                                }   
                             }
                         }
                     }

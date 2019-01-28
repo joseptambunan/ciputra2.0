@@ -24,9 +24,14 @@ class BudgetCarryOver extends Model
     public function getNilaiRencanaAttribute(){
         $nilai = 0;
         if ( $this->cash_flows->count() > 0 ){
-           foreach ($this->cash_flows as $key => $value) {
-              $nilai = $nilai + ( ($value->total / 100) * $this->sisa );
-           }
+            foreach ($this->cash_flows as $key => $value) {
+                if ( $this->hutang_bayar != "" ){
+                    $nilai = $nilai + ( ($value->total / 100) * $this->hutang_bayar );
+                }else{
+                    $nilai = $nilai + ( ($value->total / 100) * $this->sisa );
+
+                }
+            }
 
            return $nilai;
         }else{

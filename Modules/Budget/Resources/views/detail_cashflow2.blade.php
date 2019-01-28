@@ -123,7 +123,7 @@
                   
                   <tr>
                     <td><i>Rencana Cash Out CarryOver</i></td>
-                    <td style="text-align: right;">Rp. <span id="label_cf_carryover_devcost">{{ ($co_devcost = $budget_tahunan->carry_nilai)}}</span></td>
+                    <td style="text-align: right;">Rp. <span id="label_cf_carryover_devcost">{{ ($co_devcost = $budget_tahunan->carry_nilai_dev_cost)}}</span></td>
                     <td style="text-align: right;">Rp. <span id="label_cf_carryover_concost">{{ ($co_concost = $budget_tahunan->carry_nilai_con_cost)}}</span></td>
                     <td style="text-align: right;">Rp. <span id="label_cf_carryover_label_cf_carryover">{{ ($co_concost + $co_devcost) }}</span></td>
                   </tr>
@@ -1083,7 +1083,8 @@
 @include("budget::app")
 
 <script type="text/javascript">
-  $("#label_cash_flow").text($("#total_budget_bln").val());
+  console.log(($("#total_budget_bln").val()));
+  //$("#label_cash_flow").text($("#total_budget_bln").val());
  
   var co_devcost = parseInt($("#label_cash_flow").text());
   var co_concost = parseInt($("#label_cash_flow_co").text());

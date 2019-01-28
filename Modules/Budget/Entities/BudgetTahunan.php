@@ -68,13 +68,37 @@ class BudgetTahunan extends Model
 
     public function getCarryNilaiConCostAttribute(){
         $nilai = 0;
-        
+        foreach ($this->carry_over as $key => $value) {
+            if ( $value->spk->itempekerjaan != "" ){
+
+                if ( $value->spk->itempekerjaan->group_cost == 2 ){
+
+                    if ( $value->hutang_bayar != "" ){
+                        $nilai = $nilai + $value->hutang_bayar;
+                    }else{
+                        $nilai = $value->nilai_rencana + $nilai;
+                    }
+                } 
+            }
+        }
         return $nilai;
     }
 
     public function getCarryNilaiDevCostAttribute(){
         $nilai = 0;
-        
+        foreach ($this->carry_over as $key => $value) {
+            if ( $value->spk->itempekerjaan != "" ){
+               
+                if ( $value->spk->itempekerjaan->group_cost == 1 ){
+
+                    if ( $value->hutang_bayar != "" ){
+                        $nilai = $nilai + $value->hutang_bayar;
+                    }else{
+                        $nilai = $value->nilai_rencana + $nilai;
+                    }
+                } 
+            }
+        }
         return $nilai;
     }
 
@@ -379,9 +403,11 @@ class BudgetTahunan extends Model
         $nilai = 0;
         foreach ($this->carry_over as $key => $value) {
             if ( $value->spk != "" ){
-                if ( $value->spk->itempekerjaan->group_cost == 1 ){
-                    foreach ($value->cash_flows as $key1 => $value1) {
-                        $nilai = $nilai + ( ($value1->total / 100) * ( $value->spk->nilai - ( $value->spk->nilai_bap * $value->spk->nilai ) ) );
+                if ( $value->spk->itempekerjaan->group_cost != "" ){
+                    if ( $value->spk->itempekerjaan->group_cost == 1 ){
+                        foreach ($value->cash_flows as $key1 => $value1) {
+                            $nilai = $nilai + ( ($value1->total / 100) * ( $value->spk->nilai - ( $value->spk->nilai_bap * $value->spk->nilai ) ) );
+                        }
                     }
                 }
             }
@@ -393,9 +419,11 @@ class BudgetTahunan extends Model
         $nilai = 0;
         foreach ($this->carry_over as $key => $value) {
             if ( $value->spk != "" ){
-                if ( $value->spk->itempekerjaan->group_cost == 2 ){
-                    foreach ($value->cash_flows as $key1 => $value1) {
-                        $nilai = $nilai + ( ($value1->total / 100) * ( $value->spk->nilai - ( $value->spk->nilai_bap * $value->spk->nilai ) ) );
+                if ( $value->spk->itempekerjaan->group_cost != "" ){
+                    if ( $value->spk->itempekerjaan->group_cost == 2 ){
+                        foreach ($value->cash_flows as $key1 => $value1) {
+                            $nilai = $nilai + ( ($value1->total / 100) * ( $value->spk->nilai - ( $value->spk->nilai_bap * $value->spk->nilai ) ) );
+                        }
                     }
                 }
             }
@@ -518,9 +546,12 @@ class BudgetTahunan extends Model
         $item_bln = 0;        
 
         foreach ($this->carry_over as $key => $value) {
-            if ( $value->spk->itempekerjaan->group_cost == 1 ){
-                $nilai_carry_over_dev_cost = $nilai_carry_over_dev_cost + $value->nilai_rencana;
-            }  
+            if ( $value->spk->itempekerjaan != "" ){
+                
+                if ( $value->spk->itempekerjaan->group_cost == 1 ){
+                    $nilai_carry_over_dev_cost = $nilai_carry_over_dev_cost + $value->nilai_rencana;
+                } 
+            } 
         }
 
         foreach ( $this->details as $key => $value ){
@@ -549,13 +580,16 @@ class BudgetTahunan extends Model
         
 
         foreach ($this->carry_over as $key => $value) {
-            if ( $value->spk->itempekerjaan->group_cost == 2 ){
-                $nilai_carry_over_con_cost = $nilai_carry_over_con_cost + $value->nilai_rencana;
-            }   
+            if ( $value->spk->itempekerjaan != "" ){
+                if ( $value->spk->itempekerjaan->group_cost == 2 ){
+                    $nilai_carry_over_con_cost = $nilai_carry_over_con_cost + $value->nilai_rencana;
+                }
+            }
         }
 
+       
 
-        return $nilai_carry_over_con_cost + $this->nilai_cash_out_con_cost;
+        return $this->nilai_cash_out_con_cost + $nilai_carry_over_con_cost;
 
         //$this->total_dev_cost + $this->total_con_cost
     }

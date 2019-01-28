@@ -1012,13 +1012,28 @@ class Project extends Model
 
     public function getRealCashOutDevCostAttribute(){
         $nilai = 0;
-        foreach ($this->budgets as $key => $value) {
-            foreach ($value->budget_tahunans as $key2 => $value2) {
+        $item_bln = 0;
+        $total_cash_out = 0;
+        //foreach ($this->budgets as $key => $value) {
+            foreach ($this->budget_tahunans as $key2 => $value2) {
                 if ( $value2->tahun_anggaran == date("Y")){
-                    $nilai = $nilai + ( $value2->nilai_real_cash_out_dev_cost + $value2->carry_nilai_dev_cost );
+                    $item_bln = 0;
+                    foreach ( $value2->details as $key3 => $value3 ){
+
+                        $budgetcf = \Modules\Budget\Entities\BudgetTahunanPeriode::where("budget_id",$value2->id)->where("itempekerjaan_id",$value3->itempekerjaans->id)->get();
+                        if ( count($budgetcf) > 0 ){
+                            foreach ( $budgetcf as $key4 => $value4 ){
+                                $spk = $value3->volume * $value3->nilai;
+                                $total_cash_out = (($value4->januari/100) * $spk ) + ( ($value4->februari/100) * $spk ) + ( ($value4->maret/100) * $spk ) + ( ($value4->april/100) * $spk ) + (($value4->mei/100) * $spk ) + ( ($value4->juni/100) * $spk ) + ( ($value4->juli/100) * $spk ) + ( ($value4->agustus/100) * $spk ) + ( ($value4->september/100) * $spk ) + ( ($value4->oktober/100) * $spk ) + ( ($value4->november/100) * $spk ) + ( ($value4->desember/100) * $spk ) ;
+                                $item_bln = $item_bln + $total_cash_out;                               
+                            }
+                        }
+                    }
+                    
+                    $nilai = $nilai + ( $item_bln + $value2->carry_nilai_dev_cost );
                 }
             }
-        }
+        //}
 
         return $nilai;
     }
@@ -1026,13 +1041,13 @@ class Project extends Model
 
     public function getRealCashOutConCostAttribute(){
         $nilai = 0;
-        foreach ($this->budgets as $key => $value) {
-            foreach ($value->budget_tahunans as $key2 => $value2) {
+        //foreach ($this->budgets as $key => $value) {
+            foreach ($this->budget_tahunans as $key2 => $value2) {
                 if ( $value2->tahun_anggaran == date("Y")){
                     $nilai = $nilai + ( $value2->carry_nilai_con_cost + $value2->nilai_cash_out_con_cost ); 
                 }
             }
-        }
+        //}
 
         return $nilai;
     }
