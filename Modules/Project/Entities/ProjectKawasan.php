@@ -965,8 +965,7 @@ class ProjectKawasan extends CustomModel
                 if ( $value->itempekerjaan != "" ){
                     if ( $value->itempekerjaan->group_cost == 2 ){ 
                         if ( $this->id == $value->project_kawasan_id ){
-                             echo $value->no."<>".$value->nilai."<>".$value->nilai_vo;
-                                    echo "\n";
+                          
                             $nilai = $nilai + ($value->nilai + $value->nilai_vo);
                         }
                     }
@@ -986,8 +985,7 @@ class ProjectKawasan extends CustomModel
                 if ( $value->itempekerjaan->group_cost == 1 ){                    
                     foreach ($value->details as $key2 => $value2) {
                         if ( $value2->asset_id == $this->id ){
-                            echo $value->no.",".$value->name."<>".($value->nilai + $value->nilai_vo);
-                            echo "\n";
+                          
                         }
                     } 
                 }

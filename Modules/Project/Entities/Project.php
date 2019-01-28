@@ -1015,7 +1015,7 @@ class Project extends Model
         foreach ($this->budgets as $key => $value) {
             foreach ($value->budget_tahunans as $key2 => $value2) {
                 if ( $value2->tahun_anggaran == date("Y")){
-                    $nilai = $nilai + $value2->nilai_real_cash_out_dev_cost;
+                    $nilai = $nilai + ( $value2->nilai_real_cash_out_dev_cost + $value2->carry_nilai_dev_cost );
                 }
             }
         }
@@ -1029,7 +1029,7 @@ class Project extends Model
         foreach ($this->budgets as $key => $value) {
             foreach ($value->budget_tahunans as $key2 => $value2) {
                 if ( $value2->tahun_anggaran == date("Y")){
-                    $nilai = $nilai + $value2->nilai_real_cash_out_con_cost;
+                    $nilai = $nilai + ( $value2->carry_nilai_con_cost + $value2->nilai_cash_out_con_cost ); 
                 }
             }
         }
@@ -1729,6 +1729,8 @@ class Project extends Model
 
         return $nilai + $nilai_all ; 
     }
+
+
 
    
 }

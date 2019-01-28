@@ -224,6 +224,7 @@ class ProjectController extends Controller
                 $arrayRealisasi["desember"] = $arrayRealisasi["desember"] + $value->nilai;
             }
         }
+        
         $variabel_cash_out = "";
         $nilai_cash_out = 0;
         foreach ($arrayBulananCashOut as $key => $value) {
@@ -1089,7 +1090,7 @@ class ProjectController extends Controller
                     $productcategory = 2;
                 }
                 $authuser = \Auth::user();
-                $project_pt_erem = Project::find($request->project_id)->project_id;
+                $project_pt_erem = Project::find($request->session()->get('project_id'))->project_id;
                 $projectkawasan = ProjectKawasan::find($request->projectkawasan);
                 $pt = Pt::find($request->pt_id);
                 $datatype = UnitType::find($request->unit_type);
