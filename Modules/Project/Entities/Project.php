@@ -1031,6 +1031,7 @@ class Project extends Model
                     }
                     
                     $nilai = $nilai + ( $item_bln + $value2->carry_nilai_dev_cost );
+
                 }
             }
         //}
@@ -1045,6 +1046,7 @@ class Project extends Model
             foreach ($this->budget_tahunans as $key2 => $value2) {
                 if ( $value2->tahun_anggaran == date("Y")){
                     $nilai = $nilai + ( $value2->carry_nilai_con_cost + $value2->nilai_cash_out_con_cost ); 
+                    
                 }
             }
         //}
