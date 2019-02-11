@@ -48,3 +48,26 @@ GO
 ALTER TABLE dbo.project_kawasans ADD id_kawasan_erems INT NULL  ;  
 GO 
 
+ALTER TABLE  `pengajuanbiaya_details` ADD  `volume` INT NULL ,
+ADD INDEX (  `volume` ) ;
+
+ALTER TABLE  `pengajuanbiaya_details` ADD  `satuan` VARCHAR( 8 ) NULL ;
+
+
+ALTER TABLE [dbo].[pengajuanbiayas] ADD doc_bayar_status INT NULL  ;  
+GO 
+
+ALTER TABLE [dbo].[pengajuanbiayas] ADD doc_bayar_date DATETIME NULL  ;  
+GO 
+
+ALTER TABLE dbo.tender_rekanans ALTER COLUMN is_pemenang INT NULL;  
+GO 
+
+ALTER TABLE [dbo].[pengajuanbiayas] ADD itempekerjaan_id INT NULL ;  
+GO 
+
+ALTER TABLE  `pengajuanbiaya_details` ADD  `pengajuan_biaya_id` INT NULL ,
+ADD INDEX (  `pengajuan_biaya_id` ) ;
+
+ALTER TABLE [dbo].[rekanan_supps] ADD saksi_rekanan_name_2 INT NULL ;  
+GO 
