@@ -4,7 +4,7 @@ namespace Modules\Budget\Entities;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\Approval;
-use Modules\Budget\Entities\BudgetTahunan;
+use Modules\Budget\Entities\BudgetTahunanPeriode;
 
 class BudgetTahunan extends Model
 {
@@ -42,12 +42,12 @@ class BudgetTahunan extends Model
 
     public function workorders()
     {
-        return $this->hasMany('App\Workorder');
+        return $this->hasMany('Modules\Workorder\Entities\Workorder');
     }
 
     public function rabs()
     {
-        return $this->hasManyThrough('App\Rab', 'App\Workorder');
+        return $this->hasManyThrough('Modules\Rab\Entities\Rab', 'Modules\Workorder\Entities\Workorder');
     }
 
     public function carry_over(){
@@ -247,10 +247,57 @@ class BudgetTahunan extends Model
     public function getTotalParentItemAttribute(){
         $array = array();
         $nilai_satuan = 0;
+        $cashout = 0;
+        $params = 0;
+        $terpakai = 0;
         foreach ($this->details as $key => $value) {           
             if ( $value->itempekerjaans->group_cost == 1 ){
+                
                 if ( $value->itempekerjaans->parent != "" ){
+
+                    //Cek Saldo Budget Cashot per Item pekerjaan
+                    $qry_cashout = BudgetTahunanPeriode::where("budget_id",$this->id)->where("itempekerjaan_id",$value->itempekerjaans->id)->get();
+
+                    $cashout = 0;
+                    if ( $qry_cashout->count() > 0  ){                         
+                        foreach ($qry_cashout as $key2 => $value2) {
+                            $cashout = ( $value2->januari + $value->februari + $value2->maret + $value2->april + $value2->mei + $value2->juni + $value2->juli + $value2->agustus + $value2->september + $value2->oktober + $value2->november + $value2->desember ) / 100;
+                        }                 
+                    }
+
+                    //Cek Terpakai
+                    $terpakai = 0;
+                    if ( $this->workorder_budget_detail->count() > 0 ){
+                        foreach ($this->workorder_budget_detail as $key3 => $value3) {
+                            if ( $value3->itempekerjaan->id == $value->itempekerjaans->id ){
+                                $terpakai = $value3->volume * $value3->nilai;
+                            }
+                        }                        
+                    }
+
                     if ( isset($array[$value->itempekerjaans->parent->id] )){
+                        if ( $value->itempekerjaans->parent->details != "" ){
+                            $satuan = $value->itempekerjaans->parent->details->satuan;
+                        }else{
+                            $satuan = "ls";
+                        }
+                        $params = $params + 1;          
+
+                        $cashout =  $array[$value->itempekerjaans->parent->id]['cashout'] + $cashout  ;
+                        $terpakai = $array[$value->itempekerjaans->parent->id]['nilai_terpakai'] + $terpakai;
+                        $array[$value->itempekerjaans->parent->id] = array(
+                            "code" => $value->itempekerjaans->parent->code,
+                            "satuan" => $satuan,
+                            "itempekerjaan" => $value->itempekerjaans->parent->name,
+                            "nilai" => $value->nilai + $array[$value->itempekerjaans->parent->id]["nilai"],
+                            "volume" => $value->volume + $array[$value->itempekerjaans->parent->id]["volume"],
+                            "group_cost" => $value->itempekerjaans->group_cost,
+                            "nilai_terpakai" => $terpakai,
+                            "id" => $value->itempekerjaans->parent->id,
+                            "cashout" => $cashout
+                        );
+                    }else{
+                        $params = 1;
                         if ( $value->itempekerjaans->parent->details != "" ){
                             $satuan = $value->itempekerjaans->parent->details->satuan;
                         }else{
@@ -261,34 +308,19 @@ class BudgetTahunan extends Model
                             "code" => $value->itempekerjaans->parent->code,
                             "satuan" => $satuan,
                             "itempekerjaan" => $value->itempekerjaans->parent->name,
-                            "nilai" => $value->nilai + $array[$value->itempekerjaans->parent->id]["nilai"],
-                            "volume" => $value->volume + $array[$value->itempekerjaans->parent->id]["volume"],
-                            "group_cost" => $value->itempekerjaans->group_cost,
-                            "nilai_terpakai" => 0,
-                            "id" => $value->itempekerjaans->parent->id
-                        );
-                    }else{
-                        if ( $value->itempekerjaans->parent->details != "" ){
-                            $satuan = $value->itempekerjaans->parent->details->satuan;
-                        }else{
-                            $satuan = "ls";
-                        }
-                        $array[$value->itempekerjaans->parent->id] = array(
-                            "code" => $value->itempekerjaans->parent->code,
-                            "satuan" => $satuan,
-                            "itempekerjaan" => $value->itempekerjaans->parent->name,
                             "nilai" => $value->nilai,
                             "volume" => $value->volume,
                             "group_cost" => $value->itempekerjaans->group_cost,
-                            "nilai_terpakai" => 0,
-                            "id" => $value->itempekerjaans->parent->id
+                            "nilai_terpakai" => $terpakai,
+                            "id" => $value->itempekerjaans->parent->id,
+                            "cashout" => $cashout
                         );
                     }
                 }
             }else{
                 $nilai = $value->nilai;
                 $volume = $value->volume;
-                
+                $cashout = 1;
                 $nilai_satuan = $this->budget_unit->avg("harga_satuan");
                 if ( $this->budget_unit->count() > 0 ){
                     /*foreach ($this->budget_unit as $key2 => $value2) {
@@ -317,7 +349,8 @@ class BudgetTahunan extends Model
                             "volume" => $volume,
                             "group_cost" => $value->itempekerjaans->group_cost,
                             "nilai_terpakai" => 0,
-                            "id" => $value->itempekerjaans->parent->id
+                            "id" => $value->itempekerjaans->parent->id,
+                            "cashout" => $cashout
                         );
                     }else{
                         if ( $value->itempekerjaans->parent->details != "" ){
@@ -334,7 +367,8 @@ class BudgetTahunan extends Model
                             "volume" => $volume,
                             "group_cost" => $value->itempekerjaans->group_cost,
                             "nilai_terpakai" => 0,
-                            "id" => $value->itempekerjaans->parent->id
+                            "id" => $value->itempekerjaans->parent->id,
+                            "cashout" => $cashout
                         );
                     }
                 }
@@ -633,5 +667,9 @@ class BudgetTahunan extends Model
                 }
             }
         }
+    }
+
+    public function workorder_budget_detail(){
+        return $this->hasMany("Modules\Workorder\Entities\WorkorderBudgetDetail");
     }
 }
