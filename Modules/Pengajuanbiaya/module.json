@@ -1,0 +1,16 @@
+{
+    "name": "Pengajuanbiaya",
+    "alias": "pengajuanbiaya",
+    "description": "",
+    "keywords": [],
+    "active": 1,
+    "order": 0,
+    "providers": [
+        "Modules\\Pengajuanbiaya\\Providers\\PengajuanbiayaServiceProvider"
+    ],
+    "aliases": {},
+    "files": [
+        "start.php"
+    ],
+    "requires": []
+}

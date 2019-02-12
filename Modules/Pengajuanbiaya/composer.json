@@ -1,0 +1,25 @@
+{
+    "name": "nwidart/pengajuanbiaya",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Modules\\Pengajuanbiaya\\Providers\\PengajuanbiayaServiceProvider"
+            ],
+            "aliases": {
+                
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Pengajuanbiaya\\": ""
+        }
+    }
+}

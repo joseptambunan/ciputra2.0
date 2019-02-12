@@ -156,24 +156,26 @@
                      </thead>
                      <tbody id="detail_item">
                        @foreach ( $workorder->detail_pekerjaan as $key => $value )
-                       <tr>
-                          <td>{{ $value->itempekerjaan->code or ''}}</td>
-                          <td>{{ $value->itempekerjaan->name or ''}}</td>
-                          <td>{{ $value->budget_tahunan->no}}</td>
-                          <td>{{ number_format($value->volume)}}</td>
-                          <td>{{ $value->itempekerjaan->details->satuan or ''}}</td>
-                          <td>{{ number_format($value->nilai)}}</td>
-                          <td>{{ number_format($value->volume * $value->nilai,2)}}</td>
-                          <td>
-                            @if ( $workorder->approval != "")
-                              @if ( $workorder->approval->approval_action_id == 7 )
-                              <button type="button" class="btn btn-danger" onclick="removepekerjaan('{{ $value->id }}')">Hapus Pekerjaan</button>
+                         @if ( $value->budget_tahunan != "" )
+                         <tr>
+                            <td>{{ $value->itempekerjaan->code or ''}}</td>
+                            <td>{{ $value->itempekerjaan->name or ''}}</td>
+                            <td>{{ $value->budget_tahunan->no}}</td>
+                            <td>{{ number_format($value->volume)}}</td>
+                            <td>{{ $value->itempekerjaan->details->satuan or ''}}</td>
+                            <td>{{ number_format($value->nilai)}}</td>
+                            <td>{{ number_format($value->volume * $value->nilai,2)}}</td>
+                            <td>
+                              @if ( $workorder->approval != "")
+                                @if ( $workorder->approval->approval_action_id == 7 )
+                                <button type="button" class="btn btn-danger" onclick="removepekerjaan('{{ $value->id }}')">Hapus Pekerjaan</button>
+                                @endif
+                              @else
+                                <button type="button" class="btn btn-danger" onclick="removepekerjaan('{{ $value->id }}')">Hapus Pekerjaan</button>
                               @endif
-                            @else
-                              <button type="button" class="btn btn-danger" onclick="removepekerjaan('{{ $value->id }}')">Hapus Pekerjaan</button>
-                            @endif
-                          </td>
-                       </tr>
+                            </td>
+                         </tr>
+                         @endif
                        @endforeach
                      </tbody>
                    </table> 
@@ -308,74 +310,6 @@
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span></button>
         </div>
-        <form action="{{ url('/')}}/workorder/save-units" method="post">
-          {{ csrf_field() }}
-        <input type="hidden" name="workorder_unit_id" value="{{ $workorder->id }}">
-        <div class="modal-body">
-
-          <div class="form-group" id="item_pekerjaan">
-            <table class="table-bordered table">
-              <thead class="head_table">
-                <tr>
-                  <td>No.</td>
-                  <td>Unit Name</td>
-                  <td>Set to WO</td>
-                </tr>
-              </thead>
-              <tbody id="table_item">
-                @php $start=0; @endphp
-
-                @for ( $i=0; $i < count($workorder->budget_parent); $i++)
-                  @if ( $workorder->budget_parent[$i] != null )
-                    @if ( \Modules\Budget\Entities\BudgetTahunan::find($workorder->budget_parent[$i])->budget == null )
-                    <tr>
-                      <td>{{ $start + 1 }}</td>                 
-                      <td>{{ \Modules\Budget\Entities\BudgetTahunan::find($workorder->budget_parent[$i])->budget->project->name }}</td>
-                      <td><input type="checkbox" class="disable_unit" name="asset[{{ $start}}]" value="{{ \Modules\Budget\Entities\BudgetTahunan::find($workorder->budget_parent[$i])->project->id }}" onClick="disablebtn('{{ \Modules\Budget\Entities\BudgetTahunan::find($workorder->budget_parent[$i])->project->id }}')"></td>
-                    </tr>                  
-                    @else
-                    @php
-                        $budgettahunan = \Modules\Budget\Entities\BudgetTahunan::find($workorder->budget_parent[$i]);
-                    @endphp
-
-                    @if ( $budgettahunan->budget->kawasan !=  null)
-                      <tr>
-                        <td>{{ $start + 1 }}</td>                 
-                        <td>{{ $budgettahunan->budget->kawasan->name or '' }}</td>
-                        <td><input type="checkbox"  class="disable_unit" name="asset[{{ $start}}]" value="{{ $budgettahunan->budget->kawasan->id }}"  onClick="disablebtn('{{ $budgettahunan->budget->kawasan->id }}')"></td>
-                      </tr>
-                      @php 
-                        $units_list = \Modules\Project\Entities\ProjectKawasan::find($budgettahunan->budget->kawasan->id)->units;
-                      @endphp
-
-                      @foreach ( $units_list as $key3 => $value3 )                  
-                        @php $start++; @endphp
-                        <tr>
-                          <td>{{ $start + 1 }}</td>                 
-                          <td>{{ $value3->name }}</td>
-                          <td><input class="disable_unit" type="checkbox" name="asset[{{ $start}}]" value="Unit_{{ $value3->id }}" onClick="disablebtn('{{ $value3->id }}')"></td>
-                        </tr>
-                        @php $start++; @endphp
-                      @endforeach
-                    @endif
-
-                    
-
-                    @endif
-                    @php $start++; @endphp
-                  @endif
-                @endfor
-                
-                
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-primary" id="btn_submit" disabled>Save changes</button>
-        </div>
-      </form>
       </div>
       <!-- /.modal-content -->
     </div>

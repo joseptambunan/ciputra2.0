@@ -24,6 +24,7 @@ use Modules\Project\Entities\Unit;
 use Modules\Globalsetting\Entities\Globalsetting;
 use Modules\User\Entities\User;
 use Modules\Rekanan\Entities\RekananGroup;
+use Modules\TenderMaster\Entities\TenderMaster;
 
 class TenderController extends Controller
 {
@@ -103,6 +104,8 @@ class TenderController extends Controller
         $itempekerjaan = Itempekerjaan::find($rab->pekerjaans->last()->itempekerjaan->parent->id);
         $global_setting = Globalsetting::get();
         $data = array();
+        $tendermaster = TenderMaster::get();
+
         foreach ($global_setting as $key => $value) {
             
             if ( $value->parameter == "aanwijzing_date"){
@@ -158,18 +161,20 @@ class TenderController extends Controller
             $tender_apprroval = $tender->approval->histories;
             $start = 0;
             foreach ($tender_apprroval as $key => $value) {
-                foreach ($value->user->jabatan as $key2 => $value2) {
-                    if ( $value2['jabatan'] == "General Manager" || $value2['jabatan'] == "Kepala Departemen" || $value2['jabatan'] == "Kepala Divisi"){
-                        $ttd[$start] = array("nama" => $value->user->user_name, "jabatan" => $value2["jabatan"] );
-                        $start++;
-                    }
+                if ( $value->user != "" ){
+                    foreach ($value->user->jabatan as $key2 => $value2) {
+                        if ( $value2['jabatan'] == "General Manager" || $value2['jabatan'] == "Kepala Departemen" || $value2['jabatan'] == "Kepala Divisi"){
+                            $ttd[$start] = array("nama" => $value->user->user_name, "jabatan" => $value2["jabatan"] );
+                            $start++;
+                        }
+                    }                    
                 }
             }
         }
 
         $tanggal_sekarang = date("Y-m-d H:i:s");
 
-        return view('tender::detail2',compact("tender","user","project","rekanan","itempekerjaan","data","dokumen","ttd","tanggal_sekarang"));
+        return view('tender::detail2',compact("tender","user","project","rekanan","itempekerjaan","data","dokumen","ttd","tanggal_sekarang","tendermaster"));
     }
 
     /**
@@ -188,21 +193,23 @@ class TenderController extends Controller
      */
     public function update(Request $request)
     {
+
         $tender = Tender::find($request->tender_id);
         $tender->durasi = $request->tender_durasi;
         $tender->name = $request->tender_name;
-        $tender->ambil_doc_date = date("Y-m-d H:i:s",strtotime($request->ambil_doc_date));
-        $tender->aanwijzing_date = date("Y-m-d H:i:s",strtotime($request->aanwijzing_date));
-        $tender->penawaran1_date = date("Y-m-d H:i:s",strtotime($request->penawaran1_date));
-        $tender->klarifikasi1_date = date("Y-m-d H:i:s",strtotime($request->klarifikasi1_date));
+        $tender->ambil_doc_date = date("Y-m-d H:i:s.u",strtotime($request->ambil_doc_date));
+        $tender->aanwijzing_date = date("Y-m-d H:i:s.u",strtotime($request->aanwijzing_date));
+        $tender->penawaran1_date = date("Y-m-d H:i:s.u",strtotime($request->penawaran1_date));
+        $tender->klarifikasi1_date = date("Y-m-d H:i:s.u",strtotime($request->klarifikasi1_date));
 
-        $tender->penawaran2_date = date("Y-m-d H:i:s",strtotime($request->penawaran2_date));
-        $tender->klarifikasi2_date = date("Y-m-d H:i:s",strtotime($request->klarifikasi2_date));
-        $tender->pengumuman_date = date("Y-m-d H:i:s",strtotime($request->pengumuman_date));
-        $tender->penawaran3_date = date("Y-m-d H:i:s",strtotime($request->pengumuman_date));
-        $tender->recommendation_date = date("Y-m-d H:i:s",strtotime($request->recommendation_date));
+        $tender->penawaran2_date = date("Y-m-d H:i:s.u",strtotime($request->penawaran2_date));
+        $tender->klarifikasi2_date = date("Y-m-d H:i:s.u",strtotime($request->klarifikasi2_date));
+        $tender->pengumuman_date = date("Y-m-d H:i:s.u",strtotime($request->pengumuman_date));
+        $tender->penawaran3_date = date("Y-m-d H:i:s.u",strtotime($request->pengumuman_date));
+        $tender->recommendation_date = date("Y-m-d H:i:s.u",strtotime($request->recommendation_date));
         $tender->harga_dokumen = str_replace(",", "", $request->harga_dokumen);
         $tender->sifat_tender = $request->jenis_kontrak;
+        $tender->kelas_id =$request->tender_type;
         $tender->save();
         return redirect("/tender/detail?id=".$tender->id);
     }
@@ -217,12 +224,16 @@ class TenderController extends Controller
 
     public function saverekanan(Request $request){
         //print_r($request->rekanan);die;
+        $tender = Tender::find($request->tender_id);
         if ( $request->rekanan != "" ){
             foreach ($request->rekanan as $key => $value) {
                 if ( $request->rekanan[$key] != "" ){
                     $tender_rekanan = new TenderRekanan;
                     $tender_rekanan->tender_id = $request->tender_id;
                     $tender_rekanan->rekanan_id = $request->rekanan[$key];
+                    if ( $tender->harga_dokumen <= 0 ){
+                        $tender_rekanan->doc_bayar_status = 1;
+                    }
                     $tender_rekanan->save();
                 }           
                 
@@ -643,44 +654,49 @@ class TenderController extends Controller
 
     public function searchreferensi(Request $request){
         $html = "";
-        $start = 0;
-        if ( $request->itempekerjaan == "all"){
-            $rekanan_group = RekananGroup::get();
-            foreach ($rekanan_group as $key => $value) {
-                foreach ($value->rekanans as $key2 => $value2) {
-                    $html .= "<tr>";
-                    $html .= "<td>".$value2->name."</td>";
-                    $html .= "<td>";
-                    foreach ($value->spesifikasi as $key3 => $value3) {
-                        $html .= "<li>".$value3->itempekerjaan->name."</li>";
-                    }
-                    $html .= "</td>";
-                    $html .= "<td><input type='checkbox' name='rekanan[".$start."]' value='".$value2->id."'></td>";
-                    $html .= "</tr>";
-                    $start++;
-                }         
-            }
-        }else{
-            $itemkerjan = Itempekerjaan::find($itempekerjaan->id);
-            $rekanan_group = RekananGroup::get();
-            foreach ($rekanan_group as $key => $value) {
-                foreach ( $value->spesifikasi as $key3 => $value3 ){
-                    if ( $value3->itempekerjaan->id == $itemkerjan->id ){
-                        foreach ($value->rekanans as $key4 => $value4) {
+        if ( $request->itempekerjaan != "all" ){
+            $itempekerjaan = Itempekerjaan::find($request->itempekerjaan);
+            foreach ($itempekerjaan->rekanan_specification as $key => $value) {
+                if ( $value->rekanan_group != "all" ){                
+                    if ( $value->rekanan_group->rekanans != "" ){                
+                        foreach ( $value->rekanan_group->rekanans as $key3 => $value3){
                             $html .= "<tr>";
-                            $html .= "<td>".$value4->name."</td>";
-                            $html .= "<td>";
-                            foreach ($value->spesifikasi as $key3 => $value3) {
-                                $html .= "<li>".$value3->itempekerjaan->name."</li>";
-                            }
-                            $html .= "</td>";
-                            $html .= "<td><input type='checkbox' name='rekanan[".$start."]' value='".$value4->id."'></td>";
+                            $html .= "<td>".$value3->name."</td>";
+                            $html .= "<td>".$itempekerjaan->name."</td>";
+                            $html .= "<td><input type='checkbox' value='".$value3->id."'/>Set to Tender</td>";
                             $html .= "</tr>";
-                            $start++;
-                        }    
+                        }
+                    }else{
+                        $html .= "<tr>";
+                        $html .= "<td>".$value->rekanan_group->name."</td>";
+                        $html .= "<td>".$itempekerjaan->name."</td>";
+                        $html .= "<td><input type='checkbox' value='".$value->rekanan_group->id."'/>Set to Tender</td>";
+                        $html .= "</tr>";
                     }
                 }
-                     
+            }            
+        }else{
+            $rekanan_group = RekananGroup::get();
+            foreach ($rekanan_group as $key => $value) {
+                $spesifikasi = "";
+                foreach ($value->spesifikasi as $key4 => $value4) {
+                    $spesifikasi .= $value4->itempekerjaan->name .",";
+                }
+                if ( $value->rekanans != "" ){                
+                    foreach ( $value->rekanans as $key3 => $value3){
+                        $html .= "<tr>";
+                        $html .= "<td>".$value3->name."</td>";
+                        $html .= "<td>".$spesifikasi."</td>";
+                        $html .= "<td><input type='checkbox' value='".$value3->id."'/>Set to Tender</td>";
+                        $html .= "</tr>";
+                    }
+                }else{
+                    $html .= "<tr>";
+                    $html .= "<td>".$value->name."</td>";
+                    $html .= "<td>".$spesifikasi."</td>";
+                    $html .= "<td><input type='checkbox' value='".$value->id."'/>Set to Tender</td>";
+                    $html .= "</tr>";
+                }
             }
         }
         return response()->json( ["status" => "0", "html" => $html]);

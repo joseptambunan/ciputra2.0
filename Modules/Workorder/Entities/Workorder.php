@@ -263,5 +263,42 @@ class Workorder extends Model
 
         return array_values(array_unique($nilai));
     }
+
+    public function getAllSpkAttribute(){
+        $nilai = 0;
+        $pekerjaan = $this->detail_pekerjaan->count();
+        foreach ($this->rabs as $key => $value) {
+            if ( $value->tender != "" ){
+                if ( $value->tender->spks->count() > 0 ){
+                    $nilai = $nilai + 1;
+                }
+            }
+        }
+
+        if ( $pekerjaan > 0 ){            
+            if ( $pekerjaan <= $nilai ){
+                return 1;
+            }else{
+                return 0;
+            }
+        }else{
+            return 0;
+        }
+    }
+
+    public function getAllBudgetAttribute(){
+        $nilai = 0;
+        if ( $this->detail_pekerjaan->count() <= 0 ){
+            $nilai = 1;
+        }
+
+        foreach ($this->detail_pekerjaan as $key => $value) {
+            if ( $value->budget_tahunan != "" ){
+                $nilai = $nilai + 1;
+            }
+        }
+
+        return $nilai;
+    }
     
 }

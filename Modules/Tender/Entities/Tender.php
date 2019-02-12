@@ -87,7 +87,7 @@ class Tender extends CustomModel
     public function getNilaiAttribute()
     {
         $nilai = 0;
-        return $nilai;
+        
         foreach ($this->units as $key => $unit) 
         {
             $nilai = $nilai + $unit->rab_unit->nilai;
@@ -138,5 +138,9 @@ class Tender extends CustomModel
             }
         }
         return $nilai;
+    }
+
+    public function tender_type(){
+        return $this->belongsTo("Modules\TenderMaster\Entities\TenderMaster","kelas_id");
     }
 }

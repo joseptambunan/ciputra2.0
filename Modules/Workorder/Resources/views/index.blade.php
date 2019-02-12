@@ -35,7 +35,7 @@
                 <tr>
                   <th>No. Workorder </th>
                   <th>Nama</th>
-                  <th>Nilai</th>
+                  <th>Nilai(Rp)</th>
                   <th>Departemen</th>
                   <th>Dibuat oleh</th>
                   <th>Tanggal Dibuat</th>
@@ -46,39 +46,43 @@
                 </thead>
                 <tbody>
                   @foreach ( $workorder as $key => $value )
-                  <tr>
-                    <td>{{ $value->no }}</td>
-                    <td>{{ $value->name }}</td>
-                    <td>{{ number_format($value->nilai) }}</td>
-                    <td>{{ $value->departmentFrom->name }}</td>
-                     <td>{{ \App\User::find($value->created_by)->user_name }}</td>
-                    <td>{{ $value->created_at }}</td>
-                    <td><a href="{{ url('/')}}/workorder/detail/?id={{ $value->id }}" class="btn btn-warning">Detail</a></td>
-                    <td>
-                      @if ( $value->approval != "" )
-                      @php
-                        $array = array (
-                          "6" => array("label" => "Disetujui", "class" => "label label-success"),
-                          "7" => array("label" => "Ditolak", "class" => "label label-danger"),
-                          "1" => array("label" => "Dalam Proses", "class" => "label label-warning"),
-                          "" => array("label" => "","class" => "")
-                        )
-                      @endphp
-                      <span class="{{ $array[$value->approval->approval_action_id]['class'] }}">{{ $array[$value->approval->approval_action_id]['label'] }}</span>
-                      @endif               
-                    </td>
-                    <td>
-                      @if ( $value->approval != "" )
-                        @if ( $value->approval->approval_action_id == "6" )
-                          @if ( $value->details->count() > 0 && $value->detail_pekerjaan->count() > 0 )
-                            <a class="btn btn-warning" href="{{ url('/')}}/rab/?workorder_id={{ $value->id }}">{{ $value->rabs->count() }}RAB</a>
-                          @else
-                          <span>Workorder ini belum memiliki Unit / Pekerjaan</span>
-                          @endif
-                        @endif
+                    @if ( $value->all_budget > 0 )
+                      @if ( $value->all_spk <= 0 )
+                        <tr>
+                          <td>{{ $value->no }}</td>
+                          <td>{{ $value->name }}</td>
+                          <td>{{ number_format($value->nilai) }}</td>
+                          <td>{{ $value->departmentFrom->name }}</td>
+                           <td>{{ \App\User::find($value->created_by)->user_name }}</td>
+                          <td>{{ $value->created_at }}</td>
+                          <td><a href="{{ url('/')}}/workorder/detail/?id={{ $value->id }}" class="btn btn-warning">Detail</a></td>
+                          <td>
+                            @if ( $value->approval != "" )
+                            @php
+                              $array = array (
+                                "6" => array("label" => "Disetujui", "class" => "label label-success"),
+                                "7" => array("label" => "Ditolak", "class" => "label label-danger"),
+                                "1" => array("label" => "Dalam Proses", "class" => "label label-warning"),
+                                "" => array("label" => "","class" => "")
+                              )
+                            @endphp
+                            <span class="{{ $array[$value->approval->approval_action_id]['class'] }}">{{ $array[$value->approval->approval_action_id]['label'] }}</span>
+                            @endif               
+                          </td>
+                          <td>
+                            @if ( $value->approval != "" )
+                              @if ( $value->approval->approval_action_id == "6" )
+                                @if ( $value->details->count() > 0 && $value->detail_pekerjaan->count() > 0 )
+                                  <a class="btn btn-warning" href="{{ url('/')}}/rab/?workorder_id={{ $value->id }}">{{ $value->rabs->count() }}RAB</a>
+                                @else
+                                <span>Workorder ini belum memiliki Unit / Pekerjaan</span>
+                                @endif
+                              @endif
+                            @endif
+                          </td>
+                        </tr>
                       @endif
-                    </td>
-                  </tr>
+                    @endif
                   @endforeach
                 </tbody>
               </table>
@@ -95,13 +99,8 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-  <footer class="main-footer">
-    <div class="pull-right hidden-xs">
-      <b>Version</b> 2.4.0
-    </div>
-    <strong>Copyright &copy; 2014-2016 <a href="https://adminlte.io">Almsaeed Studio</a>.</strong> All rights
-    reserved.
-  </footer>
+
+  @include("master/copyright")
 
   
   <!-- Add the sidebar's background. This div must be placed

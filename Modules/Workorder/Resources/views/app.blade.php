@@ -124,5 +124,43 @@
   
   }
 
- 
+ function calculatewo(id,parent_id){
+    var nilai = $("#nilai_" + id).val();
+    var volume = $("#volume_" + id).val();
+    var limit = $("#limit_" +parent_id).val();
+    var total_value = 0;
+
+    var remStringNilai = nilai.replace(",","");
+    var remStringVolume = volume.replace(",","");
+    var remStringLimit = limit.replace(",","");
+
+    var intNilai = parseInt(remStringNilai);
+    var intVolume = parseInt(remStringVolume);
+    var intLimit = parseInt(remStringLimit);
+    var intSum = parseInt($("#sum_" + parent_id).val());
+    var subtotal = intNilai * intVolume;
+
+    if ( subtotal == "NaN"){
+      subtotal = 0;
+    }
+    
+    var total = parseInt(intSum) + parseInt(subtotal);
+    $("#subtotal_" + id).text(subtotal);
+    $("#subtotals_" + id).val(subtotal);
+    if ( intLimit < total ){
+      $("#btn_submit").hide();
+      $("#message_" + parent_id).text("Item pekerjaan ini melewati budget tahunan");
+    }else{
+      $("#btn_submit").show();
+      $("#message_" + parent_id).text("");
+    }   
+
+    $(".subtotal_" + parent_id).each(function() {
+        total_value = parseInt(total_value) + parseInt($(this).val());
+    });
+
+    $("#total_" + parent_id).text(total_value);
+    $("#subtotal_" + id).number(true);
+    $("#total_" + parent_id).number(true); 
+ }
 </script>

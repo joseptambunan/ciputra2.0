@@ -47,9 +47,9 @@
                     <tr>
                       <td>Unit Name</td>
                       <td>Set to WO</td>
-                      <td>Status Pembayaran</td>
-                      <td>Tanggal Pembayaran</td>
-                      <td>Target Pembangunan</td>
+                      <td>Status Unit</td>
+                      <td>Tanggal DP Konsumen Lunas</td>
+                      <td>Target Harus Mulai Bangun</td>
                     </tr>
                   </thead>
                   <tbody id="table_item">

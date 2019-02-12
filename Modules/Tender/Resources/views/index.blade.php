@@ -46,7 +46,7 @@
                 </thead>
                 <tbody>
                   @foreach ( $tenders as $key => $value )
-                  @if ( $value->spks->count() <= 0 )
+                 
                   <tr>
                     <td>{{ $value->no }}</td>
                     <td>{{ $value->rab->no or '-' }}</td>
@@ -72,7 +72,7 @@
                       @endif
                     </td>
                   </tr>
-                  @endif
+                  
                   @endforeach 
                 </tbody>
               </table>
@@ -89,14 +89,8 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-  <footer class="main-footer">
-    <div class="pull-right hidden-xs">
-      <b>Version</b> 2.4.0
-    </div>
-    <strong>Copyright &copy; 2014-2016 <a href="https://adminlte.io">Almsaeed Studio</a>.</strong> All rights
-    reserved.
-  </footer>
 
+  @include("master/copyright")
   
   <!-- Add the sidebar's background. This div must be placed
        immediately after the control sidebar -->

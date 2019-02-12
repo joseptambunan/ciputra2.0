@@ -74,11 +74,19 @@
                     <option value='LUMPSUM'>LUMPSUM</option>
                     <option value='REMEASURE'>REMEASURE</option>
                   </select>
+                  <p>&nbsp;</p>
+                  @foreach ( $tendermaster as $key => $value )
+                    @if ( $tender->kelas_id == $value->id )
+                      <label><input type="radio" name="tender_type" class="flat-red" value="{{ $value->id}}" checked>{{ $value->name }}</label>
+                    @else
+                      <label><input type="radio" name="tender_type" class="flat-red" value="{{ $value->id}}">{{ $value->name }}</label>
+                    @endif
+                  @endforeach
                 </div>
               
                 <div class="form-group">
                   <a class="btn btn-warning" href="{{ url('/')}}/tender">Kembali</a>
-                  @if ( count($tender->spks)<= 0  )
+                  @if ( count($tender->penawarans) <= 0  )
                   <button type="submit" class="btn btn-primary">Simpan</button>
                   @endif
                   @if ( $tender->approval != "" )
@@ -86,7 +94,7 @@
                   @endif
 
                   @if ( $tender->rekanans != "" )
-                    <button class="btn btn-success" type="button" onClick="print('dvContents')">Cetak Form Pengajuan Tender</button>
+                    <button class="btn btn-success" type="button" onClick="print('dvContents')">Cetak Dokumen Rekomendasi Tender</button>
                   @endif
                 </div>
               <!-- /.form-group -->              
@@ -157,7 +165,7 @@
                     </table>
                   </div>
                   <div class="tab-pane active" id="tab_2">                   
-
+                    
                     <input type="hidden" name="disable_param" id="disable_param" value="{{ $tender->rekanans->count() }}">
                     @if ( count($tender->spks)<= 0  )
                       @if ( $tender->ambil_doc_date == "" || $tender->aanwijzing_date == "" || $tender->penawaran1_date == "")
@@ -169,78 +177,83 @@
                       @endif
                     @endif
 
-                      @if ( $tender->tender_document->count() > 0 )
-                      <form action="{{ url('/')}}/tender/update-document/" method="post" name="form1">  
-                      <input type="hidden" name="tender_docs" value="{{ $tender->id }}">                   
-                      {{ csrf_field() }}
-                        @foreach($tender->tender_document as $key => $value )
-                          @if ( $value->rejected == "0" )
-                            <input type="checkbox" class="paramdisable" name="check[{{$key}}]" value="{{ $value->document_name }}" checked disabled>{{ $value->document_name }}<br>
-                            <input type="hidden" name="dokumen[{{$key}}]" value="{{ $value->id }}" disabled>
-                          @else
-                            <input type="checkbox" class="paramdisable" name="check[{{$key}}]" value="{{ $value->document_name }}">{{ $value->document_name }}<br>
-                            <input type="hidden" name="dokumen[{{$key}}]" value="{{ $value->id }}">
-                          @endif
-                        @endforeach
-                        <button type="submit" class="btn btn-primary">Simpan</button>
-                      </form>
-                      @else
-                      <form action="{{ url('/')}}/tender/approval-rekanan" method="post" name="form1">
-                        {{ csrf_field() }}
-                        <h4>Kelengkapan Dokumen</h4>
-                        <input type="checkbox" class="paramdisable" name="dokumen[0]" id="gambar" onclick="disablebtn('1')" value="Gambar Tender">Gambar Tender<br>
-                        <input type="checkbox" class="paramdisable" name="dokumen[1]" id="bq" onclick="disablebtn('1')" value="BQ / Bill Item">BQ / Bill Item<br>
-                        <input type="checkbox" class="paramdisable" name="dokumen[2]" id="spek" onclick="disablebtn('1')" value="Spesifikasi Teknis">Spesifikasi Teknis<br>
-                        <input type="checkbox" class="paramdisable" name="dokumen[3]" id="syarat" onclick="disablebtn('1')" value="Syarat=Syarat Khusus yang harus dilengkapi">Syarat-syarat Khusus yang harus dilengkapi<br><br>
-                      @endif
+                    @php $start = 0; @endphp
+                    @if ( $tender->tender_document->count() > 0 )
+                    <form action="{{ url('/')}}/tender/update-document/" method="post" name="form1">  
+                    <input type="hidden" name="tender_docs" value="{{ $tender->id }}">                   
+                    {{ csrf_field() }}
+                      @foreach($tender->tender_document as $key => $value )
+                        @if ( $value->rejected == "0" )
+                          <input type="checkbox" class="paramdisable" name="check[{{$key}}]" value="{{ $value->document_name }}" checked disabled>{{ $value->document_name }}<br>
+                          <input type="hidden" name="dokumen[{{$key}}]" value="{{ $value->id }}" disabled>
+                          @php $start = $start + 1; @endphp
+                        @else
+                          <input type="checkbox" class="paramdisable" name="check[{{$key}}]" value="{{ $value->document_name }}">{{ $value->document_name }}<br>
+                          <input type="hidden" name="dokumen[{{$key}}]" value="{{ $value->id }}">
+                        @endif
+                      @endforeach
 
-                      <input type="hidden" name="tender_id" id="tender_id" value="{{ $tender->id }}">
-                      <table class="table" style="width: 50%;">
-                       <thead class="head_table">
-                         <tr>
-                          <td>Rekanan</td>
-                          <td>Status</td>
-                          <td>Delete</td>
-                         </tr>
-                       </thead>
-                       <tbody>
-                          @foreach ( $tender->rekanans as $key => $value )
-                          <tr>
-                            <td>{{ $value->rekanan->group->name }}</td>
-                            <td>
-                              @if ( $value->approval == null )
-                              <input type="checkbox" class="paramdisable" name="rekanan_['{{$key}}']" value="{{ $value->id }}" onclick="disablebtn('1')">Request Approve
-                              @else
-                               @php
-                                $array = array (
-                                  "6" => array("label" => "Disetujui", "class" => "label label-success"),
-                                  "7" => array("label" => "Ditolak", "class" => "label label-danger"),
-                                  "1" => array("label" => "Dalam Proses", "class" => "label label-warning")
-                                )
-                              @endphp
-                              <span class="{{ $array[$value->approval->approval_action_id]['class'] }}">{{ $array[$value->approval->approval_action_id]['label'] }}</span>
-                              @endif
-                            </td>
-                            <td>
-                              @if ( $value->approval != null )
-                                @if ( $value->approval->approval_action_id == "" )
-                                  @if ( count($tender->penawarans) <= 0 )
-                                  <button type="button" class="btn btn-danger" onclick="removerekanan('{{ $value->id }}','{{ $value->rekanan->group->name }}')">Delete</button>
-                                  @endif
+                      @if ( $start <= 0 )
+                      <button type="submit" class="btn btn-primary">Simpan</button>
+                      @endif
+                    </form>
+                    @else
+                    <form action="{{ url('/')}}/tender/approval-rekanan" method="post" name="form1">
+                      {{ csrf_field() }}
+                      <h4>Kelengkapan Dokumen</h4>
+                      <input type="checkbox" class="paramdisable" name="dokumen[0]" id="gambar" onclick="disablebtn('1')" value="Gambar Tender">Gambar Tender<br>
+                      <input type="checkbox" class="paramdisable" name="dokumen[1]" id="bq" onclick="disablebtn('1')" value="BQ / Bill Item">BQ / Bill Item<br>
+                      <input type="checkbox" class="paramdisable" name="dokumen[2]" id="spek" onclick="disablebtn('1')" value="Spesifikasi Teknis">Spesifikasi Teknis<br>
+                      <input type="checkbox" class="paramdisable" name="dokumen[3]" id="syarat" onclick="disablebtn('1')" value="Syarat=Syarat Khusus yang harus dilengkapi">Syarat-syarat Khusus yang harus dilengkapi<br><br>
+                    @endif
+
+                    <input type="hidden" name="tender_id" id="tender_id" value="{{ $tender->id }}">
+                    <table class="table" style="width: 50%;">
+                     <thead class="head_table">
+                       <tr>
+                        <td>Rekanan</td>
+                        <td>Status</td>
+                        <td>Delete</td>
+                       </tr>
+                     </thead>
+                     <tbody>
+                        @foreach ( $tender->rekanans as $key => $value )
+                        <tr>
+                          <td>{{ $value->rekanan->group->name }}</td>
+                          <td>
+                            @if ( $value->approval == null )
+                            <input type="checkbox" class="paramdisable" name="rekanan_['{{$key}}']" value="{{ $value->id }}" onclick="disablebtn('1')">Request Approve
+                            @else
+                             @php
+                              $array = array (
+                                "6" => array("label" => "Disetujui", "class" => "label label-success"),
+                                "7" => array("label" => "Ditolak", "class" => "label label-danger"),
+                                "1" => array("label" => "Dalam Proses", "class" => "label label-warning")
+                              )
+                            @endphp
+                            <span class="{{ $array[$value->approval->approval_action_id]['class'] }}">{{ $array[$value->approval->approval_action_id]['label'] }}</span>
+                            @endif
+                          </td>
+                          <td>
+                            @if ( $value->approval != null )
+                              @if ( $value->approval->approval_action_id == "" )
+                                @if ( count($tender->penawarans) <= 0 )
+                                <button type="button" class="btn btn-danger" onclick="removerekanan('{{ $value->id }}','{{ $value->rekanan->group->name }}')">Delete</button>
                                 @endif
                               @endif
-                              </td>
-                          </tr>
-                          @endforeach
-                          </tbody>
-                        </table>
-                        @if ( count($tender->spks)<= 0  )
-                          @if ( count($tender->rekanans) > 0 )
-                            <button type="submit" class="btn btn-primary" id="btn_approval_rekanan" disabled>Submit</button><br>
-                            <i>Harap pastikan kelengkapan dokumen dan checklist status approval sebelulmnya</i>
-                          @endif
+                            @endif
+                            </td>
+                        </tr>
+                        @endforeach
+                        </tbody>
+                      </table>
+                      @if ( count($tender->spks)<= 0  )
+                        @if ( count($tender->rekanans) > 0 )
+                          <button type="submit" class="btn btn-primary" id="btn_approval_rekanan" disabled>Submit</button><br>
+                          <i>Harap pastikan kelengkapan dokumen dan checklist status approval sebelulmnya</i>
                         @endif
-                      </form>
+                      @endif
+                    </form>
                   </div>
                   <div class="tab-pane" id="tab_3">
                     <table class="table table-bordered">
@@ -355,107 +368,110 @@
     </section>
     <!-- /.content -->
   </div>
-  <!-- /.content-wrapper -->
-  <footer class="main-footer">
-    <div class="pull-right hidden-xs">
-      <b>Version</b> 2.4.0
-    </div>
-    <strong>Copyright &copy; 2014-2016 <a href="https://adminlte.io">Almsaeed Studio</a>.</strong> All rights
-    reserved.
-  </footer>
+  @include("master/copyright")
 
   
   <!-- Add the sidebar's background. This div must be placed
        immediately after the control sidebar -->
   <div class="control-sidebar-bg"></div>
-  <div class="modal fade" id="modal-default">
-    <form action="{{ url('/')}}/tender/save-rekanans" method="post">
-    <input type="hidden" value="{{ $tender->id }}" name="tender_id" value="{{ $tender->id }}">
-    {{ csrf_field() }}
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title">Default Modal</h4>
-        </div>
 
-        <div class="modal-body">
-
-          <table class="table" id="example2">
-            <thead class="head_table">
-              <tr>
-                <td>Rekanan</td>
-                <td><input type="checkbox" value="" id="unit_rab_all" onclick="checkall();"> Set to Tender</td>
-              </tr>
-            </thead>
-            <tbody>
-               @foreach($rekanan as $key => $value )
-                <tr>
-                  <td>{{ $value->group->name }}</td>
-                  <td><input type="checkbox" name="rekanan[{{$key}}]" value="{{ $value->id}}"></td>
-                </tr>
-               @endforeach
-            </tbody>
-          </table>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-primary">Save changes</button>
-        </div>
-      </div>
-      <!-- /.modal-content -->
-    </div>
-    </form>
-    <!-- /.modal-dialog -->
-  </div>
-  <!-- /.modal -->
 </div>
 <!-- ./wrapper -->
 
 <!-- Cetakan Report -->
 <style>
-  @media print {
-    .result {
-      @page{
-        page-break-after: always;
-        /*size: auto;*/
-        size: 297mm 210mm;
-        margin:0;
-      }
-     }
+  #dvContents{
+    font-size:8px;
+  }
 
-  } 
+  @media print body {
+    font-size:8px;
+  }
+
+  @media print {
+    .result {page-break-after: always;}
+  }
+
+  @page { 
+    size: landscape;
+  }
 </style>
 <div id="head_Content">
  
   <div id="dvContents" style="display: none;">
     <table width="100%" style="border-collapse:collapse" class='table' id='undangan_tender'>
       <tr>
-        <td></td>
+        <td><img src="{{ url('/')}}/assets/dist/img/logo-ciputra_original.png" class="img-circle" alt="User Image"></td>
       </tr>
       <tr>
         <td>
-          <table>
+          <table style="border:2px solid black;border-collapse: collapse;width:100%;height: 800px;vertical-align: top;" cellpadding="10" cellspacing="10">
             <tr>
-              <td>Nomor Surat</td>
-              <td>:</td>
-              <td>{{ $tender->no }}</td>
+              <td>
+                <table style="width: 100%;">
+                  <tr>
+                    <td style="width:30%;">Paket Pekerjaan</td>
+                    <td><u>{{ $tender->name }}</u></td>
+                  </tr>
+                  <tr>
+                    <td style="width:30%;">Kawasan / Lokasi Pekerjaan</td>
+                    <td><u>{{ $tender->rab->budget_tahunan->budget->kawasan->name or 'Fasiltas Umum'}}</u></td>
+                  </tr>
+                </table>
+              </td>
             </tr>
             <tr>
-              <td>Nomor Tender</td>
-              <td>:</td>
-              <td>{{ $tender->no }}</td>
+              <td>
+                <table style="width: 100%;border:2px solid black;border-collapse: collapse;" border="1" cellpadding="10" cellspacing="10">
+                  <thead>
+                    <tr>
+                      <td rowspan="2">Peserta Tender</td>
+                      <td>OE</td>
+                      <td>Penawaran Akhir </td>
+                      <td rowspan="2">Waktu</td>
+                      <td rowspan="2">Catatan</td>
+                    </tr>
+                    <tr>
+                      <td>&nbsp;</td>
+                      <td>{{ $tender->penawaran1_date->format("d/m/Y") }}</td>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @php $nilai = 0; @endphp
+                    @foreach( $tender->rekanans as $key => $value )
+                      @if ( $value->penawarans->count() > 0 )
+                        @php $nilai_penawaran = $value->penawarans->last()->nilai; @endphp
+                      @else
+                        @php $nilai_penawaran = 0; @endphp;
+                      @endif
+                    <tr>
+                      <td>{{ $value->rekanan->name or '' }}</td>
+                      <td>{{ number_format($tender->rab->nilai) }}</td>
+                      <td>{{ number_format($nilai_penawaran) }}</td>
+                      <td>&nbsp;</td>
+                      <td>&nbsp;</td>
+                    </tr>
+                    @php $nilai = $nilai_penawaran + $nilai; @endphp
+                    @endforeach
+                    <tr>
+                      <td>&nbsp;</td>
+                      <td>Total Budget</td>
+                      <td>{{ number_format($nilai)}}</td>
+                      <td>&nbsp;</td>
+                      <td>&nbsp;</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
             </tr>
             <tr>
-              <td>Nomor Surat</td>
-              <td>:</td>
-              <td>{{ $tender->no }}</td>
-            </tr>
-            <tr>
-              <td>Nomor Surat</td>
-              <td>:</td>
-              <td>{{ $tender->no }}</td>
+              <td>
+                @foreach ( $tender->rekanans as $key => $value )
+                @if ( $value->is_recomendasi == 1 )
+                  <i>Rekomendasi : <strong>{{ $value->rekanan->name }}</strong></i>
+                @endif
+                @endforeach
+              </td>
             </tr>
           </table>
         </td>
@@ -523,5 +539,26 @@
         return false;
   }
 </script>
+@if ( $tender->spks->count() > 0 )
+  @if (  $tender->spks->count() > 0 )
+  <style type="text/css">
+    #dvContents_spk{
+      font-size:8px;
+    }
+
+    @media print body {
+      font-size:8px;
+    }
+
+    @media print {
+      .result {page-break-after: always;}
+    }
+  </style>
+  <div id="head_Content_spk">
+    <div id="dvContents_spk" class="result" style="display: none;">
+    </div>
+  </div>
+  @endif
+@endif
 </body>
 </html>

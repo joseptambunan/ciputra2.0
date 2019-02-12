@@ -33,6 +33,8 @@
           <div class="row">
 
             <div class="col-md-6">
+              Type Tender : <strong>{{ $tender->tender_type->name or ''}}</strong><br><br>
+              <label>Peserta Tender</label>
               <table class="table">
                 <thead class="head_table" >
                   <tr>
@@ -80,13 +82,22 @@
               </form>
 
               <form action="{{ url('/')}}/tender/save-rekanans" method="post">
-              <button type="button" class="btn btn-info" id="btn_rekanan">Cari Rekanan</button>
-              <button type="submit" class="btn btn-primary" id="btn_submit" disabled>Simpan</button>                 
-              <a class="btn btn-warning" href="{{ url('/')}}/tender/detail/?id={{ $tender->id }}">Kembali</a>
+              <i class="fa fa-refresh ld ld-spin" id="loading" style="display: none;"></i>      
+              <a class="btn btn-warning" href="{{ url('/')}}/tender/detail/?id={{ $tender->id }}">Kembali</a>        
+              <button type="button" class="btn btn-info" id="btn_rekanan">Cari Rekanan</button>              
+              @if ( $tender->tender_type->id == 1 )
+                @if ($tender->rekanans->count() == 1 )
+                  <span>Rekanan tidak bisa ditambah lagi.Silahkan hapus rekanan di kolom <i>Peserta Tender</i> untuk bisa menambah rekanan</span>
+                @else
+                  <button type="submit" class="btn btn-primary" id="btn_submit" disabled>Simpan</button>    
+                @endif
+              @else
+                <button type="submit" class="btn btn-primary" id="btn_submit" disabled>Simpan</button>    
+              @endif             
               <input type="hidden" value="{{ $tender->id }}" name="tender_id" value="{{ $tender->id }}">
                 {{ csrf_field() }}
               <h3><strong><center>Daftar Rekanan yang tersedia</center></strong></h3>
-              <table class="table table-bordered" id="example2">
+              <table class="table table-bordered" id="example4">
                   <thead class="head_table">
                     <tr>
                       <td>Nama</td>
@@ -160,61 +171,34 @@
   });
 
   $("#btn_rekanan").click(function(){
-    $("#list_rekanan").html("Loading...");
-    if ( $("#itempekerjaan").val() != "" ){
-      var request = $.ajax({
-        url : "{{ url('/')}}/tender/rekanan/cari",
-        data : {
-          itempekerjaan : $("#itempekerjaan").val()
-        },
-        type : "post",
-        dataType : "json"
-      });
+    $("#loading").show();
+    $("#btn_rekanan").hide();
 
-      request.done(function(data){
-        if ( data.status == "0"){
-          $("#btn_submit").removeAttr("disabled");
-          $("#list_rekanan").html(data.html);
-          $('#example2').DataTable({
-            'paging'      : true,
-            'lengthChange': false,
-            'searching'   : true,
-            'ordering'    : false,
-            'info'        : true,
-            'autoWidth'   : false
-          });
-        }else{
-          $("#list_rekanan").html("Tidak ada rekanan yang tersedia");
-        }
-      });
-    }else{
-      var request = $.ajax({
-        url : "{{ url('/')}}/tender/rekanan/all",
-        data : {
-          itempekerjaan : "all"
-        },
-        type : "post",
-        dataType : "json"
-      });
+    var request = $.ajax({
+      url : "{{ url('/')}}/tender/rekanan/cari",
+      dataType : "json",
+      data : {
+        itempekerjaan : $("#itempekerjaan").val()
+      },
+      type : "post"
+    });
 
-      request.done(function(data){
-        if ( data.status == "0"){
-          $("#btn_submit").removeAttr("disabled");
-          $("#list_rekanan").html(data.html);
-          $('#example2').DataTable({
-            'paging'      : true,
-            'lengthChange': false,
-            'searching'   : true,
-            'ordering'    : false,
-            'info'        : true,
-            'autoWidth'   : false
-          });
-        }else{
-          $("#list_rekanan").html("Tidak ada rekanan yang tersedia");
-        }
+    request.done(function(data){
+      $("#loading").hide();
+      $("#btn_rekanan").show();
+      if ( data.status == "0"){
+        $("#list_rekanan").html(data.html);
+      }
+      $("#example4").DataTable({
+        "paging" : true,
+        "ordering" : true
       });
-    }
+    })
   });
+
+  $("#btn_submit").click(function(){
+    $("#btn_submit").hide();
+  })
 
 </script>
 </body>

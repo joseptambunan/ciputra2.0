@@ -49,7 +49,7 @@ class TenderRekanan extends CustomModel
     public function getNilaiAttribute()
     {
 
-        if ($this->penawarans->count()) 
+        if ($this->penawarans->count() > 0 ) 
         {
             return $this->penawarans()->latest()->first()->nilai;
         }else{

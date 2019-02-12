@@ -67,7 +67,7 @@ class WorkorderController extends Controller
         $work_order->name = $request->workorder_name;
         $work_order->durasi = $request->workorder_durasi;
         $work_order->satuan_waktu = '0';
-        $work_order->date = date("Y-m-d H:i:s");
+        $work_order->date = date("Y-m-d H:i:s.u");
         $work_order->estimasi_nilaiwo = '0';
         $work_order->description = $request->workorder_description;
         $work_order->created_by = \Auth::user()->id;
@@ -359,10 +359,10 @@ class WorkorderController extends Controller
         $user = \Auth::user();
         $project = Project::find($request->session()->get('project_id'));    
         $array = array(
-            "0" => "Ready for Stock",
-            "1" => "Planning",
-            "2" => "Ready for Sale ( from Erem )",
-            "3" => "Sold(from Erem)" 
+            "0" => "Planning - P&D",
+            "1" => "Planning - EREMS",
+            "3" => "Ready for Stock ( from Erem )",
+            "5" => "Sold(from Erem)"
         );
         $limit_bangun = \Modules\Globalsetting\Entities\Globalsetting::where("parameter","limit_bangun")->first()->value;
         $standar_limit = $limit_bangun;
