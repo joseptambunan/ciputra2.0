@@ -94,11 +94,11 @@
                   <input type="hidden" name="rekanan_group_id" id="rekanan_group_id" value="{{ $rekanan_group->id }}">
                   {{ csrf_field() }}
                   <div class="form-group">
-                    <label>Nama Perusahaan</label>
+                    <label>Nama Perusahaan (*)</label>
                     <input type="text" class="form-control" name="nama_perusahaan" value="{{ $rekanan_group->name or '' }} " required>
                   </div>
                   <div class="form-group">
-                    <label>Alamat Perusahaan</label>
+                    <label>Alamat Perusahaan (*)</label>
                     <textarea class="form-control" name="alamat_perusahaan" rows="5" cols="30" required>
                       @if ( $rekanan_group->rekanans != "" )
                         {{ $rekanan_group->rekanans->first()->surat_alamat or '' }}
@@ -106,15 +106,15 @@
                     </textarea>
                   </div>
                   <div class="form-group">
-                    <label>Telepon Perusahaan</label>
+                    <label>Telepon Perusahaan (*)</label>
                     <input type="text" class="form-control" name="telp_perusahaan" value="{{ $telepon }}" required>
                   </div>
                   <div class="form-group">
-                    <label>Email Perusahaan</label>
+                    <label>Email Perusahaan (*)</label>
                     <input type="email" class="form-control" name="email_perusahaan" value="{{ $email }}" required>
                   </div>
                   <div class="form-group">
-                    <label>Kota Perusahaan</label>
+                    <label>Kota Perusahaan (*)</label>
                     <select class="form-control select2" name="kota">
                       @foreach( $country as $key => $value )
                         @foreach( $value->provinces as $key2 => $value2)
@@ -130,12 +130,12 @@
                     </select>
                   </div>
                   <div class="form-group">
-                    <label>Upload File NPWP</label>                    
+                    <label>Upload File NPWP (*)</label>                    
                     <input type="file" name="npwp" id="npwp">
                   </div>
                    <div class="form-group">
-                    <label>Upload CV</label>                    
-                    <input type="file" name="cv" id="cv">
+                    <label>Upload CV (*)</label>                    
+                    <input type="file" name="cv" id="cv" required>
                   </div>
                   <div class="form-group">
                     <label>PKP Status</label>
@@ -151,14 +151,13 @@
                   </div>
                   <div class="form-group">
                     <label>Keterangan Perusahaan</label>
-                    <textarea class="form-control" name="description" rows="5" cols="30" required>
-                      {{ $rekanan_group->description or ''}}
-                    </textarea>
+                    <textarea class="form-control" name="description" rows="5" cols="30" required>{{ $rekanan_group->description or ''}}</textarea>
                   </div>
                   <div class="footer">
                     <button class="btn btn-info" type="submit">Simpan</button>
                   </div>
                 </form>
+                <span><i>(*) kolom harus diisi</i></span>
               </div>
               <!-- /.tab-pane -->
               <div class=" tab-pane table-responsive" id="spec">

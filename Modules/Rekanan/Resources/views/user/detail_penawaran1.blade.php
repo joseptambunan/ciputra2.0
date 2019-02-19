@@ -33,11 +33,13 @@
             <div class="col-md-12">
 
               <form action="{{ url('/')}}/rekanan/user/tender/penawaran-update1" method="post" name="form1" enctype="multipart/form-data">
-              <a href="{{ url('/')}}/rekanan/user/tender/detail/?id={{ $tenderRekanan->id }}" class="btn btn-warning">Kembali</a>
+              <input type="hidden" name="penawaran_id" value="{{ $tender_rekanan->penawarans->take($step)->last()->id }}">
+              <a href="{{ url('/')}}/rekanan/user/tender/detail/?id={{ $tender_rekanan->id }}" class="btn btn-warning">Kembali</a>
               <button type="submit" class="btn btn-primary">Simpan</button>
               {{ csrf_field() }}
-              <input type="hidden" name="tender_id" value="{{ $tenderpenawaran->id }}"><br>
-              <h3><center>Rekanan : <strong>{{ $tenderRekanan->rekanan->name }}</strong></center></h3>
+              <input type="hidden" name="tender_id" value="{{ $tender_rekanan->id }}"><br>
+              <h3><center>Rekanan : <strong>{{ $tender_rekanan->rekanan->name }}</strong></center></h3>
+              <span>Nilai : Rp. <strong>{{ number_format($tender_rekanan->penawarans->take($step)->last()->nilai) }}</strong></span>
               <hr>
               <table class="table table-bordered">
                <thead class="head_table">
@@ -46,32 +48,28 @@
                   <td>Item Pekerjaan</td>
                   <td>Volume</td>
                   <td style="width:4%;">Satuan</td>
-                  <td>Harga Satuan</td>
-                  <td>Subtotal</td>
+                  <td>Harga Satuan(Rp)</td>
+                  <td>Subtotal(Rp)</td>
                  </tr>
                 </thead>
                 <tbody>
                   @php $start=0; @endphp
-                  @foreach( $tenderRekanan->penawarans as $key => $value )
-                    
-                    @if ( $key == (count($tenderRekanan->penawarans) - 2))
-                    @foreach ( $value->details as $key3 => $value3 )
-                    @php
-                      $tender_penawaran_detail = \Modules\Tender\Entities\TenderPenawaranDetail::where("tender_penawaran_id",$penawaran_id)->where("rab_pekerjaan_id",$value3->rab_pekerjaan_id)->get()
-                    @endphp
+                  @foreach( $tender_rekanan->penawarans->take($step)->last()->details as $key => $value )                   
                     <tr>
-                      <td>{{ $value3->rab_pekerjaan->itempekerjaan->code }}</td>
-                      <td>{{ $value3->rab_pekerjaan->itempekerjaan->name }}</td>
-                      <td><input type="hidden" name="input_rab_id_[{{ $key3}}]" class="form-control" value="{{ $value3->id }}"><input  type="text" name="input_rab_volume_[{{ $key3}}]" id="input_rab_volume_{{ $key3}}" class="form-control" value="{{ $value3->volume }}" style="width: 100%;text-align: right;" readonly></td>
-                      <td><input  type="text" name="input_rab_satuan_[{{ $key3}}]"  id="input_rab_satuan_{{ $key3}}" class="form-control" value="{{ $value3->rab_pekerjaan->satuan }}" style="width: 100%;text-align: right;" readonly></td>
-                      <td><input type="text" name="input_rab_nilai_[{{ $key3}}]"  id="input_rab_nilai_{{ $key3}}" class="form-control vol" onKeyUp="showSummary('{{ $key3}}')" value="{{ $tender_penawaran_detail->first()->nilai }}" style="text-align: right;" autocomplete="off"></td>
-                      <td><input type="text"  id="subtotal_{{$key3}}" value="{{ number_format($tender_penawaran_detail->first()->nilai * $tender_penawaran_detail->first()->volume,2) }}" class="form-control"  style="text-align: right;" autocomplete="off" /></td>
-                    </tr>
-                    @php $start = $key; @endphp
-                    @endforeach
-                    @endif
+                      <td>{{ $value->rab_pekerjaan->itempekerjaan->code or '' }}</td>
+                      <td>{{ $value->rab_pekerjaan->itempekerjaan->name or '' }}</td>
+                      <td>{{ $value->rab_pekerjaan->volume or '' }}</td>                      
+                      <td>{{ $value->rab_pekerjaan->satuan or '' }}</td>
+                      <td>
+                        @if ( count($tender_rekanan->penawarans) > $step )
+                        {{ number_format($value->nilai) or '' }}
+                        @else
+                        <input type="text" name="input_rab_nilai_[{{ $key}}]"  id="input_rab_nilai_{{ $key}}" class="form-control vol" onKeyUp="showSummary('{{ $key}}')" value="{{ $value->nilai }}" style="text-align: right;" autocomplete="off">
+                        @endif
+                      </td>
+                      <td>{{ number_format($value->nilai * $value->volume) }}</td>
+                    </tr>                   
                   @endforeach
-                  
                 </tbody>
               </table>
 
@@ -93,13 +91,7 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-  <footer class="main-footer">
-    <div class="pull-right hidden-xs">
-      <b>Version</b> 2.4.0
-    </div>
-    <strong>Copyright &copy; 2014-2016 <a href="https://adminlte.io">Almsaeed Studio</a>.</strong> All rights
-    reserved.
-  </footer>
+ @include("master/copyright")
 
   
 

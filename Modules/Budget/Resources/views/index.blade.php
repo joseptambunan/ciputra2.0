@@ -88,8 +88,9 @@
                   @endif
                 </tr>
               </table>             
-              
-              
+              <br>
+              <button class="btn btn-info" id="btn_approval_{{$value->id}}" onclick="requestapproval('{{ $value->id }}')">Request Approval</button>
+              <input type="hidden" name="budget_id_array" id="budget_id_array" value="">
               <table id="example2" class="table table-bordered table-hover">   
               {{ csrf_field() }}              
               <thead class="head_table">
@@ -162,9 +163,11 @@
                             <a class="btn btn-primary" href="{{ url('/')}}/budget/cashflow/?id={{ $value->id }}">({{$value->budget_tahunans->count()}})Budget Cash Flow</a>
                             @elseif ( $value->approval->approval_action_id == "7") 
                             <button class="btn btn-info" href="{{ url('/')}}/budget/approval" onclick="updateapproval('{{ $value->id }}','{{ $value->approval->id }}')">Request Approval</button>
+
                             @endif
                           @else
-                          <button class="btn btn-info" id="btn_approval_{{$value->id}}" href="{{ url('/')}}/budget/approval" onclick="requestapproval('{{ $value->id }}')">Request Approval</button>
+                          <input type="checkbox" class="checkbox_apprvoal" id="budget_id_{{$value->id}}" onClick="setIdApprove('{{$value->id}}')" value="{{ $value->id}}">Request Approve
+                          <span class="checkbox_loading" style="display: none;">loading...</span>
                           @endif
                         </td>
                       </tr>
@@ -211,18 +214,23 @@
     });
 
   function requestapproval(id){
+    $(".checkbox_apprvoal").hide();
+    $(".checkbox_loading").show();
     if ( confirm("Apakah anda yakin ingin merilis budget ini ? ")){
       $("#btn_approval_" + id).hide();
       var request = $.ajax({
         url : "{{ url('/')}}/budget/approval-add",
         data : {
-          id : id
+          id : id,
+          budget_id_array : $("#budget_id_array").val()
         },
         type : "post",
         dataType : "json"
       });
 
       request.done(function(data){
+        $(".checkbox_apprvoal").show();
+        $(".checkbox_loading").hide();
         $("#btn_approval_" + id).show();
         if ( data.status == "0" ){
           alert("Budget telah dirilis ");
@@ -242,7 +250,7 @@
         url : "{{ url('/')}}/budget/approval-update",
         data : {
           id : id,
-          approval_id : approval_id
+          budget_id_array : $("budget_id_array").val()
         },
         type : "post",
         dataType : "json"
@@ -259,6 +267,17 @@
 
     }else{
       return false;
+    }
+  }
+
+  function setIdApprove(id){
+    var budget_id_array = $("#budget_id_array").val();
+    if ( $('#budget_id_' + id).is(':checked')){
+      $("#budget_id_array").val(budget_id_array + "," + id)
+    }else{
+      var remo = $("#budget_id_array").val();
+      var new_budge_id = remo.replace("," + id, "");
+       $("#budget_id_array").val(new_budge_id);
     }
   }
 </script>

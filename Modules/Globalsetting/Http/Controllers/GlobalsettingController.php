@@ -5,16 +5,24 @@ namespace Modules\Globalsetting\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
+use Modules\Globalsetting\Entities\Globalsetting;
 
 class GlobalsettingController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     /**
      * Display a listing of the resource.
      * @return Response
      */
     public function index()
     {
-        return view('globalsetting::index');
+        $user = \Auth::user();
+        $globalsetting = Globalsetting::get();
+        return view('globalsetting::index',compact("user","globalsetting"));
     }
 
     /**
@@ -33,6 +41,11 @@ class GlobalsettingController extends Controller
      */
     public function store(Request $request)
     {
+        $globalsetting = new Globalsetting;
+        $globalsetting->parameter = $request->params;
+        $globalsetting->value = $request->nilai;
+        $globalsetting->save();
+        return redirect("/globalsetting");
     }
 
     /**

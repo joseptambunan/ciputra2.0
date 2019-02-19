@@ -43,13 +43,41 @@
                 <table class="table">
                   <thead class="head_table">
                     <tr>
+                      <td colspan="4">Rekanan</td>
+                    
+                  </thead>
+                  <tbody>
+                     @php
+                      $array = array (
+                        "6" => array("label" => "Disetujui", "class" => "label label-success"),
+                        "7" => array("label" => "Ditolak", "class" => "label label-danger"),
+                        "1" => array("label" => "Dalam Proses", "class" => "label label-warning")
+                      )
+                    @endphp
+                    @foreach( $tender->rekanans as $key => $value )
+                    <tr>
+                      <td colspan="4">{{ $value->rekanan->name or ''}}</td>
+                    </tr>
+                    </tr>
                       <td>Approval Status</td>
                       <td>Approval By</td>
                       <td>Tanggal</td>
                       <td>Keterangan</td>
                     </tr>
-                  </thead>
-                  
+                    @foreach (  $value->approval->histories as $key2 => $value2 )
+                    <tr>                      
+                      <td>
+                        <span class="{{ $array[$value2->approval_action_id]['class'] }}">  
+                          {{ $array[$value2->approval_action_id]['label'] }}
+                        </span>
+                      </td>
+                      <td>{{ $value2->user->user_name or ''}}</td>
+                      <td>{{ $value2->updated_at->format('d/m/Y') }}</td>
+                      <td>{{ $value2->description }}</td>
+                    </tr>
+                    @endforeach
+                    @endforeach
+                  </tbody>
                 </table>
 
             </div>

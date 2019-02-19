@@ -45,6 +45,7 @@
                  <tr>
                   <td>COA Pekerjaan</td>
                   <td>Item Pekerjaan</td>
+                  <td>Spesifikasi</td>
                   <td>Volume</td>
                   <td style="width:4%;">Satuan</td>
                   <td>Harga Satuan</td>
@@ -57,6 +58,7 @@
                   <tr>
                     <td>{{ $value->itempekerjaan->code }}</td>
                     <td>{{ $value->itempekerjaan->name }}</td>
+                    <td><input type="hidden" name="input_rab_keterangan[{{ $key}}]" value="" class="form-control"></td>
                     <td><input type="hidden" name="input_rab_id_[{{ $key}}]" class="form-control" value="{{ $value->id }}"><input  type="text" name="input_rab_volume_[{{ $key}}]" id="input_rab_volume_{{ $key}}" class="form-control" value="{{ $value->volume }}" style="width: 100%;" readonly></td>
                     <td>
                       <input  type="hidden" name="input_rab_satuan_[{{ $key}}]"  id="input_rab_satuan_{{ $key}}" class="form-control" value="{{ $value->satuan }}" style="width: 100%;" readonly>
@@ -70,6 +72,7 @@
                   <tr>
                     <td>&nbsp;</td>
                     <td>Lain - Lain</td>
+                    <td><input type="text" name="input_rab_keterangan[{{ $key}}]" value="" class="form-control"></td>
                     <td><input type="hidden" name="input_rab_id_[{{ $start + 1 }}]" class="form-control" value=""><input  type="text" name="input_rab_volume_[{{ $start + 1 }}]" id="input_rab_volume_{{ $start + 1 }}" class="form-control" value="" style="width: 100%;"></td>
                     <td><input  type="text" name="input_rab_satuan_[{{ $start + 1 }}]"  id="input_rab_satuan_{{ $start + 1 }}" class="form-control" value="{{ $value->satuan }}" style="width: 100%;"></td>
                     <td><input type="text" name="input_rab_nilai_[{{ $start + 1 }}]"  id="input_rab_nilai_{{ $start + 1 }}" class="form-control vol" onKeyUp="showSummary('{{ $start + 1 }}')" autocomplete="off"></td>
@@ -93,13 +96,7 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-  <footer class="main-footer">
-    <div class="pull-right hidden-xs">
-      <b>Version</b> 2.4.0
-    </div>
-    <strong>Copyright &copy; 2014-2016 <a href="https://adminlte.io">Almsaeed Studio</a>.</strong> All rights
-    reserved.
-  </footer>
+ @include("master/copyright")
 
   
 

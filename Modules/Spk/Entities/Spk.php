@@ -1002,5 +1002,13 @@ class Spk extends CustomModel
         $nilai = 0;
         return $nilai;
     }
+
+    public function user_pic(){
+        return $this->belongsTo("Modules\User\Entities\User","pic_id");
+    }
+
+    public function user(){
+        return $this->belongsTo("Modules\User\Entities\User","created_by");
+    }
 }
 

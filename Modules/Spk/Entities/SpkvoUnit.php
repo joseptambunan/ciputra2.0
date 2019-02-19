@@ -71,5 +71,8 @@ class SpkvoUnit extends CustomModel
         return $this->nilai_total * ( $this->spk_detail->spk->dp_percent / 100)  * ( $this->ppn / 100);
     }
 
+    public function surat_instruksi(){
+       return $this->belongsTo('Modules\Spk\Entities\Suratinstruksi');
+    }
    
 }

@@ -181,4 +181,115 @@
     }
   }
 
+    function setprogress(id){
+    var request = $.ajax({
+      url : "{{ url('/')}}/spk/create-progress",
+      data : {
+        id : id
+      },
+      type : "post",
+      dataType : "json"
+    });
+
+    request.done(function(data){
+      window.location.reload();
+    })
+  }
+
+  function printspk(){
+    var myPrintContent = document.getElementById('head_Content_spk');
+    var myPrintWindow = window.open("", "");
+    myPrintWindow.document.write(myPrintContent.innerHTML);
+    myPrintWindow.document.getElementById('dvContents_spk').style.display='block';
+    myPrintWindow.document.getElementById('dvContents_spk_detail').style.display='block';
+    myPrintWindow.document.close();
+    myPrintWindow.focus();
+    myPrintWindow.print();
+    myPrintWindow.close();    
+    return false;
+  }
+
+  function printbap(id){
+    var request = $.ajax({
+      url : "{{ url('/')}}/spk/cetak_bap",
+      data : {
+        id : id
+      },
+      type : "post",
+      dataType : "json"
+    });
+
+    request.done(function(data){
+      if ( data.status == "0" ){     
+        $("#termyn_bap").text(data.termyn);
+        $("#tgl_bap").text(data.tgl_bap);
+        $("#nilai_spk").text(data.nilai_spk);
+        $("#nilai_vo").text(data.nilai_vo);
+        $("#total_spk_vo").text(data.nilai_spk_vo);
+        $("#ppn").text(data.ppn);
+        $("#total_nilai_kontrak").text(data.total_nilai_kontrak);
+        $("#total_nilai_dp").text(data.nilai_dp);
+        $("#ppn_nilai").text(data.ppn_nilai);
+        $("#total_nilai_bap").text(data.nilai_bap);
+        $("#total_nilai_bap_ppn").text(data.nilai_bap_dan_ppn);
+        $("#total_bap_sebelumnya").text(data.nilai_sebelumnya);
+        $("#total_dibayar").text(data.nilai_dibayar);
+        $("#bap_created_by").text(data.createdby);
+        if ( data.termyn == 1 ){
+          $(".dp").show();
+          $(".termyn").hide();
+        }else{
+          $(".dp").hide();
+          $(".termyn").show();
+        }
+
+        $(".number_bap").number(true);
+        var myPrintContent = document.getElementById('head_Content_bap_');
+        var myPrintWindow = window.open("", "");
+        myPrintWindow.document.write(myPrintContent.innerHTML);
+        myPrintWindow.document.getElementById('dvContents_bap_' ).style.display='block';
+        myPrintWindow.document.close();
+        myPrintWindow.focus();
+        myPrintWindow.print();
+        myPrintWindow.close();    
+        return false;
+      }else{
+        alert("Error");
+      }
+    });
+  }
+
+  function cetakallbap(){ 
+    var myPrintContent = document.getElementById('head_content_allbap_sum');
+    var myPrintWindow = window.open("", "");
+    myPrintWindow.document.write(myPrintContent.innerHTML);
+    myPrintWindow.document.getElementById('dvcontent_allbap_sum').style.display='block';
+    myPrintWindow.document.close();
+    myPrintWindow.focus();
+    myPrintWindow.print();
+    myPrintWindow.close();    
+    return false;
+  }
+
+  function setPic(){
+    $("#loading_pic").show();
+    $("#pic_id").hide();
+
+    var request = $.ajax({
+      url : "{{ url('/')}}/spk/addpic",
+      data : {
+        id : $("#pic_id").val(),
+        spk_id : $("#spk_id").val()
+      },
+      type : "post",
+      dataType : "json"
+    });
+
+    request.done(function(data){
+      alert("PIC telah diset");
+      $("#loading_pic").show();
+      $("#pic_id").hide();
+      window.location.reload();
+    })
+  }
 </script>

@@ -2,7 +2,7 @@
 
 Route::group(['middleware' => 'web', 'prefix' => 'rekanan', 'namespace' => 'Modules\Rekanan\Http\Controllers'], function()
 {
-    Route::get('/', 'RekananController@index');
+    Route::get('/all', 'RekananController@index');
     Route::get('/add','RekananController@create');
     Route::get('/detail','RekananController@show');
     Route::post('/ceknpwp','RekananController@ceknpwp');

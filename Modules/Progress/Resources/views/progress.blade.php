@@ -9,13 +9,12 @@
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
 
-  @include("master/sidebar_project")
+  @include("master/sidebar_progress")
 
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <section class="content-header">
-      <h1>Data Proyek {{ $project->name }}</h1>
 
     </section>
 
@@ -48,7 +47,9 @@
                   <button type="submit" class="btn btn-primary">Simpan</button>
                   <a href="{{ url('/') }}/progress/show?id={{ $spk->id}}" class="btn btn-warning">Kembali</a>
                 </div>   
-                {{ csrf_field() }}                  
+                {{ csrf_field() }}   
+
+                
                 <input type="hidden" class="form-control" name="spk_id" value="{{ $spk->id}}">
                 <input type="hidden" class="form-control" name="termin_ke" value="{{ $termin_ke}}">
                 <div class="col-md-12">
@@ -89,14 +90,7 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-  <footer class="main-footer">
-    <div class="pull-right hidden-xs">
-      <b>Version</b> 2.4.0
-    </div>
-    <strong>Copyright &copy; 2014-2016 <a href="https://adminlte.io">Almsaeed Studio</a>.</strong> All rights
-    reserved.
-  </footer>
-
+@include("master/copyright")
   
   <!-- Add the sidebar's background. This div must be placed
        immediately after the control sidebar -->
@@ -105,7 +99,7 @@
 <!-- ./wrapper -->
 
 @include("master/footer_table")
-@include("spk::app")
+@include("progress::app")
 <script type="text/javascript">
   $(".progress").number(true,2);
 </script>

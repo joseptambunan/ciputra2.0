@@ -128,7 +128,7 @@
                   </tr>
                   <tr>
                     <td style="background-color: grey;color:white;"><strong>SUPP</strong></td>
-                    <td></td>
+                    <td>000{{ $spk->rekanan->supps->last()->no or ''}}</td>
                   </tr>
                 </table><br>      
             </div>

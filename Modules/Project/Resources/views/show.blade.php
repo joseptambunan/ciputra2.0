@@ -255,9 +255,9 @@
               @endif
               <h4>Total Budget Devcost    : Rp. {{ number_format($project->total_budget,2) }} </h4>
               <h4>Total Kontrak Devcost  : Rp. {{ number_format($project->total_nilai_kontrak,2) }} </h4>
-              <h4>Total Kontrak Devcost yang dibayar : Rp. {{ number_format($project->nilai_report_terbayar_dev_cost,2) }} </h4>
+              <h4>Total Kontrak Devcost yang dibayar : Rp. {{ number_format($project->dev_cost_terbayar,2) }} </h4>
 
-              <h4>Hutang Bangun Devcost dan Hutang Bayar Devcost: Rp. {{ number_format( ($project->total_budget - $project->total_nilai_kontrak) + ($project->total_nilai_kontrak - $project->nilai_report_terbayar_dev_cost) ,2)}}
+              <h4>Hutang Bangun Devcost dan Hutang Bayar Devcost: Rp. {{ number_format( ($project->total_budget - $project->total_nilai_kontrak) + ($project->total_nilai_kontrak - $project->dev_cost_terbayar) ,2)}}
 
               @if ( $project->netto <= 0 )
 

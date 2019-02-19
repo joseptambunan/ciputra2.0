@@ -133,11 +133,19 @@ class RekananController extends Controller
 
         if ( count($rekanan_group->rekanans) <= 0 ){            
             $rekanan_child = new Rekanan;
-            $rekanan_child->rekanan_group_id = $rekanan->id;
+            $rekanan_child->rekanan_group_id = $request->rekanan_group_id;
             $rekanan_child->name = $request->name;
             $rekanan_child->surat_alamat = $request->alamat;
             $rekanan_child->surat_kota = $request->kota;
             $rekanan_child->save();
+        }elseif ( count($rekanan_group->rekanans) == 1 ){
+            foreach ($rekanan_group->rekanans as $key2 => $value2) {
+                $rekanan_child = Rekanan::find($value2->id);
+                $rekanan_child->name = $request->name;
+                $rekanan_child->surat_alamat = $request->alamat;
+                $rekanan_child->surat_kota = $request->kota;
+                $rekanan_child->save();
+            }
         }
         return redirect("/rekanan/detail?id=".$request->rekanan_group_id);
     }
@@ -184,10 +192,10 @@ class RekananController extends Controller
     public function blacklist(Request $request){
         $rekanan_group = RekananGroup::find($request->id);
         if ( $request->status == "1"){
-            $rekanan_group->inactive_at = date("Y-m-d H:i:s");
+            $rekanan_group->inactive_at = date("Y-m-d H:i:s.u");
             $rekanan_group->inactive_by = \Auth::user()->id;
         }else{
-            $rekanan_group->updated_at = date("Y-m-d H:i:s");
+            $rekanan_group->updated_at = date("Y-m-d H:i:s.u");
             $rekanan_group->updated_by = \Auth::user()->id;
             $rekanan_group->inactive_at = null;
         }

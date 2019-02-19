@@ -290,10 +290,18 @@ class BudgetController extends Controller
     }
 
     public function approval(Request $request){
-        $budget = $request->id;
-        $class  = "Budget";
-        $approval = \App\Helpers\Document::make_approval('Modules\Budget\Entities\Budget',$budget);
-        return response()->json( ["status" => "0"] );
+        $explode = explode(",",$request->budget_id_array);
+
+        foreach ($explode as $key => $value) {
+            
+            if ( $value != "" ){
+                $budget = $value;
+                $class  = "Budget";
+                $approval = \App\Helpers\Document::make_approval('Modules\Budget\Entities\Budget',$budget);
+            }
+        }
+        
+        //return response()->json( ["status" => "0"] );
     }
 
     public function cashlflow(Request $request){
@@ -387,135 +395,8 @@ class BudgetController extends Controller
             $asset_id = $budget_tahunan->budget->project_id;
         }
         
-        foreach ($spk as $key => $value) {
-            # code...
-            $spk_2 = \Modules\Spk\Entities\Spk::find($value->id);
-            $nilai = $spk_2->nilai;
-            if ( ($spk_2->progresses != "" )) {
-                if ( isset($spk_2->progresses->first()->itempekerjaan)) {
-                    $pekerjaan = \Modules\Pekerjaan\Entities\Itempekerjaan::where("code",$spk_2->progresses->first()->itempekerjaan->parent->code)->get()->first();
-                    if ( isset($pekerjaan->group_cost)){
-                        $budgetdetail = \Modules\Budget\Entities\BudgetDetail::where("itempekerjaan_id",$pekerjaan->id)->where("budget_id",$budget_devcost)->get();
-                        if ( count($budgetdetail) > 0 ){ 
-                            $exp = explode("/", $spk_2->no);  
-                            if ( count($exp) > 5 ){                                
-                                if ( $exp[5] <= date("Y")){     
-                                    //if ( ($spk->nilai - round($spk->nilai_bap)) > 0 ){
-                                        $array_cashflow[$start] = array(
-                                            "nospk" => $spk_2->no,
-                                            "nilaispk" => $spk_2->nilai,
-                                            "bap" =>$spk_2->nilai_bap,
-                                            "sisa" => ($spk_2->nilai - ($spk_2->nilai_bap)),
-                                            "id" => $spk_2->id,
-                                            "coa" => $spk_2->itempekerjaan->code.".00.00",
-                                            "pekerjaan" => $spk_2->itempekerjaan->name
-                                        );
-                                    $start++; 
-                                 }
-                            }           
-                        }else{
-                            $nilai_sum_temp = $nilai_sum_temp + $spk_2->nilai;
-                            
-                        }                     
-                    }                                       
-                    
-                }
-                
-            }
-            
-        }
-
-        $carry_over = 0;
-        $total_nilaasi = 0;
-        if ( $array_cashflow != "" ){
-            foreach ($array_cashflow as $key => $value) {
-                $carry_over = $value["sisa"] + $carry_over;
-                $total_nilaasi = $value["nilaispk"] +  $total_nilaasi;
-            }
-        }
-
-        foreach ($budget_tahunan->carry_over as $key => $value) {
-            $array_carryover[$key] = array(
-                "no_spk" => $value->spk->no,
-                "pekerjaan" => $value->spk->name,
-                "nilai_spk" => $value->nilai,
-                "terbayar" => $value->spk->nilai_bap,
-                "sisa" => $value->spk->nilai - $value->spk->nilai_bap,
-                "januari" => $value->januari,
-                "februari" => $value->februari,
-                "maret" => $value->maret,
-                "april" => $value->april,
-                "mei" => $value->mei,
-                "juni" => $value->juni,
-                "juli" => $value->juli,
-                "agustus" => $value->agustus,
-                "september" => $value->september,
-                "oktober" => $value->oktober,
-                "november" => $value->november,
-                "desember" => $value->desember
-            );
-        }
-
-        $nilai_sisa_dev_cost = 0;
-        $nilai_sisa_con_cost = 0;
-        //$spk = $budget_tahunan->budget->project->spks;
-        foreach ($spk as $key => $value) {
-            if ( $value->date->format("Y") <= date("Y")){
-                if ( $value->itempekerjaan != "" ){
-                    if ( $value->itempekerjaan->group_cost == 1 ){
-                        if ( $value->details != "" ){
-                            foreach ($value->details as $key2 => $value2) {
-                                if ( $value2->asset != "" ){
-                                    if ( $value2->asset->id == $asset_id ){
-                                        if ( $value->baps != "" ){
-                                            $bayar = $value->terbayar_verified / 1.1;
-                                        }else{
-                                            $bayar = 0;
-                                        }
-
-                                        $sisa = ( $value->nilai + $value->nilai_vo ) - $bayar;
-                                        if ( $sisa > 0 ){
-                                            $nilai_sisa_dev_cost = $sisa + $nilai_sisa_dev_cost;  
-                                        }                         
-                                    }
-                                }                            
-                            }
-                        }
-                    }else{
-                        if ( $value->tender->rab != "" ){
-                            if ( $value->tender->rab->budget_tahunan != "" ){
-                                if ( $value->tender->rab->budget_tahunan->budget->project_kawasan_id == $asset_id ){
-                                    if ( $value->baps != "" ){
-                                        $bayar = $value->baps->sum("nilai_bap_2");
-                                    }else{
-                                        $bayar = 0;
-                                    }
-
-                                    $sisa = $value->nilai - $bayar;
-                                    if ( $sisa > 0 ){
-                                        $nilai_sisa_con_cost = $sisa + $nilai_sisa_con_cost;  
-                                    } 
-                                }
-                            }elseif( $value->project_kawasan_id == $asset_id){
-                                if ( $value->baps != "" ){
-                                    $bayar = $value->baps->sum("nilai_bap_2");
-                                }else{
-                                    $bayar = 0;
-                                }
-
-                                $sisa = $value->nilai - $bayar;
-                                if ( $sisa > 0 ){
-                                    $nilai_sisa_con_cost = $sisa + $nilai_sisa_con_cost;  
-                                }   
-                            }
-                        }
-                    }
-                }
-                   
-            }                        
-        }
-
-        return view("budget::detail_cashflow2",compact("budget_tahunan","user","budget","start_date","end_date","array_cashflow","project","carry_over","array_carryover","nilai_sisa_dev_cost","nilai_sisa_con_cost"));
+       
+        return view("budget::detail_cashflow2",compact("project","budget_tahunan","user","budget","start_date","end_date"));
     }
 
     public function updatecashflow(Request $request){
@@ -1061,6 +942,8 @@ class BudgetController extends Controller
     }
 
     public function updateapproval(Request $request){
+
+        
         $approval = Approval::find($request->approval_id);
         $approval->approval_action_id = "1";
         $approval->save();
@@ -1441,5 +1324,60 @@ class BudgetController extends Controller
         }else{
             return response()->json( ["status" => "1"] );
         }
+    }
+
+    public function getCarryOverDC(Request $request){
+        $budgettahunan = BudgetTahunan::find($request->id);
+        $array_carryover = array();
+        $nilai = 0;
+
+        foreach ($budgettahunan->carry_over as $key => $value) {
+            if ( $value->spk->itempekerjaan != "" ){
+                if ( $value->spk->itempekerjaan->group_cost == 1 ){
+                    if ( $value->hutang_bayar != "" ){
+                        $nilai = $nilai + $value->hutang_bayar;
+                    }else{
+                        $nilai = $nilai + ( $value->sisa );
+                    }
+                }
+            }            
+        }
+
+        return response()->json( ["nilai" => $nilai ] );
+    }
+
+    public function getCarryOverCC(Request $request){
+        $budgettahunan = BudgetTahunan::find($request->id);
+        $array_carryover = array();
+        $nilai = 0;
+
+        foreach ($budgettahunan->carry_over as $key => $value) {
+            if ( $value->spk->itempekerjaan != "" ){
+                if ( $value->spk->itempekerjaan->group_cost == 2 ){
+                    if ( $value->hutang_bayar != "" ){
+                        $nilai = $nilai + $value->hutang_bayar;
+                    }else{
+                        $nilai = $nilai + ( $value->sisa );
+                    }
+                }
+            }            
+        }
+
+        return response()->json( ["nilai" => $nilai ] );
+    }
+
+    public function getRencanaDC(Request $request){
+        $budgettahunan = BudgetTahunan::find($request->id);
+        $array_carryover = array();
+        $nilai = 0;
+
+        foreach ($budgettahunan->details as $key => $value) {
+            if ( $value->itempekerjaan != "" ){
+                if ( $value->itempekerjaan->group_cost == 1 ){
+                   $nilai = $nilai + ($value->nilai * $value->volume );
+                }
+            }            
+        }
+        return response()->json( ["nilai" => $nilai ] );
     }
 }

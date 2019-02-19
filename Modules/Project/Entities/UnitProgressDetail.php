@@ -77,4 +77,8 @@ class UnitProgressDetail extends Model
     {
         return $this->belongsTo('Modules\Project\Entities\UnitType');
     }
+
+    public function unit_progress(){
+        return $this->belongsTo("Modules\Project\Entities\UnitProgress");
+    }
 }

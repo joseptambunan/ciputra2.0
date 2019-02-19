@@ -93,7 +93,13 @@
                         {{ number_format(0,2)}}
                       @endif
                     </td>
-                    <td>{{ number_format( ( $value->total_terbayar / 1.1) )}}</td>
+                    <td>
+                      @if ( $value->HppDevCostReportSummary->count() > 0 )
+                        {{ number_format($value->HppDevCostReportSummary->last()->total_kontrak_terbayar )}}
+                      @else
+                        {{ number_format(0,2)}}
+                      @endif
+                    </td>
                     <td><a class="btn btn-warning" href="{{ url('/')}}/project/edit-kawasan?id={{ $value->id }}">Edit</a></td>
                     <td><button class="btn btn-danger" onclick="removeKawasan('{{ $value->id }}','{{ $value->name }}')">Hapus</button></td>
                  </tr>

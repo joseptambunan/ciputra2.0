@@ -149,9 +149,9 @@ class TenderController extends Controller
                 $dokumen["Gambar"] = "Ada";
             }else if ( $value2->document_name == "BQ / Bill Item"){
                 $dokumen["BQ"] = "Ada";
-            }else if ( $value2->document_name == "Spesifikasi Teknis"){
+            }else if ( $value2->document_name == "Klasifikasi Teknis"){
                 $dokumen["Spes"] = "Ada";
-            }else if ( $value2->document_name == "Syarat=Syarat Khusus yang harus dilengkapi"){
+            }else if ( $value2->document_name == "Syarat-Syarat Khusus yang harus dilengkapi"){
                 $dokumen["Syarat"] = "Ada";
             }
         }
@@ -172,7 +172,7 @@ class TenderController extends Controller
             }
         }
 
-        $tanggal_sekarang = date("Y-m-d H:i:s");
+        $tanggal_sekarang = date("Y-m-d H:i:s.u");
 
         return view('tender::detail2',compact("tender","user","project","rekanan","itempekerjaan","data","dokumen","ttd","tanggal_sekarang","tendermaster"));
     }
@@ -241,7 +241,7 @@ class TenderController extends Controller
         }
         
 
-        $tanggal_sekarang = date("Y-m-d H:i:s");
+        $tanggal_sekarang = date("Y-m-d H:i:s.u");
         return redirect("/tender/rekanan/referensi?id=".$request->tender_id);
     }
 
@@ -331,7 +331,7 @@ class TenderController extends Controller
         $tender_penawaran = new TenderPenawaran;
         $tender_penawaran->tender_rekanan_id = $request->tender_rab_id;
         $tender_penawaran->no = $request->tender_rab_id;
-        $tender_penawaran->date = date("Y-m-d H:i:s");
+        $tender_penawaran->date = date("Y-m-d H:i:s.u");
         $tender_penawaran->created_by = \Auth::user()->id;
         $tender_penawaran->save();
         //print_r($request->input_rab_id_);die;
@@ -375,7 +375,7 @@ class TenderController extends Controller
                     $tender_penawaran = new TenderPenawaran;
                     $tender_penawaran->tender_rekanan_id = $value->id;
                     $tender_penawaran->no = $value->id;
-                    $tender_penawaran->date = date("Y-m-d H:i:s");
+                    $tender_penawaran->date = date("Y-m-d H:i:s.u");
                     $tender_penawaran->created_by = \Auth::user()->id;
                     $tender_penawaran->save();
 
@@ -450,7 +450,7 @@ class TenderController extends Controller
                     $tender_penawaran = new TenderPenawaran;
                     $tender_penawaran->tender_rekanan_id = $value->id;
                     $tender_penawaran->no = $value->id;
-                    $tender_penawaran->date = date("Y-m-d H:i:s");
+                    $tender_penawaran->date = date("Y-m-d H:i:s.u");
                     $tender_penawaran->created_by = \Auth::user()->id;
                     $tender_penawaran->save();
 

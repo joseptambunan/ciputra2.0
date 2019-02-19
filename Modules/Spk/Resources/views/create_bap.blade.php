@@ -141,7 +141,7 @@
 
                           
 
-                          {{ number_format($spk->progress_sebelumnya,2) }} %
+                          {{ number_format($spk->progress_sebelumnya) }} %
                           <input type="hidden" name="percentage_sebelumnya" value="{{ $spk->progress_sebelumnya }}">
                         </td>
 
@@ -174,7 +174,7 @@
 
                         <th>Progress Lapangan</th>
 
-                        <td style="text-align: right;">{{ number_format($spk->lapangan,2) }} % <input type="hidden" name="percentage_lapangan" value="{{  $spk->lapangan }}"></td>
+                        <td style="text-align: right;">{{ number_format($spk->lapangan) }} % <input type="hidden" name="percentage_lapangan" value="{{  $spk->lapangan }}"></td>
 
                       </tr>
                       <tr>
@@ -184,7 +184,7 @@
 
                         <th>Nilai SPK</th>
 
-                        <td style="text-align: right;">RP. {{ number_format($spk->nilai,2)}}</td>
+                        <td style="text-align: right;">RP. {{ number_format($spk->nilai)}}</td>
 
                       </tr>
 
@@ -192,7 +192,7 @@
 
                         <th>Nilai VO Sampai dengan ke-{{ $spk->baps->count() + 1 }}</th>
 <input type="hidden" name="bap_vo" value="{{ $spk->nilai_vo }}">
-                        <td style="text-align: right;">Rp. {{ number_format($spk->nilai_vo,2) }}<br>
+                        <td style="text-align: right;">Rp. {{ number_format($spk->nilai_vo) }}<br>
                         <hr style="border:1px solid;margin-top:0px;margin-bottom:0px !important;"></td>
 
                       </tr>
@@ -203,7 +203,7 @@
 
                         <th>Nilai SPK + VO</th>
 
-                        <td style="text-align: right;">Rp. {{ number_format($spk->nilai_kumulatif,2)}}</td>
+                        <td style="text-align: right;">Rp. {{ number_format($spk->nilai_kumulatif)}}</td>
 
                       </tr>
 
@@ -211,7 +211,7 @@
 
                         <th>Nilai PPN SPK + VO</th>
                         
-                        <td style="text-align: right;">Rp. {{ number_format($ppn_kumulatif = $spk->nilai_kumulatif * $ppn ,2) }}</td>
+                        <td style="text-align: right;">Rp. {{ number_format($ppn_kumulatif = $spk->nilai_kumulatif * $ppn) }}</td>
 
                       </tr>
 
@@ -225,7 +225,7 @@
                         <th>Total Kontrak</th>
 
                         <td style="text-align: right;">
-                        Rp. {{ number_format($spk->nilai_kumulatif + $ppn_kumulatif , 2) }}</td>
+                        Rp. {{ number_format($spk->nilai_kumulatif + $ppn_kumulatif) }}</td>
 
                       </tr>
 
@@ -238,11 +238,11 @@
 
                         <th>Nilai Kumulatif BAP 1</th>
                         @if ( $spk->bap == "1")
-                          <td style="text-align: right;">Rp. {{ number_format( $nilai_bap_1 =  $spk->nilai_kumulatif * $spk->bap ,2) }}</td>
+                          <td style="text-align: right;">Rp. {{ number_format( $nilai_bap_1 =  $spk->nilai_kumulatif * $spk->bap) }}</td>
                           <input type="hidden" name="nilai_bap_1" value="{{ $nilai_bap_1 }}">
                           <input type="hidden" name="percentage" value="{{ $spk->bap }}">
                         @else
-                          <td style="text-align: right;">Rp. {{ number_format( $nilai_bap_1 =  ($spk->nilai_kumulatif) * ($spk->spk_real_termyn / 100 ),2) }}</td>
+                          <td style="text-align: right;">Rp. {{ number_format( $nilai_bap_1 =  ($spk->nilai_kumulatif) * ($spk->spk_real_termyn / 100 )) }}</td>
                           <input type="hidden" name="nilai_bap_1" value="{{ $nilai_bap_1 }}">
                           <input type="hidden" name="percentage" value="{{ $spk->spk_real_termyn }}">
                         @endif
@@ -258,10 +258,10 @@
 
                         <td style="text-align: right;">
                           @if ( $spk->bap == "1")
-                          <span>Rp. {{ number_format( $retensi = 0 ,2) }}</span>
+                          <span>Rp. {{ number_format( $retensi = 0) }}</span>
                           <input type="hidden" name="nilai_retensi" value="{{ $retensi }}">
                           @else
-                          <span>Rp. {{ number_format( $retensi = (($spk->nilai_kumulatif) * ($spk->spk_real_termyn / 100 )) * ($spk->retensis->sum('percent')) ,2) }}</span>
+                          <span>Rp. {{ number_format( $retensi = (($spk->nilai_kumulatif) * ($spk->spk_real_termyn / 100 )) * ($spk->retensis->sum('percent'))) }}</span>
                           <input type="hidden" name="nilai_retensi" value="{{ $retensi }}">
                           @endif
 
@@ -278,9 +278,9 @@
 
                         <td style="text-align: right;">
                           @if ( $spk->bap == "1")
-                          <span>Rp. {{ number_format( $nilai_setelah_retensi = (($spk->nilai_kumulatif) * ($spk->bap))- $retensi,2) }}</span>
+                          <span>Rp. {{ number_format( $nilai_setelah_retensi = (($spk->nilai_kumulatif) * ($spk->bap))- $retensi) }}</span>
                           @else
-                          <span>Rp. {{ number_format( $nilai_setelah_retensi = (($spk->nilai_kumulatif) * ($spk->spk_real_termyn / 100 ))- $retensi,2) }}</span>
+                          <span>Rp. {{ number_format( $nilai_setelah_retensi = (($spk->nilai_kumulatif) * ($spk->spk_real_termyn / 100 ))- $retensi) }}</span>
                           @endif
                         </td>
 
@@ -292,7 +292,7 @@
 
                       <th>Retensi</th>
                       @if ( $spk->bap == "1")
-                      <td style="text-align: right;">Rp. {{ number_format( $retensi = 0 ,2) }}</td>
+                      <td style="text-align: right;">Rp. {{ number_format( $retensi = 0) }}</td>
                       <input type="hidden" name="nilai_retensi" value="{{ $nilai_setelah_retensi = ( $spk->nilai_kumulatif * $spk->bap ) - $retensi }}">
                       <hr style="border:1px solid;margin-top:0px;margin-bottom:0px !important;">
                       @else
@@ -304,7 +304,7 @@
                     </tr>
                     <tr>
                       <th>Nilai Setelah Dikurangi Retensi</th>
-                      <td style="text-align: right;">Rp. {{ number_format( $nilai_setelah_retensi = $spk->nilai_lapangan - $retensi , 2 ) }}</td>
+                      <td style="text-align: right;">Rp. {{ number_format( $nilai_setelah_retensi = $spk->nilai_lapangan - $retensi) }}</td>
                     </tr>
                     @endif
 
@@ -318,19 +318,19 @@
 
                       <th>Nilai DP Dibayar</th>
 
-                      <td style="text-align: right;">Rp {{ number_format(($spk->nilai * $spk->dp_percent / 100), 2) }}</td>
+                      <td style="text-align: right;">Rp {{ number_format(($spk->nilai * $spk->dp_percent / 100)) }}</td>
 
                     </tr>
 
                     <tr>
                       <th>Nilai DP Dikembalikan</th>
-                      <td style="text-align: right;"><input type='hidden' name="nilai_pengembalian" value="{{$spk->nilai_pengembalian}}" />Rp. {{ number_format($spk->nilai_pengembalian,2)}}</td>
+                      <td style="text-align: right;"><input type='hidden' name="nilai_pengembalian" value="{{$spk->nilai_pengembalian}}" />Rp. {{ number_format($spk->nilai_pengembalian)}}</td>
                     </tr>
 
                     <tr>
                       <th> Nilai Kumulatif BAP 2 </th>
                       <td style="text-align: right;">Rp.
-                        {{ number_format( $total2 = ( $nilai_setelah_retensi + ($spk->nilai * $spk->dp_percent / 100)) - $spk->nilai_pengembalian ,2   )}}
+                        {{ number_format( $total2 = ( $nilai_setelah_retensi + ($spk->nilai * $spk->dp_percent / 100)) - $spk->nilai_pengembalian)}}
                         <input type="hidden" name="nilai_bap_2" value="{{ $total2 }}">
                       </td>
                     </tr>
@@ -340,18 +340,18 @@
                           <th>Nilai DP Dibayar</th>
                           <td style="text-align: right;">
                             @php $dps = ($spk->dp_percent / 100 ) * $spk->nilai; @endphp  
-                            Rp. {{ number_format($dps  ,2) }} <br>   
+                            Rp. {{ number_format($dps) }} <br>   
                           </td>
                         </tr>
                         <tr>
                           <th>Nilai DP Dikembalikan</th>
-                          <td style="text-align: right;"><input type='hidden' name="nilai_pengembalian" value="{{ $spk->nilai_pengembalian * 0 }}" />Rp. {{ number_format($spk->nilai_pengembalian ,2)}}</td>
+                          <td style="text-align: right;"><input type='hidden' name="nilai_pengembalian" value="{{ $spk->nilai_pengembalian * 0 }}" />Rp. {{ number_format($spk->nilai_pengembalian)}}</td>
                         </tr>
 
                         <tr>
                           <th> Nilai Kumulatif BAP 2 </th>
                           <td style="text-align: right;">Rp.
-                            {{ number_format( $total2 = ( $nilai_setelah_retensi + ( ($spk->nilai * $spk->dp_percent / 100) ) ) - $spk->nilai_pengembalian ,2   )}}
+                            {{ number_format( $total2 = ( $nilai_setelah_retensi + ( ($spk->nilai * $spk->dp_percent / 100) ) ) - $spk->nilai_pengembalian)}}
                             <input type="hidden" name="nilai_bap_2" value="{{ $total2 }}">
                           </td>
                         </tr>
@@ -360,18 +360,18 @@
                           <th>Nilai DP Dibayar</th>
                           <td style="text-align: right;">
                             @php $dps = ($spk->dp_percent / 100 ) * $spk->nilai; @endphp  
-                            Rp. {{ number_format($dps * 0 ,2) }} <br>   
+                            Rp. {{ number_format($dps * 0 ) }} <br>   
                           </td>
                         </tr>
                         <tr>
                           <th>Nilai DP Dikembalikan</th>
-                          <td style="text-align: right;"><input type='hidden' name="nilai_pengembalian" value="{{ $spk->nilai_pengembalian * 0 }}" />Rp. {{ number_format($spk->nilai_pengembalian * 0 ,2)}}</td>
+                          <td style="text-align: right;"><input type='hidden' name="nilai_pengembalian" value="{{ $spk->nilai_pengembalian * 0 }}" />Rp. {{ number_format($spk->nilai_pengembalian * 0)}}</td>
                         </tr>
 
                         <tr>
                           <th> Nilai Kumulatif BAP 2 </th>
                           <td style="text-align: right;">Rp.
-                            {{ number_format( $total2 = ( $nilai_setelah_retensi + ( ($spk->nilai * $spk->dp_percent / 100) * 0) ) - $spk->nilai_pengembalian ,2   )}}
+                            {{ number_format( $total2 = ( $nilai_setelah_retensi + ( ($spk->nilai * $spk->dp_percent / 100) * 0) ) - $spk->nilai_pengembalian)}}
                             <input type="hidden" name="nilai_bap_2" value="{{ $total2 }}">
                           </td>
                         </tr>
@@ -381,7 +381,7 @@
 
                         <th>PPN Setelah Nilai Kumulatif BAP 2</th>
 
-                        <td style="text-align: right;">Rp. {{ number_format ( ( $total2 * $ppn ) ,2) }}</td>
+                        <td style="text-align: right;">Rp. {{ number_format ( ( $total2 * $ppn )) }}</td>
 
                       </tr>
 
@@ -393,7 +393,7 @@
 
                         <td style="text-align: right;">
 
-                          Rp. {{ number_format(($total2 * $ppn) + $total2 ,2) }}
+                          Rp. {{ number_format(($total2 * $ppn) + $total2) }}
                           <input type="hidden" name="nilai_bap_3" value="{{ ($total2 * $ppn) + $total2 }}">
                         </td>                                         
 
@@ -403,97 +403,57 @@
 
                         <th>Nilai BAP Sebelumnya</th>
                         
-                        <td style="text-align: right;">Rp. {{ number_format($nilai_sebelumnya ,2) }}</td>
+                        <td style="text-align: right;">Rp. {{ number_format($nilai_sebelumnya) }}</td>
                     
                       </tr>
 
                       <tr>
                       <th>Nilai BAP 3</th>
-                      <td style="text-align: right;">Rp. {{  number_format( $nilai_bap_3 = (($total2 * $ppn) + $total2) - $nilai_sebelumnya,2 )}}</td>
+                      <td style="text-align: right;">Rp. {{  number_format( $nilai_bap_3 = (($total2 * $ppn) + $total2) - $nilai_sebelumnya)}}</td>
                       <input type="" name="">
                       </tr>
 
                       @if($spk->rekanan->piutangs->count())
-
                       <tr>
-
                         <th>Potongan Piutang</th>
-
                         <td style="text-align: right;">
-
                           <input type="number" id="piutang" name="piutang" max="{{ $spk->rekanan->piutang }}" class="form-control" placeholder="Max {{ $spk->rekanan->piutang }}" value="0">
-
                         </td>
-
                       </tr>
-
                       @endif
-
-
-
                       <tr>
-
                         <td>Potongan Administrasi</td>
-
                         <td style="text-align: right;">
-
                           <input type="number" id="admin" name="admin" class="form-control" value="0" style="width:50%">
-
                         </td>
-
                       </tr>
-
-
-
                       <tr>
-
                         <td>Potongan Denda</td>
-
                         <td style="text-align: right;">
-
                           <input type="number" id="denda" name="denda" class="form-control" value="0" style="width:50%">
-
                         </td>
-
                       </tr>
-
-
-
                       <tr>
-
                         <td>Potongan Selisih Debit Kredit</td>
-
                         <td style="text-align: right;">
-
                           <input type="number" id="selisih" name="selisih" class="form-control" value="0" style="width:50%">
-
                         </td>
-
                       </tr>
-
                       <tr>
-
                         <td>Potongan Dana Talangan</td>
-
                         <td style="text-align: right;">
-
                           <input type="number" id="talangan" name="talangan" class="form-control" value="0" style="width:50%">
-
                         </td>
-
                       </tr>
-
                       <tr>
-
                         <td>Total yang Bisa Dibayar</td>
-
                         <td style="text-align: right;">
                           @if ( $spk->baps->count() == "0")
-                          <span id="total_dibayar">{{ number_format( $total_bisa_dibayar =  $spk->nilai_bap_sekarang + ($spk->nilai_bap_sekarang * $ppn ) ,2) }}</span>
+                          <span id="total_dibayar">{{ number_format( $total_bisa_dibayar =  $spk->nilai_bap_sekarang + ($spk->nilai_bap_sekarang * $ppn )) }}</span>
                           <input type="hidden" name="nilai_bap_dibayar" value="{{ $spk->nilai_bap_sekarang + ($spk->nilai_bap_sekarang * $ppn) }}">
 
                           @else
-                          <span id="total_dibayar">{{ number_format( $total_bisa_dibayar = (($total2 * $ppn) + $total2 ) - $nilai_sebelumnya,2 ) }}</span>
+                          <span id="total_dibayar">{{ number_format( $total_bisa_dibayar = (($total2 * $ppn) + $total2 ) - $nilai_sebelumnya ) }}</span>
                           <input type="hidden" name="nilai_bap_dibayar" value="{{ ( ($total2 * $ppn) + $total2 ) - ( $spk->nilai_total_sebelumnya  ) }}">
                           @endif
                         </td>
@@ -859,7 +819,7 @@
 
 
 
-        $("#total_dibayar").number(true,2);
+        $("#total_dibayar").number(true);
 
       }
 

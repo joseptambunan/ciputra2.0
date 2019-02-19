@@ -50,7 +50,8 @@
                   <thead class="head_table">
                     <tr>
                         <td>Document</td>
-                        <td>Nilai Document(Rp)</td>
+                        <td colspan="2">Min Nilai Document(Rp)</td>
+                        <td colspan="2">Max Nilai Document(Rp)</td>
                         <td>Nomor Urut</td>
                     </tr>
                   </thead>
@@ -64,6 +65,21 @@
                         <input type="hidden" name="document_[{{$key}}]" value="{{$value->head_type }}" >
                         <input type="checkbox" name="check_[{{$key}}]" class="approval"> Approve
                         {{ $value->head_type }}
+                      </td>
+                      <td>
+                        <select class="form-control" name="param_min[{{$key}}]">
+                          <option value="=">=</option>
+                          <option value=">">></option>
+                          <option value="<"><</option>
+                        </select>
+                      </td>
+                      <td><input type="text" name="min_value_[{{$key}}]" class="nilai_budgets form-control" autocomplete="off"></td>
+                      <td>
+                        <select class="form-control" name="param_max[{{$key}}]">
+                          <option value="=">=</option>
+                          <option value=">">></option>
+                          <option value="<"><</option>
+                        </select>
                       </td>
                       <td><input type="text" name="max_value_[{{$key}}]" class="nilai_budgets form-control" autocomplete="off"></td>
                       <td>
@@ -93,13 +109,7 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-  <footer class="main-footer">
-    <div class="pull-right hidden-xs">
-      <b>Version</b> 2.4.0
-    </div>
-    <strong>Copyright &copy; 2014-2016 <a href="https://adminlte.io">Almsaeed Studio</a>.</strong> All rights
-    reserved.
-  </footer>
+@include("master/copyright")
 
   
   <!-- Add the sidebar's background. This div must be placed

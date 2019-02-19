@@ -21,12 +21,12 @@ class RekananSupp extends CustomModel
 
     public function user_penandatangan()
     {
-        return $this->belongsTo('App\User', 'penandatangan');
+        return $this->belongsTo('Modules\User\Entities\User', 'penandatangan');
     }
 
     public function user_saksi()
     {
-        return $this->belongsTo('App\User', 'saksi');
+        return $this->belongsTo('Modules\User\Entities\User', 'saksi');
     }
 
     public function supp_template()

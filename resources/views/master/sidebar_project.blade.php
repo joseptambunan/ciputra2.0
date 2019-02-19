@@ -86,9 +86,21 @@
             </span>
           </a>
           <ul class="treeview-menu">
-            <li><a href="{{ url('/')}}/budget/proyek/"><i class="fa fa-circle-o"></i> Budget Global</a></li>
+            <li><a href="{{ url('/')}}/budget/proyek/"><i class="fa fa-circle-o"></i>Budget</a></li>
           </ul>
         </li>
+        <li class="treeview">
+          <a href="#">
+            <i class="fa fa-pie-chart"></i>
+            <span>Pengajuan Biaya</span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+          </a>
+          <ul class="treeview-menu">
+            <li><a href="{{ url('/')}}/pengajuanbiaya/"><i class="fa fa-circle-o"></i> Pengajuan Biaya</a></li>
+          </ul>
+        </li>        
         <li class="treeview">
           <a href="#">
             <i class="fa fa-pie-chart"></i>
@@ -102,18 +114,6 @@
             <li><a href="{{ url('/')}}/tender/"><i class="fa fa-circle-o"></i> Tender</a></li>
             <li><a href="{{ url('/')}}/spk/"><i class="fa fa-circle-o"></i> SPK - BAP</a></li>
             <li><a href="{{ url('/')}}/voucher/"><i class="fa fa-circle-o"></i> Voucher</a></li>
-          </ul>
-        </li>
-        <li class="treeview">
-          <a href="#">
-            <i class="fa fa-pie-chart"></i>
-            <span>Progress Lapangan</span>
-            <span class="pull-right-container">
-              <i class="fa fa-angle-left pull-right"></i>
-            </span>
-          </a>
-          <ul class="treeview-menu">
-              <li><a href="{{ url('/')}}/progress/"><i class="fa fa-circle-o"></i>SPK</a></li>
           </ul>
         </li>
         <li><a href="{{ url('/')}}/logout">Logout</a></li>

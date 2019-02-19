@@ -34,7 +34,7 @@
             <div class="col-md-12"><h3 class="box-title">Data Budget Tahunan</h3></div>
             <div class="col-md-6">             
               
-              <form action="{{ url('/')}}/budget/cashflow/add-cashflow" method="post" name="form1">
+              <form action="{{ url('/')}}/budget/cashflow/add-cashflow" method="post" name="form1" id="form1">
               {{ csrf_field() }}
               <input type="hidden" name="budget_id" id="budget_id" value="{{ $budget->id }}">
               <div class="form-group">
@@ -62,7 +62,8 @@
                 <input type="text" name="description" id="description" class="form-control" autocomplete="off">
               </div>
               <div class="box-footer">
-                <button type="submit" class="btn btn-primary">Simpan</button>
+                <button type="button" onClick="formsubmit();" class="btn_submit btn btn-primary">Simpan</button>
+                <i class="fa fa-refresh ld ld-spin" id="loading" style="display: none;"></i>
                 <a href="{{ url('/')}}/budget/proyek/" class="btn btn-warning">Kembali</a>
               </div>      
               </form>
@@ -162,6 +163,12 @@
     }else{
       return false;
     }
+  }
+
+  function formsubmit(){
+    $(".btn_submit").hide();
+    $("#loading").show();
+    $("#form1").submit();
   }
 </script>
 </body>

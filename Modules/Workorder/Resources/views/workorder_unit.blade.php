@@ -46,10 +46,12 @@
                   <thead class="head_table">
                     <tr>
                       <td>Unit Name</td>
+                      <td>Type</td>
                       <td>Set to WO</td>
                       <td>Status Unit</td>
                       <td>Tanggal DP Konsumen Lunas</td>
                       <td>Target Harus Mulai Bangun</td>
+                      <td>No. SPT</td>
                     </tr>
                   </thead>
                   <tbody id="table_item">
@@ -74,6 +76,8 @@
                             <td></td>
                             <td></td>
                             <td></td>
+                            <td></td>
+                            <td></td>
                           </tr>
                           @php 
                             $units_list = \Modules\Project\Entities\ProjectKawasan::find($budgettahunan->budget->kawasan->id)->units;
@@ -83,6 +87,7 @@
                             @php $start++; @endphp
                             <tr>                
                               <td>{{ $value3->name }}</td>
+                              <td>{{ $value3->type->name or '' }}</td>
                               <td><input class="disable_unit" type="checkbox" name="asset[{{ $start}}]" value="Unit_{{ $value3->id }}" onClick="disablebtn('{{ $value3->id }}')"></td>
                               <td>{{ $array[$value3->status]}}</td>
                               <td>
@@ -105,6 +110,7 @@
                                  @endif
                                  @endif
                               </td>
+                              <td>{{ $value3->spt_number }}</td>
                             </tr>
                             @php $start++; @endphp
                           @endforeach

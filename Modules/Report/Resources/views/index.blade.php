@@ -75,18 +75,18 @@
                       <td>{{ number_format($detail->netto,2 ) }}</td>  
                       <td>{{ number_format($detail->luas,2)}}</td>
                       <td style="text-align: right;">{{ number_format($detail->budget_dev_cost_awal,2)}}</td>
-                      <td style="text-align: right;">{{ number_format($detail->budget_dev_cost_upd,2)}}</td>
-                      <td>{{ number_format($detail->hpp_dev_cost_awal_netto,2)}}</td>
+                      <td style="text-align: right;">{{ number_format($detail->hpp_update->last()->nilai_budget,2)}}</td>
+                      <td>{{ number_format($detail->hpp_update->first()->nilai_budget / $detail->hpp_update->first()->netto,2)}}</td>
                       <td>{{ number_format($detail->hpp_dev_cost_awal_brutto,2)}}</td>
-                      <td>{{ number_format($detail->hpp_dev_cost_upd_netto,2)}}</td>
+                      <td>{{ number_format($detail->hpp_devcost_upd,2)}}</td>
                       <td>{{ number_format($detail->hpp_dev_cost_upd_brutto,2)}}</td>
-                      <td style="text-align: right;">{{ number_format($total_kontrak = $detail->hpp_dev_cost_summary_report->last()->total_kontrak,2)}}</td>
-                      <td style="text-align: right;">{{ number_format($detail->new_hpp_con_cost_summary->last()->total_kontrak)}}</td>
-                      <td style="text-align: right;">{{ number_format($total_terbayar = $detail->hpp_dev_cost_summary_report->last()->total_kontrak_terbayar,2)}}</td>
-                      <td style="text-align: right;">{{ number_format($detail->new_hpp_con_cost_summary->last()->total_kontrak_terbayar)}}</td>
+                      <td style="text-align: right;">{{ number_format($total_kontrak = $detail->nilai_report_realisasi_dev_cost,2)}}</td>
+                      <td style="text-align: right;">{{ number_format(0,2)}}</td>
+                      <td style="text-align: right;">{{ number_format($total_terbayar = $detail->nilai_report_terbayar_dev_cost,2)}}</td>
+                      <td style="text-align: right;">{{ number_format(0,2)}}</td>
                       <td style="text-align: right;">{{ number_format($total_kontrak - $total_terbayar )}}</td>
-                      <td style="text-align: right;">{{ number_format($detail->new_hpp_con_cost_summary->last()->total_kontrak - $detail->new_hpp_con_cost_summary->last()->total_kontrak_terbayar)}}</td>
-                      <td style="text-align: right;">{{ number_format($detail->budget_dev_cost_upd - $total_kontrak )}}</td>
+                      <td style="text-align: right;">{{ number_format(0)}}</td>
+                      <td style="text-align: right;">{{ number_format($detail->hpp_update->last()->nilai_budget - $total_kontrak )}}</td>
                       <td style="text-align: right;">{{ number_format($detail->hutang_bangun_con_cost)}}</td>
                       <td style="text-align: right;">{{ number_format($detail->real_cash_out_dev_cost )}}</td>
                       <td style="text-align: right;">{{ number_format($detail->real_cash_out_con_cost )}}</td>

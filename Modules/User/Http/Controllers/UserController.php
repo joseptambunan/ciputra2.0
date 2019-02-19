@@ -210,6 +210,11 @@ class UserController extends Controller
             }
         }
 
+        if ( $jabatan->code == "PIC"){
+            $user = User::find($request->user_id);
+            $user->is_pic = 1;
+            $user->save();
+        }
         return redirect("/user/detail?id=".$request->user_id);
     }
 
@@ -239,8 +244,10 @@ class UserController extends Controller
                     $approval_reference->pt_id = $request->pt_id;
                     $approval_reference->document_type = $request->document_[$key];
                     $approval_reference->no_urut = $request->urut[0];
-                    $approval_reference->min_value = 0;
+                    $approval_reference->min_value = str_replace(",", "", $request->min_value_[$key]);
                     $approval_reference->max_value = str_replace(",", "", $request->max_value_[$key]);
+                    $approval_reference->param_min = $request->param_min[$key];
+                    $approval_reference->param_max = $request->param_max[$key];
                     $status = $approval_reference->save();  
                 }              
             }        

@@ -44,4 +44,16 @@ Route::group(['middleware' => 'web', 'prefix' => 'spk', 'namespace' => 'Modules\
     Route::get('/tipe','SpkMasterController@index');
     Route::post('/delete-tipe','SpkMasterController@destroy');
     Route::post('/save-tipe','SpkMasterController@store');
+
+    //SUPP
+    Route::get('/supp','SuppController@create');
+    Route::post('/supp/store','SuppController@store');
+    Route::get('/supp/show','SuppController@show');
+
+    //PIC
+    Route::post('/addpic','SpkController@addpic');
+
+    //Cetakan
+    Route::post('/cetak_bap','SpkController@cetakan_bap');
+    
 });

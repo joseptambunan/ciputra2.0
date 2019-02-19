@@ -45,8 +45,8 @@
               <div class="row">
                 <div class="col-xs-12">
                   <h2 class="page-header">
-                    <i class="fa fa-globe"></i> Voucher NO : <strong>{{ $voucher->no }}</strong>
-                    <small class="pull-right">Dok No  : {{ $voucher->bap->no }}</small>
+                    <i class="fa fa-globe"></i> Voucher NO : <strong>{{ $voucher->no or  ''}}</strong>
+                    <small class="pull-right">Dok No  : {{ $voucher->bap->no or ''}}</small>
                   </h2>
                 </div>
                 <!-- /.col -->
@@ -56,7 +56,7 @@
                 <div class="col-xs-6">
                   <div class="form-group">
                     <span>Project</span>
-                    <input type="text" class="form-control" value="{{ $voucher->bap->spk->project->name }}" readonly>
+                    <input type="text" class="form-control" value="{{ $voucher->bap->spk->project->name or '' }}" readonly>
                   </div>
                   <div class="form-group">
                     <span>PT</span>
@@ -64,13 +64,13 @@
                   </div>
                   <div class="form-group">
                     <span>Dibayarkan kepada</span>
-                    <input type="text" class="form-control" value="{{ $voucher->bap->spk->rekanan->group->name }}" readonly>
+                    <input type="text" class="form-control" value="{{ $voucher->bap->spk->rekanan->group->name or '' }}" readonly>
                   </div>
                   <div class="form-group">
                     <span>Rekening Rekanan</span>
                     <select class="form-control" name="rekanan_rekening">
                       @foreach ( $voucher->bap->spk->rekanan->rekenings as $key3 => $value3 )
-                      <option value="{{ $value3->id}}">{{ $value3->bank->name }} / {{ $value3->name }}-{{ $value3->no }}</option>
+                      <option value="{{ $value3->id}}">{{ $value3->bank->name or '' }} / {{ $value3->name or '' }}-{{ $value3->no or '' }}</option>
                       @endforeach
                     </select>
                   </div>

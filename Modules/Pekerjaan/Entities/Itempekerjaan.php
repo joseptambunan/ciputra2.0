@@ -482,4 +482,8 @@ class Itempekerjaan extends Model
             return $nilai;
         }
     }
+
+    public function rekanan_specification(){
+        return $this->hasMany("Modules\Rekanan\Entities\RekananSpecification");
+    }
 }

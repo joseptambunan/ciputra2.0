@@ -109,6 +109,8 @@
                         @if ( $value6->project_pts != "" )
                           @if ( $key6 == 0 ) 
                             @php $active = "active"; @endphp
+                          @else
+                            @php $active = ""; @endphp
                           @endif
                           <div class="tab-pane {{ $active }}" id="tab_{{ $key6 + 5 }}">
 
@@ -130,7 +132,8 @@
                             <thead class="head_table">
                               <tr>
                                 <td>Document</td>
-                                <td>Nilai Document</td>
+                                <td>Min Nilai Document</td>
+                                <td>Max Nilai Document</td>
                                 <td>Nomor Urut</td>
                                 <td>Perubahan Data</td>
                               </tr>
@@ -140,7 +143,8 @@
                               @if ( $value7->pt_id == $value6->project_pts->pt->id && $value7->project_id == $value6->project_pts->project_id )
                                 <tr>
                                     <td>{{ $value7->document_type }}</td>
-                                    <td>{{ number_format($value7->max_value )}}</td>
+                                    <td>{{ $value7->param_min}}{{ number_format($value7->min_value )}}</td>
+                                    <td>{{ $value7->param_max}}{{ number_format($value7->max_value )}}</td>
                                     <td>{{ number_format($value7->no_urut )}}</td>
                                     <td><button class="btn btn-danger" onclick="deleteApproval('{{ $value7->id }}')">Delete</a></td>
                                 </tr>
@@ -337,13 +341,7 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-  <footer class="main-footer">
-    <div class="pull-right hidden-xs">
-      <b>Version</b> 2.4.0
-    </div>
-    <strong>Copyright &copy; 2014-2016 <a href="https://adminlte.io">Almsaeed Studio</a>.</strong> All rights
-    reserved.
-  </footer>
+@include("master/copyright")
 
   
   <!-- Add the sidebar's background. This div must be placed

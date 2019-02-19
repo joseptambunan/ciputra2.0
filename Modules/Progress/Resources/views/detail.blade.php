@@ -9,13 +9,12 @@
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
 
-  @include("master/sidebar_project")
+  @include("master/sidebar_progress")
 
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <section class="content-header">
-      <h1>Data Proyek {{ $project->name }}</h1>
 
     </section>
 
@@ -34,12 +33,28 @@
                 {{ csrf_field() }}                  
                 <div class="form-group">
                     <label for="exampleInputEmail1">No. SPK</label>
-                    <input type="text" class="form-control" name="document" value="{{ $spk->no}}" readonly>
+                    <input type="text" class="form-control" name="document" value="{{ $spk->no}}" disabled>
                 </div>   
                 <div class="form-group">
-                    <label for="exampleInputEmail1">Nama. SPK</label>
-                    <input type="text" class="form-control" name="document" value="{{ $spk->name}}" readonly>
-                </div>      
+                  <label for="exampleInputEmail1">Nama. SPK</label>
+                  <input type="text" class="form-control" name="document" value="{{ $spk->name}}" disabled>
+                </div> 
+                <div class="form-group">
+                    <label for="exampleInputEmail1">Departement</label>
+                    <input type="text" class="form-control" name="document" value="{{ $spk->tender->rab->budget_tahunan->budget->department->name or ''}}" disabled>
+                </div>  
+                <div class="form-group">
+                  <label>Tanggal Mulai</label>
+                  <input type="text" class="form-control" name="document" value="{{ $spk->start_date->format('d/M/Y')}}" disabled>
+                </div> 
+                <div class="form-group">
+                  <label>Tanggal Selesai</label>
+                  <input type="text" class="form-control" name="document" value="{{ $spk->finish_date->format('d/M/Y')}}" disabled>
+                </div>   
+                <div class="form-group">
+                  <label>User PIC</label>
+                  <input type="text" class="form-control" name="document" value="{{ $spk->user_pic->user_name or ''}}" disabled>
+                </div> 
                 <div class="form-group">
                   <a href="{{ url('/') }}/progress/" class="btn btn-warning">Kembali</a>
                 </div>         
@@ -93,47 +108,16 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-  <footer class="main-footer">
-    <div class="pull-right hidden-xs">
-      <b>Version</b> 2.4.0
-    </div>
-    <strong>Copyright &copy; 2014-2016 <a href="https://adminlte.io">Almsaeed Studio</a>.</strong> All rights
-    reserved.
-  </footer>
-
+@include("master/copyright")
   
-  <!-- Add the sidebar's background. This div must be placed
-       immediately after the control sidebar -->
+<!-- Add the sidebar's background. This div must be placed
+immediately after the control sidebar -->
   <div class="control-sidebar-bg"></div>
 </div>
 <!-- ./wrapper -->
 
 @include("master/footer_table")
 @include("progress::app")
-<script type="text/javascript">
-  function updateProgress(spk_id,termin_id,termin) {
-    if ( confirm("Apakah anda yakin ingin menyelesaikan termin ini ?")){
-      var request = $.ajax({
-        url : "{{ url('/')}}/progress/updatetermyn",
-        dataType : "json",
-        data : {
-          spk_id : spk_id,
-          termin : termin,
-          termin_id : termin_id
-        },
-        type : "post"
-      });
 
-      request.done(function(data){
-        if ( data.status == "0"){
-          alert("Data telah diupdate");
-        }
-        
-      })
-    }else{
-      return false;
-    }
-  }
-</script>
 </body>
 </html>

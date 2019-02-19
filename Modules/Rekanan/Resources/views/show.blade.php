@@ -53,7 +53,15 @@
                     <label for="exampleInputEmail1">Kota</label>
                     <select class="form-control select2" name="kota">
                       @foreach($city as $key => $value)
-                      <option value="{{ $value->id }}">{{ $value->name }}</option>
+                        @if ( $rekanan_group->rekanans->count() > 0 )
+                          @if ( $value->id == $rekanan_group->rekanans->first()->surat_kota )
+                            <option value="{{ $value->id }}" selected>{{ $value->name }}</option>
+                          @else
+                            <option value="{{ $value->id }}">{{ $value->name }}</option>
+                          @endif
+                        @else
+                          <option value="{{ $value->id }}">{{ $value->name }}</option>
+                        @endif
                       @endforeach
                     </select>
                   </div> 
@@ -85,7 +93,7 @@
                     @else
                     <button type="button" class="btn btn-success" onclick="blacklist('{{ $rekanan_group->id}}','2')">Remove Black List</button>
                     @endif
-                    <a href="{{ url('/')}}/rekanan" class="submitbtn btn btn-warning">Kembali</a>
+                    <a href="{{ url('/')}}/rekanan/all" class="submitbtn btn btn-warning">Kembali</a>
                   </div> 
                 </form>             	
               </div>
@@ -268,13 +276,7 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-  <footer class="main-footer">
-    <div class="pull-right hidden-xs">
-      <b>Version</b> 2.4.0
-    </div>
-    <strong>Copyright &copy; 2014-2016 <a href="https://adminlte.io">Almsaeed Studio</a>.</strong> All rights
-    reserved.
-  </footer>
+ @include("master/copyright")
 
   
   <!-- Add the sidebar's background. This div must be placed

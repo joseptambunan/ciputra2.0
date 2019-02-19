@@ -31,7 +31,7 @@ class UnitProgress extends CustomModel
 
     public function details()
     {
-        return $this->hasMany('Modules\Project\Entities\UnitProgressDetail');
+        return $this->hasMany('Modules\Project\Entities\UnitProgressDetail')->orderBy('id','desc');
     }
 
     public function itempekerjaan()

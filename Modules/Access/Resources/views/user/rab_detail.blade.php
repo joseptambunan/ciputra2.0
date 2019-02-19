@@ -59,12 +59,12 @@
                   <td style="background-color: grey;"><span style="color:white"><strong>No RAB</strong></span></td>
                   <td>{{ $rab->no }}</td>
                 </tr>
-                @if ( count($rab->blok_list) < 0 ) 
+               
                 <tr>
                   <td style="background-color: grey;"><span style="color:white"><strong>COA / Pekerjaan</strong></span></td>
-                  <td>{{ $rab->pekerjaans->where("nilai",null)->first()->itempekerjaan->code }}/ {{ $rab->pekerjaans->where("nilai",null)->first()->itempekerjaan->name }}</td>
+                  <td>{{ $rab->pekerjaans->last()->itempekerjaan->parent->code }}/ {{ $rab->pekerjaans->last()->itempekerjaan->parent->name }}</td>
                 </tr>
-                @endif
+                
                 <tr>
                   <td style="background-color: grey;"><span style="color:white"><strong>Dept. From</strong></span></td>
                   <td>{{ $rab->workorder->departmentFrom->name }}</td>

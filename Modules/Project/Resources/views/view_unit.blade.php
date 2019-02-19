@@ -137,7 +137,9 @@
                 <textarea class='form-control' name="description" id="description" cols="45" rows="5" placeholder="Descriptions" {{ $readonly }}></textarea>
               </div>     
               <div class="box-footer">
-                <button type="submit" class="btn btn-primary" {{ $readonly }}>Simpan</button>
+                @if ( $unit->unit_id == "" )
+                  <button type="submit" class="btn btn-primary" {{ $readonly }}>Simpan</button>
+                @endif
                 <a href="{{ url('/')}}/project/units/?id={{ $unit->blok->id }}" class="btn btn-warning">Kembali</a>
               </div>
               </form>
@@ -160,13 +162,7 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-  <footer class="main-footer">
-    <div class="pull-right hidden-xs">
-      <b>Version</b> 2.4.0
-    </div>
-    <strong>Copyright &copy; 2014-2016 <a href="https://adminlte.io">Almsaeed Studio</a>.</strong> All rights
-    reserved.
-  </footer>
+  @include("master/copyright")
 
   
   <!-- Add the sidebar's background. This div must be placed

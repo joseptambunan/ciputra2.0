@@ -372,4 +372,99 @@ $("#btn_save_bln").click(function(){
     window.location.reload();
   })
 });
+
+function getCarryOverDC(){
+  $("#carry_over_dc").text("loading...");
+
+  var request = $.ajax({
+    url : "{{ url('/')}}/budget/carryoverdc",
+    dataType : "json",
+    data : {
+      id : $("#budget_tahunan_id").val()
+    },
+    type : "post"
+  });
+
+  request.done(function(data){
+      $("#carry_over_dc").text(data.nilai);
+      
+      if ( $("#carry_over_cc").text() != "loading..."){
+        var carryovercc = parseInt($("#carry_over_cc").text());
+        var carryoverdc = parseInt($("#carry_over_dc").text());
+        var carryover = carryoverdc + carryovercc;
+        $("#carry_over_total").text(carryover);
+      }else{
+        $("#carry_over_total").text(0);
+      }
+
+      $("#carry_over_dc").number(true);
+      $("#carry_over_total").number(true);
+  });
+}
+
+function getCarryOvercc(){
+  $("#carry_over_cc").text("loading...");
+  var request = $.ajax({
+    url : "{{ url('/')}}/budget/carryovercc",
+    dataType : "json",
+    data : {
+      id : $("#budget_tahunan_id").val()
+    },
+    type : "post"
+  });
+
+  request.done(function(data){
+      $("#carry_over_cc").text(data.nilai);
+
+      if ( $("#carry_over_cc").text() != "loading..."){
+        var carryovercc = parseInt($("#carry_over_cc").text());
+        var carryoverdc = parseInt($("#carry_over_dc").text());
+        var carryover = carryoverdc + carryovercc;
+        $("#carry_over_total").text(carryover);
+      }else{
+        $("#carry_over_total").text(0);
+      }
+
+      $("#carry_over_cc").number(true);
+      $("#carry_over_total").number(true);
+      
+  });
+}
+
+function getRencanaDC(){
+  $("#rencana_spk_dc").text("loading...");
+  var request = $.ajax({
+    url : "{{ url('/')}}/budget/rencanadc",
+    dataType : "json",
+    data : {
+      id : $("#budget_tahunan_id").val()
+    },
+    type : "post"
+  });
+
+  request.done(function(data){
+      $("#carry_over_cc").text(data.nilai);
+      $("#carry_over_cc").number(true);
+  });
+}
+
+function getRencanaCC(){
+  $("#rencana_spk_cc").text("loading...");
+}
+
+function getCarryOverCashOutDC(){
+  $("#label_cf_carryover_devcost").text("loading...");
+}
+
+function getCarryOverCashOutCC(){
+  $("#label_cf_carryover_concost").text("loading...");
+}
+
+function getRencanaCashOutDC(){
+  $("#label_cash_flow").text("loading...");
+}
+
+function getRencanaCashoutCC(){
+  $("#label_cash_flow_co").text("loading...");
+}
 </script>

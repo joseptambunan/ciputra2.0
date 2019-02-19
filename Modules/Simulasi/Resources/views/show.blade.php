@@ -47,13 +47,14 @@
                   <tbody>
                   @php $start = 0; @endphp
                   @foreach ( $tender_rekanan as $key => $value )
+                  @if ( $value->id == 892 )
                     @if ( $value->tender != "" )
                     <tr>
                       <td>{{ $start + 1  }}</td>
                       <td>{{ $value->tender->no }}</td>
                       <td>{{ $value->tender->name }}</td>
                       <td>{{ $value->rekanan->name }}</td>
-                      <td>{{ $value->tender->rab->workorder->project->name }}</td>
+                      <td>{{ $value->tender->rab->workorder->project->name or '' }}</td>
                       <td>CONSTRUCTION AND DEVELOPMENT</td>
                       <td>
                         @if ( $value->doc_bayar_status == "0" )
@@ -65,6 +66,7 @@
                     </tr>
                     @php $start++; @endphp
                     @endif
+                  @endif
                   @endforeach
                 </tbody>
                 </table>

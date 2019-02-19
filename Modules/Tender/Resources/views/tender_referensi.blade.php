@@ -101,7 +101,7 @@
                   <thead class="head_table">
                     <tr>
                       <td>Nama</td>
-                      <td>Spesifikasi</td>
+                      <td>Klasifikasi Pekerjaan</td>
                       <td>Set to Tender</td>
                     </tr>
                   </thead>

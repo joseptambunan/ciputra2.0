@@ -71,3 +71,34 @@ ADD INDEX (  `pengajuan_biaya_id` ) ;
 
 ALTER TABLE [dbo].[rekanan_supps] ADD saksi_rekanan_name_2 INT NULL ;  
 GO 
+
+ALTER TABLE [dbo].[users] ADD is_pic INT NULL  ;  
+GO 
+
+ALTER TABLE [dbo].[spks] ADD min_progress_dp INT NULL  ;  
+GO 
+
+ALTER TABLE  [dbo].[approval_references]
+ADD  param_min  VARCHAR( 8 ) NULL ,
+ADD  param_max  VARCHAR( 8 ) NULL ;
+
+ALTER TABLE dbo.baps ALTER COLUMN nilai_bap_1 DECIMAL (25, 2) ;  
+GO 
+
+ALTER TABLE dbo.baps ALTER COLUMN nilai_bap_2 DECIMAL (25, 2) ;  
+GO 
+
+ALTER TABLE dbo.baps ALTER COLUMN nilai_bap_3 DECIMAL (25, 2) ;  
+GO
+
+ALTER TABLE dbo.baps ALTER COLUMN nilai_bap_dibayar DECIMAL (25, 2) ;  
+GO 
+
+ALTER TABLE dbo.baps ALTER COLUMN nilai_retensi DECIMAL (25, 2) ;  
+GO  
+
+ALTER TABLE dbo.baps ALTER COLUMN percentage_lapangan DECIMAL (25, 2) ;  
+GO 
+
+ALTER TABLE dbo.baps ALTER COLUMN percentage_sebelumnyas DECIMAL (25, 2) ;  
+GO 

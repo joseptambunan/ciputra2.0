@@ -469,36 +469,39 @@ class AccessController extends Controller
     public function rekanan_approve(Request $request){
         $approval_value = trim(str_replace("%3C%3E", "<>", str_replace("%3D", "=", $request->apporval_value)),"==");
         $explode_value = explode("==", $approval_value);
-        $highest = Approval::find($request->approval_id)->histories->min("no_urut");
-        $user    = \Auth::user();
-        for ( $i=0; $i < count($explode_value); $i++ ){
-            $explode_detail = explode("<>",$explode_value[$i]);
-            $approval = ApprovalHistory::where("approval_id",$explode_detail[0])->where("user_id",$user->id)->first();
-            $approval_history = ApprovalHistory::find($approval->id);
-            $approval_history->approval_action_id = $explode_detail[1];
-            $approval_history->description = $request->input('description.'.$i.'.value');
-            $approval_history->save();
-            $highest = $approval_history->approval->histories->min("no_urut");
-            
-            if ( $highest == $approval_history->no_urut ){
-                $approval_ac = Approval::find($approval_history->approval->id);
-                $approval_ac->approval_action_id = $explode_detail[1];
-                $approval_ac->save();
-                $tender_rekanan_id = $approval_ac->document;
+        $explode_approval_id = explode(",",$request->approval_id);
+        foreach( $explode_approval_id as $key9 => $value9 ){
+            $highest = Approval::find($value9)->histories->min("no_urut");
+            $user    = \Auth::user();
+            for ( $i=0; $i < count($explode_value); $i++ ){
+                $explode_detail = explode("<>",$explode_value[$i]);
+                $approval = ApprovalHistory::where("approval_id",$explode_detail[0])->where("user_id",$user->id)->first();
+                $approval_history = ApprovalHistory::find($approval->id);
+                $approval_history->approval_action_id = $explode_detail[1];
+                $approval_history->description = $request->input('description.'.$i.'.value');
+                $approval_history->save();
+                $highest = $approval_history->approval->histories->min("no_urut");
+                
+                if ( $highest == $approval_history->no_urut ){
+                    $approval_ac = Approval::find($approval_history->approval->id);
+                    $approval_ac->approval_action_id = $explode_detail[1];
+                    $approval_ac->save();
+                    $tender_rekanan_id = $approval_ac->document;
 
-                if ( $explode_detail[1] == "6" ){
-                    $tender_koresponden                     = new TenderKorespondensi;
-                    $tender_koresponden->tender_rekanan_id  = $tender_rekanan_id->id;
-                    $tender_koresponden->no                 = "";
-                    $tender_koresponden->type               = "udg";
-                    $tender_koresponden->date               = date("Y-m-d H:i:s");
-                    $tender_koresponden->diundang_at        = $tender_rekanan_id->tender->aanwijzing_date;
-                    $tender_koresponden->tempat_undangan    = "";
-                    $tender_koresponden->due_at             = date("Y-m-d H:i:s");
-                    $tender_koresponden->save();
-                }
-            }            
-        }
+                    if ( $explode_detail[1] == "6" ){
+                        $tender_koresponden                     = new TenderKorespondensi;
+                        $tender_koresponden->tender_rekanan_id  = $tender_rekanan_id->id;
+                        $tender_koresponden->no                 = "";
+                        $tender_koresponden->type               = "udg";
+                        $tender_koresponden->date               = date("Y-m-d H:i:s");
+                        $tender_koresponden->diundang_at        = $tender_rekanan_id->tender->aanwijzing_date;
+                        $tender_koresponden->tempat_undangan    = "";
+                        $tender_koresponden->due_at             = date("Y-m-d H:i:s");
+                        $tender_koresponden->save();
+                    }
+                }            
+            }
+        }        
 
         return response()->json( ["status" => "0"] );
     }
@@ -728,41 +731,43 @@ class AccessController extends Controller
         $spk = $budget_tahunan->budget->project->spks;
         foreach ($spk as $key => $value) {
             if ( $value->date->format("Y") <= date("Y")){
-                if ( $value->itempekerjaan->group_cost == 1 ){
-                    if ( $value->details != "" ){
-                        foreach ($value->details as $key2 => $value2) {
-                            if ( $value2->asset->id == $asset_id ){
-                                if ( $value->baps != "" ){
-                                    $bayar = $value->baps->sum("nilai_bap_2");
-                                }else{
-                                    $bayar = 0;
-                                }
+                if ( $value->itempekerjaan != "" ){                    
+                    if ( $value->itempekerjaan->group_cost == 1 ){
+                        if ( $value->details != "" ){
+                            foreach ($value->details as $key2 => $value2) {
+                                if ( $value2->asset->id == $asset_id ){
+                                    if ( $value->baps != "" ){
+                                        $bayar = $value->baps->sum("nilai_bap_2");
+                                    }else{
+                                        $bayar = 0;
+                                    }
 
-                                $sisa = $value->nilai - $bayar;
-                                if ( $sisa > 0 ){
-                                    $nilai_sisa_dev_cost = $sisa + $nilai_sisa_dev_cost;  
-                                }                         
+                                    $sisa = $value->nilai - $bayar;
+                                    if ( $sisa > 0 ){
+                                        $nilai_sisa_dev_cost = $sisa + $nilai_sisa_dev_cost;  
+                                    }                         
+                                }
                             }
                         }
-                    }
-                }else{
-                    if ( $value->tender->rab != "" ){
-                        if ( $value->tender->rab->budget_tahunan != "" ){
-                            if ( $value->tender->rab->budget_tahunan->budget->project_kawasan_id == $asset_id ){
-                                if ( $value->baps != "" ){
-                                    $bayar = $value->baps->sum("nilai_bap_2");
-                                }else{
-                                    $bayar = 0;
-                                }
+                    }else{
+                        if ( $value->tender->rab != "" ){
+                            if ( $value->tender->rab->budget_tahunan != "" ){
+                                if ( $value->tender->rab->budget_tahunan->budget->project_kawasan_id == $asset_id ){
+                                    if ( $value->baps != "" ){
+                                        $bayar = $value->baps->sum("nilai_bap_2");
+                                    }else{
+                                        $bayar = 0;
+                                    }
 
-                                $sisa = $value->nilai - $bayar;
-                                if ( $sisa > 0 ){
-                                    $nilai_sisa_con_cost = $sisa + $nilai_sisa_con_cost;  
-                                } 
+                                    $sisa = $value->nilai - $bayar;
+                                    if ( $sisa > 0 ){
+                                        $nilai_sisa_con_cost = $sisa + $nilai_sisa_con_cost;  
+                                    } 
+                                }
                             }
                         }
-                    }
-                }   
+                    }  
+                } 
             }                        
         }
 
@@ -848,19 +853,20 @@ class AccessController extends Controller
         
         $tenderRekanan = TenderRekanan::find($request->id);
         $tender = $tenderRekanan->tender;
-        $menangs = $tender->menangs;
+        /*$menangs = $tender->menangs;
         foreach ($menangs as $key4 => $value4) {
             $tenderMenang = TenderMenang::find($value4->id);
             $tenderMenang->tender_rekanan_id = $request->id;
             $tenderMenang->save();
 
-        }
+        }*/
 
         foreach ($tender->rekanans as $key => $value) {
 
             $rekanan = TenderRekanan::find($value->id);
-            if ( $value->id == $request->id ){                
-                $rekanan->is_pemenang = "2";    
+
+            if ( $value->id == $request->id ){               
+                $rekanan->is_pemenang = 1;    
                 $tender_koresponden                     = new TenderKorespondensi;
                 $tender_koresponden->tender_rekanan_id  = $value->id;
                 $tender_koresponden->no                 = "";
@@ -870,10 +876,11 @@ class AccessController extends Controller
                 $tender_koresponden->tempat_undangan    = "";
                 $tender_koresponden->due_at             = date("Y-m-d H:i:s");
                 $tender_koresponden->save();            
+                $rekanan->save();
             }else{
-                if ( $value->is_pemenang != "1"){
-                    $rekanan->is_pemenang = "3";
-                }
+                //if ( $value->is_pemenang "1"){
+                    $rekanan->is_pemenang = 0 ;
+                //}
                 $tender_koresponden                     = new TenderKorespondensi;
                 $tender_koresponden->tender_rekanan_id  = $value->id;
                 $tender_koresponden->no                 = "";
@@ -882,9 +889,10 @@ class AccessController extends Controller
                 $tender_koresponden->diundang_at        = date("Y-m-d H:i:s");
                 $tender_koresponden->tempat_undangan    = "";
                 $tender_koresponden->due_at             = date("Y-m-d H:i:s");
-                $tender_koresponden->save();            
+                $tender_koresponden->save();       
+                $rekanan->save();  
             }
-            $rekanan->save();
+            
             
         }
         
@@ -906,7 +914,7 @@ class AccessController extends Controller
 
             }
         }
-
+   
         if ( $status ){
             return response()->json( ["status" => "0"] );
         }else{

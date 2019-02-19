@@ -83,7 +83,7 @@
             <!-- /.card-header -->
             
             <div class="card-body">
-              <div class="col-md-6">
+              <div class="col-md-8">
                 <div class="card-body table-responsive p-0">
                   <table class="table table-hover table-striped table-bordered">
                     <tr>
@@ -92,11 +92,14 @@
                     </tr>               
                     <tr>
                       <td style="background-color: grey;"><span style="color:white"><strong>Project / Kawasan</strong></span></td>
-                      <td>{{ $tender->rab->workorder->project->first()->name or '' }} </td>
+                      <td>{{ $tender->rab->budget_tahunan->budget->project->name or '' }} / {{ $tender->rab->budget_tahunan->budget->kawasan->name or 'Fasilitas Kota / Umum' }}</td>
                     </tr>
                      <tr>
                       <td style="background-color: grey;"><span style="color:white"><strong>Paket Pekerjaan</strong></span></td>
-                      <td><a href="{{ url('/')}}/access/workorder/detail?id={{ $tender->rab->workorder->id }}">Workorder : {{ $tender->rab->workorder->no or ''}}</a></td>
+                      <td>
+                        <a href="{{ url('/')}}/access/workorder/detail?id={{ $tender->rab->workorder->id }}">Workorder : {{ $tender->rab->workorder->no or ''}}</a><br>
+                        <small>{{ $tender->rab->pekerjaans->last()->itempekerjaan->parent->code }}/ {{ $tender->rab->pekerjaans->last()->itempekerjaan->parent->name }}</small> 
+                      </td>
                     </tr>
                     <tr>
                       <td style="background-color: grey;"><span style="color:white"><strong>RAB</strong></span></td>
@@ -105,6 +108,10 @@
                     <tr>
                       <td style="background-color: grey;"><span style="color:white"><strong>Nilai ( Exc. Ppn )</strong></span></td>
                       <td>Rp. {{ number_format($tender->rab->nilai,2) }}</td>
+                    </tr>
+                    <tr>
+                      <td style="background-color: grey;"><span style="color:white"><strong>Jenis Tender</strong></span></td>
+                      <td>{{ $tender->tender_type->name }}</td>
                     </tr>
                   </table><br>
                 </div>
@@ -131,6 +138,11 @@
                     <td style="background-color: grey;"><strong><span style="color:white">Jenis Dokumen</span></strong></td>
                     <td>{{ $value->document_name }}</td>
                     @foreach($value->document_approval as $key2 => $value2 )
+                    @if ( $value2->no_urut < 5)
+                      @php $jabatan = "dir"; @endphp
+                    @else
+                      @php $jabatan = ""; @endphp
+                    @endif
                     <td>
                       @if ( $value2->user_id == $user->id )
                         @if ( $value2->status == 1 )
@@ -165,11 +177,10 @@
                     @endforeach
                   </tr>
                   @endforeach
-                </table>
-
-                
-                  <button type="submit" class="btn btn-primary">Simpan</button>
-                
+                </table>         
+                @if ( $jabatan = "")       
+                <button type="submit" class="btn btn-primary">Simpan</button>     
+                @endif           
                 </form>
 
               </div>
@@ -233,7 +244,7 @@
               <div class="col-md-12">
               <table class="table table-hover table-striped table-bordered">
                 <tr>
-                  <td colspan="4" style="background-color: grey;color:white;font-weight: bolder;"><center>Daftar Rekanan</center></td>
+                  <td colspan="5" style="background-color: grey;color:white;font-weight: bolder;"><center>Daftar Rekanan</center></td>
                 </tr>
                 <tr style="background-color: #17a2b8 ">
                   <td style="padding-left: 0xp !important;">Rekanan</td>
@@ -286,7 +297,7 @@
                 <table class="table table-bordered">
                   <thead style="background-color: #17a2b8;color:white;font-weight: bolder; ">
                     <tr>
-                      <td>Item Pekerjaan</td>
+                      <td>Rekanan</td>
                       <td></td>
                       <td>Penawaran 1</td>
                       <td>Penawaran 2</td>
@@ -295,8 +306,7 @@
                   </thead>
                   <tbody>
                     <tr>
-                      <td>Item Pekerjaan</td>
-                      <td></td>
+                      <td colspan="2" style="background-color: grey;color:white;text-align: right;font-weight: bolder;">Rekap</td>
                       <td>
                         <a href="{{ url('/')}}/access/tender/detail-penawaran?id={{$tender->id}}&step=1" class="btn btn-warning">Detail</a>
                       </td>
@@ -309,36 +319,57 @@
                     </tr>
                     @foreach( $tender->rekanans as $key2 => $value2)
                       <tr>
-                        <td>{{ $value2->rekanan->group->name }} {{ $value2->id }}</td>
+                        <td>{{ $value2->rekanan->group->name }}</td>
                          <td>
-                          @if ($user->jabatan != "")
-                            @if ( $user->jabatan[0]["level"] == "5" )
-                            <button class="btn btn-info" onclick="setpemenang('{{ $value2->id }}')">Usulkan sebagai pemenang</button>
+                          @if ( $tender->spks->count() <= 0 )
+                            @if ($user->jabatan != "")
 
-                            @endif
-                            
-                            @if  ( $user->jabatan[0]["level"] < 5 )
-                              @if ( count($tender->menangs) <= 0 )
-                               
-                              @else
-                                @if ( $value2->is_pemenang == "2")
-                                <strong><h3>Pemenang Tender</h3></strong>
+                              @if ( $user->jabatan[0]["level"] == "5" )
+                                @if ( count($tender->menangs) <= 0 )
+                                  <button class="btn btn-info" onclick="setpemenang('{{ $value2->id }}')">Usulkan sebagai pemenang</button>
                                 @else
-                                  
+                                  @if ( count($tender->menangs) > 0 )
+                                    @if ( $value2->is_pemenang == 1 )
+                                    <strong><h3>Pemenang Tender</h3></strong>                                    
+                                    
+                                    @if ( $value2->is_pemenang == 0 )
+                                    <strong>Ditolak sebagai pemenang</strong>
+                                    @endif
+                                   
+                                    @if ( $value2->is_recomendasi == "1")
+                                    <i>Rekomendasi</i>
+                                    @endif
+
+                                  @endif
+                                @endif
+                              @endif
+                              
+                              @elseif  ( $user->jabatan[0]["level"] < 5 )
+                                @if ( count($tender->menangs) <= 0 )
+                                 
+                                @else
+                                  @if ( $value2->is_pemenang == 1 )
+                                  <strong><h3>Pemenang Tender</h3></strong>
+                                  @else
+                                    
                                   @if ( $value2->is_pemenang == "0")
                                   <button href="{{ url('/')}}" class="btn btn-primary" onClick="setujuipemenang('{{ $value2->id }}')">Setujui sebagai Pemenang</button>        
-                                  @endif                                                            
-                                  
-                                  @if ( $value2->is_pemenang == "3")
-                                  <strong>Ditolak sebagai pemenang</strong>
-                                  @endif
-                                 
+                                  @endif                                                          
+                                          
+                                  <!--strong>Ditolak sebagai pemenang</strong-->                             
                                   @if ( $value2->is_recomendasi == "1")
                                   <i>Rekomendasi</i>
                                   @endif 
-                                 
+                                   
+                                  @endif
                                 @endif
                               @endif
+                            @endif
+                          @else
+                            @if ( $value2->is_pemenang == 1 )
+                              <strong><h6>Pemenang Tender pada tgl {{ $value2->menangs->last()->created_at->format("d/m/Y")}}</h6></strong>
+                            @else
+                              <strong><h3>&nbsp;</h3></strong>
                             @endif
                           @endif
                          </td>

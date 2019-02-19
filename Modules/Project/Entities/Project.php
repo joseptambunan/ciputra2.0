@@ -972,13 +972,9 @@ class Project extends Model
         $new_hpp_dev_cost = new HppDevCostSummaryReport;
         $new_hpp_dev_cost->project_id = $this->id;
         $new_hpp_dev_cost->project_kawasan_id = NULL;
-        if ( $value->netto > 0 ){                
-            $new_hpp_dev_cost->efisiensi = $value->netto / $value->luas;
-        }else{
-            $new_hpp_dev_cost->efisiensi = 0 ;
-        }
-        $new_hpp_dev_cost->luas_netto = $value->netto;
-        $new_hpp_dev_cost->luas_bruto = $value->luas;
+        $new_hpp_dev_cost->efisiensi = 0 ;
+        $new_hpp_dev_cost->luas_netto = 0;
+        $new_hpp_dev_cost->luas_bruto = 0;
         $new_hpp_dev_cost->total_kontrak = $nilai_faskot;
         $new_hpp_dev_cost->total_kontrak_terbayar = $total_kontrak_terbayar;
         $new_hpp_dev_cost->save();

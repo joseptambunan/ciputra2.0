@@ -9,13 +9,12 @@
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
 
-  @include("master/sidebar_project")
+  @include("master/sidebar_progress")
 
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <section class="content-header">
-      <h1>Data Proyek {{ $project->name }}</h1>
 
     </section>
 
@@ -43,13 +42,13 @@
                 </tr>
                 </thead>
                 <tbody>
-                  @foreach ( $project->spks as $key => $value )
+                  @foreach ( $user->spks as $key => $value )
                   @if ( $value->tender != "" )
                   <tr>
                     <td>{{ $value->no }}</td>
                     <td>{{ $value->name }}</td>
                     <td>{{ $value->tender->rab->workorder->departmentFrom->name or '' }}</td>
-                    <td>{{ $value->finish_date }}</td>
+                    <td>{{ $value->date->format("d/M/Y") }}</td>
                     <td><a href="{{ url('/')}}/progress/show?id={{ $value->id }}" class="btn btn-warning">Detail</td>
                     <td>
                       @if ( $value->approval == "" )

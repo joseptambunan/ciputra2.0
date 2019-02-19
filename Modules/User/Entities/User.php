@@ -215,7 +215,7 @@ class User extends Authenticatable
         foreach ($detail as $key => $value) {
             $jabatan[$key] = $value->mappingperusahaan->pt_id;
         }
-        
+
         $pt = array_values(array_unique($jabatan));
         foreach ($pt as $key => $value) {
             foreach ($this->details as $key2 => $value2) {
@@ -268,9 +268,22 @@ class User extends Authenticatable
                 }
            }
 
-           $jabatan_list[$key] = array ( "pt" => $pt->name, "jabatan" => $jabatan->name, "department" => $department, "division" => $division, "level" => $value['level'][0], "project_id" => $project_id, "pt_id" => $pt->id , "jabatan_id" => $jabatan->id ) ;
+
+           $jabatan_list[$key] = array ( 
+                "pt" => $pt->name, 
+                "jabatan" => $jabatan->name, 
+                "department" => $department, 
+                "division" => $division, 
+                "level" => $value['level'][0], 
+                "project_id" => $project_id, 
+                "pt_id" => $pt->id , 
+                "jabatan_id" => $jabatan->id ) ;
         }
         return $jabatan_list;
+    }
+
+    public function spks(){
+        return $this->hasMany("Modules\Spk\Entities\Spk","pic_id");
     }
 
 

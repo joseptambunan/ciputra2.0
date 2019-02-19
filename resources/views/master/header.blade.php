@@ -45,4 +45,8 @@
       color:white;
       font-weight: bolder;
     }
+
+    .number_align{
+      text-align: right;
+    }
   </style>

@@ -25,7 +25,12 @@ class PrivilegeController extends Controller
 
         if ( $user->id == "1"){
             $request->session()->put('level', 'superadmin');
-            return redirect("user");
+            return redirect("home");
+        }
+
+        if ( $user->is_pic == "1"){
+            $request->session()->put('level', 'pic');
+            return redirect("/progress");
         }
         
         if ( $user->is_rekanan == 0 ){           

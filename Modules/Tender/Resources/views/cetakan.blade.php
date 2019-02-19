@@ -1,165 +1,104 @@
+<!-- Cetakan Report -->
 <style>
-@media print {
-	.result {
-		@page{
-			page-break-after: always;
-			/*size: auto;*/
-			size: 297mm 210mm;
-			margin:0;
-		}
-   }
+  #dvContents{
+    font-size:8px;
+  }
 
-}	
+  @media print body {
+    font-size:8px;
+  }
+
+  @media print {
+    .result {page-break-after: always;}
+  }
+
+  @page { 
+    size: landscape;
+  }
 </style>
-<div id="dvContents" style="display: none;">
-	<div class="result">
-		<!-- PEMBATALAN TENDER REPORT -->
-		<table width="100%" style="border-collapse:collapse">
-		  	<tr>
-				<td>@include("print.logo",['pt' => $tender->pt ] )</td>
-			</tr>
-		</table><br>
-		<center><h3>REKOMENDASI PEMENANG TENDER</h3></center>
-		<table>
-			<tr>
-				<td>No. Dokumen</td>
-				<td>:</td>
-				<td>{{ $tender->no or 'not found' }}</td>
-			</tr>
-			<tr>
-				<td>Paket Kerjaan</td>
-				<td>:</td>
-				<td></td>
-			</tr>
-			<tr>
-				<td>Kawasan </td>
-				<td>:</td>
-				<td>{{ ucwords($tender->rab->workorder->budget_tahunan->budget->kawasan->name) }} , {{ ucwords($tender->rab->workorder->budget_tahunan->budget->project->name) }}</td>
-			</tr>
-		</table>
-		<table style="border-collapse:collapse;width:100%;" border="1pt">
-			<tr>
-				<td>Peserta</td>
-				<td>Alamat</td>
-				<td>HP</td>
-				<td>PIC</td>
-				<td>DPP</td>
-				<td>PPN</td>
-				<td>Total</td>
-				<td>Catatan</td>
-			</tr>
-			<tr>
-				<td>
-					@foreach ( $data_tender_rekanan as $each )
-					<span>{{ $each->rekanan->group->name }}</span><br/><br/>
-					@endforeach
-				</td>
-				<td>
-					@foreach ( $data_tender_rekanan as $each )
-					<span>{{ $each->rekanan->surat_alamat }}</span><br/><br/>
-					@endforeach
-				</td>
-				<td>
-					@foreach ( $data_tender_rekanan as $each )
-					<span>{{ $each->rekanan->telp }}</span><br/><br/>
-					@endforeach
-				</td>
-				<td>
-					@foreach ( $data_tender_rekanan as $each )
-					<span>{{ $each->rekanan->cp_name }}</span><br/><br/>
-					@endforeach
-				</td>
-				<td>
-					@foreach ( $data_tender_rekanan as $each )
-						@foreach ( $each->penawarans as $each2 )
-						<span>{{ $each2->nilai_dpp }}</span><br/><br/>
-						@endforeach 
-					@endforeach
-				</td>
-				<td>
-					@foreach ( $data_tender_rekanan as $each )
-						@foreach ( $each->penawarans as $each2 )
-						<span>{{ ( 0.1 * $each2->nilai_dpp ) }}</span><br/><br/>
-						@endforeach 
-					@endforeach
-				</td>
-				</td>
-				<td>
-					@foreach ( $data_tender_rekanan as $each )
-						@foreach ( $each->penawarans as $each2 )
-						<span>{{ $each2->nilai }}</span><br/><br/>
-						@endforeach 
-					@endforeach
-				</td>
-				<td></td>
-			</tr>
-		</table>
-		<h1>&nbsp;</h1>
-		<h1>&nbsp;</h1>
-		<h1>&nbsp;</h1>
-		<table style="width: 100%;text-align: left;">
-			<tr>
-				<td>
-					<div><u>{{ strtoupper($tender->createdBY->user_name) }}</u><br/>ADMIN</div>
-				</td>		
-				@foreach( $tender->approval->histories as $histories )
 
-			    	@if (  $tender->approval->histories->min('no_urut') < 5 )
-			    		@if( 5 == $histories->no_urut )
-					    <td>
-					    	<br/>
-					    	<div align="center">    		
-					    		<u>{{ strtoupper($histories->user->user_name) }}</u> </br>	
-					    		{{ $histories->user->jabatan($tender->pt->id) }}		    		
-						    </div>			    				    	
-					    </td>	
-					    @endif
-					@else
-						@if( 6 == $histories->no_urut )
-					    <td>
-					    	<br/>
-					    	<div align="center">			
-					    		<u>{{ strtoupper($histories->user->user_name) }}</u> </br> 	
-					    		{{ $histories->user->jabatan($tender->pt->id) }}	    		
-						    </div>			    				    	
-					    </td>	
-					    @endif	
-			    	@endif
-
-				    @if( $tender->approval->histories->min('no_urut') == $histories->no_urut )
-				    <td>
-				    	<br/>
-				    	<div align="center">			
-				    		<u>{{ strtoupper($histories->user->user_name) }}</u></br> 	
-				    		{{ $histories->user->jabatan($tender->pt->id) }}	    		
-					    </div>			    				    	
-				    </td>	
-				    @endif
-
-			  	@endforeach
-  			</tr>
-  		</table>
-  		 <table width="100%">
-			<tr>
-			  <td>&nbsp;</td>
-			  <td>&nbsp;</td>
-			  <td>&nbsp;</td>
-			</tr>
-			<tr>
-			  <td><strong>{{ ucwords($tender->rab->workorder->budget_tahunan->budget->project->name) }}</strong></td>
-			  <td>&nbsp;</td>
-			  <td><div align="right"><strong>C&amp;P/FR/QS/14</strong></div></td>
-			</tr>
-			<tr>
-			  <td>Alamat : {{ ucwords($tender->rab->workorder->budget_tahunan->budget->project->address) }}</td>
-			  <td>&nbsp;</td>
-			  <td>&nbsp;</td>
-			</tr>
-			<tr>
-			  <td>Phone : {{ ucwords($tender->rab->workorder->budget_tahunan->budget->project->phone) }}</td>
-			  <td>&nbsp;</td>
-			  <td>&nbsp;</td>
-			</tr>
-		  </table>
-	</div>
+@if ( $tender->penawarans->count() > 0 )
+<div id="head_Content">
+ 
+  <div id="dvContents" style="display: none;">
+    <table width="100%" style="border-collapse:collapse" class='table' id='undangan_tender'>
+      <tr>
+        <td><img src="{{ url('/')}}/assets/dist/img/logo-ciputra_original.png" class="img-circle" alt="User Image"></td>
+      </tr>
+      <tr>
+        <td>
+          <table style="border:2px solid black;border-collapse: collapse;width:100%;height: 800px;vertical-align: top;" cellpadding="10" cellspacing="10">
+            <tr>
+              <td>
+                <table style="width: 100%;">
+                  <tr>
+                    <td style="width:30%;">Paket Pekerjaan</td>
+                    <td><u>{{ $tender->name }}</u></td>
+                  </tr>
+                  <tr>
+                    <td style="width:30%;">Kawasan / Lokasi Pekerjaan</td>
+                    <td><u>{{ $tender->rab->budget_tahunan->budget->kawasan->name or 'Fasiltas Umum'}}</u></td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <table style="width: 100%;border:2px solid black;border-collapse: collapse;" border="1" cellpadding="10" cellspacing="10">
+                  <thead>
+                    <tr>
+                      <td rowspan="2">Peserta Tender</td>
+                      <td>OE</td>
+                      <td>Penawaran Akhir </td>
+                      <td rowspan="2">Waktu</td>
+                      <td rowspan="2">Catatan</td>
+                    </tr>
+                    <tr>
+                      <td>&nbsp;</td>
+                      <td>{{ $tender->penawaran1_date->format("d/m/Y") }}</td>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @php $nilai = 0; @endphp
+                    @foreach( $tender->rekanans as $key => $value )
+                      @if ( $value->penawarans->count() > 0 )
+                        @php $nilai_penawaran = $value->penawarans->last()->nilai; @endphp
+                      @else
+                        @php $nilai_penawaran = 0; @endphp;
+                      @endif
+                    <tr>
+                      <td>{{ $value->rekanan->name or '' }}</td>
+                      <td>{{ number_format($tender->rab->nilai) }}</td>
+                      <td>{{ number_format($nilai_penawaran) }}</td>
+                      <td>&nbsp;</td>
+                      <td>&nbsp;</td>
+                    </tr>
+                    @php $nilai = $nilai_penawaran + $nilai; @endphp
+                    @endforeach
+                    <tr>
+                      <td>&nbsp;</td>
+                      <td>Total Budget</td>
+                      <td>{{ number_format($nilai)}}</td>
+                      <td>&nbsp;</td>
+                      <td>&nbsp;</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                @foreach ( $tender->rekanans as $key => $value )
+                @if ( $value->is_recomendasi == 1 )
+                  <i>Rekomendasi : <strong>{{ $value->rekanan->name }}</strong></i>
+                @endif
+                @endforeach
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </div>
 </div>
+@endif

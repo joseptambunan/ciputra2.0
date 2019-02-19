@@ -14,6 +14,9 @@ use Modules\Spk\Entities\SpkTermyn;
 use Modules\Spk\Entities\SpkTermynDetail;
 use Modules\Project\Entities\UnitProgressDetail;
 use Modules\Tender\Entities\TenderUnit;
+use Modules\User\Entities\User;
+use Modules\Project\Entities\UnitProgressDetailPicture;
+use Storage;
 
 class ProgressController extends Controller
 {
@@ -29,8 +32,7 @@ class ProgressController extends Controller
 
     public function index(Request $request)
     {
-        $user = \Auth::user();
-        $project = Project::find($request->session()->get('project_id'));
+        $user = User::find(\Auth::user()->id);
         return view('progress::index',compact("user","project"));
     }
 
@@ -153,26 +155,64 @@ class ProgressController extends Controller
     }
 
     public function saveprogress(Request $request){
-        foreach ($request->unit_progress_id as $key => $value) {
-            # code...
-            if ( $request->progress_saat_ini_[$key] != "" ){                
-                $UnitProgress = UnitProgress::find($request->unit_progress_id[$key]);
-                $UnitProgress->progresslapangan_percent = str_replace(",", "", $request->progress_saat_ini_[$key]) / 100  ;
-                $UnitProgress->termin = $request->termin_ke;
-                $UnitProgress->save();
-            }
-
-            if ( $request->progress_saat_ini_[$key] != "" ){
-                $UnitProgressDetail = new UnitProgressDetail;
-                $UnitProgressDetail->unit_progress_id = $request->unit_progress_id[$key];
-                $UnitProgressDetail->progress_date = date("Y-m-d");
-                $UnitProgressDetail->progress_percent = str_replace(",", "", $request->progress_saat_ini_[$key]) / 100 ;
-                $UnitProgress->termin = $request->termyn;
-                $UnitProgressDetail->save();
-            }
-
-            
+        
+        $user = \Auth::user();
+        $UnitProgress = UnitProgress::find($request->unit_progress_id);
+        if ( $request->percent >= 100 ){
+            $UnitProgress->selesai_actual_date = date("Y-m-d");
         }
-        return redirect("/progress/create/?id=".$request->unit_id."&spk=".$request->spk_id);      
+        $UnitProgress->progresslapangan_percent = str_replace(",", "", $request->percent) / 100  ;
+        $UnitProgress->save();
+
+        $UnitProgressDetail = new UnitProgressDetail;
+        $UnitProgressDetail->unit_progress_id = $request->unit_progress_id;
+        $UnitProgressDetail->progress_date = date("Y-m-d");
+        $UnitProgressDetail->progress_percent = str_replace(",", "", $request->percent) / 100 ;
+        $UnitProgressDetail->pic_rekanan = $UnitProgress->unit->tender->spks->first()->rekanan_id;
+        $UnitProgressDetail->pic_internal = $user->id;
+        $UnitProgressDetail->setuju_rekanan_at = date("Y-m-d");
+        $UnitProgressDetail->setuju_internal_at = date("Y-m-d");
+        $UnitProgressDetail->description = $request->description;
+        $UnitProgressDetail->save(); 
+
+        foreach ($request->file_images as $key => $value) {
+            if ( $request->file("file_images")[$key] != "" ){ 
+                $target_file = "./assets/spk/".$UnitProgress->unit->tender->spks->first()->id."/progress/".$request->file("file_images")[$key]->getClientOriginalName();
+                move_uploaded_file($request->file("file_images")[$key], $target_file);
+                $lastid = UnitProgressDetailPicture::get()->count() + 1;
+                $UnitProgressDetailPicture = new UnitProgressDetailPicture;
+                $UnitProgressDetailPicture->unit_progress_detail_id = $UnitProgressDetail->id;
+                $UnitProgressDetailPicture->id = $lastid;
+                $UnitProgressDetailPicture->picture = $request->file("file_images")[$key]->getClientOriginalName();
+                $UnitProgressDetailPicture->save();
+            }
+        }                   
+        
+        return redirect("/progress/tambah/?id=".$request->unit_progress_id);      
+    }
+
+    public function saveschedule(Request $request){
+        if ( strtotime($request->start_date) != "" && strtotime($request->end_date) != "" ){          
+            echo strtotime($request->start_date)."<>".strtotime($request->end_date) ;
+            $unitprogress = UnitProgress::find($request->id);
+            $unitprogress->mulai_jadwal_date = date('Y-m-d',strtotime($request->start_date));
+            $unitprogress->selesai_jadwal_date = date('Y-m-d',strtotime($request->end_date));
+            $unitprogress->save();
+            echo "<br/>";
+        }
+        return response()->json(["status" => "0" ]);
+    }
+
+    public function tambah(Request $request){
+        $unit_progress = UnitProgress::find($request->id);
+        $user = User::find(\Auth::user()->id);
+        return view("progress::detail_pekerjaan",compact("user","unit_progress"));
+    }
+
+    public function photo(Request $request){
+        $unit_detail = UnitProgressDetail::find($request->id);
+        $user = User::find(\Auth::user()->id);
+        return view("progress::photo",compact("user","unit_detail"));
+
     }
 }

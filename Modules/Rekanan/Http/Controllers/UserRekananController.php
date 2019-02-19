@@ -185,7 +185,7 @@ class UserRekananController extends Controller
         $rekanan_group = RekananGroup::find($request->session()->get('rekanan_id'));
         $tender_rekanan = TenderRekanan::find($request->id);
         $tender = $tender_rekanan->tender;
-        $tanggal_sekarang = date("Y-m-d H:i:s");
+        $tanggal_sekarang = date("Y-m-d H:i:s.u");
         return view("rekanan::user.tender_detail",compact("rekanan_group","tender","tanggal_sekarang","tender_rekanan"));
     }
 
@@ -206,17 +206,20 @@ class UserRekananController extends Controller
         $tender_penawaran = new TenderPenawaran;
         $tender_penawaran->tender_rekanan_id = $request->tender_rab_id;
         $tender_penawaran->no = $request->tender_rab_id;
-        $tender_penawaran->date = date("Y-m-d H:i:s");
+        $tender_penawaran->date = date("Y-m-d H:i:s.u");
         $tender_penawaran->created_by = \Auth::user()->id;
         $tender_penawaran->save();
+        $keterangan = "";
         //print_r($request->input_rab_id_);die;
         foreach ($request->input_rab_id_ as $key => $value) {
             if ( $request->input_rab_nilai_[$key]  != "" && $request->input_rab_volume_[$key] != "" ){
-
+                if ( isset($request->input_rab_keterangan[$key])){
+                    $keterangan = $request->input_rab_keterangan[$key];
+                }
                 $tenderpenawarandetail = new TenderPenawaranDetail;
                 $tenderpenawarandetail->tender_penawaran_id = $tender_penawaran->id;
                 $tenderpenawarandetail->rab_pekerjaan_id = $request->input_rab_id_[$key]; 
-                $tenderpenawarandetail->keterangan  = $request->input_rab_id_[$key]; 
+                $tenderpenawarandetail->keterangan  = $keterangan;
                 $tenderpenawarandetail->nilai = str_replace(",", "",$request->input_rab_nilai_[$key]); 
                 $tenderpenawarandetail->volume = str_replace(",","",$request->input_rab_volume_[$key]);
                 $tenderpenawarandetail->satuan = str_replace(",","",$request->input_rab_satuan_[$key]);
@@ -224,7 +227,7 @@ class UserRekananController extends Controller
             }
         }
 
-        return redirect("/rekanan/user/tender/detail/?id=".$tenderrekaann->tender->id); 
+        return redirect("/rekanan/user/tender/detail/?id=".$tenderrekaann->id); 
     }
 
     public function step2(Request $request){
@@ -329,21 +332,22 @@ class UserRekananController extends Controller
     }
 
     public function step1(Request $request){
-        $tenderpenawaran = TenderPenawaran::find($request->id);
-        $tenderRekanan = $tenderpenawaran->rekanan;
-        $rab = $tenderRekanan->tender->rab;
+        $tender_rekanan = TenderRekanan::find($request->id);
+        $rekanan = $tender_rekanan->rekanan;
+        $rab = $tender_rekanan->tender->rab;
         $itempekerjaan = Itempekerjaan::find($rab->pekerjaans->last()->itempekerjaan->parent->id);
         $user = \Auth::user();
         $project = Project::find($request->session()->get('project_id'));
         $penawaran_id = "";
         $rekanan_group = RekananGroup::find($request->session()->get('rekanan_id'));
-        foreach ($tenderRekanan->penawarans as $key => $value) {
+        foreach ($tender_rekanan->penawarans as $key => $value) {
             if ( $value->updated_by == null ) {
                 $penawaran_id = $value->id;
             }
         }
+        $step = 1;
 
-        return view("rekanan::user.detail_penawaran1",compact("rab","itempekerjaan","rekanan","user","project","tenderpenawaran","tenderRekanan","penawaran_id","rekanan_group"));
+        return view("rekanan::user.detail_penawaran1",compact("rab","itempekerjaan","rekanan","user","project","tender_rekanan","penawaran_id","rekanan_group","step"));
     }
 
     public function updatepenawaran1(Request $request){

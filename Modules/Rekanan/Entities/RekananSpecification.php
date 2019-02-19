@@ -11,4 +11,8 @@ class RekananSpecification extends Model
     public function itempekerjaan(){
     	return $this->belongsTo("Modules\Pekerjaan\Entities\Itempekerjaan");
     }
+
+    public function rekanan_group(){
+    	return $this->belongsTo("Modules\Rekanan\Entities\RekananGroup");
+    }
 }

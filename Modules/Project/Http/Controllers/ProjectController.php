@@ -231,7 +231,7 @@ class ProjectController extends Controller
             $variabel_cash_out .= $value.",";
             $nilai_cash_out = $nilai_cash_out + $value;
         }
-
+        
         $nilai_con_cost = 0;
         foreach ($project->budget_tahunans as $key => $value) {
             if ( $value->tahun_anggaran == date("Y")){
@@ -1083,6 +1083,7 @@ class ProjectController extends Controller
                 $unit = Unit::find($request->unit_[$key]);
                 $unit->status = 1;
                 $unit->save();
+                
                 /*$authuser = \Auth::user();   
                 if ( $request->luas_bangunan > 0 ){
                     $productcategory = 1;
@@ -1099,10 +1100,10 @@ class ProjectController extends Controller
                     $is_readystock = 0;
                 }else{
                     $is_readystock = 1;
-                }
+                }*/
 
-                //$users = DB::connection('sqlsrv3')->table('dbo.m_unit')->get();
-                $ins_erem = DB::connection('sqlsrv3')->insert('insert into [dbo].[m_unit] (project_id,pt_id,cluster_id,unit_number,productcategory_id,type_id,land_size,building_size,floor_size,floor,electricity,block_id,is_readystock,state_admistrative,Addon,Addby,Modion,Modiby) values (?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?,?,?)', [
+                $users = DB::connection('sqlsrv')->table('dbo.baps')->get();
+               /* $ins_erem = DB::connection('sqlsrv3')->insert('insert into [dbo].[m_unit] (project_id,pt_id,cluster_id,unit_number,productcategory_id,type_id,land_size,building_size,floor_size,floor,electricity,block_id,is_readystock,state_admistrative,Addon,Addby,Modion,Modiby) values (?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?,?,?)', [
                     $project_pt_erem, 
                     $pt->pt_id,
                     $projectkawasan->cluster_id,

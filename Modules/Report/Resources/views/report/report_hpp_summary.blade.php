@@ -87,8 +87,20 @@
                         {{ number_format($value->total_budget / $value->netto_kawasan )}}
                         @endif
                       </td>
-                      <td>{{ number_format($value->total_kontrak_proporsional) }}</td>
-                      <td>{{ number_format($value->total_terbayar_proporsional) }}</td>
+                      <td>
+                        @if ( $value->HppDevCostReportSummary->count() > 0 )
+                          {{ number_format($value->HppDevCostReportSummary->last()->total_kontrak )}}
+                        @else
+                          {{ number_format(0,2)}}
+                        @endif
+                      </td>
+                      <td>
+                          @if ( $value->HppDevCostReportSummary->count() > 0 )
+                        {{ number_format($value->HppDevCostReportSummary->last()->total_kontrak )}}
+                      @else
+                        {{ number_format(0,2)}}
+                      @endif
+                      </td>
                     </tr>
                   @endforeach
                 </tbody>

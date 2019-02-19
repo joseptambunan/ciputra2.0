@@ -300,4 +300,8 @@ class Bap extends CustomModel
     public function getTotalNilaiSebelumnyaAttribute(){
         
     }
+
+    public function user(){
+        return $this->belongsTo("Modules\User\Entities\User","created_by");
+    }
 }

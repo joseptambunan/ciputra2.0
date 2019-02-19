@@ -82,4 +82,8 @@ Route::group(['middleware' => 'web', 'prefix' => 'budget', 'namespace' => 'Modul
     Route::post("/item-saveitemconcost","BudgetController@saveitemconcost");
 
     Route::post("/item-viewconcost","BudgetController@itemviewconcost");
+
+    Route::post("/carryoverdc","BudgetController@getCarryOverDC");
+    Route::post("/carryovercc","BudgetController@getCarryOverCC");
+    Route::post("/rencanadc","BudgetController@getRencanaDC");
 });

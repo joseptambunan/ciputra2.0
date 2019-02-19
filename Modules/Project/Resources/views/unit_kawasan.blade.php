@@ -69,29 +69,31 @@
                       <td>
                         @if($value->status == 0)
                           <div class="alert-info fade in" style="text-align:center;background-color:#b3ffb3;color:#cc7a00">Planning</div>
-                        @elseif($value->status == 1)
+                        @elseif($value->status == 0)
                           <div class="alert-info fade in" style="text-align:center;background-color:#b3ffb3;color:#cc7a00">Ready for Stock</div>
                         @elseif($value->status == 2)
-                          <div class="alert-info fade in" style="text-align:center;background-color:#fdfc93;color:#817f01">In Progress</div>
-                        @elseif($value->status == 4)
-                          <div class="alert-info fade in" style="text-align:center;background-color:#89fda7;color:#038725">Release
+                          <div class="alert-info fade in" style="text-align:center;background-color:#fdfc93;color:#817f01">In Progress</div>                       
+                        @elseif($value->status == 3)
+                          <div class="alert-info fade in" style="text-align:center;background-color:#97dbfd;color:#036697">Siap Jual</div> 
                         @elseif($value->status == 5)
-                          <div class="alert-info fade in" style="text-align:center;background-color:#97dbfd;color:#036697">Siap Jual</div>
+                          <div class="alert-info fade in" style="text-align:center;background-color:#89fda7;color:#038725">Siap Bangun</div>
                         @elseif($value->status == 7)
                           <div class="alert-info fade in" style="text-align:center;background-color:#fda8a8;color:#b70101">Rejected</div>
                         @else
-                          <div class="alert-info fade in" style="text-align:center;background-color:#fda8a8;color:#b70101">Rejected</div>
+                          <div class="alert-info fade in" style="text-align:center;background-color:#fda8a8;color:#b70101">Non Sellable</div>
                         @endif
                       </td>
                       <td>{{ $value->st1_date }}</td>
                       <td>{{ $value->st2_date }}</td>
-                      <td><input type="checkbox" name="unit_[{{$key}}]" value="{{ $value->id }}"></td>
                       <td>
-                        @if ( $value->status != 5 )
-                          <a class="btn btn-danger" href="{{ url('/')}}/project/edit-unit?id={{ $value->id }}">Edit</a>
-                        @else
-
+                        @if ( $value->is_sellable != 1 )
+                        @if ( $value->unit_id == "")
+                        <input type="checkbox" name="unit_[{{$key}}]" value="{{ $value->id }}">
                         @endif
+                        @endif
+                      </td>
+                      <td>                       
+                          <a class="btn btn-warning" href="{{ url('/')}}/project/edit-unit?id={{ $value->id }}">Detail</a>                        
                       </td>
                    </tr>
                    @endforeach

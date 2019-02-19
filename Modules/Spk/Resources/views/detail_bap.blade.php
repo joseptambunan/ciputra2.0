@@ -146,7 +146,7 @@
                     @else
                     <tr>
                       <th>Nilai DP Dibayar</th>
-                      <td style="text-align: right">RP. {{ number_format(0, 2) }}</td>
+                      <td style="text-align: right">RP. {{ number_format($spk->nilai_dp, 2) }}</td>
                     </tr>
                     @endif
                     <tr>
