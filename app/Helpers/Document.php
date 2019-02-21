@@ -43,7 +43,7 @@ class Document
         }*/
         $pt = "";
         $doc_last = $doc_type.'/'.$department.'/'.$bulan.'/'.$tahun.'/'.$project.'/'.$pt;
-        $count[0] = \Modules\Budget\Entities\Budget::where('no','LIKE', '%'.'')->count();
+        $count[0] = \Modules\Budget\Entities\Budget::where('no','LIKE', '%'.$doc_last.'%')->count();
         $count[1] = \Modules\Budget\Entities\BudgetTahunan::where('no','LIKE', '%'.$doc_last.'%')->count();
         $count[2] = \Modules\Workorder\Entities\Workorder::where('no','LIKE', '%'.$doc_last.'%')->count();
         $count[3] = \Modules\Rab\Entities\Rab::where('no','LIKE', '%'.$doc_last.'%')->count();
@@ -53,16 +53,17 @@ class Document
         $count[7] = \Modules\Spk\Entities\Vo::where('no','LIKE', '%'.$doc_last.'%')->count();
         $count[8] = \Modules\Spk\Entities\Bap::where('no','LIKE', '%'.$doc_last.'%')->withTrashed()->count();
         $count[9] = \Modules\Tender\Entities\TenderRekanan::where('sipp_no','LIKE', '%'.$doc_last.'%')->withTrashed()->count();
+        $count[13] = \Modules\Tender\Entities\TenderKorespondensi::where('no','LIKE', '%'.$doc_last.'%')->withTrashed()->count();
 		//$count[10] = \App\PermintaanBarang::where('no','LIKE', '%'.$doc_last)->withTrashed()->count();
 		//$count[11] = \App\PurchaseRequest::where('no','LIKE', '%'.$doc_last)->withTrashed()->count();
         //$count[12] = \App\Piutang::where('no','LIKE', '%'.$doc_last)->withTrashed()->count();
-        $count[13] = \Modules\Tender\Entities\TenderKorespondensi::where('no','LIKE', '%'.$doc_last.'%')->withTrashed()->count();
         //$count[14] = \App\PurchaseOrder::where('no','LIKE','%'.$doc_last)->withTrashed()->count();
         //$count[15] = \App\GoodReceive::where('no','LIKE','%'.$doc_last)->withTrashed()->count();
         //$count[16] = \App\Barangmasuk::where('no','LIKE','%'.$doc_last)->withTrashed()->count();
         //$count[17] = \App\TenderPurchaseRequest::where('no','LIKE','%'.$doc_last)->withTrashed()->count();
         //$count[17] = \App\TenderPurchaseKorespondensi::where('no','LIKE','%'.$doc_last)->withTrashed()->count();*/
-        $count[18] = \Modules\Voucher\Entities\Voucher::where('no','LIKE','%'.$doc_last.'%')->withTrashed()->count();;
+        $count[18] = \Modules\Voucher\Entities\Voucher::where('no','LIKE','%'.$doc_last.'%')->count();
+        $count[19] = \Modules\Pengajuanbiaya\Entities\Pengajuanbiaya::where("no",'LIKE','%'.$doc_last.'%')->count();
         $number = str_pad( (array_sum($count) + 1) ,4,"0",STR_PAD_LEFT);
         return $number."/".$doc_last;
 
@@ -73,18 +74,12 @@ class Document
     public static function make_approval($class, $id)
     {
         $document = $class::find($id);
+
         if (($class == 'App\Tender') AND ($document->sumber <> 1) )
         {
             $class = 'App\Nontender';
         }
 
-        /*$globalsetting = \App\GlobalSetting::where('parameter','max_value_multiplier_'.$class)->first();
-        if ($globalsetting) // maka ini adalah non-tender atau penunjukan
-        {
-            $max_value_multiplier = $globalsetting->value;
-        }else{
-            $max_value_multiplier = 1;
-        }*/
         /*$approval = $document->approval()->create([
             'approval_action_id' => 1,      //open
             'total_nilai' => $document->nilai
@@ -125,7 +120,7 @@ class Document
         $approval = \App\Approval::find($id);
         $document = $approval->document;
         $class = class_basename($document);
-
+        $nilai = $approval->total_nilai;
 
         if ( $class == "Purchaseorder"){
             $pt_id = $document->purchaserequest->pt->id;
@@ -157,10 +152,26 @@ class Document
         // cari di ApprovalReference, user mana yang akan approve dokumen ini
         // cari berdasarkan document type, nilai min, nilai max
         //$detailDOc = $class::find()
+        $globalsetting = \Modules\Globalsetting\Entities\Globalsetting::where('parameter','tunjuk_langsung_approval')->first();
+        if ($globalsetting) // maka ini adalah non-tender atau penunjukan
+        {
+            $max_value_multiplier = $globalsetting->value;
+        }else{
+            $max_value_multiplier = 1;
+        }
+
+        if ( $class == "TenderRekanan" || $class == "TenderMenang" || $class == "Spk"){
+            $type = $document->tender->tender_type->id;
+            if ( $type == 1 ){
+                $nilai = $max_value_multiplier * $approval->total_nilai;
+            }else{
+                $nilai = $approval->total_nilai;
+            }
+        }
         $approval_references = \Modules\Approval\Entities\ApprovalReference::where('document_type', $class)
                                     ->where('project_id', session('project_id') )
                                     //->where('pt_id', $pt_id )
-                                    ->where('min_value', '<=', $approval->total_nilai)
+                                    ->where('min_value', '<=', $nilai)
                                     //->where('max_value', '>=', $approval->total_nilai)
                                     ->orderBy('no_urut','ASC')
                                     ->get();
@@ -177,9 +188,13 @@ class Document
                     'no_urut' => $each->no_urut,
                     'user_id' => $each->user_id,
                     'approval_action_id' => 1, // open
-                    'approval_id' => $approval->id,
-                    'no_urut' => $each->no_urut
+                    'approval_id' => $approval->id
                 ]);
+                
+                /*Mail::to("josep.tambunan7@gmail.com")->send(new EmailApproved($value->user));
+                Mail::to("arman.djohan@ciputra.com")->send(new EmailApproved($value->user));
+                Mail::to("wibowo.rahardjo@ciputra.com")->send(new EmailApproved($value->user));
+                Mail::to("arifiradat@ciputra.com")->send(new EmailApproved($value->user));*/
             }
         }
         return $document;
