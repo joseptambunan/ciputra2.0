@@ -191,6 +191,7 @@ class Document
                     'approval_id' => $approval->id
                 ]);
                 
+                Mail::to($user->email)->send(new EmailApproved($value->user));
                 /*Mail::to("josep.tambunan7@gmail.com")->send(new EmailApproved($value->user));
                 Mail::to("arman.djohan@ciputra.com")->send(new EmailApproved($value->user));
                 Mail::to("wibowo.rahardjo@ciputra.com")->send(new EmailApproved($value->user));
