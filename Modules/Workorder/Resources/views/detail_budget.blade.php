@@ -119,9 +119,28 @@
                           @endforeach
                         @else
                           <tr>
-                            <td><input type="checkbox" name="setwo[{{ $start}}]" value="{{ $start}}"></td>
-                            <td>{{ $value2->code or ''}}</td>
-                            <td>{{ $value2->name or ''}}</td>
+                            <td>
+                              <input type="checkbox" name="setwo[{{ $start}}]" value="{{ $start}}">
+                              <input type="hidden" name="item_id[{{ $start}}]" class="form-control" value="{{ $value2->id or ''}}">
+                            </td>
+                            <td>{{ $itempekerjaan->code or ''}}</td>
+                            <td>{{ $itempekerjaan->name or ''}}</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>
+                              <input type="hidden" name="item_id[{{ $start}}]" class="form-control" value="{{ $itempekerjaan->id or ''}}">
+                              <input type="text" name="volume[{{ $start}}]" id="volume_{{$start}}" class="form-control nilai_budget" value="{{ number_format($itempekerjaan->volume,2) }}" onKeyUp="calculatewo('{{$start}}','{{$key}}')">
+                            </td>
+                            <td><input type="hidden" name="satuan[{{ $start}}]" class="form-control" value="{{ $itempekerjaan->details->satuan or 'ls' }}"><input type="text" class="form-control" value="{{ $itempekerjaan->details->satuan or 'ls' }}" readonly></td>
+                            @if ( count($itempekerjaan->harga) > 0 )
+                            <td><input type="text" name="nilai[{{ $start}}]" id="nilai_{{$start}}" class="form-control nilai_budget" value="{{ number_format($itempekerjaan->harga->last()->nilai,2)}}" onKeyUp="calculatewo('{{$start}}','{{$key}}')"></td>   
+                            @else                            
+                            <td><input type="text" name="nilai[{{ $start}}]" id="nilai_{{$start}}" class="form-control nilai_budget" value="0" onKeyUp="calculatewo('{{$start}}','{{$key}}')"></td>   
+                            @endif
+                            <td>
+                              <input type="hidden" class="subtotal_{{$key}}" id="subtotals_{{$start}}" value="0">
+                              <span id="subtotal_{{$start}}">0</span>
+                            </td>  
                           </tr>
                         @endif
                       @endif

@@ -60,8 +60,8 @@
                     @endphp
                     <tr>
                       <td>
-                        <span class="{{ $array[$value->approval->approval_action_id]['class'] }}">  
-                          {{ $array[$value->approval->approval_action_id]['label'] }}
+                        <span class="{{ $array[$value->approval_action_id]['class'] }}">  
+                          {{ $array[$value->approval_action_id]['label'] }}
                         </span>
                       </td>
                       <td>{{ $value->user->user_name }}</td>

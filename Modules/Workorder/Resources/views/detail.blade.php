@@ -269,9 +269,10 @@
             <label>Budget Tahunan</label>            
               {{ csrf_field() }}
             <input type="hidden" name="workoder_par_id" value="{{ $workorder->id}}">
-            <select class="form-control" name="budget_tahunan" id="budget_tahunan">
+            <select class="form-control" name="budget_tahunan" id="budget_tahunan" required>
               <option value="">( pilih budget tahunan)</option>
               @foreach ( $workorder->departmentFrom->budgets as $key => $value )
+              @if ( $value->deleted_at == "")
                 @if ( $value->project_id == $project->id )
                   @foreach ( $value->budget_tahunans as $key2 => $value2 )
                   @if ( $value2->approval != "" )
@@ -283,6 +284,7 @@
                   @endif
                   @endforeach
                 @endif
+              @endif
               @endforeach
             </select>
           </div>

@@ -114,6 +114,16 @@
                             </tr>
                             @php $start++; @endphp
                           @endforeach
+                        @else
+                           <tr>                
+                            <td>{{ $budgettahunan->budget->project->name or '' }}</td>
+                            <td><input type="checkbox"  class="disable_unit" name="asset[{{ $start}}]" value="{{ $budgettahunan->budget->project->id }}"  onClick="disablebtn('{{ $budgettahunan->budget->project->id }}')"></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                          </tr>
                         @endif
 
                         
