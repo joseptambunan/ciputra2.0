@@ -1,6 +1,8 @@
 <?php
 namespace App\Helpers;
 
+
+use Illuminate\Support\Facades\Mail;
 use \App\Mail\OrderShipped;
 use \App\Mail\EmailApproved;
 use \App\Mail\EmailApproved2;
