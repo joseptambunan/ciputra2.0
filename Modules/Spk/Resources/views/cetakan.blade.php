@@ -57,7 +57,7 @@
             <tr>
               <td width="25%;">Jenis Pekerjaan</td>
               <td>
-                {{ $spk->itempekerjaan->name or '-'}}
+                {{ $spk->name or '-'}}
               </td>
             </tr>
             <tr>
@@ -103,7 +103,7 @@
               <td width="25%;">Retensi</td>
               <td>
                @foreach ( $spk->retensis as $key => $value )
-                <span>Retensi {{ $key + 1 }} : <i>{{ $value->percent * 100 }}</i> selama <strong>{{ $value->hari }}</strong> hari <br></span>
+                <span>Retensi ke {{ $key + 1 }} : <i>{{ $value->percent * 100 }} %</i> selama <strong>{{ $value->hari }}</strong> hari <br></span>
                @endforeach
               </td>
             </tr>
@@ -172,12 +172,20 @@
                 <center><strong><span>PIHAK KEDUA</span></strong></center>
                 <center><span>{{ $spk->rekanan->group->name or '-' }}</span></span>
               </td>
-              <td colspan="3">
+              <td>
                 <strong><center>PIHAK PERTAMA</strong></center>
                 <span><center>{{ $spk->tender->rab->budget_tahunan->budget->pt->name or '-' }}</center></span>
               </td>
             </tr> 
             <tr>
+              <td style="width: 50%;">
+                @if ( isset($list_ttd[1]))
+                <h1>&nbsp;</h1>
+                <h1>&nbsp;</h1>
+                <center><u>{{ $spk->rekanan->group->saksi_name }}</u><br></span></center>
+                <center><span><strong>{{  $spk->rekanan->group->saksi_jabatan }}</strong></span></center>
+                @endif
+              </td>
               <td style="width: 50%;">
                 @if ( isset($list_ttd[1]))
                 <h1>&nbsp;</h1>
