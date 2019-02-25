@@ -206,7 +206,7 @@
                         <td style="text-align: right;">Rp. {{ number_format($spk->nilai_kumulatif)}}</td>
 
                       </tr>
-
+                      @if ( $spk->rekanan->group->pkp_status == 1 )
                       <tr>
 
                         <th>Nilai PPN SPK + VO</th>
@@ -214,7 +214,14 @@
                         <td style="text-align: right;">Rp. {{ number_format($ppn_kumulatif = $spk->nilai_kumulatif * $ppn) }}</td>
 
                       </tr>
+                      @else
+                      <tr>
 
+                        <th>Nilai PPN SPK + VO</th>                        
+                        <td style="text-align: right;">Rp. {{ number_format($ppn_kumulatif = $spk->nilai_kumulatif * 0 ) }}</td>
+
+                      </tr>
+                      @endif
                       <tr>
                         <th>&nbsp;</th>
                         <td><hr style="border:1px solid;margin-top:0px;margin-bottom:0px !important;"></td>
