@@ -17,12 +17,10 @@
   <div id="dvContents_spk" class="result" style="display: none;">
     <img src="{{ url('/')}}/assets/dist/img/logo-ciputra_original.png" class="img-circle" alt="User Image">
     <table width="100%" style="border-collapse:collapse" class='table' id='form_spk'>
-      <tr>
-        <td></td>
-      </tr>
+      
       <tr>
         <td>
-          <table border="1" width="100%" style="border:1px solid black; border-collapse: collapse;" cellpadding="5" cellspacing="5">
+          <table border="1" width="100%" style="border:1px solid black; border-collapse: collapse;">
             <tr>
               <td width="50%;"><center>No. Spk</center></td>
               <td width="50%;"><center>{{ $spk->project->name }}</center></td>              
@@ -33,7 +31,7 @@
             </tr>
           </table>
           <span>&nbsp;</span>
-          <table width="100%" style="border:1px solid black; border-collapse: collapse;font-size:10px;" cellpadding="5" cellspacing="5" border="1">
+          <table width="100%" style="border:1px solid black; border-collapse: collapse;font-size:10px;" border="1">
             <tr>
               <td width="50%">PIHAK PERTAMA</td>
               <td width="50%">PIHAK KEDUA</td>
@@ -74,7 +72,7 @@
               <td width="25%;">Waktu Pelaksanaan</td>
               <td>
                 @if ( $spk->start_date != null && $spk->finish_date != null )
-                  {{ $spk->start_date->format("d M Y")}}  {{ $spk->finish_date->format("d M Y")}} 
+                  {{ $spk->start_date->format("d M Y")}} s/d {{ $spk->finish_date->format("d M Y")}} 
                 @else
                   - 
                 @endif
@@ -94,7 +92,7 @@
                 @else                
                 <span>Total : IDR {{ number_format( $total = $spk->nilai,2 ) }}</span><br>
                 @endif
-                <strong><i>{{ Terbilang::make($total)}}</i></strong>
+                <strong><i>{{ Terbilang::make($total)}} rupiah</i></strong>
               </td>
             </tr>
             <tr>
@@ -120,7 +118,7 @@
                 </ol>
                 <h3 style="margin:0;"><u>DASAR PENERBITAN KONTRAK YANG TIDAK TERPISAHKAN DARI SPK INI :</u></h3>
                 
-                <ul>
+                <ol>
                   <li>Dokumen Tender: {{ $spk->tender->no or  '' }}
                     @foreach ( $spk->tender->tender_document as $key2 => $value2 )
                       {{ $value2->document_name }} tgl : {{ $value->updated_at->format("d/m/Y")}}
@@ -144,7 +142,7 @@
                     @endif</li>
                   <li> Surat Penunjukan / Pemenang tender / SIPP No : {{ $sipp }} </li>
                   <li>SUPP No. : {{ $spk->rekanan->supps->last()->no or '-'}}</li>
-                </ul>
+                </ol>
               </td>
             </tr>
           </table>
@@ -152,7 +150,7 @@
       </tr>
       <tr>
         <td>
-          <table width="100%" style="border:1px solid black; border-collapse: collapse;font-size:10px;" cellpadding="5" cellspacing="5" border="1">
+          <table width="100%" style="border:1px solid black; border-collapse: collapse;font-size:10px;" border="1">
             <tr>
               <td>                
                 <span>LAIN - LAIN  :</span>
@@ -168,7 +166,7 @@
       </tr>
       <tr>
         <td>
-          <table width="100%" border="1px" style="border-collapse: collapse;width: 100%;">
+          <table width="100%" border="1px" style="border-collapse: collapse;width: 100%;font-size:14px;">
             <tr>
               <td style="text-transform: uppercase;vertical-align: top;">
                 <center><strong><span>PIHAK KEDUA</span></strong></center>
@@ -180,21 +178,7 @@
               </td>
             </tr> 
             <tr>
-              <td style="width: 25%;">                      
-                <h1>&nbsp;</h1>
-                <h1>&nbsp;</h1>
-                <center><u>{{ $spk->rekanan->cp_name }}</u><br></span></center>
-                <center><span><strong>{{ $spk->rekanan->cp_jabatan}}</strong></span></center>
-              </td>
-              <td style="width: 25%;">
-                @if ( isset($list_ttd[2]))
-                <h1>&nbsp;</h1>
-                <h1>&nbsp;</h1>
-                <center><u>{{ $list_ttd[2]["user_name"] }}</u><br></span></center>
-                <center><span><strong>{{ $list_ttd[2]["user_jabatan"] }}</strong></span></center>
-                @endif
-              </td>
-              <td style="width: 25%;">
+              <td style="width: 50%;">
                 @if ( isset($list_ttd[1]))
                 <h1>&nbsp;</h1>
                 <h1>&nbsp;</h1>
@@ -202,14 +186,7 @@
                 <center><span><strong>{{ $list_ttd[1]["user_jabatan"] }}</strong></span></center>
                 @endif
               </td>
-              <td style="width: 25%;">
-                @if ( isset($list_ttd[0]))
-                <h1>&nbsp;</h1>
-                <h1>&nbsp;</h1>
-                <center><u>{{ $list_ttd[0]["user_name"] }}</u><br></span></center>
-                <center><span><strong>{{ $list_ttd[0]["user_jabatan"] }}</strong></span></center>
-                @endif
-              </td>
+
             </tr>                 
           </table>
         </td>
@@ -222,6 +199,7 @@
   
   
   <div id="dvContents_spk_detail" class="result" style="display: none;">
+    @if ( $spk->itempekerjaan != "")
     @if ( $spk->itempekerjaan->group_cost == "2")
     <table width="100%" style="border-collapse:collapse" class='table' id='form_spk'>
       <tr>
@@ -279,7 +257,7 @@
         </td>
       </tr>
     </table>
-
+    @endif
     @endif
   </div>
   @endif
