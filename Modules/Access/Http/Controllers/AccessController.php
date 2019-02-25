@@ -49,7 +49,7 @@ class AccessController extends Controller
         $project = Project::get();
         $user = \Auth::user();
         /* Get Budget Document */
-        $approval = ApprovalHistory::where("user_id",$user->id)->where("approval_action_id",1)->get();
+        $approval = ApprovalHistory::where("user_id",$user->id)->where("approval_action_id",1)->orderBy("id","desc")->get();
         $department = Department::get();
         return view("access::user.index",compact("approval","project","user","department"));
     }
@@ -828,6 +828,7 @@ class AccessController extends Controller
         if ( isset($approval_id->id)){
             $approval_history = ApprovalHistory::find($approval_id->id);
             $approval_history->approval_action_id = $status;
+            $approval_history->description = $request->description;
             $approval_history->save();
             //$status = $approval_history->save();
 
@@ -1188,6 +1189,49 @@ class AccessController extends Controller
         $class  = "TenderMenang";
         $approval = \App\Helpers\Document::make_approval('Modules\Tender\Entities\TenderMenang',$tender_menang->id);
 
+
+        /*Cek Approval is GM */
+        $tender = $tender_rekanan->tender;
+        $cek = $tender->approval->histories->min('no_urut');
+        if ( $cek == 5 ){
+            foreach ($tender->rekanans as $key => $value) {
+                $rekanan = TenderRekanan::find($value->id);
+                if ( $value->id == $request->id ){               
+                    $rekanan->is_pemenang = 1;    
+                    $tender_koresponden                     = new TenderKorespondensi;
+                    $tender_koresponden->tender_rekanan_id  = $value->id;
+                    $tender_koresponden->no                 = "";
+                    $tender_koresponden->type               = "sipp";
+                    $tender_koresponden->date               = date("Y-m-d H:i:s.u");
+                    $tender_koresponden->diundang_at        = date("Y-m-d H:i:s.u");
+                    $tender_koresponden->tempat_undangan    = "";
+                    $tender_koresponden->due_at             = date("Y-m-d H:i:s.u");
+                    $tender_koresponden->save();            
+                    $rekanan->save();
+                }else{
+                    //if ( $value->is_pemenang "1"){
+                        $rekanan->is_pemenang = 0 ;
+                    //}
+                    $tender_koresponden                     = new TenderKorespondensi;
+                    $tender_koresponden->tender_rekanan_id  = $value->id;
+                    $tender_koresponden->no                 = "";
+                    $tender_koresponden->type               = "sutk";
+                    $tender_koresponden->date               = date("Y-m-d H:i:s.u");
+                    $tender_koresponden->diundang_at        = date("Y-m-d H:i:s.u");
+                    $tender_koresponden->tempat_undangan    = "";
+                    $tender_koresponden->due_at             = date("Y-m-d H:i:s");
+                    $tender_koresponden->save();       
+                    $rekanan->save();  
+                }               
+                
+            }
+            $approval = Approval::find($tender->approval->id);
+            $approval->approval_action_id = 6;
+            $approval->save();
+        }
+        /*foreach ($tender->approval->histories as $key => $value) {
+            # code...
+        }*/
 
         return response()->json( ["status" => "0"]);
         
