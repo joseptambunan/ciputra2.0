@@ -306,6 +306,9 @@ class SpkController extends Controller
             }            
         }
 
+        if (!("./assets/spk/".$spk->id)) {
+            mkdir("./assets/spk/".$spk->id,0777);
+        }
         return view('spk::create',compact("itempekerjaan","tender_menang","project","user","spk","spktype","termyn","list_ttd","ttd_pertama","ppn","sipp","user_pic","nilai_bap",'list_ttd_bap'));
     }
 
@@ -320,6 +323,7 @@ class SpkController extends Controller
         $spk->finish_date = date_format(date_create($request->end_date),"Y-m-d");
         $spk->st_1 = date_format(date_create($request->end_date),"Y-m-d");
         $spk->coa_pph_default_id = $request->coa_pph;
+        $spk->name = $request->spk_name;
         $spk->save();
         return redirect("/spk/detail?id=".$request->spk_id);
     }
