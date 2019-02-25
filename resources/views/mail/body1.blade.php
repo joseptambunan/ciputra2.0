@@ -2,7 +2,7 @@
 <span>Bpk/Ibu Direksi SH2 Ciputra Group</span><br>
 <span>Di Tempat</span><br/>
 <br/>
-<p>Sehubungan dengan prosedur <i>Approve</i> dari sistem CPMS, maka mohon kesediaan Bapak/Ibu untuk menyediakan dokumen yang diajukan sebagai berikut : </p>
+<p>Sehubungan dengan prosedur <i>Approve</i> dari sistem CPMS, maka mohon kesediaan Bapak/Ibu untuk menyetujui dokumen yang diajukan sebagai berikut : </p>
 <ul>
 	<li>Total Proyek yang mengajukan : {{ $total_project }}</li>
 	<li>Total Dokumen sedang proses : {{ $total_doc }}</li>
