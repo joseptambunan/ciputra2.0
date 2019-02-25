@@ -654,6 +654,7 @@ class TenderController extends Controller
 
     public function searchreferensi(Request $request){
         $html = "";
+        $start = 0;
         if ( $request->itempekerjaan != "all" ){
             $itempekerjaan = Itempekerjaan::find($request->itempekerjaan);
             foreach ($itempekerjaan->rekanan_specification as $key => $value) {
@@ -663,15 +664,17 @@ class TenderController extends Controller
                             $html .= "<tr>";
                             $html .= "<td>".$value3->name."</td>";
                             $html .= "<td>".$itempekerjaan->name."</td>";
-                            $html .= "<td><input type='checkbox' value='".$value3->id."'/>Set to Tender</td>";
+                            $html .= "<td><input type='checkbox' value='".$value3->id."' name='[".$start."]'/>Set to Tender</td>";
                             $html .= "</tr>";
+                            $start++;
                         }
                     }else{
                         $html .= "<tr>";
                         $html .= "<td>".$value->rekanan_group->name."</td>";
                         $html .= "<td>".$itempekerjaan->name."</td>";
-                        $html .= "<td><input type='checkbox' value='".$value->rekanan_group->id."'/>Set to Tender</td>";
+                        $html .= "<td><input type='checkbox' value='".$value->rekanan_group->id."' name='[".$start."]'/>Set to Tender</td>";
                         $html .= "</tr>";
+                        $start++;
                     }
                 }
             }            
@@ -687,15 +690,17 @@ class TenderController extends Controller
                         $html .= "<tr>";
                         $html .= "<td>".$value3->name."</td>";
                         $html .= "<td>".$spesifikasi."</td>";
-                        $html .= "<td><input type='checkbox' value='".$value3->id."'/>Set to Tender</td>";
+                        $html .= "<td><input type='checkbox' value='".$value3->id."' name='[".$start."]'/>Set to Tender</td>";
                         $html .= "</tr>";
+                        $start++;
                     }
                 }else{
                     $html .= "<tr>";
                     $html .= "<td>".$value->name."</td>";
                     $html .= "<td>".$spesifikasi."</td>";
-                    $html .= "<td><input type='checkbox' value='".$value->id."'/>Set to Tender</td>";
+                    $html .= "<td><input type='checkbox' value='".$value->id."' name='[".$start."]'/>Set to Tender</td>";
                     $html .= "</tr>";
+                    $start++;
                 }
             }
         }
