@@ -178,9 +178,9 @@
                   </tr>
                   @endforeach
                 </table>         
-                @if ( $jabatan = "")       
+                   
                 <button type="submit" class="btn btn-primary">Simpan</button>     
-                @endif           
+                         
                 </form>
 
               </div>
@@ -266,11 +266,15 @@
                       @endforeach
                       </ul>
                     </td>
-                    @if ( $each->approval->histories->where("approval_id",$each->approval->id)->where("user_id",$user->id)->first()->approval_action_id == "6" )
-                    <td style="background-color: green;color:white;"><strong>APPROVED</strong></td>
-                    @elseif ( $each->approval->histories->where("approval_id",$each->approval->id)->where("user_id",$user->id)->first()->approval_action_id == "7" )
-                    <td style="background-color: red;color:white;"><strong>REJECTED</strong></td>
-                    @elseif ( $each->approval->histories->where("approval_id",$each->approval->id)->where("user_id",$user->id)->first()->approval_action_id == "1" )
+                    @if ( $each->approval->histories->where("approval_id",$each->approval->id)->where("user_id",$user->id)->count() > 0 )
+                      @if ( $each->approval->histories->where("approval_id",$each->approval->id)->where("user_id",$user->id)->first()->approval_action_id == "6" )
+                      <td style="background-color: green;color:white;"><strong>APPROVED</strong></td>
+                      @elseif ( $each->approval->histories->where("approval_id",$each->approval->id)->where("user_id",$user->id)->first()->approval_action_id == "7" )
+                      <td style="background-color: red;color:white;"><strong>REJECTED</strong></td>
+                      @elseif ( $each->approval->histories->where("approval_id",$each->approval->id)->where("user_id",$user->id)->first()->approval_action_id == "1" )
+                    @else                    
+                      <td style="background-color: green;color:white;"><strong>APPROVED</strong></td>
+                    @endif
                     
                     <td style="background-color: white;color:white;">
                       <div class="form-check">
@@ -324,46 +328,27 @@
                           @if ( $tender->spks->count() <= 0 )
                             @if ($user->jabatan != "")
 
-                              @if ( $user->jabatan[0]["level"] == "5" )
-                                @if ( count($tender->menangs) <= 0 )
-                                  <button class="btn btn-info" onclick="setpemenang('{{ $value2->id }}')">Usulkan sebagai pemenang</button>
+                              @if ( $tender->approval != "" )
+                                @if ( $tender->approval->approval_action_id != 6 )
+                                  @if ( count($tender->spks) <= 0 )
+                                      <button class="btn btn-info" data-toggle="modal" data-target="#myModal5" onClick="setrekanan_id('{{$value2->id}}')" >Usulkan sebagai pemenang</button>
+                                  @else
+                                      @if ( $value2->is_recomendasi == "1")
+                                      <i>Rekomendasi</i>
+                                      @endif
+                                  
+                                  @endif
                                 @else
-                                  @if ( count($tender->menangs) > 0 )
-                                    @if ( $value2->is_pemenang == 1 )
+                                  @if ( $value2->is_pemenang == 1 )
                                     <strong><h3>Pemenang Tender</h3></strong>                                    
-                                    
-                                    @if ( $value2->is_pemenang == 0 )
-                                    <strong>Ditolak sebagai pemenang</strong>
-                                    @endif
-                                   
-                                    @if ( $value2->is_recomendasi == "1")
-                                    <i>Rekomendasi</i>
-                                    @endif
+                                  @endif
 
+                                  @if ( $value2->is_recomendasi == "1")
+                                    <i>Rekomendasi</i>
                                   @endif
                                 @endif
                               @endif
                               
-                              @elseif  ( $user->jabatan[0]["level"] < 5 )
-                                @if ( count($tender->menangs) <= 0 )
-                                 
-                                @else
-                                  @if ( $value2->is_pemenang == 1 )
-                                  <strong><h3>Pemenang Tender</h3></strong>
-                                  @else
-                                    
-                                  @if ( $value2->is_pemenang == "0")
-                                  <button href="{{ url('/')}}" class="btn btn-primary" onClick="setujuipemenang('{{ $value2->id }}')">Setujui sebagai Pemenang</button>        
-                                  @endif                                                          
-                                          
-                                  <!--strong>Ditolak sebagai pemenang</strong-->                             
-                                  @if ( $value2->is_recomendasi == "1")
-                                  <i>Rekomendasi</i>
-                                  @endif 
-                                   
-                                  @endif
-                                @endif
-                              @endif
                             @endif
                           @else
                             @if ( $value2->is_pemenang == 1 )
@@ -425,9 +410,7 @@
                     </strong>
                     (days)
                   </td>
-                  <td>@if ( $value2->approval_action_id == "7")
-                    {{ $value2->description or  '' }}
-                  @endif</td>
+                  <td>{{ $value2->description or  '' }}</td>
                 </tr>
                 @endforeach
                 @endif
@@ -447,13 +430,7 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-  <footer class="main-footer">
-    <div class="float-right d-none d-sm-block">
-      <b>Version</b> 3.0.0-alpha
-    </div>
-    <strong>Copyright &copy; 2014-2018 <a href="http://adminlte.io">AdminLTE.io</a>.</strong> All rights
-    reserved.
-  </footer>
+ @include("master/copyright")
 
 
 </div>
@@ -466,7 +443,9 @@
           url : "{{ url('/')}}/access/tender/setpemenang",
           dataType : "json",
           data : {
-            id : id
+            id : $("#tender_rekanan_id").val(),
+            description_pemenang_tender : $("#description_pemenang_tender").val()
+
           },
           type : "post"
         });
@@ -514,6 +493,9 @@
     }
   }
 
+  function setrekanan_id(id){
+    $("#tender_rekanan_id").val(id);
+  }
 </script>
 <div class="modal fade" tabindex="-1" role="dialog" id="myModal4">
   <div class="modal-dialog" role="document">
@@ -535,6 +517,7 @@
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
+
 <div class="modal fade" tabindex="-1" role="dialog" id="myModal2">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -573,5 +556,28 @@
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
+
+<div class="modal fade" tabindex="-1" role="dialog" id="myModal5">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><br>
+      </div>
+      <div class="modal-body">
+        <span><strong>Rekanan ini diusulkan sebagai pemenang</strong></span>
+        <p></p>
+        <div id="listdetail">
+            <input type="hidden" name="tender_rekanan_id" id="tender_rekanan_id">
+            <textarea name="description_pemenang_tender" id="description_pemenang_tender" rows="6" cols="30"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="btn_save_menang"  onclick="setpemenang('{{ $value2->id }}')">Save changes</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
 </body>
 </html>

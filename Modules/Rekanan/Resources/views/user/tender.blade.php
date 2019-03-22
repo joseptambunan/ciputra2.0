@@ -33,6 +33,7 @@
                   <thead class="head_table">
                     <tr>
                       <td>No. Tender</td>
+                      <td>Tanggal</td>
                       <td>Pekerjaan</td>
                       <td>Proyek</td>
                       <td>Lokasi</td>
@@ -44,8 +45,10 @@
                    @foreach ( $rekanan_group->rekanans as $key => $value )
                     @foreach ( $value->tender_rekanans as $key2 => $value2 )
                     @if ( $value2->tender != "" )
+                      @if ( $value2->tender->spks->count() <= 0 )
                       <tr>
                         <td>{{ $value2->tender->no or '' }}</td>
+                        <td>{{ date("d/M/Y",strtotime($value2->tender->created_at)) }}</td>
                         <td>{{ $value2->tender->name or ''}}</td>
                         <td>{{ $value2->tender->rab->budget_tahunan->budget->project->name or '' }}</td>
                         <td>{{ $value2->tender->rab->budget_tahunan->budget->project->city->name or '' }}</td>
@@ -60,6 +63,7 @@
                           
                         </td>
                       </tr>
+                      @endif
                     @endif
                     @endforeach
                    @endforeach

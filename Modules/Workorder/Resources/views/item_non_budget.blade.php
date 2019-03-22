@@ -31,7 +31,7 @@
         <!-- /.box-header -->
         <div class="box-body">
           <div class="row">
-            <div class="col-md-12"><h3 class="box-title">Detail Data Budget Proyek</h3></div>
+            <div class="col-md-12"><h3 class="box-title">Tambah Item Pekerjaan</h3></div>
             <div class="col-md-6">             
               <div class="form-group">
                 <label>Item Pekerjaan</label>
@@ -45,15 +45,15 @@
                 </select>
               </div>
               <div class="form-group">
-                <button class="btn btn-info" onClick="formsubmit();">Simpan</button>
-                <a class="btn btn-warning" href="{{ url('/')}}/budget/detail?id={{ $budget->id }}">Kembali</a>
+                <button class="btn btn-info" id="btn_submit" onClick="formsubmit();">Simpan</button>
+                <a class="btn btn-warning" href="{{ url('/')}}/workorder/detail?id={{ $workorder->id }}">Kembali</a>
               </div>
+              <span id="loading" style="display: none;"><strong><h2>Loading...</h2></strong></span>
             </div>
    
             <!-- /.col -->
             <div class="col-md-12">
               <form action="{{ url('/')}}/workorder/savenonbudget/" method="post" name="form1" id="form1">
-
                 {{ csrf_field() }}
                 <input type="hidden" name="budget_tahunan" id="budget_tahunan" value="{{ $budget_tahunan->id }}">
                 <input type="hidden" name="workorder_id" id="workorder_id" value="{{ $workorder->id }}">
@@ -101,8 +101,10 @@
 <script type="text/javascript">
   $("#coa_id").change(function(){
     $("#itemlist").html("");
+    $("#loading").show();
+    $("#btn_submit").hide();
     var request = $.ajax({
-        url : "{{ url('/')}}/budget/item-detail",
+        url : "{{ url('/')}}/workorder/itemdetail",
         dataType : "json",
         data : {
           id : $("#coa_id").val()
@@ -111,9 +113,11 @@
     });
 
     request.done(function(data){
+        $("#loading").hide();
+        $("#btn_submit").show();
         if ( data.status == "0"){
           $("#itemlist").html(data.html);
-          $(".nilai_budget").number(true);
+          $(".nilai_budgets").number(true);
         }else{
           alert("Tidak ada detail Item Pekerjaan");
         }

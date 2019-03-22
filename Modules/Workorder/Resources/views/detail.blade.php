@@ -7,6 +7,7 @@
   @include("master/header")
     <!-- Select2 -->
   <link rel="stylesheet" href="{{ url('/')}}/assets/bower_components/select2/dist/css/select2.min.css">
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
@@ -31,7 +32,7 @@
         <div class="box-body">
           <div class="row">
             <div class="col-md-6">   
-
+              <select class="select2" style="display: none;"></select>
               <h3 class="box-title">Tambah Data Workorder</h3>           
               <form action="{{ url('/')}}/workorder/update" method="post" name="form1">
                 {{ csrf_field() }}
@@ -75,8 +76,8 @@
               <div class="box-footer">
                 @if ( count($workorder->detail_pekerjaan) > 0 && count($workorder->details) > 0 )
                   @if ( $workorder->approval == "" )
-                  <button type="submit" class="btn btn-primary">Simpan</button>
-                  <button type="button" class="btn btn-info" onclick="woapprove('{{ $workorder->id }}')">Request Approve</button>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                    <button type="button" class="btn btn-info" onclick="woapprove('{{ $workorder->id }}')">Request Approve</button>
                   @else
                     @php
                       $array = array (
@@ -89,6 +90,8 @@
                     <a href="{{ url('/')}}/workorder/approval_history/?id={{ $workorder->id}}" class="btn btn-primary">Histroy Approval</a>
                     @if ( $workorder->approval->approval_action_id == "7")
                       <button type="button" class="btn btn-info" onclick="woupdapprove('{{ $workorder->id }}')">Request Approve</button>
+                    @elseif ( $workorder->approval->approval_action_id == "6")
+                      <a class="btn btn-info" href="{{ url('/')}}/rab/?workorder_id={{$workorder->id}}">RAB</a>
                     @endif
                   @endif
                 @else
@@ -96,8 +99,10 @@
                   <li>Workorder harus memiliki pekerjaan</li>
                   <li>Workorder harus memiliki unit</li>
                 </ul>
+                <button type="submit" class="btn btn-primary">Simpan</button>
                 @endif
-                <a href="{{ url('')}}/workorder" class="btn btn-warning">Kembali</a>
+                <a href="{{ url('/')}}/workorder" class="btn btn-warning">Kembali</a>
+                
               </div>
               
               <!-- /.form-group -->
@@ -106,8 +111,8 @@
              <div class="col-md-6">
               <h3>&nbsp;</h3>
               <div class="form-group">
-                <label>Durasi Proses WO (Hari Kalender)</label>
-                <input type="text" class="form-control" name="workorder_durasi" value="{{ $workorder->durasi }}" required>
+                <label>Start Date</label>
+                <input type="text" class="form-control" name="start_date" id="start_date" autocomplete="off" value="{{  date('d/M/Y', strtotime($workorder->date)) }}" required>
               </div> 
               <div class="form-group">
                 <label>Keterangan</label>
@@ -124,12 +129,12 @@
           <div class="nav-tabs-custom">
               
               <ul class="nav nav-tabs">                
-                <li class="active"><a href="#tab_3" data-toggle="tab">Item Pekerjaan</a></li>
-                <li><a href="#tab_2" data-toggle="tab">Unit</a></li>
+                <li class="active"><a href="#tab_3" data-toggle="tab">1. Item Pekerjaan</a></li>
+                <li><a href="#tab_2" data-toggle="tab">2. Unit</a></li>
               </ul>
               <div class="tab-content">                
                 <!-- /.tab-pane -->
-                <div class="tab-pane active" id="tab_3">
+                <div class="tab-pane active table-responsive" id="tab_3">
                     @if ( $workorder->approval == "" )
                     <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modal-default">
                       Tambah Item Pekerjaan
@@ -151,6 +156,7 @@
                         <td>Satuan</td>
                         <td>Nilai(Rp)</td>
                         <td>Subtotal(Rp)</td>
+                        <td>Status Dokumen</td>
                         <td>Delete</td>
                        </tr>
                      </thead>
@@ -166,12 +172,19 @@
                             <td>{{ number_format($value->nilai)}}</td>
                             <td>{{ number_format($value->volume * $value->nilai,2)}}</td>
                             <td>
+                              @if ( count($value->dokumen) > 0 )
+                                <h3>Sudah</h3>                              
+                              @endif
+                                <a href="{{ url('/')}}/workorder/dokument?id={{$value->id}}" class="btn btn-info">Upload</a>
+                            </td>
+                            <td>
                               @if ( $workorder->approval != "")
-                                @if ( $workorder->approval->approval_action_id == 7 )
-                                <button type="button" class="btn btn-danger" onclick="removepekerjaan('{{ $value->id }}')">Hapus Pekerjaan</button>
+                                @if ( $workorder->approval->approval_action_id == 7 ) 
+                                <small class="label pull-right bg-red"><i class="fa fa-fw fa-remove" onclick="removepekerjaan('{{ $value->id }}')">&nbsp;</i></small>
+                                @elseif ( $workorder->approval->approval_action_id == 6)
                                 @endif
-                              @else
-                                <button type="button" class="btn btn-danger" onclick="removepekerjaan('{{ $value->id }}')">Hapus Pekerjaan</button>
+                              @else 
+                                <i class="fa fa-fw fa-remove" onclick="removepekerjaan('{{ $value->id }}')"></i>
                               @endif
                             </td>
                          </tr>
@@ -181,14 +194,14 @@
                    </table> 
                 </div>
                 <!-- /.tab-pane -->
-                <div class="tab-pane" id="tab_2">
+                <div class="tab-pane table-responsive" id="tab_2">
                   @if ( $workorder->approval == "" )
                     @if ( count($workorder->budget_parent) > 0 )
                     <a class="btn btn-info" href="{{ url('/')}}/workorder/unit?id={{ $workorder->id}}">
                         Tambah Unit
                     </a>
                     @else
-                    <h4>Silahkan pilih budget tahunan terlebih dahulu</h4>
+                    <h4>Silahkan pilih Item Pekerjaan terlebih dahulu</h4>
                     @endif
                   @else
                     @if ( $workorder->approval->approval_action_id == "7")
@@ -266,11 +279,11 @@
         <form action="{{ url('/')}}/workorder/choose-budget" method="post">
         <div class="modal-body">
           <div class="form-group">
-            <label>Budget Tahunan</label>            
+            <label>Fasilitas Kota / Cluster</label>            
               {{ csrf_field() }}
             <input type="hidden" name="workoder_par_id" value="{{ $workorder->id}}">
             <select class="form-control" name="budget_tahunan" id="budget_tahunan" required>
-              <option value="">( pilih budget tahunan)</option>
+              <option value="">( pilih Fasilitas Kota / Cluster)</option>
               @foreach ( $workorder->departmentFrom->budgets as $key => $value )
               @if ( $value->deleted_at == "")
                 @if ( $value->project_id == $project->id )
@@ -278,7 +291,7 @@
                   @if ( $value2->approval != "" )
                     @if ( $value2->approval->approval_action_id == 6 )
                       @if ( $value2->tahun_anggaran == date('Y') && $value2->nilai != "")
-                        <option value="{{ $value2->id }}">{{ $value2->no }} ( {{ $value2->budget->kawasan->name or 'Fasilitas Kota'}} )</option>
+                        <option value="{{ $value2->id }}">{{ $value2->budget->kawasan->name or 'Fasilitas Kota'}}</option>
                       @endif
                     @endif
                   @endif
@@ -330,6 +343,13 @@
 <script src="{{ url('/')}}/assets/plugins/input-mask/jquery.inputmask.extensions.js"></script>
 
 <script type="text/javascript">
+
+  $(function(){
+    $('#start_date').datepicker({
+      "dateFormat" : "yy-mm-dd"
+    });
+  })
+
   function disablebtn(id){
     var valor = [];
     $('input.disable_unit[type=checkbox]').each(function () {

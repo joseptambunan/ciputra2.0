@@ -47,7 +47,7 @@ class Project extends Model
 
     public function getWorkordersAttribute()
     {
-        return \Modules\Workorder\Entities\Workorder::where( 'budget_tahunan_id',  $this->id )->get();
+        return \Modules\Workorder\Entities\Workorder::where( 'budget_tahunan_id',  $this->id )->orderBy("id","desc")->get();
     }
 
     public function getProjectAttribute()
@@ -57,7 +57,7 @@ class Project extends Model
 
     public function getRabsAttribute()
     {
-        return \App\Rab::whereHas( 'workorder', function($workorder){
+        return \Modules\Rab\Entities\Rab::whereHas( 'workorder', function($workorder){
             $workorder->whereHas('budget_tahunan', function($budgettahunan){
                 $budgettahunan->whereHas('budget', function($budget){
                     $budget->where('project_id', $this->id);
@@ -380,22 +380,94 @@ class Project extends Model
         return $nilai;
     }
 
-    public function getApprovalPendingAttribute(){
-        $nilai = 0;
-        $user = \Auth::user();
-        /* Get Budget Approval */
-        foreach ($this->budgets as $key => $value) {
-            # code...
-            $nilai = $nilai + $value->approval->histories->where("user_id",$user->id)->where("approval_action_id",1)->count();
-        }
-
-        /* Get Workorder Approval */
+    public function getApprovalSuccessAttribute(){
+        $result = array();
+        $start = 0;
+        $start_date = date("Y-m-d H:i:s");
+        $array_class = array(
+            "6" => array("class" => "label label-success", "status" => "Disetujui"),
+            "7" => array("class" => "label label-danger", "status" => "Ditolak"),
+            "1" => array("class" => "label label-success", "status" => "Dalam Pengerjaan")
+        );
+        //Get All Workorder
         foreach ($this->workorders as $key => $value) {
-            # code...
-            $nilai = $nilai + $value->approval->histories->where("user_id",$user->id)->where("approval_action_id",1)->count();
+            if ( $value->approval != "" ){
+                if ( $value->approval->approval_action_id != 1 ){
+                    if ( count($value->detail_pekerjaan) > count($value->rabs) ){
+                        $result[$start] = array ("document_type" => "Workorder","url" => "/workorder/detail/?id=",  "id" => $value->id, "name" => $value->name, "class" => $array_class[$value->approval->approval_action_id]['class'], "status" => $array_class[$value->approval->approval_action_id]['status'], "last_updated" => date("d/M/Y",strtotime($value->approval->updated_at)) );
+                        $start++;
+                    }
+                }
+            }else{
+                if ( (count($value->detail_pekerjaan) > count($value->rabs)) || count($value->detail_pekerjaan) <= 0 ){
+                    $result[$start] = array ("document_type" => "Workorder","url" => "/workorder/detail/?id=",  "id" => $value->id, "name" => $value->name, "class" => "label label-warning", "status" => "Dalam Pengerjaan", "last_updated" => date("d/M/Y",strtotime($value->created_at) ));
+                    $start++;
+                }
+            }
         }
 
-        return $nilai;
+        //Get All Rab
+        foreach ($this->workorders as $key2 => $value2) {
+            foreach ($value2->rabs as $key => $value) {
+                if ( $value->approval != "" ){
+                    if ( $value->approval->approval_action_id != 1 ){
+                        if ( count($value->tenders) <= 0 ){
+                            $result[$start] = array ( "document_type" => "RAB / OE", "url" => "/rab/detail/?id=",  "id" => $value->id, "name" => $value->name, "class" => $array_class[$value->approval->approval_action_id]['class'], "status" => $array_class[$value->approval->approval_action_id]['status'], "last_updated" => date("d/M/Y",strtotime($value->approval->updated_at) ));
+                            $start++;
+                        }
+                    }
+                }else{
+                    //if ( $value->tenders != "" ){
+                        $result[$start] = array ( "document_type" => "RAB / OE", "url" => "/rab/detail/?id=",  "id" => $value->id, "name" => $value->name, "class" => "label label-warning", "status" => "Dalam Pengerjaan", "last_updated" => date("d/M/Y",strtotime($value->updated_at) ));
+                        $start++;
+                    //}
+                }
+            }
+        }
+        
+        //Get All Tender
+        foreach ($this->tenders->get() as $key => $value) {
+            $approval_rekanan = 0;
+            if ( $value->approval != "" ){
+                if ( $value->approval->approval_action_id != 1 ){
+                    if ( $value->approval->approval_action_id == 6 ){
+                        if ( count($value->spks) <= 0 ){
+                            $result[$start] = array( "document_type" => "Tender", "url" => "/tender/detail?id=", "id" => $value->id, "name" => $value->name, "class" => $array_class[$value->approval->approval_action_id]['class'], "status" => "Pemenang telah dipilih");
+                            $start++;
+                        }
+                    }elseif ( $value->approval->approval_action_id == 6 ){
+                        if ( count($value->spks) <= 0 ){
+                            $result[$start] = array( "document_type" => "Tender", "url" => "/tender/detail?id=", "id" => $value->id, "name" => $value->name, "class" => $array_class[$value->approval->approval_action_id]['class'], "status" => "Pemenang Ditolak");
+                            $start++;
+                        }
+                    }
+
+                    
+                }elseif ( $value->approval->approval_action_id == 1) {
+                    foreach ($value->rekanans as $key2 => $value2) {
+                        if ( $value2->approval != "" ){
+                            if ( $value2->approval->approval_action_id == "6" || $value2->approval->approval_action_id == "7" ){
+                                $approval_rekanan++;
+                            }
+                        }
+                    }
+
+                    if ( $approval_rekanan == count($value->rekanans)){
+                        if ( count($value->spks) <= 0 ){
+                            $result[$start] = array( "document_type" => "Tender", "url" => "/tender/detail?id=", "id" => $value->id, "name" => $value->name, "class" => "label label-success" , "status" => "Rekanan telah direview");
+                            $start++;
+                        }
+                    }
+                }
+            }else{
+                if ( count($value->spks) <= 0 ){
+                    $result[$start] = array( "document_type" => "Tender", "url" => "/tender/detail?id=", "id" => $value->id, "name" => $value->name, "class" => "label label-warning", "status" => "Dalam Pengerjaan" );
+                    $start++;
+                }
+            }
+        }
+
+        return $result;
     }
 
     public function getNettoAttribute(){
@@ -735,7 +807,7 @@ class Project extends Model
         $hpp_update->nilai_budget = $nilai_budget;
         $hpp_update->luas_book = $luas_book;
         $hpp_update->luas_erem = $luas_erem;
-        $hpp_update->created_at = date("Y-m-d H:i:s");
+        $hpp_update->created_at = date("Y-m-d H:i:s.u");
         $hpp_update->created_by = 1;
         $hpp_update->netto = $this->netto;
         $hpp_update->save();
@@ -744,7 +816,7 @@ class Project extends Model
             $hpp_update_detail = new \Modules\Budget\Entities\HppUpdateDetail;
             $hpp_update_detail->hpp_update_id = $hpp_update->id;
             $hpp_update_detail->budget_id = $value->id;
-            $hpp_update_detail->created_at = date("Y-m-d H:i:s");
+            $hpp_update_detail->created_at = date("Y-m-d H:i:s.u");
             $hpp_update_detail->created_by = 1;
             $hpp_update_detail->save();
         }
@@ -752,7 +824,7 @@ class Project extends Model
 
     public function getLuasGrossHppAttribute(){
         $nilai = 0;
-        if ( $this->luas_rencana_netto_hpp > 0 && $this->netto > 0 ){
+        if ( $this->luas_rencana_netto_hpp > 0 && $this->netto > 0 && $this->luas > 0 ){
             $nilai =  $this->luas_rencana_netto_hpp / ( ( $this->netto / $this->luas )) ; 
         }
 

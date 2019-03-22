@@ -18,8 +18,13 @@ Route::group(['middleware' => 'web', 'prefix' => 'workorder', 'namespace' => 'Mo
     Route::get('/non-budget','WorkorderController@nonbudget');
     Route::post('/updapprove','WorkorderController@updapprove');
     Route::post('/deletepekerjaan','WorkorderController@deletepekerjaan');
-
     Route::get('/unit','WorkorderController@getallunit');
-
     Route::post('/savenonbudget','WorkorderController@savenonbudget');
+    Route::post('/search','WorkorderController@searchworkorder');
+    Route::post('/itemdetail','WorkorderController@itemdetail');
+    Route::post('/search','WorkorderController@search');
+    Route::get('/dokument','WorkorderController@dokumen');
+    Route::post('/save-document','WorkorderController@savedocument');
+    Route::post('/deletedocument','WorkorderController@deletedocument');
+    Route::get('/downloaddoc','WorkorderController@downloaddoc');
 });

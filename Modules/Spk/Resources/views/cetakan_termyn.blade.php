@@ -53,30 +53,33 @@
       <tr>
         <td>
           <br/><br/>
-            <table style="width: 100%;border:1px solid black;border-collapse: collapse;" border="1">
+            <table style="width: 100%;border:1px solid black;border-collapse: collapse;" border="1" cellspacing="3" cellpadding="3">
               <tr>
                 <td>Item Pekerjaan</td>
                 <td>Nilai SPK + VO</td>
-                <td>Progress Kumulatif</td>
-                <td>Prestasi Kumulatif</td>
-                <td>Prestasi yang Lalu</td>
-                <td>Total yang dibayar</td>
+                <td>Progress Lapangan Kumulatif</td>
+                <td>Progress Pembayaran Kumulatif</td>
+                <td>Pembayaran Kumulatif</td>
+                <td>Pembayaran yang Lalu</td>
+                <td>Total yang dibayarkan</td>
                 <td>% dibayar</td>
               </tr>
-                @php $before = 0; $latest = 0;$percentage_before = 0; @endphp
+                @php $before = 0; $latest = 0;$percentage_before = 0;$percent_dibayar = 0; @endphp
                 @foreach ( $spk->baps as $key => $value )
                 <tr>
                   <td>{{ $spk->name }}</td>
                   <td>{{ number_format($value->nilai_spk + $value->nilai_vo)}}</td>
                   <td>{{ number_format($value->percentage_lapangan)}} %</td>
+                  <td>{{ number_format($persen = ($value->nilai_bap_2 / ($value->nilai_spk + $value->nilai_vo)) * 100 )}} %</td>
                   <td>{{ number_format($value->nilai_bap_2)}}</td>
                   <td>{{ number_format($before)}}</td>
-                  <td>{{ number_format($value->nilai_bap_2)}}</td>
-                  <td>{{ number_format($value->percentage_lapangan - $percentage_before)}} %</td>
+                  <td>{{ number_format($value->nilai_bap_2 - $latest)}}</td>
+                  <td>{{ number_format($persen - $percent_dibayar)}} %</td>
                   @php 
                     $before = $value->nilai_bap_2; 
                     $latest = $value->nilai_bap_2;
                     $percentage_before = $value->percentage_lapangan;  
+                    $percent_dibayar = $persen;
                   @endphp
                 </tr>
                 @endforeach

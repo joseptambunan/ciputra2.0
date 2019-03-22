@@ -37,6 +37,8 @@
               <button type="submit" class="btn btn-primary">Simpan</button>
               {{ csrf_field() }}
               <input type="hidden" name="tender_id" value="{{ $tenderpenawaran->id }}"><br>
+              
+              <input type="hidden" name="tender_rekanan" value="{{ $tenderRekanan->id }}">
               <h3><center>Rekanan : <strong>{{ $tenderRekanan->rekanan->name }}</strong></center></h3>
               <hr>
               <table class="table table-bordered">

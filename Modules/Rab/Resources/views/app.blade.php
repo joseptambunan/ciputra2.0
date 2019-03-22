@@ -8,7 +8,7 @@ $( document ).ready(function() {
     });
 
   $(".nilai_budgets").number(true);
-  $('.select2').select2()
+  $('.select2').select2();
 });
   
 $("#item_coa").change(function(){
@@ -32,7 +32,7 @@ $("#item_coa").change(function(){
 
   request.done(function(data){
   	$("#itempekerjaan").html(data.html);
-    $("#budget_total").html(data.budget);
+    //$("#budget_total").html(data.budget);
     $("#budget_total").number(true);
     $("#budget_total_val").val(data.budget);
     $("#budget_tahunan_id").val(data.budget_tahunan_id);
@@ -186,5 +186,10 @@ function apprioval(id){
     }else{
       return false;
     }
+  }
+
+  function showUnitType(id){
+    $(".type").hide();
+    $(".type_" + id).show();
   }
 </script>

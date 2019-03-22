@@ -82,4 +82,5 @@ Route::group(['middleware' => 'web', 'prefix' => 'access', 'namespace' => 'Modul
 
 	Route::get('/budget/cashflow/referensi','AccessController@budgetcfreferensi');
 	
+	Route::get('/workorder/dokumen/','AccessController@workorderdetaildocument');
 });

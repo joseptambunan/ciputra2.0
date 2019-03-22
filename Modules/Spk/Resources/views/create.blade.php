@@ -85,7 +85,45 @@
                     @endif   
                 @endif
               @endif
+              
+              <!-- /.form-group -->
+            </div>
+            <!-- /.col -->
+             <div class="col-md-6">
+              <h3>&nbsp;</h3>
+              <div class="form-group">
+                <label>Start Date</label> 
+                <input type="hidden" id="durasi" name="durasi" value="{{ $spk->tender->durasi }}">
+                <input type="text" class="form-control" name="start_date" id="start_date" value="{{ date('d/M/Y',strtotime($spk->start_date)) }}" autocomplete="off" required >
+              </div> 
+              <div class="form-group">
+                <label>End Date ( Rencana Durasi : <strong>{{ $spk->tender->durasi}}</strong> Hari Kalender )</label>
+                <input type="text" class="form-control" name="end_date" id="end_date" value="@if ( $spk->finish_date != null ) {{ date('d/M/Y',strtotime($spk->finish_date)) }}  @endif" autocomplete="off" required>
+              </div> 
+              
+              <div class="form-group">
+                <label>Serah Terima 1</label>
+                <input type="text" class="form-control" name="st_1" id="st_1"  value="@if ( $spk->st_1 != null ) {{ date('d/M/Y',strtotime($spk->st_1)) }}  @endif" autocomplete="off" readonly>
+              </div> 
+              @if ( count($spk->retensis) > 0 )
+              <div class="form-group">
+                <label>Serah Terima 2</label>
+                <input type="text" class="form-control" name="st_2" id="st_2" value="@if ( $spk->st_2 != null ) {{ date('d/M/Y',strtotime($spk->st_2)) }}  @endif" autocomplete="off" readonly required>
+              </div> 
+              <div class="form-group">
+                <label>Serah Terima 3</label>
+                <input type="text" class="form-control" name="st_3" id="st_3" value="@if ( $spk->st_3 != null ) {{ date('d/M/Y',strtotime($spk->st_3)) }}  @endif" readonly>
+              </div> 
+              @else
+              <div class="form-group">
+                <h4>Harap isi retensi sebelum mengisi data serah terima</h4>
+              </div>
+              @endif
+            </div>
+            <div class="col-md-12">
               <div class="box-footer">
+                <button class="btn btn-success">Cetak Laporan Tender</button>
+                <button class="btn btn-success">Cetak SIPP</button>
                 @if ( $spk->rekanan->supps->count() > 0 )
                   <a class="btn bg-purple" href="{{ url('/')}}/spk/supp/show?id={{$spk->id}}">SUPP</a>
                   @if ( $spk->approval == "" )
@@ -131,39 +169,6 @@
                 <h3 style="color:red;"><strong>Rekanan ini belum memiliki SUPP.<br> Silahkan isi form SUPP menggunakan <a href="{{ url('/')}}/spk/supp/?id={{$spk->id}}" class="btn btn-info">Tombol ini.</a></strong></h3>
                 @endif
               </div>
-              <!-- /.form-group -->
-            </div>
-            <!-- /.col -->
-             <div class="col-md-6">
-              <h3>&nbsp;</h3>
-              <div class="form-group">
-                <label>Start Date</label> 
-                <input type="hidden" id="durasi" name="durasi" value="{{ $spk->tender->durasi }}">
-                <input type="text" class="form-control" name="start_date" id="start_date" value="{{ $spk->start_date->format('d/m/Y') }}" autocomplete="off" required >
-              </div> 
-              <div class="form-group">
-                <label>End Date ( Rencana Durasi : <strong>{{ $spk->tender->durasi}}</strong> Hari Kalender )</label>
-                <input type="text" class="form-control" name="end_date" id="end_date" value="@if ( $spk->finish_date != null ) {{ $spk->finish_date->format('d/m/Y') }}  @endif" autocomplete="off" required>
-              </div> 
-              
-              <div class="form-group">
-                <label>Serah Terima 1</label>
-                <input type="text" class="form-control" name="st_1" id="st_1"  value="@if ( $spk->st_1 != null ) {{ $spk->st_1 }}  @endif" autocomplete="off" readonly>
-              </div> 
-              @if ( count($spk->retensis) > 0 )
-              <div class="form-group">
-                <label>Serah Terima 2</label>
-                <input type="text" class="form-control" name="st_2" id="st_2" value="@if ( $spk->st_2 != null ) {{ $spk->st_2 }}  @endif" autocomplete="off" readonly required>
-              </div> 
-              <div class="form-group">
-                <label>Serah Terima 3</label>
-                <input type="text" class="form-control" name="st_3" id="st_3" value="@if ( $spk->st_3 != null ) {{ $spk->st_3 }}  @endif" readonly>
-              </div> 
-              @else
-              <div class="form-group">
-                <h4>Harap isi retensi sebelum mengisi data serah terima</h4>
-              </div>
-              @endif
             </div>
             </form>
             <!-- /.col -->
@@ -173,8 +178,8 @@
                   <div class="nav-tabs-custom"> 
                     <ul class="nav nav-tabs">                      
                       <li class="active"><a href="#tab_7" data-toggle="tab">Data DP</a></li>
-                      <li><a href="#tab_8" data-toggle="tab">Retensi</a></li>
-                      <li><a href="#tab_1" data-toggle="tab">Data Pembayaran</a></li>
+                      <li><a href="#tab_8" data-toggle="tab">Retensi</a></li><!-- 
+                      <li><a href="#tab_1" data-toggle="tab">Data Pembayaran</a></li> -->
                       <li><a href="#tab_2" data-toggle="tab">Item Pekerjaan</a></li>                
                       <li><a href="#tab_3" data-toggle="tab">Unit</a></li>            
                       <li><a href="#tab_4" data-toggle="tab">Progress Lapangan</a></li>
@@ -259,31 +264,7 @@
 
                         @if ( $spk->approval != "" )
                           @if ( $spk->approval->approval_action_id == "7")
-                            @if ( $spk->baps->count() <= 0 )
-                            <form action="{{ url('/')}}/spk/update-dp" method="post" name="form1">
-                              <input type="hidden" name="spk_id" value="{{ $spk->id }}">
-                              {{ csrf_field() }}
-                              <div class="form-group">
-                                <select class="form-control" name="dp_type">
-                                  @foreach ( $spktype as $key3 => $value3 )
-                                  <option value="{{ $value3->id }}">{{ $value3->description }}</option>
-                                  @endforeach
-                                </select>
-                              </div>
-                              
-                              <div class="form-group">
-                                <label>DP Percent(%)</label>
-                                <input type="text" value="{{ $spk->dp_percent }}" name="dp_percent" class="form-control" autocomplete="off">
-                              </div>
-                              
-                              <div class="box-footer">                               
-                                   @if ( $spk->approval != "" )
-                                  <button type="submit" class="btn btn-primary">Simpan</button>                 
-                                @endif
                             
-                              </div>
-                            </form>
-                            @endif
                             
                             @if ( $spk->spk_type_id == "1")
                               @if ( $spk->dp_percent != "" )
@@ -320,30 +301,7 @@
                             <span id="total_dp_percent"></span> %<br>
                           @endif
                         @else
-                            @if ( $spk->baps->count() <= 0 )
-                            <form action="{{ url('/')}}/spk/update-dp" method="post" name="form1">
-                              <input type="hidden" name="spk_id" value="{{ $spk->id }}">
-                              {{ csrf_field() }}
-                              <div class="form-group">
-                                <select class="form-control" name="dp_type">
-                                  @foreach ( $spktype as $key3 => $value3 )
-                                  <option value="{{ $value3->id }}">{{ $value3->description }}</option>
-                                  @endforeach
-                                </select>
-                              </div>
-                              
-                              <div class="form-group">
-                                <label>DP Percent(%)</label>
-                                <input type="text" value="{{ $spk->dp_percent }}" name="dp_percent" class="form-control" autocomplete="off">
-                              </div>
-                              
-                              <div class="box-footer">
-                                
-                                  <button type="submit" class="btn btn-primary">Simpan</button>                 
-                                
-                              </div>
-                            </form>
-                            @endif
+                            
                             
                             @if ( $spk->spk_type_id == "1")
                               @if ( $spk->dp_percent != "" )
@@ -607,7 +565,6 @@
                         @endif
                       </div>
                       <div class="tab-pane" id="tab_5">
-                        <a href="{{ url('/')}}/spk/sik-create?id={{ $spk->id }}" class="btn btn-primary">Tambah Surat Instruksi </a>
                         <table class="table table-bordered">
                           <thead class="head_table">
                             <tr>
@@ -717,7 +674,6 @@
 @if ( $spk->approval->approval_action_id == 6 )
 @include("spk::cetakan")
 @include("spk::cetakan_bap")
-@include("spk::cetakan_termyn")
 @endif
 @endif
 

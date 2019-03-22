@@ -34,8 +34,20 @@ Route::group(['middleware' => 'web', 'prefix' => 'tender', 'namespace' => 'Modul
     Route::get('/approval_history','TenderController@approval_history');
 
     Route::post('/update-document','TenderController@updatedocument');
-    Route::get('/rekanan/referensi','TenderController@referensi');
+
     Route::post('/rekanan/all','TenderController@searchreferensi');
     Route::post('/rekanan/cari','TenderController@searchreferensi');
+    Route::get('/rekanan/referensi','TenderController@referensi');
+    Route::get('/rekanan/referensi/add','TenderController@addreferensi');
+    Route::post('/rekanan/save','TenderController@savereferensi');
 
-});
+    Route::get('/aanwijing','TenderController@aanwijing');
+    Route::post('/aanwijing/save','TenderController@saveannwijing');
+    Route::get('/aanwijing/detail','TenderController@showaanwijing');
+    Route::post('/aanwijing/update','TenderController@updateaanwijing');
+
+    Route::get('/berita_acara','TenderController@berita_acara');
+    Route::post('/berita_acara/save','TenderController@saveberita_acara');
+    Route::post('/berita_acara/update','TenderController@updberita_acara');
+    Route::get('/berita_acara/show','TenderController@showberita_acara');
+}); 

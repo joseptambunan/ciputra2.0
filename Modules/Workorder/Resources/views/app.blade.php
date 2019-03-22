@@ -21,6 +21,11 @@
     $('#end_date').datepicker({
       "dateFormat" : "yy-mm-dd"
     });
+
+    //$(".select2").select2();
+    $("#tanggal_workorder").datepicker({
+      "dateFormat" : "dd-mm-yy"
+    });
   });
 
   $("#department_from").change(function(){
@@ -148,7 +153,7 @@
     $("#subtotal_" + id).text(subtotal);
     $("#subtotals_" + id).val(subtotal);
     if ( intLimit < total ){
-      $("#btn_submit").hide();
+      //$("#btn_submit").hide();
       $("#message_" + parent_id).text("Item pekerjaan ini melewati budget tahunan");
     }else{
       $("#btn_submit").show();
@@ -162,5 +167,28 @@
     $("#total_" + parent_id).text(total_value);
     $("#subtotal_" + id).number(true);
     $("#total_" + parent_id).number(true); 
+ }
+
+ function removeDokumen(id){
+  if ( confirm("Apakah anda yakin ingin menghapus data ini ?")){
+    var request = $.ajax({
+      url : "{{ url('/')}}/workorder/deletedocument",
+      dataType : "json",
+      data : {
+        id : id
+      },
+      type : "post"
+    });
+
+    request.done(function(data){
+      if (data.status == "0"){
+        alert("Data telah dihapus");
+      }
+
+      window.location.reload();
+    })
+  }else{
+    return false;
+  }
  }
 </script>

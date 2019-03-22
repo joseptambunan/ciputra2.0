@@ -28,5 +28,9 @@ class RekananGroup extends CustomModel
     public function project(){
         return $this->belongsTo("Modules\Project\Entities\Project");
     }
+
+    public function supps(){
+        return $this->hasMany("Modules\Rekanan\Entities\RekananSupp","rekanan_id");
+    }
    
 }

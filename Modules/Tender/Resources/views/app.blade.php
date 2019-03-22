@@ -111,5 +111,75 @@ function printspk(){
     myPrintWindow.print();
     myPrintWindow.close();    
     return false;
-  }
+}
+
+function generateTermyn(){
+    var termyn = $("#sistem_pembayaran").val();
+    var html = "";
+    for ( var i = 1; i <= parseInt(termyn); i++ ){
+        if ( i == 1 ){
+
+            html += "<tr>";
+            html += "<td>" + i + "</td>";
+            html += "<td> Termyn ke " + i + " (DP)</td>";
+            html += "<td><input type='text' class='form-control nilai_budget percent_termyn' name='termyn["+ i +"]' onKeyUp='countPercentage();' autocomplete='off' maxlength='2' required/></td>";
+            html += "</tr>";
+        }else{
+            html += "<tr>";
+            html += "<td>" + i + "</td>";
+            html += "<td> Termyn ke " + i + "</td>";
+            html += "<td><input type='text' class='form-control nilai_budget percent_termyn' name='termyn["+ i +"]' onKeyUp='countPercentage();' autocomplete='off' maxlength='2' required/></td>";
+            html += "</tr>";
+
+        }
+    }
+    $("#list_termyn").html(html);
+    $(".nilai_budget").number(true);
+}
+
+function countPercentage(){
+    var i = $("#limit_count").val();
+    $(".percent_termyn").each(function() {
+        if ( $(this).val() != ""){            
+            i = parseInt(i) + parseInt($(this).val());
+            if ( i > 100 ){
+                alert("Percentage lebih dari 100% ");
+                i = parseInt(i) - parseInt($(this).val());
+                $(this).val(0);
+            }
+        }
+    });
+    $("#label_count").text(i);
+    $("#label_count").number(true);
+}
+
+function generateRetensi(){
+    var termyn = $("#retensi").val();
+    var html = "";
+    for ( var i = 1; i <= parseInt(termyn); i++ ){
+        html += "<tr>";
+        html += "<td>" + i + "</td>";        
+        html += "<td><input type='text' class='form-control nilai_retensi percent_retensi' name='percent["+ i +"]' onKeyUp='countPercentage();' autocomplete='off' maxlength='1'/></td>";
+        html += "<td><input type='text' class='form-control' name='waktu["+ i +"]' autocomplete='off'/></td>";
+        html += "</tr>";
+    }
+    $("#list_retensi").html(html);
+    $(".nilai_retensi").number(true,2);
+}
+
+function countRetensi(){
+    var i = $("#limit_retensi").val();
+    $(".percent_retensi").each(function() {
+        if ( $(this).val() != ""){            
+            i = parseInt(i) + parseInt($(this).val());
+            if ( i > 5 ){
+                alert("Percentage lebih dari 5% ");
+                i = parseInt(i) - parseInt($(this).val());
+                $(this).val(0);
+            }
+        }
+    });
+    $("#label_retensi").text(i);
+    $("#label_retensi").number(true);
+}
 </script>

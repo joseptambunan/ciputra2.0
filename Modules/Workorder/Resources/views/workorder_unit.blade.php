@@ -42,15 +42,15 @@
                   <button type="submit" class="btn btn-primary" id="btn_submit" disabled>Save changes</button>
                 </div>
                 {{ csrf_field() }}
-                <table class="table-bordered table table-responsive">
+                <table id="example2" class="table-bordered table table-responsive">
                   <thead class="head_table">
                     <tr>
                       <td>Unit Name</td>
                       <td>Type</td>
                       <td>Set to WO</td>
                       <td>Status Unit</td>
-                      <td>Tanggal DP Konsumen Lunas</td>
-                      <td>Target Harus Mulai Bangun</td>
+                      <td>Tgl DP Kons. Lunas-Akad Kredit</td>
+                      <td>Target Hrs Mulai Bangun</td>
                       <td>No. SPT</td>
                     </tr>
                   </thead>
@@ -179,6 +179,12 @@
       $("#btn_submit").removeAttr("disabled");
     }
   }
+
+  $(document).ready( function () {
+    $('#example1').DataTable({
+      
+    });
+  });
 </script>
 </body>
 </html>

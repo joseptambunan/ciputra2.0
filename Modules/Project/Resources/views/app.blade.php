@@ -133,4 +133,63 @@ function removeblok(id,name) {
       return false;
     }
   }
+
+  function addunitdelete(id){
+    if ( $("#delete_unit_" + id).is(":checked")){
+      var unit_id = $("#unit_id").val();
+      var add_unit_id = unit_id + "," + id;
+      $("#unit_id").val(add_unit_id);
+    }else{
+      var unit_id = $("#unit_id").val();
+      var replace_unit_id = unit_id.replace("," + id, "");
+      $("#unit_id").val(replace_unit_id);
+    }
+  }
+
+  $("#btn_del_unit").click(function(){
+    if ( $("#unit_id").val() == "" ){
+      alert("Unit yang dihapus tidak ada");
+      return false;
+    }else{
+      var request = $.ajax({
+        url : "{{ url('/')}}/project/delete-unit",
+        dataType : "json",
+        data : {
+          unit_id : $("#unit_id").val()
+        },
+        type : "post"
+      });
+
+      request.done(function(data){
+        if ( data.status == "0"){
+          alert("Unit telah dihapus");
+        }
+
+        window.location.reload();
+      });
+    }
+  });
+
+  function removeGambar(id){
+    if ( confirm("Apakah anda yakin ingin menghapus data ini ?")){
+      var request = $.ajax({
+        url : "{{ url('/')}}/project/spesifikasi-delete",
+        dataType : "json",
+        data : {
+          id : id
+        },
+        type : "post"
+      });
+
+      request.done(function(data){
+        if ( data.status == "0"){
+          alert("Data telah dihapus");
+        }
+
+        window.location.reload();
+      });
+    }else{
+      return false;
+    }
+  }
 </script>

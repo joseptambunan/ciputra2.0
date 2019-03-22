@@ -26,56 +26,73 @@
         <div class="col-xs-12">
           <div class="box">
             <div class="box-header">
-              <h3 class="box-title">Data RAB dari WO <strong>{{ $workorder->no }}</strong> </h3>
+              <h3 class="box-title">Data RAB dari WO <strong>{{ $workorder->no }}</strong> </h3><br/>
+              Total Nilai Workorder : <strong>Rp. {{ number_format($workorder->nilai)}}</strong><br/>
+              @if ( $workorder->approval != "" )
+              Tanggal Approval : {{ date("d/M/Y", strtotime($workorder->approval->updated_at)) }}
+              @endif
             </div>
             <!-- /.box-header -->
             <div class="box-body table-responsive">
-              <a href="{{ url('/')}}/rab/add?id={{ $workorder->id }}" class="btn-lg btn-primary"><i class="glyphicon glyphicon-plus-sign"></i>Tambah Data RAB</a>
+              <a href="{{ url('/')}}/workorder/detail?id={{$workorder->id}}" class="btn btn-warning">Kembali</a>
+   <!--            <a href="{{ url('/')}}/rab/add?id={{ $workorder->id }}" class="btn btn-primary"><i class="glyphicon glyphicon-plus-sign"></i>Tambah Data RAB</a> -->
               <table id="example2" class="table table-bordered table-hover">
                 <thead class="head_table">
                 <tr>
                   <th>No. Workorder </th>
                   <th>No. Rab</th>
                   <th>Pekerjaan</th>
-                  <th>Nilai</th>
                   <th>Dibuat oleh</th>
-                  <th>Tanggal Dibuat</th>
-                  <th>Detail</th>
-                  <th>Status Approval</th>
+                  <th>Dokumen Pendukung</th>
+                  <th>RAB / OE</th>
+                  <th>Status Approval RAB / OE </th>
+                  <th>Tender</th>
                 </tr>
                 </thead>
                 <tbody>
-                  @foreach ( $workorder->rabs as $key => $value )
-                  @if ( $value->pekerjaans->count() > 0 )
+                  @foreach ( $workorder->detail_pekerjaan as $key => $value )
+                  @php
+                    $array = array (
+                      "6" => array("label" => "Disetujui", "class" => "label label-success"),
+                      "7" => array("label" => "Ditolak", "class" => "label label-danger"),
+                      "1" => array("label" => "Dalam Proses", "class" => "label label-warning"),
+                      "" => array("label" => "","class" => "")
+                    )
+                  @endphp
                   <tr>
-                    <td>{{ $workorder->no }}</td>
-                    <td>{{ $value->no }}</td>
-                    <td>{{ \Modules\Pekerjaan\Entities\Itempekerjaan::find($value->pekerjaans->last()->itempekerjaan->parent->id)->code }} - {{ \Modules\Pekerjaan\Entities\Itempekerjaan::find($value->pekerjaans->last()->itempekerjaan->parent->id)->name }}</td>
-                    <td>{{ number_format($value->nilai) }}</td>
-                    <td>{{ \App\User::find($value->created_by)->user_name }}</td>
-                    <td>{{ $value->created_at }}</td>
-                    <td><a href="{{ url('/')}}/rab/detail?id={{ $value->id }}" class="btn btn-warning">Detail</td>
+                    <td>{{ $value->workorder->no }}</td>
+                    <td>{{ $value->rab->no or ''}}</td>
+                    <td>{{ $value->itempekerjaan->name }}</td>
+                    <td>{{ \App\User::find($value->workorder->created_by)->user_name }}</td>
+                    <td><a class="btn btn-info" href="{{ url('/')}}/workorder/dokument?id={{ $value->id }}">Detail Dokumen</a></td>
                     <td>
-                      @if ( $value->approval == "" )
-                          @if ( $value->pekerjaans != "" && $value->units != "" )
-                            <button onclick="apprioval('{{ $value->id}}')" class="btn btn-primary">Request Approval</button>
-                          @else
-                          <span>Harap lengkapi unit dan pekerjaan RAB ini</span>
-                        @endif
+                      @if ( $value->rab == "" )
+                        <a class="btn btn-primary" href="{{ url('/')}}/rab/savelink?id={{$value->id}}">Buat RAB</a>
                       @else
-                      @php
-                        $array = array (
-                          "6" => array("label" => "Disetujui", "class" => "label label-success"),
-                          "7" => array("label" => "Ditolak", "class" => "label label-danger"),
-                          "1" => array("label" => "Dalam Proses", "class" => "label label-warning"),
-                          "" => array("label" => "","class" => "")
-                        )
-                      @endphp
-                      <span class="{{ $array[$value->approval->approval_action_id]['class'] }}">{{ $array[$value->approval->approval_action_id]['label'] }}</span>
-                      @endif               
+                        <a class="btn btn-primary" href="{{ url('/')}}/rab/detail?id={{$value->rab->id}}">Detail RAB</a>
+                      @endif
+                    </td>
+                    <td>
+                      @if ( $value->all_rab != "" )
+                        @if ( $value->all_rab->approval != "")
+                          <span class="{{ $array[$value->all_rab->approval->approval_action_id]['class'] }}">{{ $array[$value->all_rab->approval->approval_action_id]['label'] }} </span>
+                        @endif
+                      @endif
+                    </td>
+                    <td>
+                       @if ( $value->all_rab != "" )
+                        @if ( $value->all_rab->approval != "")
+                          @if ( $value->all_rab->approval->approval_action_id == 6 )
+                            @if ( count($value->all_rab->tenders) > 0 )                              
+                              <a class="btn btn-primary" href="{{ url('/')}}/tender/detail/?id={{$value->all_rab->tenders->first()->id}}">Tender</a>
+                            @else
+                              <a class="btn btn-primary" href="{{ url('/')}}/rab/tender?id={{$value->all_rab->id}}">Tender</a>
+                            @endif
+                          @endif
+                        @endif
+                      @endif
                     </td>
                   </tr>
-                  @endif
                   @endforeach
                 </tbody>
               </table>

@@ -17,4 +17,6 @@ Route::group(['middleware' => 'web', 'prefix' => 'rab', 'namespace' => 'Modules\
     Route::post('/delete-pekerjaan','RabController@deletepekerjaan');
     Route::get('/approval_history','RabController@approval_history');
     Route::get('/selectpekerjaan','RabController@selectpekerjaan');
+    Route::get('/tender','RabController@createtender');
+    Route::get('/savelink','RabController@savelink');
 });

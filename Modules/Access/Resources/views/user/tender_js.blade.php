@@ -45,7 +45,8 @@
       data: {
          user_id : $("#user_id").val(),
         budget_id : budget_id,
-        status : $("#btn_save_budgets").attr("data-value")
+        status : $("#btn_save_budgets").attr("data-value"),
+        description : description
       },
       type :"get",
       dataType :"json"     

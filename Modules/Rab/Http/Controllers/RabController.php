@@ -16,6 +16,8 @@ use Modules\Asset\Entities\Asset;
 use Modules\Budget\Entities\BudgetTahunan;
 use Modules\Budget\Entities\BudgetTahunanDetail;
 use Modules\Workorder\Entities\WorkorderBudgetDetail;
+use Modules\Tender\Entities\Tender;
+use Modules\Tender\Entities\TenderUnit;
 
 class RabController extends Controller
 {
@@ -228,6 +230,15 @@ class RabController extends Controller
                 $rabpekerjaan->satuan = $request->satuan_[$key];
                 $rabpekerjaan->created_by  = \Auth::user()->id;
                 $rabpekerjaan->save();
+            }else{
+                $rabpekerjaan = new RabPekerjaan;
+                $rabpekerjaan->rab_unit_id = $rab->id;
+                $rabpekerjaan->itempekerjaan_id = $request->item_id[$key];
+                $rabpekerjaan->nilai =0;
+                $rabpekerjaan->volume = 0;
+                $rabpekerjaan->satuan = $request->satuan_[$key];
+                $rabpekerjaan->created_by  = \Auth::user()->id;
+                $rabpekerjaan->save();
             }
         }      
         return redirect("/rab/detail?id=".$rab->id);          
@@ -368,4 +379,125 @@ class RabController extends Controller
         $user = \Auth::user();
         return view("rab::rab_pekerjaan",compact("user","project","rab"));
     }
+
+    public function generate(Request $Request){
+        $rab = Rab::find(3488);
+        $itempekerjaan = Itempekerjaan::find(292);
+        $start = 0;
+        foreach ($itempekerjaan->child_item as $key => $value) {
+            if ( count($value3->child_item) > 0 ){
+                foreach ($value3->child_item as $key5 => $value5) {
+                    if ( count($value5->child_item) > 0 ){
+                        foreach ($value5->child_item as $key6 => $value6) {
+                            if ( $start >= 9 ){
+                                $rabpekerjaan = new RabPekerjaan;
+                                $rabpekerjaan->rab_unit_id = $rab->id;
+                                $rabpekerjaan->itempekerjaan_id = $value6->id;
+                                $rabpekerjaan->nilai = 0;
+                                $rabpekerjaan->volume = 1;
+                                $rabpekerjaan->satuan = 'm2';
+                                $rabpekerjaan->created_by  = \Auth::user()->id;
+                                $rabpekerjaan->save();
+                            }
+                            $start++;
+                        }
+                    }else{
+                        if ( $start >= 9 ){
+                            $rabpekerjaan = new RabPekerjaan;
+                            $rabpekerjaan->rab_unit_id = $rab->id;
+                            $rabpekerjaan->itempekerjaan_id = $value6;
+                            $rabpekerjaan->nilai = 0;
+                            $rabpekerjaan->volume = 1;
+                            $rabpekerjaan->satuan = 'm2';
+                            $rabpekerjaan->created_by  = \Auth::user()->id;
+                            $rabpekerjaan->save();
+                        }
+                        $start++;
+                    }
+                }
+
+            }else{
+
+            }
+        }
+    }
+
+    public function createtender(Request $request){
+        $rab = Rab::find($request->id);
+        if ( $rab->tenders->count() > 0 ){
+            return redirect("/tender/detail/?id=".$rab->tenders->last()->id);
+        }else{
+            $itempekerjaan = Itempekerjaan::find($rab->units->first()->pekerjaans->last()->itempekerjaan->parent->id);
+            $department_from = $rab->workorder->department_from;
+            $project = Project::find($request->session()->get('project_id'));
+            $tender = new Tender;
+            $tender_no = \App\Helpers\Document::new_number('TENDER', $department_from,$project->id).$rab->budget_tahunan->budget->pt->code;
+            $tender->rab_id = $request->tender_rab;
+            $tender->name = "Tender-".$itempekerjaan->code."-".$itempekerjaan->name."-".$rab->name;
+            $tender->no = $tender_no;
+            $tender->rab_id = $rab->id;
+            $tender->save();
+
+            if (!file_exists("./assets/tender/".$tender->id)) {
+                mkdir("./assets/tender/".$tender->id);
+            }
+
+            foreach ($rab->units as $key => $value) {
+                $tender_unit = new TenderUnit;
+                $tender_unit->tender_id = $tender->id;
+                $tender_unit->rab_unit_id = $value->id;
+                $tender_unit->created_by = \Auth::user()->id;
+                $tender_unit->save();
+            }
+            return redirect("/tender/detail/?id=".$tender->id);   
+        }        
+    }
+
+    public function tender(Request $request){
+        if ( count($rab->tenders) > 0 ){
+            return redirect("/tender/detail/?id=".$rab->tenders->last()->id);
+        }else{
+            
+            $rab = Rab::find($request->id);
+            $itempekerjaan = Itempekerjaan::find($rab->pekerjaans->last()->itempekerjaan->parent->id);
+            $department_from = $rab->workorder->department_from;
+            $project = Project::find($request->session()->get('project_id'));
+            $tender = new Tender;
+            $tender_no = \App\Helpers\Document::new_number('TENDER', $department_from,$project->id).$rab->budget_tahunan->budget->pt->code;
+            $tender->rab_id = $request->tender_rab;
+            $tender->name = "Tender-".$itempekerjaan->code."-".$itempekerjaan->name."-".$rab->name;
+            $tender->no = $tender_no;
+            $tender->rab_id = $rab->id;
+            $tender->save();
+
+            if (!file_exists("./assets/tender/".$tender->id)) {
+                mkdir("./assets/tender/".$tender->id);
+            }
+
+            foreach ($rab->units as $key => $value) {
+                $tender_unit = new TenderUnit;
+                $tender_unit->tender_id = $tender->id;
+                $tender_unit->rab_unit_id = $value->id;
+                $tender_unit->created_by = \Auth::user()->id;
+                $tender_unit->save();
+            }
+            return redirect("/tender/detail/?id=".$tender->id);
+
+        }
+    }
+
+    public function savelink(Request $request){
+        $workorder_budget_detail_id = WorkorderBudgetDetail::find($request->id);
+        $project = Project::find($request->session()->get('project_id'));
+        $rab_no = \App\Helpers\Document::new_number('RAB', $workorder_budget_detail_id->workorder->department_from,$project->id);
+        $rab = new Rab;
+        $rab->no = $rab_no;
+        $rab->workorder_id = $workorder_budget_detail_id->workorder->id;
+        $rab->name = $workorder_budget_detail_id->workorder->name;
+        $rab->created_by = \Auth::user()->id;
+        $rab->workorder_budget_detail_id = $workorder_budget_detail_id->id;
+        $rab->save();
+        return redirect("/rab/detail?id=".$rab->id);
+    }
+
 }

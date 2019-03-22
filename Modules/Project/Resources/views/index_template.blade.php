@@ -85,6 +85,7 @@
               @if ( $unit_category != "" )
                 <h4><strong>HPP Con Cost: Rp. {{ number_format( $unit_category->nilai,2) }} /m2</strong></h4>  
                 <a href="{{ url('/')}}/project/detail-template?id={{ $unit_category->id }}" class="btn btn-primary">Isi Harga</a>
+                <a href="{{ url('/')}}/project/spesifikasi-template?id={{ $unit_type->id}}" class="btn btn-info">Isi Spesifikasi Teknis</a>
               @endif
             	<table id="example3" class="table table-bordered table-hover table-responsive">
                 <thead>
@@ -148,13 +149,7 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-  <footer class="main-footer">
-    <div class="pull-right hidden-xs">
-      <b>Version</b> 2.4.0
-    </div>
-    <strong>Copyright &copy; 2014-2016 <a href="https://adminlte.io">Almsaeed Studio</a>.</strong> All rights
-    reserved.
-  </footer>
+  @include("master/copyright")
 
   
   <!-- Add the sidebar's background. This div must be placed

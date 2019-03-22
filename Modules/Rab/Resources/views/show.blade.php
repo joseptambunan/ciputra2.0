@@ -39,10 +39,14 @@
               <div class="form-group">
                 <label>No. Workorder</label>
                 <input type="text" class="form-control" name="workorder_name" value="{{ $rab->workorder->no }}" readonly>
+                @if ( $rab->workorder->approval != "" )<small>Approve at : <strong>{{ date("d/M/Y", strtotime($rab->workorder->approval->updated_at)) }} @endif</strong></small>
               </div> 
               <div class="form-group">
                 <label>No. RAB</label>
                 <input type="text" class="form-control" name="workorder_name" value="{{ $rab->no }}" readonly>
+                @if ( $rab->approval != "" ) 
+                Approved at : <strong>{{ date("d/M/Y", strtotime($rab->approval->updated_at))}}</strong>
+                @endif
               </div> 
               <div class="form-group">
                 <label>Nama</label>
@@ -52,7 +56,18 @@
               <div class="form-group">
                 <a class="btn btn-warning" href="{{ url('/')}}/rab/?workorder_id={{ $rab->workorder->id }}">Kembali</a>
                 @if ( $rab->approval != "")
-                <a class="btn btn-primary" href="{{ url('/')}}/rab/approval_history?id={{ $rab->id }}">Approval History</a>
+                    @if ( $rab->approval->approval_action_id == 7 )
+                      <button onclick="apprioval('{{ $rab->id}}')" class="btn btn-primary">Request Approval</button>
+                    @elseif( $rab->approval->approval_action_id == 6 )    
+                      <span class="label label-success">Disetujui</span>                
+                      <a class="btn btn-info" href="{{ url('/')}}/rab/tender?id={{$rab->id}}">Tender</a>  
+                    @elseif ( $rab->approval->approval_action_id == 1)
+                      <span class="label label-warning">Dalam Pengecekan</span>
+                    @endif
+
+                  <a class="btn btn-primary" href="{{ url('/')}}/rab/approval_history?id={{ $rab->id }}">Approval History</a>
+                @else
+                  <button onclick="apprioval('{{ $rab->id}}')" class="btn btn-primary">Request Approval</button>
                 @endif
               </div>
             </div>
@@ -67,8 +82,8 @@
               <h3><strong>Nilai Workorder Rp {{ number_format($rab->workorder->nilai)}}</strong></h3>
               <h3><strong>Nilai RAB Rp {{ number_format($rab->nilai) }} </strong></h3>
               <ul class="nav nav-tabs">                
-                <li><a href="#tab_3" data-toggle="tab">Item Pekerjaan</a></li>
-                <li  class="active"><a href="#tab_2" data-toggle="tab">Unit</a></li>
+                <li class="active"><a href="#tab_2" data-toggle="tab">1. Unit</a></li>
+                <li><a href="#tab_3" data-toggle="tab">2. Item Pekerjaan</a></li>
               </ul>
               <div class="tab-content">                
                 <!-- /.tab-pane -->
@@ -102,6 +117,7 @@
                     @endif
                   @endif<br><br>
 
+                  @if ( count($rab->units) > 0 )
                   <table class="table table-bordered">
                    <thead class="head_table">
                      <tr>
@@ -162,11 +178,11 @@
                       <td>
                         @if ( $rab->approval == "" )
                         <button class="btn-edit1 btn btn-warning" onclick="viewdite('{{ $value->id }}')" id="btn_edit_{{ $value->id}}">Edit</button>
-                        <button class="btn-edit2 btn btn-success" onclick="saveedit('{{ $value->id }}')" style="display: none;" id="btn_edit2_{{ $value->id }}">Edit</button>
+                        <button class="btn-edit2 btn btn-success" onclick="saveedit('{{ $value->id }}')" style="display: none;" id="btn_edit2_{{ $value->id }}">Save</button>
                         @else
                           @if ( $rab->approval->approval_action_id == "7")
                           <button class="btn-edit1 btn btn-warning" onclick="viewdite('{{ $value->id }}')" id="btn_edit_{{ $value->id}}">Edit</button>
-                          <button class="btn-edit2 btn btn-success" onclick="saveedit('{{ $value->id }}')" style="display: none;" id="btn_edit2_{{ $value->id }}">Edit</button>
+                          <button class="btn-edit2 btn btn-success" onclick="saveedit('{{ $value->id }}')" style="display: none;" id="btn_edit2_{{ $value->id }}">Save</button>
                           @endif
                         @endif
                       </td>
@@ -174,7 +190,10 @@
                     @endforeach
                     @endif
                   </tbody>
-                </table>
+                  </table>
+                  @else
+                    <h3>Pilih Unit Terlebih Dahulu</h3>
+                  @endif
                 </div>
                 <!-- /.tab-pane -->
                 <div class="tab-pane active" id="tab_2">
@@ -306,7 +325,7 @@
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title">Default Modal</h4>
+          <h4 class="modal-title"></h4>
         </div>
 
         <div class="modal-body">
@@ -320,42 +339,11 @@
               </tr>
             </thead>
             <tbody>
-              @foreach ( $rab->workorder->details as $key => $value )
-                @if ( $value->asset_type == "Modules\Project\Entities\Project")
-                  @if ( count(\Modules\Rab\Entities\RabUnit::where("rab_id",$rab->id)->where("asset_id",$value->asset_id)->get()) <= 0 )
-                  <tr>
-                    <td>{{ $value->asset->name or ''}}</td>
-                    <td>Fasilitas Kota</td>
-                    <td>
-                      <input type="checkbox" value="{{ $value->asset_id }}" class="rab_unit" name="unit_rab_[{{$key}}]">
-                      <input type="hidden" value="{{ $value->asset_type }}" name="unit_rab_type_[{{$key}}]">
-                    </td>
-                 </tr>
-                  @endif
-                @elseif ( $value->asset_type == "Modules\Project\Entities\ProjectKawasan")
-                  @if ( count(\Modules\Rab\Entities\RabUnit::where("rab_id",$rab->id)->where("asset_id",$value->asset_id)->get()) <= 0 )
-                  <tr>
-                    <td>{{ $value->asset->name or ''}}</td>
-                    <td>Kawasan</td>
-                    <td>
-                      <input type="checkbox" value="{{ $value->asset_id }}" class="rab_unit" name="unit_rab_[{{$key}}]">
-                      <input type="hidden" value="{{ $value->asset_type }}" name="unit_rab_type_[{{$key}}]">
-                    </td>
-                 </tr>
-                 @endif
-                @endif
-              @endforeach
-              @foreach ( $project->unittype as $key3 => $value3)
-                <tr>
-                  <td>{{ $value3->name }}</td>
-                  <td>Unit Type</td>
-                  <td>
-                    <input type="radio" name="type" value="{{ $value3->id }}" onClick="conCostSelect('{{ $value3->id }}')">
-                  </td>
-               </tr>
-              @endforeach
+              @php $start=0; $arrayType= array();@endphp
               @foreach ( $rab->workorder->details as $key4 => $value4 )
-                <tr class="type type_{{ $value4->asset->type->id or '' }}" style="display: none;">
+                @if ( $value4->asset->type != "" )
+                @php $arrayType[$value4->asset->type->id] = array("id" => $value4->asset->type->id, "name" => $value4->asset->type->name ); $start++;@endphp                
+                <tr class="type type_{{ $value4->asset->type->id }}" style="display: none;">
                   <td>{{ $value4->asset->name }}</td>
                   <td>{{ $value4->asset->type->name or ''}}</td>
                   <td>
@@ -363,6 +351,24 @@
                     <input type="hidden" value="{{ $value4->asset_type }}" name="unit_rab_type_[{{$value4->asset_id}}]">
                   </td>
                 </tr>
+                @else
+                <tr class="">
+                  <td>{{ $value4->asset->name }}</td>
+                  <td>{{ $value4->asset->type->name or ''}}</td>
+                  <td>
+                    <input type="checkbox" name="unit_rab_[{{$value4->asset_id}}]" value="{{ $value4->asset_id }}">Pilih ke RAB
+                    <input type="hidden" value="{{ $value4->asset_type }}" name="unit_rab_type_[{{$value4->asset_id}}]">
+                  </td>
+                </tr>
+                @endif
+
+              @endforeach
+
+              @foreach ( $arrayType as $key => $value)
+              <tr>
+                <td>Type : </td>
+                <td><input type="radio" name="type" onClick="showUnitType({{ $value['id']}})">{{ $value['name']}}</td>
+              </tr>
               @endforeach
             </tbody>
           </table>

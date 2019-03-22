@@ -119,17 +119,17 @@
               </div>
               <div class="form-group">
                 <label>Status Sellable</label>
-                <select class='form-control' name='is_sellable' id='is_sellable' {{ $readonly }}>
-                  <option value='1'>Ya</option>
-                  <option value='0'>Tidak</option>
+                <select class='form-control' name='is_sellable' id='is_sellable'>
+                  <option value='1' {{ $sellable_1 }}>Ya</option>
+                  <option value='0' {{ $sellable_0 }}>Tidak</option>
                 </select>
               </div>
 
               <div class="form-group">
                 <label>Status Unit</label>
                 <select class='form-control' name='is_status' id='is_status'>
-                  <option value='1'>Planning</option>
-                  <option value='0'>Ready for Sale</option>
+                  <option value='0'>Planning</option>
+                  <option value='1'>Ready for Sale</option>
                 </select>
               </div>
               <div class="form-group">

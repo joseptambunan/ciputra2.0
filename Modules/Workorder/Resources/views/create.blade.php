@@ -66,22 +66,15 @@
             </div>
             <!-- /.col -->
              <div class="col-md-6">
-              <h3>&nbsp;</h3>
-              <div class="form-group">
-                <label>Durasi Proses WO (Hari Kalender)</label>
-                <input type="text" class="form-control" name="workorder_durasi" id="workorder_durasi" value="0" autocomplete="off" required>
-              </div> 
+              <h3>&nbsp;</h3>              
               <div class="form-group">
                 <label>Start Date</label>
                 <input type="text" class="form-control" name="start_date" id="start_date" autocomplete="off" required>
               </div> 
-              <div class="form-group">
-                <label>End Date</label>
-                <input type="text" class="form-control" name="end_date" id="end_date" autocomplete="off" required>
-              </div> 
-                <div class="box-footer">
+              <div class="box-footer">
                 <i class="fa fa-refresh ld ld-spin" id="loading" style="display: none;"></i>
                 <button type="submit" class="btn btn-primary submitbtn" id="btn_submit">Simpan</button>
+                <a class="btn btn-warning" href="{{ url('/')}}/workorder">Kembali</a>
               </div>
             </div>
             </form>

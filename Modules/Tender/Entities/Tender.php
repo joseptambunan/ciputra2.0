@@ -102,7 +102,15 @@ class Tender extends CustomModel
     }
 
     public function getProjectAttribute(){
-        return $this->rab->workorder->project;
+        if ( $this->rab != "" ){
+            if ( $this->rab->workorder != "" ){
+                return $this->rab->workorder->project;
+            }else{
+                return $this->rab;
+            }
+        }else{
+            return "1";
+        }
     }
 
     public function getTenderApproveAttribute(){
@@ -143,4 +151,21 @@ class Tender extends CustomModel
     public function tender_type(){
         return $this->belongsTo("Modules\TenderMaster\Entities\TenderMaster","kelas_id");
     }
+
+    public function termyn(){
+        return $this->hasMany("Modules\Spk\Entities\SpkTermyn");
+    }
+
+    public function retensi(){
+        return $this->hasMany("Modules\Spk\Entities\SpkRetensi");
+    }
+
+    public function aanwijing(){
+        return $this->hasOne("Modules\Tender\Entities\TenderAanwijings");
+    }
+
+    public function berita_acara(){
+        return $this->hasMany("Modules\Tender\Entities\TenderBeritaAcaras");
+    }
+
 }

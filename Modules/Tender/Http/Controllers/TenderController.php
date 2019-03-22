@@ -25,6 +25,12 @@ use Modules\Globalsetting\Entities\Globalsetting;
 use Modules\User\Entities\User;
 use Modules\Rekanan\Entities\RekananGroup;
 use Modules\TenderMaster\Entities\TenderMaster;
+use Modules\Country\Entities\City;
+use Modules\Tender\Entities\TenderAanwijings;
+use Modules\Tender\Entities\TenderBeritaAcaras;
+use Modules\Spk\Entities\SpkTermyn;
+use Modules\Spk\Entities\SpkRetensi;
+use Storage;
 
 class TenderController extends Controller
 {
@@ -42,7 +48,7 @@ class TenderController extends Controller
     {
         $user = \Auth::user();
         $project = Project::find($request->session()->get('project_id'));
-        $tenders = $project->tenders->get();
+        $tenders = $project->tenders->orderBy("id","desc")->get();
         return view('tender::index',compact("user","project","tenders"));
     }
 
@@ -72,7 +78,7 @@ class TenderController extends Controller
         $tender = new Tender;
         $tender_no = \App\Helpers\Document::new_number('TENDER', $department_from,$project->id).$rab->budget_tahunan->budget->pt->code;
         $tender->rab_id = $request->tender_rab;
-        $tender->name = "Tender-".$itempekerjaan->code."-".$itempekerjaan->name;
+        $tender->name = "Tender-".$itempekerjaan->code."-".$itempekerjaan->name."-".$rab->name;
         $tender->no = $tender_no;
         $tender->save();
 
@@ -173,8 +179,18 @@ class TenderController extends Controller
         }
 
         $tanggal_sekarang = date("Y-m-d H:i:s.u");
+        $start_tender = 0 ;
+        if ( count($tender->rekanans) > 0 ){
+            foreach ($tender->rekanans as $key => $value) {
+                if ( $value->approval != "" ){
+                    if ( $value->approval->approval_action_id == 6 ){
+                        $start_tender = $start_tender + 1;
+                    }
+                }
+            }
+        }
 
-        return view('tender::detail2',compact("tender","user","project","rekanan","itempekerjaan","data","dokumen","ttd","tanggal_sekarang","tendermaster"));
+        return view('tender::detail2',compact("tender","user","project","rekanan","itempekerjaan","data","dokumen","ttd","tanggal_sekarang","tendermaster","start_tender"));
     }
 
     /**
@@ -193,7 +209,7 @@ class TenderController extends Controller
      */
     public function update(Request $request)
     {
-
+        //echo strtotime($request->ambil_doc_date);die;
         $tender = Tender::find($request->tender_id);
         $tender->durasi = $request->tender_durasi;
         $tender->name = $request->tender_name;
@@ -256,7 +272,8 @@ class TenderController extends Controller
     }
 
     public function approvalrekanan(Request $request){
-
+        
+        $project = Project::find($request->session()->get('project_id'));
         foreach ( $request->rekanan_ as $key => $value){
             if ( $request->rekanan_[$key]){                
                 $budget = $request->rekanan_[$key];
@@ -269,24 +286,39 @@ class TenderController extends Controller
         $class  = "Tender";
         $approval = \App\Helpers\Document::make_approval('Modules\Tender\Entities\Tender',$tender);
         
-        $tenders = Tender::find($request->tender_id);
-        foreach ($request->dokumen as $key => $value) {
 
-            $tender_dokumen = new TenderDocument;
-            $tender_dokumen->tender_id = $tenders->id;
-            $tender_dokumen->document_name = $request->dokumen[$key];
-            $tender_dokumen->created_by = \Auth::user()->id;
-            $tender_dokumen->save(); 
+
+        $tenders = Tender::find($request->tender_id);
+        if ( $tenders->rab->workorder_budget_detail != "" ){
+            if ( count($tenders->rab->workorder_budget_detail->dokumen) > 0  ){
+                foreach ( $tenders->rab->workorder_budget_detail->dokumen as $key4 => $value4 ){
+                    $tender_dokumen = TenderDocument::find($value4->id);
+                    $tender_dokumen->tender_id = $tenders->id;
+                    $tender_dokumen->save();
+
+                }
+            }else{
+                if ( $request->dokumen != "" ){
+                    
+                    foreach ($request->dokumen as $key => $value) {
+
+                        $tender_dokumen = new TenderDocument;
+                        $tender_dokumen->tender_id = $tenders->id;
+                        $tender_dokumen->document_name = $request->dokumen[$key];
+                        $tender_dokumen->created_by = \Auth::user()->id;
+                        $tender_dokumen->save(); 
+                    }
+                }
+            }
 
             $approval_references = \Modules\Approval\Entities\ApprovalReference::where('document_type', 'Tender')
-                                    ->where('project_id', $tenders->project->id )
+                                    ->where('project_id', $project->id )
                                     //->where('pt_id', $pt_id )
                                     ->where('min_value', '<=', '0')
                                     //->where('max_value', '>=', $approval->total_nilai)
                                     ->orderBy('no_urut','ASC')
                                     ->get();
-            foreach ($approval_references as $key2 => $each2) 
-            {
+            foreach ($approval_references as $key2 => $each2) {
                 $users = User::find($each2->user_id);   
                 if ( isset($users->jabatan)) {
                     foreach( $users->jabatan as $key3 => $value3){
@@ -311,6 +343,51 @@ class TenderController extends Controller
                     }   
                 }                       
             }           
+            
+        }else{
+
+            foreach ($request->dokumen as $key => $value) {
+
+                $tender_dokumen = new TenderDocument;
+                $tender_dokumen->tender_id = $tenders->id;
+                $tender_dokumen->document_name = $request->dokumen[$key];
+                $tender_dokumen->created_by = \Auth::user()->id;
+                $tender_dokumen->save(); 
+
+                $approval_references = \Modules\Approval\Entities\ApprovalReference::where('document_type', 'Tender')
+                                        ->where('project_id', $project->id )
+                                        //->where('pt_id', $pt_id )
+                                        ->where('min_value', '<=', '0')
+                                        //->where('max_value', '>=', $approval->total_nilai)
+                                        ->orderBy('no_urut','ASC')
+                                        ->get();
+                foreach ($approval_references as $key2 => $each2) 
+                {
+                    $users = User::find($each2->user_id);   
+                    if ( isset($users->jabatan)) {
+                        foreach( $users->jabatan as $key3 => $value3){
+                            
+                            if ( $value3['jabatan_id'] == "7" ){
+                                $tender_dokumen_approval = new TenderDocumentApproval;
+                                $tender_dokumen_approval->tender_document_id = $tender_dokumen->id;
+                                $tender_dokumen_approval->user_id = $each2->user->id;
+                                $tender_dokumen_approval->status = "1";
+                                $tender_dokumen_approval->created_by = \Auth::user()->id;
+                                $tender_dokumen_approval->level = $value3['jabatan_id'];
+                                $tender_dokumen_approval->save(); 
+                            }else if (  $value3['jabatan_id'] == "6" || $value3['jabatan_id'] == "5" ){
+                                $tender_dokumen_approval = new TenderDocumentApproval;
+                                $tender_dokumen_approval->tender_document_id = $tender_dokumen->id;
+                                $tender_dokumen_approval->user_id = $each2->user->id;
+                                $tender_dokumen_approval->status =  1;
+                                $tender_dokumen_approval->created_by = \Auth::user()->id;
+                                $tender_dokumen_approval->level = $value3['jabatan_id'];
+                                $tender_dokumen_approval->save();
+                            }
+                        }   
+                    }                       
+                }           
+            }
         }
 
         return redirect("/tender/detail?id=".$request->tender_id);
@@ -648,62 +725,307 @@ class TenderController extends Controller
 
         }
 
+        $project_all = Project::get();
+
         $pekerjaan = Itempekerjaan::get();
-        return view("tender::tender_referensi",compact("tender","user","project","rekanan_group","itemkerjan","pekerjaan"));
+        return view("tender::tender_referensi",compact("tender","user","project","rekanan_group","itemkerjan","pekerjaan","project_all"));
     }
 
     public function searchreferensi(Request $request){
         $html = "";
+        $project_name = "";
         $start = 0;
-        if ( $request->itempekerjaan != "all" ){
-            $itempekerjaan = Itempekerjaan::find($request->itempekerjaan);
-            foreach ($itempekerjaan->rekanan_specification as $key => $value) {
-                if ( $value->rekanan_group != "all" ){                
-                    if ( $value->rekanan_group->rekanans != "" ){                
-                        foreach ( $value->rekanan_group->rekanans as $key3 => $value3){
-                            $html .= "<tr>";
-                            $html .= "<td>".$value3->name."</td>";
-                            $html .= "<td>".$itempekerjaan->name."</td>";
-                            $html .= "<td><input type='checkbox' value='".$value3->id."' name='[".$start."]'/>Set to Tender</td>";
-                            $html .= "</tr>";
-                            $start++;
-                        }
-                    }else{
-                        $html .= "<tr>";
-                        $html .= "<td>".$value->rekanan_group->name."</td>";
-                        $html .= "<td>".$itempekerjaan->name."</td>";
-                        $html .= "<td><input type='checkbox' value='".$value->rekanan_group->id."' name='[".$start."]'/>Set to Tender</td>";
-                        $html .= "</tr>";
-                        $start++;
-                    }
-                }
-            }            
-        }else{
-            $rekanan_group = RekananGroup::get();
+        $list_rekanan = array();
+
+        if ( $request->rekanan_name != "" ){
+            $rekanan_group = RekananGroup::where("name","like","%".$request->rekanan_name."%")->get();
             foreach ($rekanan_group as $key => $value) {
-                $spesifikasi = "";
-                foreach ($value->spesifikasi as $key4 => $value4) {
-                    $spesifikasi .= $value4->itempekerjaan->name .",";
-                }
-                if ( $value->rekanans != "" ){                
-                    foreach ( $value->rekanans as $key3 => $value3){
-                        $html .= "<tr>";
-                        $html .= "<td>".$value3->name."</td>";
-                        $html .= "<td>".$spesifikasi."</td>";
-                        $html .= "<td><input type='checkbox' value='".$value3->id."' name='[".$start."]'/>Set to Tender</td>";
-                        $html .= "</tr>";
-                        $start++;
+                $rekanan_group = RekananGroup::find($value->id);
+                foreach ($rekanan_group->supps as $key2 => $value2) {
+                    foreach ( $value2->pt->project as $key3 => $value3 ){
+                        $project_name .= $value3->project->name .",";
                     }
-                }else{
-                    $html .= "<tr>";
-                    $html .= "<td>".$value->name."</td>";
-                    $html .= "<td>".$spesifikasi."</td>";
-                    $html .= "<td><input type='checkbox' value='".$value->id."' name='[".$start."]'/>Set to Tender</td>";
-                    $html .= "</tr>";
+                }
+
+                foreach ( $rekanan_group->rekanans as $key4 => $value4 ){                    
+                    $list_rekanan[$start] = array ( "id" => $value4->id, "name" => $value->name, "project" => $project_name, "rekanan_group_id" => $rekanan_group->id );
                     $start++;
                 }
             }
         }
+
+        //return response()->json(["status" => $list_rekanan]);
+        if ( $request->itempekerjaan != "all" ){
+            $itempekerjaan = Itempekerjaan::find($request->itempekerjaan);
+
+            foreach ($itempekerjaan->rekanan_specification as $key => $value) { 
+                if ( $request->rekanan_name == "" ){
+                    $spesfikasi = "";                    
+                    foreach ($value->rekanan_group->spesifikasi as $key => $value) {
+                        $spesfikasi .= $value->itempekerjaan->name.",";
+                    }   
+
+                    $project_name = "";
+                    foreach ($value->rekanan_group->supps as $key2 => $value2) {
+                        foreach ( $value2->pt->project as $key3 => $value3 ){
+                            $project_name .= $value3->project->name .",";
+                        }
+                    }
+
+
+                    $html .= "<tr>";
+                    $html .= "<td>".$value->rekanan_group->name."</td>"; 
+                    $html .= "<td>".$spesfikasi."</td>";   
+                    $html .= "<td>".$project_name."</td>";   
+                    $html .= "<td><input type='checkbox' value='".$value3['id']."' name='rekanan[".$key3."]'/>Set to Tender</td>";               
+                }else{
+                    foreach ( $list_rekanan as $key3 => $value3){                    
+                        if ( $value3['id'] == $value->rekanan_group_id ){      
+                            $spesfikasi = "";
+                            
+                            foreach ($value->rekanan_group->spesifikasi as $key => $value) {
+                                $spesfikasi .= $value->itempekerjaan->name.",";
+                            }                  
+                            
+                            $html .= "<tr>";
+                            $html .= "<td>".$value3['name']."</td>"; 
+                            $html .= "<td>".$spesfikasi."</td>";   
+                            $html .= "<td>".$value3['project']."</td>";   
+                            $html .= "<td><input type='checkbox' value='".$value3['id']."' name='rekanan[".$key3."]'/>Set to Tender</td>";      
+                        }
+                    }
+                }
+            }            
+        }else{   
+            foreach ( $list_rekanan as $key3 => $value3){  
+
+                $rekanan_group_detail = RekananGroup::find($value3['id']);
+                $spesfikasi = "";
+                        
+                foreach ($rekanan_group_detail->spesifikasi as $key => $value) {
+                    $spesfikasi .= $value->itempekerjaan->name.",";
+                }                             
+                $html .= "<tr>";
+                $html .= "<td>".$value3['name']."</td>"; 
+                $html .= "<td>".$spesfikasi."</td>"; 
+                $html .= "<td>".$value3['project']."</td>";   
+                $html .= "<td><input type='checkbox' value='".$value3['id']."' name='rekanan[".$key3."]'/>Set to Tender</td>";  
+            }   
+        }
+        if ( $html == "" ){
+            $html .= "<tr>";
+            $html .= "<td colspan='4'>Data tidak ditemukan</td>";
+            $html .= "</tr>";
+        }
+       // return response()->json(["status" => $list_rekanan]);
         return response()->json( ["status" => "0", "html" => $html]);
     }
+
+    public function addreferensi(Request $request){
+        $user = \Auth::user();
+        $tender = Tender::find($request->id);
+        $city = City::get();
+        $project = Project::find($request->session()->get('project_id'));
+        return view("tender::referensi_add",compact("user","tender","city","project"));
+    }
+
+    public function savereferensi(Request $request){
+        $project = Project::find($request->session()->get('project_id'));
+        $rekanan_group = new RekananGroup;
+        $rekanan_group->pph_percent = $request->pph;
+        $rekanan_group->name = $request->name;
+        $rekanan_group->npwp_alamat = $request->alamat;
+        $rekanan_group->npwp_kota = $request->kota;
+        $rekanan_group->cp_name = $request->contact_name;
+        $rekanan_group->cp_jabatan = $request->contact_position;
+        $rekanan_group->project_id = $project->id;
+        $rekanan_group->description = "Disurvey oleh ".$request->survey_name;
+
+        if ( $request->pkp == "" ){
+            $rekanan_group->pkp_status = 2;
+            $pkp_status = 2;
+        }else{
+            $rekanan_group->pkp_status = 1;
+            $pkp_status = 1;
+        }
+        $rekanan_group->save();
+
+        $rekanan_group_update = RekananGroup::find($rekanan_group->id);
+
+        if (!file_exists ("./assets/rekanan/".$rekanan_group->id)) {
+            mkdir("./assets/rekanan/".$rekanan_group->id);
+            chmod("./assets/rekanan/".$rekanan_group->id,0755);
+        }
+
+        $target_file = "./assets/rekanan/".$request->rekanan_group_id."/".$_FILES['sertifikat']['name'];
+                move_uploaded_file($_FILES["sertifikat"]["tmp_name"], $target_file);
+
+        $target_file_2 = "./assets/rekanan/".$request->rekanan_group_id."/".$_FILES['sertifikat']['name'];
+                move_uploaded_file($_FILES["npwp"]["tmp_name"], $target_file);
+
+        $target_file_3 = "./assets/rekanan/".$request->rekanan_group_id."/".$_FILES['sertifikat']['name'];
+                move_uploaded_file($_FILES["siup_file"]["tmp_name"], $target_file);
+
+        if ( $_FILES['npwp']['name'] == "" ){
+            $rekanan_group_update->npwp_image = "";
+        }else{
+            $rekanan_group_update->npwp_image = $_FILES['npwp']['name'];
+        }
+
+        $rekanan_group_update->save();
+
+        if ( $_FILES['siup_file']['name'] == "" ){
+            $siup_file = "";
+        }else{
+            $siup_file = $_FILES['siup_file']['name'];
+        }
+
+        if ( count($rekanan_group->rekanans) <= 0 ){            
+            $rekanan_child = new Rekanan;
+            $rekanan_child->rekanan_group_id = $rekanan_group->id;
+            $rekanan_child->name = $request->name;
+            $rekanan_child->surat_alamat = $request->alamat;
+            $rekanan_child->surat_kota = $request->kota;
+            $rekanan_child->ppn = 10;
+            $rekanan_child->survey_status = 1;
+            $rekanan_child->survey_date = date("Y-m-d H:i:s",strtotime($request->survey_date));
+            $rekanan_child->siup_no = $request->siup_no;
+            $rekanan_child->siup_image = $siup_file;
+            $rekanan_child->gabung_date = date("Y-m-d H:i:s");
+            $rekanan_child->description = "Disurvey oleh ".$request->survey_name;
+            $rekanan_child->saksi_name = $request->contact_name;
+            $rekanan_child->saksi_jabatan = $request->contact_position;
+            $rekanan_child->pkp_status = $pkp_status;
+            $rekanan_child->save();
+
+        }elseif ( count($rekanan_group->rekanans) == 1 ){
+            foreach ($rekanan_group->rekanans as $key2 => $value2) {
+                $rekanan_child = Rekanan::find($value2->id);
+                $rekanan_child->name = $request->name;
+                $rekanan_child->surat_alamat = $request->alamat;
+                $rekanan_child->surat_kota = $request->kota;
+                $rekanan_child->ppn = 10;
+                $rekanan_child->survey_status = 1;
+                $rekanan_child->survey_date = date("Y-m-d H:i:s",strtotime($request->survey_date));
+                $rekanan_child->siup_no = $request->siup_no;
+                $rekanan_child->siup_image = $siup_file;
+                $rekanan_child->gabung_date = date("Y-m-d H:i:s");
+                $rekanan_child->description = "Disurvey oleh ".$request->survey_name;
+                $rekanan_child->saksi_name = $request->contact_name;
+                $rekanan_child->saksi_jabatan = $request->contact_position;
+                $rekanan_child->pkp_status = $pkp_status;
+                $rekanan_child->save();
+            }
+        }
+
+        return redirect("/tender/rekanan/referensi?id=".$request->tender_id);
+    }
+
+    public function aanwijing(Request $request){
+        $tender = Tender::find($request->id);
+        $user = \Auth::user();
+        $project = Project::find($request->session()->get('project_id'));
+        return view("tender::aanwijing",compact("user","tender","project"));
+    }
+
+    public function saveannwijing(Request $request){
+        $tender_aanwijing = new TenderAanwijings;
+        $tender_aanwijing->tender_id = $request->tender_id;
+        $tender_aanwijing->tanggal = date("Y-m-d");
+        $tender_aanwijing->waktu = date("H:i:s.u");
+        $tender_aanwijing->tempat = $request->tempat;
+        $tender_aanwijing->masa_pelaksanaan  = $request->masa_pelaksaan;
+        $tender_aanwijing->masa_penawaran = $request->masa_pemeliharaan;
+        $tender_aanwijing->jaminan_penawaran = $request->jaminan_penawaran;
+        $tender_aanwijing->jaminan_pelaksanaan = $request->jaminan_pelaksanaan;
+        $tender_aanwijing->denda = $request->denda;
+        $tender_aanwijing->created_by = \Auth::user()->id;
+        $tender_aanwijing->save();
+
+        if ( $request->termyn != "" ){
+            foreach ($request->termyn as $key => $value) {
+                if ( $request->termyn[$key] != "" ){
+                    $spk_termyn = new SpkTermyn;
+                    $spk_termyn->tender_id = $request->tender_id;
+                    $spk_termyn->termin = $request->termyn[$key];
+                    $spk_termyn->progress = 0;
+                    $spk_termyn->save();
+                }
+            }
+        }
+
+        if ( $request->percent != "" ){
+            foreach ($request->percent as $key => $value) {
+                if ( $request->percent[$key] != "" ){
+                    $spk_retensi = new SpkRetensi;
+                    $spk_retensi->tender_id = $request->tender_id;
+                    $spk_retensi->percent = $request->percent[$key] / 100;
+                    $spk_retensi->hari = $request->waktu[$key];
+                    $spk_retensi->save();
+                }
+            }
+        }
+
+        return redirect("/tender/aanwijing/detail?id=".$tender_aanwijing->id);
+    }
+
+    public function showaanwijing(Request $request){
+        $aanwijing = TenderAanwijings::find($request->id);
+        $user = \Auth::user();
+        $project = Project::find($request->session()->get('project_id'));
+        return view("tender::show_aanwijing",compact("user","project","aanwijing"));
+    }
+
+    public function updateaanwijing(Request $request){
+        $tender_aanwijing = TenderAanwijings::find($request->aanwijing);
+        $tender_aanwijing->tender_id = $request->tender_id;
+        $tender_aanwijing->tanggal = date("Y-m-d");
+        $tender_aanwijing->waktu = date("H:i:s.u");
+        $tender_aanwijing->tempat = $request->tempat;
+        $tender_aanwijing->masa_pelaksanaan  = $request->masa_pelaksaan;
+        $tender_aanwijing->masa_penawaran = $request->masa_pemeliharaan;
+        $tender_aanwijing->jaminan_penawaran = $request->jaminan_penawaran;
+        $tender_aanwijing->jaminan_pelaksanaan = $request->jaminan_pelaksanaan;
+        $tender_aanwijing->denda = $request->denda;
+        $tender_aanwijing->created_by = \Auth::user()->id;
+        $tender_aanwijing->save();
+
+        return redirect("/tender/aanwijing/detail?id=".$tender_aanwijing->id);
+    }
+
+    public function berita_acara(Request $request){
+        $tender = Tender::find($request->id);
+        $user = \Auth::user();
+        $project = Project::find($request->session()->get('project_id'));
+        $step = $request->step;
+        return view("tender::berita_acara",compact("tender","user","project","step"));
+    }
+
+    public function saveberita_acara(Request $request){
+        $tender_berita_acara = new TenderBeritaAcaras;
+        $tender_berita_acara->tender_id = $request->tender_id;
+        $tender_berita_acara->resume = $request->title;
+        $tender_berita_acara->step = $request->step;
+        $tender_berita_acara->content = $request->editor1;
+        $tender_berita_acara->save();
+        return redirect("tender/berita_acara/show?id=".$tender_berita_acara->id);
+
+    }
+
+    public function showberita_acara(Request $request){
+        $berita_acara = TenderBeritaAcaras::find($request->id);      
+        $user = \Auth::user();
+        $project = Project::find($request->session()->get('project_id'));
+        return view("tender::show_berita_acara",compact("user","project","berita_acara"));
+    }
+
+    public function updberita_acara(Request $request){
+        $tender_berita_acara = TenderBeritaAcaras::find($request->berita_acara);
+        $tender_berita_acara->resume = $request->title;
+        $tender_berita_acara->content = $request->editor1;
+        $tender_berita_acara->save();
+
+        return redirect("tender/berita_acara/show?id=".$tender_berita_acara->id);
+    }
+
 }

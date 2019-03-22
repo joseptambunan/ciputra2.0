@@ -300,5 +300,9 @@ class Workorder extends Model
 
         return $nilai;
     }
+
+    public function budget_draft(){
+        return $this->hasOne("Modules\BudgetDraft\Entities\BudgetDraft");
+    }
     
 }

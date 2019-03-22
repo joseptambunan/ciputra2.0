@@ -293,7 +293,8 @@
       data: {
         user_id : $("#user_id").val(),
         rab_id :$("#rab_id").val(),
-        status : $("#btn_save_budgets").attr("data-value")
+        status : $("#btn_save_budgets").attr("data-value"),
+        description :  $("#description").val()
       },
       type :"get",
       dataType :"json"     

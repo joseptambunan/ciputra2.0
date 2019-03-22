@@ -289,7 +289,8 @@ class UserRekananController extends Controller
                 print("<script type='text/javascript'>alert('Format file tidak bisa diterima. Silahkan upload sesuai format yang diminta');</script>");
             }
         }
-        return redirect("/rekanan/user/tender/detail/?id=".$TenderPenawaran->rekanan->id);
+        
+        return redirect("/rekanan/user/tender/penawaran-step2/?id=".$request->tender_id."&step=2");
     }
 
     public function addstep3(Request $request){
@@ -324,7 +325,7 @@ class UserRekananController extends Controller
                 print("<script type='text/javascript'>alert('Format file tidak bisa diterima. Silahkan upload sesuai format yang diminta');</script>");
             }
         }
-        return redirect("/rekanan/user/tender/detail/?id=".$tenderPenawaran->rekanan->id);
+        return redirect("/rekanan/user/tender/penawaran-update/?id=".$request->tender_rekanan_id."&step=3");
     }
 
     public function viewstep1(Request $request){
@@ -373,6 +374,6 @@ class UserRekananController extends Controller
                 print("<script type='text/javascript'>alert('Format file tidak bisa diterima. Silahkan upload sesuai format yang diminta');</script>");
             }
         }
-        return redirect("/rekanan/user/tender/detail/?id=".$TenderPenawaran->rekanan->id);
+        return redirect("/rekanan/user/tender/penawaran-update/?id=".$request->tender_rekanan_id."&step=".$request->step);
     }
 }

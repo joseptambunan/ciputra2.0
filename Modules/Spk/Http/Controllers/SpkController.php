@@ -60,7 +60,7 @@ class SpkController extends Controller
 
         $tender = Tender::find($request->id);
         $project = Project::find($request->session()->get('project_id'));
-        if ($tender->rab->flow === 0) 
+        if ($tender->kelas_id == 1) 
         {
             $no =  \App\Helpers\Document::new_number('IL', $tender->rab->workorder->department_from,$project->id);
             $is_instruksilangsung = TRUE;
@@ -89,6 +89,12 @@ class SpkController extends Controller
         $spk->date = date("Y-m-d H:i:s.u");
         $spk->coa_pph_default_id =  $tender->menangs->first()->tender_rekanan->rekanan->group->pph_percent;
         $spk->project_kawasan_id = $project_kawasan_id;
+        if ( $tender->aanwijing == "" ){
+            $spk_denda_a = 0;
+        }else{
+            $spk->denda_a = $tender->aanwijing->denda;
+        }
+        $spk->spk_type_id = 2;
         $spk->save();
 
         /* Save Unit */
@@ -136,19 +142,9 @@ class SpkController extends Controller
             }
         }
 
-        /* Save Pekerjaan */
-        foreach ($tender->menangs as $key6 => $value6) {
-            $tender_menang = TenderMenang::find($value6->id);
-            $project = $tender->project;
-            foreach ($value6->tender_rekanan->first()->penawarans->last()->details as $key2 => $value2) {
-                # code...
-                
-                              
-            }            
-        }
-
+        
         /* Save Progress */
-        $spk_s = Spk::find($spk->id);
+       /* $spk_s = Spk::find($spk->id);
         $termyn = array();
         $item_progress = $spk_s->progresses->last()->itempekerjaan->item_progress;
         if ( count($item_progress) > 0 ){
@@ -179,7 +175,43 @@ class SpkController extends Controller
                 $spk_termyn->status = 0 ;
                 $spk_termyn->save();
             }
+        }*/
+        foreach ($tender->termyn as $key => $value) {
+            $spk_termyn = SpkTermyn::find($value->id);
+            $spk_termyn->spk_id = $spk->id;
+            if ( $key == 0 ){
+                $spk_termyn->status = 1;
+            }else{
+                $spk_termyn->status = 0;
+            }
+            $spk_termyn->save();
+
+            if ( $key == 0 ){
+                $spk_dp_val = Spk::find($spk->id);
+                $spk_dp = Spk::find($spk->id);
+                $spk_dp->dp_nilai = ( $value->termin / 100 ) * $spk_dp_val->nilai;
+                $spk_dp->dp_percent = $value->termin;
+                $spk_dp->save();
+            }
         }
+
+        foreach ($tender->retensi as $key => $value) {
+            $retensi = SpkRetensi::find($value->id);
+            $retensi->spk_id = $spk->id;
+            $retensi->is_progress = 1;
+            $retensi->save();
+
+            $spk = Spk::find($spk->id);        
+            $spk->st_2 = date('Y-m-d', strtotime('+'.$value->hari.' day', strtotime($spk->st_1)));
+            $spk->save();
+
+            if ( $key > 0 ){
+                $spk = Spk::find($spk->id);
+                $spk->st_3 = date('Y-m-d', strtotime('+'.$value->hari.' day', strtotime($spk->st_1)));
+                $spk->save();
+            }
+        }
+
         return redirect("/spk/detail?id=".$spk->id);
     }
 
@@ -320,11 +352,28 @@ class SpkController extends Controller
     {
         $spk = Spk::find($request->spk_id);
         //$spk->start_date = date_format(date_create($request->start_date),"Y-m-d");
-        $spk->finish_date = date_format(date_create($request->end_date),"Y-m-d");
-        $spk->st_1 = date_format(date_create($request->end_date),"Y-m-d");
+        $spk->finish_date = date("Y-m-d",strtotime($request->end_date)); 
+        $spk->st_1 = date("Y-m-d",strtotime($request->end_date)); 
         $spk->coa_pph_default_id = $request->coa_pph;
         $spk->name = $request->spk_name;
+        $spk->spk_type_id = 2;
         $spk->save();
+
+        $spk_set_retensi = Spk::find($spk->id);
+        foreach ($spk->retensis as $key => $value) {
+            if ( $key == 0 ){
+                echo $value->hari;
+                $spk->st_2 = date('Y-m-d', strtotime('+'.$value->hari.' day', strtotime($spk->st_1)));
+                $spk->save();    
+            }      
+
+            if ( $key > 0 ){
+                echo $value->hari;
+                $spk = Spk::find($spk->id);
+                $spk->st_3 = date('Y-m-d', strtotime('+'.$value->hari.' day', strtotime($spk->st_1)));
+                $spk->save();
+            }
+        }
         return redirect("/spk/detail?id=".$request->spk_id);
     }
 
@@ -341,6 +390,23 @@ class SpkController extends Controller
         $spk->st_1 = $request->end_date;
         $spk->name = $request->spk_name;
         $spk->save();
+
+        $spk_set_retensi = Spk::find($spk->id);
+        foreach ($spk->retensis as $key => $value) {
+            if ( $key == 0 ){
+                echo $value->hari;
+                $spk->st_2 = date('Y-m-d', strtotime('+'.$value->hari.' day', strtotime($spk->st_1)));
+                $spk->save();    
+            }      
+
+            if ( $key > 0 ){
+                echo $value->hari;
+                $spk = Spk::find($spk->id);
+                $spk->st_3 = date('Y-m-d', strtotime('+'.$value->hari.' day', strtotime($spk->st_1)));
+                $spk->save();
+            }
+        }
+
         return redirect("/spk/detail?id=".$spk->id);
     }
 
@@ -938,5 +1004,16 @@ class SpkController extends Controller
             "nilai_dibayar" =>  $bap->nilai_bap_dibayar,
             "createdby" => $bap->user->user_name
         ]);
+    }
+
+    public function downloadsupp(Request $request){
+        $spk = Spk::find($request->id);
+        $rekanan_group = $spk->rekanan->group;
+        if ( $spk->rekanan->group != "" ){
+            $supp = $spk->rekanan->group->supps;
+            if ( count($supp) > 0 ){
+                
+            }
+        }   
     }
 }

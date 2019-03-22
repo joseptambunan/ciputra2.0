@@ -42,7 +42,7 @@
                     @foreach ( $workorder as $key => $value )                      
                       @foreach ( $value->rabs as $key2 => $value2  )
                         @if ( $value2->tenders->count() == 0 )
-                        <option value="{{ $value2->id }}">{{ $value2->no }} / {{ $value2->pekerjaans->last()->itempekerjaan->parent->code or '' }} - {{ $value2->pekerjaans->last()->itempekerjaan->parent->name or '' }}</option>
+                        <option value="{{ $value2->id }}">{{ $value2->no }} / {{ $value2->name }} {{ $value2->pekerjaans->last()->itempekerjaan->parent->code or '' }} - {{ $value2->pekerjaans->last()->itempekerjaan->parent->name or '' }}</option>
                         @endif
                       @endforeach
                     @endforeach

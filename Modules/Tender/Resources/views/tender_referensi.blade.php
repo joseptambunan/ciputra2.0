@@ -48,6 +48,7 @@
                   <tr>
                     <td>{{ $value->rekanan->name }}</td>
                     <td>
+                      
                         @foreach ( $value->rekanan->group->spesifikasi as $key2 => $value2 )
                          {{ $value2->itempekerjaan->name }}, 
                         @endforeach
@@ -79,6 +80,10 @@
                     @endforeach
                   </select>
                 </div>
+                <div class="form-group">
+                  <label>Nama Rekanan</label>
+                  <input type="text" class="form-control" name="rekanan_name" id="rekanan_name">
+                </div>
               </form>
 
               <form action="{{ url('/')}}/tender/save-rekanans" method="post">
@@ -89,10 +94,12 @@
                 @if ($tender->rekanans->count() == 1 )
                   <span>Rekanan tidak bisa ditambah lagi.Silahkan hapus rekanan di kolom <i>Peserta Tender</i> untuk bisa menambah rekanan</span>
                 @else
-                  <button type="submit" class="btn btn-primary" id="btn_submit" disabled>Simpan</button>    
+                  <button type="submit" class="btn btn-primary" id="btn_submit" disabled>Simpan</button>  
+                  <a href="{{ url('/')}}/tender/referensi/add?id={{$tender->id}}" class="btn btn-primary">Tambah Nama Rekanan Baru</a>  
                 @endif
               @else
-                <button type="submit" class="btn btn-primary" id="btn_submit" disabled>Simpan</button>    
+                <a href="{{ url('/')}}/tender/rekanan/referensi/add?id={{$tender->id}}" class="btn btn-success">Tambah Nama Rekanan Baru</a>  
+                <button type="submit" class="btn btn-primary" id="btn_submit" disabled>Add</button>    
               @endif             
               <input type="hidden" value="{{ $tender->id }}" name="tender_id" value="{{ $tender->id }}">
                 {{ csrf_field() }}
@@ -102,6 +109,7 @@
                     <tr>
                       <td>Nama</td>
                       <td>Klasifikasi Pekerjaan</td>
+                      <td>Proyek</td>
                       <td>Set to Tender</td>
                     </tr>
                   </thead>
@@ -116,12 +124,14 @@
                           <tr>
                             <td>{{ $value3->name }} ( Holding )</td>
                             <td>{{ $value2->itempekerjaan->name }}</td>
+                            <td></td>
                             <td><input type="checkbox" name="rekanan[{{$start}}]" value="{{ $value3->id}}"></td>
                           </tr>
                           @else
                           <tr>
                             <td>{{ $value3->name }}</td>
                             <td>{{ $value2->itempekerjaan->name }}</td>
+                            <td></td>
                             <td><input type="checkbox" name="rekanan[{{$start}}]" value="{{ $value3->id}}"></td>
                           </tr>
                           @endif
@@ -178,7 +188,9 @@
       url : "{{ url('/')}}/tender/rekanan/cari",
       dataType : "json",
       data : {
-        itempekerjaan : $("#itempekerjaan").val()
+        itempekerjaan : $("#itempekerjaan").val(),
+        rekanan_name : $("#rekanan_name").val(),
+        project_id : $("#project_id").val()
       },
       type : "post"
     });

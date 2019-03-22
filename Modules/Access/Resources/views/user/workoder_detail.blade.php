@@ -80,35 +80,63 @@
                   @for ( $i=0; $i < count($workorder->parent_id); $i++ )
                   @php $nilai = $nilai + ($workorder->parent_id[$i]['subtotal']) @endphp
                   @endfor
+
+              @if ( $workorder->budget_draft != "" )
+              <center><h3><strong>Item pekerjaan di Workorder ini tidak terdaftar di Budget.</strong></h3></center>
+              <table class="table table-bordered table-striped">
+                <tr>
+                  <td style="background-color: grey;color:white;font-weight: bolder;">&nbsp;</td>
+                  <td>Budget Dev Cost</td>
+                  <td>HPP </td>
+                </tr>
+                <tr>
+                  <td>Total pada Periode saat ini</td>
+                  <td>Rp. {{ number_format($workorder->project->total_budget_dev_cost) }}</td>
+                  <td>
+                    @if ( $workorder->project->netto > 0)
+                      Rp. {{ number_format($workorder->project->total_budget_dev_cost / $workorder->project->netto,2) }} / m2
+                    @endif
+                  </td>
+                </tr>
+                <tr>
+                  <td>Revisi Total setelah (+) WO</td>
+                  <td>Rp. {{ number_format($workorder->project->total_budget_dev_cost + $workorder->nilai ) }}</td>
+                  <td>
+                    @if ( $workorder->project->netto > 0)
+                      Rp. {{ number_format( ( $workorder->project->total_budget_dev_cost + $workorder->nilai ) / $workorder->project->netto,2) }} / m2
+                    @endif
+                  </td>
+                </tr>
+              </table>
+              @endif
+              
               <table id="example3" class="table table-bordered">
                 <thead class="header_1">
                   <tr>
-                        <td>COA</td>
-                        <td>Item Pekerjaan</td>
-                        <td>No. Budget Tahunan</td>
-                        <td>Volume</td>
-                        <td>Satuan</td>
-                        <td>Nilai(Rp)</td>
-                        <td>Subtotal(Rp)</td>
-                        <td>Delete</td>
-                       </tr>
+                    <td>COA</td>
+                    <td>Item Pekerjaan</td>
+                    <td>No. Budget Tahunan</td>
+                    <td>Volume</td>
+                    <td>Satuan</td>
+                    <td>Nilai(Rp)</td>
+                    <td>Subtotal(Rp)</td>
+                    <td>Dokumen Pendukung</td>
+                   </tr>
                 </thead>
-                  <tbody id="detail_item">
-                       @foreach ( $workorder->detail_pekerjaan as $key => $value )
-                       <tr>
-                          <td>{{ $value->itempekerjaan->code or ''}}</td>
-                          <td>{{ $value->itempekerjaan->name or ''}}</td>
-                          <td>{{ $value->budget_tahunan->no}}</td>
-                          <td>{{ number_format($value->volume)}}</td>
-                          <td>{{ $value->itempekerjaan->details->satuan or ''}}</td>
-                          <td>{{ number_format($value->nilai)}}</td>
-                          <td>{{ number_format($value->volume * $value->nilai,2)}}</td>
-                          <td>
-                            <button type="button" class="btn btn-danger" onclick="removepekerjaan('{{ $value->id }}')">Hapus Pekerjaan</button>
-                          </td>
-                       </tr>
-                       @endforeach
-                     </tbody>
+                <tbody id="detail_item">
+                   @foreach ( $workorder->detail_pekerjaan as $key => $value )
+                   <tr>
+                      <td>{{ $value->itempekerjaan->code or ''}}</td>
+                      <td>{{ $value->itempekerjaan->name or ''}}</td>
+                      <td>{{ $value->budget_tahunan->no}}</td>
+                      <td>{{ number_format($value->volume)}}</td>
+                      <td>{{ $value->itempekerjaan->details->satuan or ''}}</td>
+                      <td>{{ number_format($value->nilai)}}</td>
+                      <td>{{ number_format($value->volume * $value->nilai,2)}}</td>     
+                      <td><a class="btn btn-success" href="{{ url('/')}}/access/workorder/dokumen?id={{ $value->id }}">Dokumen Pendukun</a></td>                 
+                   </tr>
+                   @endforeach
+                 </tbody>
               </table>
               <br>
                @php $nilai = 0 @endphp
@@ -203,13 +231,7 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-  <footer class="main-footer">
-    <div class="float-right d-none d-sm-block">
-      <b>Version</b> 3.0.0-alpha
-    </div>
-    <strong>Copyright &copy; 2014-2018 <a href="http://adminlte.io">AdminLTE.io</a>.</strong> All rights
-    reserved.
-  </footer>
+  @include("master/copyright")
 
 
 </div>

@@ -25,7 +25,7 @@ class Rekanan extends CustomModel
 
     public function tender_rekanans()
     {
-        return $this->hasMany('Modules\Tender\Entities\TenderRekanan');
+        return $this->hasMany('Modules\Tender\Entities\TenderRekanan')->orderBy("id","desc");
     }
 
     public function rekenings()

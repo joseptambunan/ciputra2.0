@@ -45,6 +45,9 @@
                 <div class="form-group">
                   <label>No. RAB</label>
                   <input type="text" class="form-control" name="rab_id" value="{{ $tender->rab->no}}" readonly>
+                  @if ( $tender->rab->approval != "" )
+                  Approved at : <strong>{{ date("d/M/Y", strtotime($tender->rab->approval->updated_at)) }}</strong>
+                  @endif
                 </div>
                 <div class="form-group">
                   <label>No. Tender</label>
@@ -85,16 +88,44 @@
                 </div>
               
                 <div class="form-group">
+                  <a class="btn btn-success" href="{{ url('/')}}/rab/?workorder_id={{ $tender->rab->workorder_id}}">RAB</a>
                   <a class="btn btn-warning" href="{{ url('/')}}/tender">Kembali</a>
-                  @if ( count($tender->penawarans) <= 0  )
-                  <button type="submit" class="btn btn-primary">Simpan</button>
-                  @endif
+                  
                   @if ( $tender->approval != "" )
-                  <a href="{{ url('/')}}/tender/approval_history?id={{ $tender->id }}" class="btn btn-info">Approval History</a>
+                    @if ( $tender->approval->approval_action_id == 7)
+                      <button type="submit" class="btn btn-primary">Simpan</button>
+                    @else
+                      @php
+                        $array = array (
+                          "6" => array("label" => "Disetujui", "class" => "label label-success"),
+                          "7" => array("label" => "Ditolak", "class" => "label label-danger"),
+                          "1" => array("label" => "Dalam Proses", "class" => "label label-warning")
+                        )
+                      @endphp
+                      <span class="{{ $array[$tender->approval->approval_action_id]['class'] }}">{{ $array[$tender->approval->approval_action_id]['label'] }}</span>
+                    @endif
+                  @else
+                    @if ( count($tender->penawarans) <= 0  )
+                      <button type="submit" class="btn btn-primary">Simpan</button>
+                    @endif
+                  @endif
+                  
+                  @if ( $tender->approval != "" )
+                  <a href="{{ url('/')}}/tender/approval_history?id={{ $tender->id }}" class="btn btn-primary">Approval History</a>
                   @endif
 
-                  @if ( $tender->penawarans->count() > 0 )
+                  @if ( $tender->menangs->count() > 0 )
                     <button class="btn btn-success" type="button" onClick="print('dvContents')">Cetak Dokumen Rekomendasi Tender</button>
+                  @endif
+
+                  @if ( $tender->aanwijing == "" )
+                    <a class="btn btn-success" href="{{ url('/')}}/tender/aanwijing?id={{$tender->id}}">AanWijing</a>
+                  @else
+                    <a class="btn btn-success" href="{{ url('/')}}/tender/aanwijing/detail?id={{$tender->aanwijing->id}}">AanWijing</a>
+                  @endif
+
+                  @if ( $tender->aanwijing == "" )
+                  <h4 style="color:red"><strong>Dokumen Aanwijing belum dibuat</strong></h4>
                   @endif
                 </div>
               <!-- /.form-group -->              
@@ -103,31 +134,31 @@
               <h3>&nbsp;</h3> 
               <div class="form-group">
                 <label>Tanggal Pengambilan Dokumen </label>
-                <input type="text" id="ambil_doc_date" class="form-control" name="ambil_doc_date" value="@if ( $tender->ambil_doc_date != null ) {{ $tender->ambil_doc_date->format('d/m/Y') }} @endif" autocomplete="off" required>
+                <input type="text" id="ambil_doc_date" class="form-control" name="ambil_doc_date" value="@if ( $tender->ambil_doc_date != null ) {{ $tender->ambil_doc_date->format('d/M/Y') }} @endif" autocomplete="off" required>
               </div>
               <div class="form-group">
                 <label>Tanggal Aanwijing </label>
-                <input type="text" id="aanwijzing_date" class="form-control" name="aanwijzing_date" value="@if ( $tender->aanwijzing_date != null ) {{ $tender->aanwijzing_date->format('d/m/Y') }} @endif" autocomplete="off" required>
+                <input type="text" id="aanwijzing_date" class="form-control" name="aanwijzing_date" value="@if ( $tender->aanwijzing_date != null ) {{ $tender->aanwijzing_date->format('d/M/Y') }} @endif" autocomplete="off" required>
               </div>
               <div class="form-group">
                 <label>Tanggal Penawaran Pertama </label>
-                <input type="text" id="penawaran1_date" class="form-control" name="penawaran1_date" value="@if ( $tender->penawaran1_date != null ) {{ $tender->penawaran1_date->format('d/m/Y') }} @endif" autocomplete="off" required>
+                <input type="text" id="penawaran1_date" class="form-control" name="penawaran1_date" value="@if ( $tender->penawaran1_date != null ) {{ $tender->penawaran1_date->format('d/M/Y') }} @endif" autocomplete="off" required>
               </div>
               <div class="form-group">
                 <label>Tanggal Klarifikasi Pertama </label>
-                <input type="text" id="klarifikasi1_date" class="form-control" name="klarifikasi1_date" value="@if ( $tender->klarifikasi1_date  != null ) {{ $tender->klarifikasi1_date->format('d/m/Y') }} @endif" autocomplete="off" required>
+                <input type="text" id="klarifikasi1_date" class="form-control" name="klarifikasi1_date" value="@if ( $tender->klarifikasi1_date  != null ) {{ $tender->klarifikasi1_date->format('d/M/Y') }} @endif" autocomplete="off" required>
               </div>
               <div class="form-group">
                 <label>Tanggal Penawaran Kedua </label>
-                <input type="text" id="penawaran2_date" class="form-control" name="penawaran2_date" value="@if ( $tender->penawaran2_date != null ) {{ $tender->penawaran2_date->format('d/m/Y') }} @endif" autocomplete="off" required>
+                <input type="text" id="penawaran2_date" class="form-control" name="penawaran2_date" value="@if ( $tender->penawaran2_date != null ) {{ $tender->penawaran2_date->format('d/M/Y') }} @endif" autocomplete="off" >
               </div>
               <div class="form-group">
                 <label>Tanggal Klarifikasi Kedua </label>
-                <input type="text" id="klarifikasi2_date" class="form-control" name="klarifikasi2_date" value="@if ( $tender->klarifikasi2_date != null ) {{ $tender->klarifikasi2_date->format('d/m/Y') }} @endif" autocomplete="off" required>
+                <input type="text" id="klarifikasi2_date" class="form-control" name="klarifikasi2_date" value="@if ( $tender->klarifikasi2_date != null ) {{ $tender->klarifikasi2_date->format('d/M/Y') }} @endif" autocomplete="off" >
               </div>
               <div class="form-group">
                 <label>Tanggal Pengumuman Pemenang</label>
-                <input type="text" id="pengumuman_date" class="form-control" name="pengumuman_date" value="@if ( $tender->pengumuman_date != null ) {{ $tender->pengumuman_date->format('d/m/Y') }} @endif" autocomplete="off">
+                <input type="text" id="pengumuman_date" class="form-control" name="pengumuman_date" value="@if ( $tender->pengumuman_date != null ) {{ $tender->pengumuman_date->format('d/M/Y') }} @endif" autocomplete="off">
               </div>
 
             </div>
@@ -135,10 +166,10 @@
             <div class="col-md-12">                
               <div class="nav-tabs-custom">    
                 <ul class="nav nav-tabs">                
-                  <li  class="active"><a href="#tab_2" data-toggle="tab">Rekanan</a></li>
-                  <li><a href="#tab_3" data-toggle="tab">Korespondensi</a></li>
-                  <li><a href="#tab_4" data-toggle="tab">Penawaran</a></li>
-                  <li><a href="#tab_5" data-toggle="tab">Unit</a></li>
+                  <li  class="active"><a href="#tab_2" data-toggle="tab">1. Rekanan</a></li>
+                  <li><a href="#tab_3" data-toggle="tab">2. Korespondensi</a></li>
+                  <li><a href="#tab_4" data-toggle="tab">3. Penawaran</a></li>
+                  <li><a href="#tab_5" data-toggle="tab">4. Unit</a></li>
                 </ul>
                 <div class="tab-content">                
                   <!-- /.tab-pane -->
@@ -165,8 +196,11 @@
                     </table>
                   </div>
                   <div class="tab-pane active" id="tab_2">                   
-                    
-                    <input type="hidden" name="disable_param" id="disable_param" value="{{ $tender->rekanans->count() }}">
+                    @if ( $tender->tender_document != "" )
+                    <input type="hidden" name="disable_param" id="disable_param" value="{{ $tender->tender_document->count() }}">
+                    @else
+                    <input type="hidden" name="disable_param" id="disable_param" value="0">
+                    @endif
                     @if ( count($tender->spks)<= 0  )
                       @if ( $tender->ambil_doc_date == "" || $tender->aanwijzing_date == "" || $tender->penawaran1_date == "")
                         <h3><i>Data Tanggal Penawaran belum diisi</i></h3>
@@ -203,10 +237,17 @@
                     <form action="{{ url('/')}}/tender/approval-rekanan" method="post" name="form1">
                       {{ csrf_field() }}
                       <h4>Kelengkapan Dokumen</h4>
+                      @if ( $tender->rab->workorder_budget_detail != "" )
+                        @foreach ( $tender->rab->workorder_budget_detail->dokumen as $key => $value )                      
+                          <input type="checkbox" name="dokumen[2]" style="display: none;" checked>
+                          <input type="checkbox" class="paramdisable" checked disabled>{{ $value->document_name }}<br>
+                        @endforeach
+                      @else
                       <input type="checkbox" class="paramdisable" name="dokumen[0]" id="gambar" onclick="disablebtn('1')" value="Gambar Tender">Gambar Tender<br>
                       <input type="checkbox" class="paramdisable" name="dokumen[1]" id="bq" onclick="disablebtn('1')" value="BQ / Bill Item">BQ / Bill Item<br>
                       <input type="checkbox" class="paramdisable" name="dokumen[2]" id="spek" onclick="disablebtn('1')" value="Spesifikasi Teknis">Spesifikasi Teknis<br>
                       <input type="checkbox" class="paramdisable" name="dokumen[3]" id="syarat" onclick="disablebtn('1')" value="Syarat=Syarat Khusus yang harus dilengkapi" style="display: none;" checked><br><br>
+                      @endif
                     @endif
 
                     <input type="hidden" name="tender_id" id="tender_id" value="{{ $tender->id }}">
@@ -224,7 +265,7 @@
                           <td>{{ $value->rekanan->group->name }}</td>
                           <td>
                             @if ( $value->approval == null )
-                            <input type="checkbox" class="paramdisable" name="rekanan_['{{$key}}']" value="{{ $value->id }}" onclick="disablebtn('1')">Request Approve
+                            <input type="checkbox" class="paramdisable" name="rekanan_['{{$key}}']" value="{{ $value->id }}" >Request Approve
                             @else
                              @php
                               $array = array (
@@ -251,7 +292,7 @@
                       </table>
                       @if ( count($tender->spks)<= 0  )
                         @if ( count($tender->rekanans) > 0 )
-                          <button type="submit" class="btn btn-primary" id="btn_approval_rekanan" disabled>Submit</button><br>
+                          <button type="submit" class="btn btn-primary"  >Submit</button><br>
                           <i>Harap pastikan kelengkapan dokumen dan checklist status approval sebelulmnya</i>
                         @endif
                       @endif
@@ -308,49 +349,67 @@
                         </tr>
                       </thead>
                       <tbody>
-                        <tr>
-                          <td>Item Pekerjaan</td>
-                          <td></td>
-                          <td>
-                            @if ( count($tender->spks) > 0 )
-                            <a href="{{ url('/')}}/tender/detail-penawaran?id={{$tender->id}}&step=1" class="btn btn-warning">Detail</a>
-                            @endif
-                          </td>
-                          <td>
-                            @if ( count($tender->spks) > 0 )
-                            <a href="{{ url('/')}}/tender/detail-penawaran?id={{$tender->id}}&step=2" class="btn btn-warning">Detail</a>
-                            @endif
-                          </td>
-                          <td>
-                            @if ( count($tender->spks) > 0 )
-                            <a href="{{ url('/')}}/tender/detail-penawaran?id={{$tender->id}}&step=3" class="btn btn-warning">Detail</a>
-                            @endif
-                          </td>
-                        </tr>
-                        @foreach( $tender->rekanans as $key2 => $value2)
-                        @if ( $value2->approval != null)
-                        @if ( $value2->approval->approval_action_id != "" )
-                        @if ( $value2->approval->approval_action_id == "6")
+                        @if ( $tender->aanwijing != "" )
                           <tr>
-                            <td>{{ $value2->rekanan->group->name }}</td>
-                            <td>&nbsp;</td>
-                            @foreach ( $value2->penawarans as $key3 => $value3)
-                            <td>
-                              <span style="font-size: 14px;">
-                                @if ( $value3->details->sum("nilai") > 0 )
-                                  Penawaran telah masuk
-                                @else
-                                  Rekanan belum mengisi penawaran
-                                @endif
-                              </span>                              
-                            </td>
-                            @endforeach
+                            <td>Item Pekerjaan</td>
                             <td></td>
+                            <td>
+                              @if ( count($tender->penawarans) > 1 || count($tender->spks) > 0 )
+                              <a href="{{ url('/')}}/tender/detail-penawaran?id={{$tender->id}}&step=1" class="btn btn-warning">Detail</a>
+                              @elseif ( count($tender->penawarans) == 1 )
+                                @if ( count($tender->berita_acara) > 0 )
+                                  @foreach ( $tender->berita_acara as $key => $value )    
+                                    @if ( $value->step == 1)                              
+                                      <a href="{{ url('/')}}/tender/berita_acara/show?id={{$value->id}}" class="btn btn-info">Berita Acara Pertama</a>
+                                    @endif
+                                  @endforeach
+                                @else
+                                <a href="{{ url('/')}}/tender/berita_acara?id={{$tender->id}}&step=1" class="btn btn-info">Berita Acara Pertama</a>
+                                @endif
+                              @endif
+                            </td>
+                            <td>                            
+                              @if ( count($tender->penawarans) > 2 || count($tender->spks) > 0)
+                              <a href="{{ url('/')}}/tender/detail-penawaran?id={{$tender->id}}&step=2" class="btn btn-warning">Detail</a>
+                              @elseif( count($tender->penawarans) == 2 || count($tender->spks) > 0 )
+                              <a href="{{ url('/')}}/tender/berita_acara?id={{$tender->id}}&step=1" class="btn btn-info">Berita Acara Kedua</a>
+                              @endif
+                            </td>
+                            <td>                            
+                              @if ( count($tender->spks) > 3 || count($tender->spks) > 0 )
+                              <a href="{{ url('/')}}/tender/detail-penawaran?id={{$tender->id}}&step=3" class="btn btn-warning">Detail</a>
+                              @endif
+                            </td>
                           </tr>
+                          @foreach( $tender->rekanans as $key2 => $value2)
+                          @if ( $value2->approval != null)
+                          @if ( $value2->approval->approval_action_id != "" )
+                          @if ( $value2->approval->approval_action_id == "6")
+                            <tr>
+                              <td>{{ $value2->rekanan->group->name }}</td>
+                              <td>&nbsp;</td>
+                              @foreach ( $value2->penawarans as $key3 => $value3)
+                              <td>
+                                <span style="font-size: 14px;">
+                                  @if ( $value3->details->sum("nilai") > 0 )
+                                    Penawaran telah masuk
+                                  @else
+                                    Rekanan belum mengisi penawaran
+                                  @endif
+                                </span>                              
+                              </td>
+                              @endforeach
+                              <td></td>
+                            </tr>
+                          @endif
+                          @endif
+                          @endif
+                          @endforeach
+                        @else
+                        <tr>
+                          <td colspan="5">Dokumen Aanwijing belum dibuat</td>
+                        </tr>
                         @endif
-                        @endif
-                        @endif
-                        @endforeach
                       </tbody>
                     </table>
                   </div>

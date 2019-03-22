@@ -39,16 +39,13 @@
               {{ csrf_field() }}              
               <thead style="background-color: greenyellow;">
                 <tr>
-                  <td>Progress</td>
-                  <td>Unit</td>
-                  <td>#</td>
                   <td>Nama</td>
-                  <td>Proyek</td>
-                  <td>Kawasan</td>
-                  <td>L Tanah(m2)</td>
-                  <td>L Bang(m2)</td>
+                  <td>Luas<br/> Tanah(m2)</td>
+                  <td>Luas<br/> Bangunan(m2)</td>
+                  <td>Unit</td>
                   <td>Keterangan</td>
-                  <td>Edit</td>
+                  <td>Edit Unit</td>
+                  <td>Edit Blok</td>
                   <td>Delete</td>
                 </tr>
               </thead>
@@ -56,15 +53,12 @@
                  @foreach ( $projectkawasan->bloks as $key => $value )
                 
                  <tr>
-                    <td>&nbsp;</td>
-                    <td><a href="{{ url('/')}}/project/units/?id={{ $value->id }}" class="btn btn-primary">{{ count($value->units) }} Unit</a></td>
-                    <td>#</td>
                     <td>{{ $value->name }}</td>
-                    <td>{{ $projectkawasan->project->name }}</td>
-                    <td>{{ $projectkawasan->name }}</td>
                     <td>{{ number_format($value->total_tanah) }}</td>
                     <td>{{ number_format($value->total_bangunan) }}</td>
-                    <td></td>                    
+                    <td>{{ $value->units->count() }}</td>  
+                    <td>{{ $value->description }}</td> 
+                    <td><a href="{{ url('/')}}/project/units/?id={{ $value->id }}" class="btn btn-primary">Edit</a></td>             
                     <td><a href="{{ url('/')}}/project/edit-blok?id={{ $value->id }}" class="btn btn-warning">Edit</a></td>
                     <td><button class="btn btn-danger" onclick="removeblok('{{ $value->id }}','{{ $value->name }}')">Delete</button></td>
                  </tr>
@@ -84,13 +78,7 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-  <footer class="main-footer">
-    <div class="pull-right hidden-xs">
-      <b>Version</b> 2.4.0
-    </div>
-    <strong>Copyright &copy; 2014-2016 <a href="https://adminlte.io">Almsaeed Studio</a>.</strong> All rights
-    reserved.
-  </footer>
+  @include("master/copyright")
 
   
   <!-- Add the sidebar's background. This div must be placed

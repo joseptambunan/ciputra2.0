@@ -25,7 +25,11 @@ class Rab extends Model
     }
     public function getProjectAttribute()
     {
-        return $this->workorder->project;
+        if ( $this->workorder != "" ){
+            return $this->workorder->project;
+        }else{
+            return "";
+        }
     }
 
     public function tenders()
@@ -143,5 +147,8 @@ class Rab extends Model
         return $this->belongsTo("\Modules\Budget\Entities\BudgetTahunan");
     }
 
+    public function workorder_budget_detail(){
+        return $this->belongsTo("Modules\Workorder\Entities\WorkorderBudgetDetail","workorder_budget_detail_id");
+    }
     
 }

@@ -41,20 +41,20 @@
                 <input type="text" class="form-control" value="{{ $projectkawasan->name }}" autocomplete="off" readonly>
               </div>
               <div class="form-group">
-                <label>Kode Blok</label>
+                <label>Kode Blok <span style="color:red;">*</span></label>
                 <input type="text" class="form-control" name="kode"  value="" autocomplete="off" autocomplete="off" required>
               </div>
               <div class="form-group">
-                <label>Nama Blok</label>
+                <label>Nama Blok <span style="color:red;">*</span></label>
                 <input type="text" class="form-control" name="name"  value="" autocomplete="off" autocomplete="off" required>
               </div>
               <div class="form-group">
-                <label>Luas Blok(m2)</label>
+                <label>Luas Blok Netto (m2) <span style="color:red;">*</span></label>
                 <input type="text" class="form-control" name="luas" id="luas" autocomplete="off" autocomplete="off" required>
               </div>
               
               <div class="form-group">
-                <label>Keterangan</label>
+                <label>Keterangan <span style="color:red;">*</span></label>
                 <textarea class='form-control' name="description" id="description" cols="45" rows="5" required></textarea>
               </div>     
               <div class="box-footer">
@@ -82,13 +82,7 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-  <footer class="main-footer">
-    <div class="pull-right hidden-xs">
-      <b>Version</b> 2.4.0
-    </div>
-    <strong>Copyright &copy; 2014-2016 <a href="https://adminlte.io">Almsaeed Studio</a>.</strong> All rights
-    reserved.
-  </footer>
+  @include("master/copyright")
 
   
   <!-- Add the sidebar's background. This div must be placed

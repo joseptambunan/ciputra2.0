@@ -29,7 +29,7 @@
               <h3 class="box-title">Data Tender</h3>
             </div>
             <!-- /.box-header -->
-            <div class="box-body">
+            <div class="box-body table-responsive">
               <a href="{{ url('/')}}/tender/add" class="btn-lg btn-primary"><i class="glyphicon glyphicon-plus-sign"></i>Tambah Data Tender</a><br><br>
               <table id="example2" class="table table-bordered table-hover">
                 <thead class="head_table">
@@ -40,6 +40,7 @@
                   <th>Nilai(Rp)</th>
                   <th>Dibuat oleh</th>
                   <th>Tanggal Dibuat</th>
+                  <th>Tanggal RAB Approved</th>
                   <th>Detail</th>
                   <th>Status Pemenang</th>
                 </tr>
@@ -50,10 +51,15 @@
                   <tr>
                     <td>{{ $value->no }}</td>
                     <td>{{ $value->rab->no or '-' }}</td>
-                    <td>{{ \Modules\Pekerjaan\Entities\Itempekerjaan::find($value->rab->pekerjaans->last()->itempekerjaan->parent->id)->name }}</td>
+                    <td>{{ $value->name }}</td>
                     <td>{{ number_format($value->rab->nilai)}}</td>
-                    <td>{{ \App\User::find($value->created_by)->user_name or '-' }}</td>
-                    <td>{{ $value->created_at }}</td>
+                    <td>
+                      @if ( \App\User::find($value->created_by) != "" )
+                      {{ \App\User::find($value->created_by)->user_name }}
+                      @endif
+                    </td>
+                    <td>{{ date("d/M/Y", strtotime($value->created_at)) }}</td>
+                    <td>@if ( $value->rab->approval != "" ) {{ date("d/M/Y",strtotime($value->rab->approval->updated_at))}} @endif</td>
                     <td><a href="{{ url('/')}}/tender/detail/?id={{ $value->id }}" class="btn btn-warning">Detail</a></td>
                     <td>
                       @if ( count($value->menangs) > 0 )

@@ -55,6 +55,7 @@
                 <tbody>
                   @php $start=0; @endphp
                   @foreach( $rekanan->tender->rab->pekerjaans as $key => $value )
+                  @if ( $value->volume > 0 )
                   <tr>
                     <td>{{ $value->itempekerjaan->code }}</td>
                     <td>{{ $value->itempekerjaan->name }}</td>
@@ -68,6 +69,7 @@
                     <td><input type="text"  id="subtotal_{{$key}}"  class="form-control" autocomplete="off" /></td>
                   </tr>
                   @php $start = $key; @endphp
+                  @endif
                   @endforeach
                   <tr>
                     <td>&nbsp;</td>

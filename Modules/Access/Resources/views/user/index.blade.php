@@ -105,7 +105,7 @@
                 <tbody style="background-color: white;">
  
                     @foreach ( $approval as $key => $value )
-                    @if ( $value->document_type != "Modules\Tender\Entities\TenderRekanan" && $value->document_type != "Modules\Tender\Entities\TenderMenang"  && $value->document_type != "Modules\Budget\Entities\BudgetDetail" )
+                    @if ( $value->document_type != "Modules\Tender\Entities\TenderRekanan" && $value->document_type != "Modules\Tender\Entities\TenderMenang"  && $value->document_type != "Modules\Budget\Entities\BudgetDetail" && $value->document_type != "Modules\BudgetDraft\Entities\BudgetDraft" )
                     @php 
                       $arrayDocument = array(
                         "Modules\Budget\Entities\Budget" => array("label" => "Budget Awal", "url" => "budget" ),
@@ -128,13 +128,14 @@
                       );
                     @endphp
                     @if (isset($value->document->nilai))
+                    @if ( $value->document->project != "")
                     <tr>
                       @if ( $value->document_type != "Modules\Tender\Entities\Tender")
                       <td><input type="radio" name="approve{{ $key}}" id="approve_{{ $key}}" onclick="checkapprove('6','{{ $value->id }}')"></td>
                       <td><input type="radio" name="approve{{ $key}}" id="reject_{{ $key }}" onclick="checkapprove('7','{{ $value->id }}')"></td>
                       @else
                       
-                      <td>Silahkan klik detail untuk approve</td>
+                      <td>Klik detail <br/>untuk approve</td>
                       <td>&nbsp;</td>
                       
                       @endif
@@ -142,7 +143,7 @@
                       <td>{{ $value->created_at->format("d M Y") }}</td>
                       <td>{{ $value->document->no or '' }}</td>
                       @if ( $value->document_type != "App\TenderKorespondensi" )              
-                      <td>{{ $value->document->description or '' }}</td>
+                      <td>{{ $value->document->name or '' }}</td>
                       <td>{{ number_format($value->document->nilai) }}</td>
                       @else
                       <td>{{ $arrayKoresponend[$value->document->type] }}</td>
@@ -150,10 +151,11 @@
                       @endif
                       
                       <td>{{ $value->document->project->name or '' }}</td>
-                      <td>{{ $value->document->kawasan->name or '' }}</td>
+                      <td>{{ $value->document->kawasan->name or 'Fasilitas Umum' }}</td>
                       <td>{{ $value->document->department->code or '' }}</td>
                       <td><a href="{{ url('/')}}/access/{{ $arrayDocument[$value->document_type]['url'] }}/detail/?id={{ $value->document->id }}" class="btn btn-success">Detail</a></td>
                     </tr>
+                    @endif
                     @endif
                     @endif
                     @endforeach

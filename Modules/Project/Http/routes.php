@@ -23,6 +23,9 @@ Route::group(['middleware' => 'web', 'prefix' => 'project', 'namespace' => 'Modu
     Route::get('/detail-template','ProjectController@detailtemplate');
     Route::post('/update-template','ProjectController@updatetemplate');
     Route::post('/add-templatedetail','ProjectController@savetemplatedetail');
+    Route::get('/spesifikasi-template','ProjectController@spesifikasitemplate');
+    Route::post('/spesifikasi-savetemplate','ProjectController@savespectempalte');
+    Route::post('/spesifikasi-delete','ProjectController@deletespec');
 
     Route::get('/kawasan','ProjectController@kawasan');
     Route::get('/add-kawasan','ProjectController@addKawasan');
@@ -43,6 +46,7 @@ Route::group(['middleware' => 'web', 'prefix' => 'project', 'namespace' => 'Modu
     Route::post("/save-unit","ProjectController@saveunit");
     Route::get('/edit-unit','ProjectController@viewunit');
     Route::post('/update-unit','ProjectController@updateunit');
+    Route::post('/delete-unit','ProjectController@deleteunit');
 
     Route::post('/itempekerjaan/','ProjectController@itempekerjaan');
 
@@ -53,4 +57,5 @@ Route::group(['middleware' => 'web', 'prefix' => 'project', 'namespace' => 'Modu
     Route::post('/delete-hadap','ProjectController@deletehadap');
 
     Route::post('/unit/senderems','ProjectController@senderems');
+    Route::post('/todolist','ProjectController@todolist');
 });

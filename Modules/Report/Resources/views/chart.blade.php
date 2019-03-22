@@ -1,125 +1,52 @@
 <!-- ChartJS -->
 <script src="{{ url('/')}}/assets/bower_components/chart.js/Chart.js"></script>
 <script type="text/javascript">
-  $("#budget_update").text($("#tmp_budget").val());
-  $("#hpp_update").text($("#tmp_hpp").val());
+ var str_budget_cashout = $("#budget_cashout").val();
+ var arr_budget_cashout = str_budget_cashout.split(",");
 
-  /*$("#hpp_update").number(true);
-  $("#budget_update").number(true);*/
+ var str_budget_carryover = $("#budget_carryover").val();
+ var arr_budget_carryover  = str_budget_carryover.split(",");
 
-  // Get context with jQuery - using jQuery's .get() method.
-    var areaChartCanvas = $('#areaChart').get(0).getContext('2d')
-    // This will get the first returned node in the jQuery collection.
-    var areaChart       = new Chart(areaChartCanvas);
+ var str_real_bulanan = $("#real_bulanan").val();
+ var arr_real_bulanan  = str_real_bulanan.split(",");
 
-    var areaChartCanvas1 = $('#areaChart1').get(0).getContext('2d')
-    var areaChart1       = new Chart(areaChartCanvas1);
-    var areaChartCanvas2 = $('#areaChart2').get(0).getContext('2d')
-    var areaChart2       = new Chart(areaChartCanvas2);
-    var areaChartCanvas3 = $('#areaChart3').get(0).getContext('2d')
-    var areaChart3       = new Chart(areaChartCanvas3);
+ var areaChartData = {
+    labels  : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul','Agu', 'Sep','Okt','Nov','Des'],
+    datasets: [
+      {
+        label               : 'Cash Out',
+        fillColor           : 'rgba(255, 0, 0, 1)',
+        strokeColor         : 'rgba(255, 0, 0, 1)',
+        pointColor          : 'rgba(255, 0, 0, 1)',
+        pointStrokeColor    : '#c1c7d1',
+        pointHighlightFill  : '#fff',
+        pointHighlightStroke: 'rgba(220,220,220,1)',
+        data                : arr_budget_cashout
+      },
+      {
+        label               : 'Carry Over',
+        fillColor           : 'rgba(0, 0, 255, 1)',
+        strokeColor         : 'rgba(0, 0, 255, 1)',
+        pointColor          : 'rgba(0, 0, 255, 1)',
+        pointStrokeColor    : '#c1c7d1',
+        pointHighlightFill  : '#fff',
+        pointHighlightStroke: 'rgba(220,220,220,1)',
+        data                : arr_budget_carryover
+      },
+      {
+        label               : 'Real',
+        fillColor           : 'rgba(255, 255, 0, 1)',
+        strokeColor         : 'rgba(255, 255, 0, 1)',
+        pointColor          : 'rgba(255, 255, 0, 1)',
+        pointStrokeColor    : '#c1c7d1',
+        pointHighlightFill  : '#fff',
+        pointHighlightStroke: 'rgba(220,220,220,1)',
+        data                : arr_real_bulanan
+      }
+    ]
+  }
 
-
-    var data_variabel_cash_out = [];
-    if ($("#variabel_cash_out").val() != "" ){
-      var string_variabel_cash_out = $("#variabel_cash_out").val();
-      data_variabel_cash_out = string_variabel_cash_out.split(",");
-    }
-
-    var data_variabel_carry_over = [];
-    if ($("#variabel_carry_over").val() != "" ){
-      var string_variabel_carry_over = $("#variabel_carry_over").val();
-      data_variabel_carry_over = string_variabel_carry_over.split(",");
-    }
-
-    var data_variabel_realiasasi = [];
-    if ($("#variabel_realiasasi").val() != "" ){
-      var string_variabel_realiasasi = $("#variabel_realiasasi").val();
-      data_variabel_realiasasi = string_variabel_realiasasi.split(",");
-    }
-
-    var areaChartData = {
-      labels  : ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli','Agustus','September','Oktober','November','Desember'],
-      datasets: [
-        {
-          label               : 'Budget Cash Out',
-          fillColor           : 'rgba(255, 0, 0, 1)',
-          strokeColor         : 'rgba(255, 0, 0, 1)',
-          pointColor          : 'rgba(255, 0, 0, 1)',
-          pointStrokeColor    : '#ff0000',
-          pointHighlightFill  : '#ff0000',
-          pointHighlightStroke: 'rgba(255, 0, 0,1)',
-          data                : data_variabel_cash_out
-        },
-        {
-          label               : 'Budget Carry Over',
-          fillColor           : 'rgba(60,141,188,0.9)',
-          strokeColor         : 'rgba(60,141,188,0.8)',
-          pointColor          : '#3b8bba',
-          pointStrokeColor    : 'rgba(60,141,188,1)',
-          pointHighlightFill  : '#fff',
-          pointHighlightStroke: 'rgba(60,141,188,1)',
-          data                : data_variabel_carry_over
-        },
-        {
-          label               : 'Realisasi',
-          fillColor           : 'rgba(255, 255, 102,0.9)',
-          strokeColor         : 'rgba(255, 255, 102,0.8)',
-          pointColor          : '#ffff33',
-          pointStrokeColor    : 'rgba(255, 255, 102,1)',
-          pointHighlightFill  : '#ffff33',
-          pointHighlightStroke: 'rgba(255, 255, 102,1)',
-          data                : data_variabel_realiasasi
-        }
-      ]
-    }
-
-    var areaChartData1 = {
-      labels  : ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli','Agustus','September','Oktober','November','Desember'],
-      datasets: [
-        {
-          label               : 'Budget Cash Out',
-          fillColor           : 'rgba(255, 0, 0, 1)',
-          strokeColor         : 'rgba(255, 0, 0, 1)',
-          pointColor          : 'rgba(255, 0, 0, 1)',
-          pointStrokeColor    : '#ff0000',
-          pointHighlightFill  : '#ff0000',
-          pointHighlightStroke: 'rgba(255, 0, 0,1)',
-          data                : data_variabel_carry_over
-        }]
-    };
-
-    var areaChartData2 = {
-      labels  : ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli','Agustus','September','Oktober','November','Desember'],
-      datasets: [
-        {
-          label               : 'Budget Carry Over',
-          fillColor           : 'rgba(60,141,188,0.9)',
-          strokeColor         : 'rgba(60,141,188,0.8)',
-          pointColor          : '#3b8bba',
-          pointStrokeColor    : 'rgba(60,141,188,1)',
-          pointHighlightFill  : '#fff',
-          pointHighlightStroke: 'rgba(60,141,188,1)',
-          data                : data_variabel_carry_over
-        }]
-    };
-
-    var areaChartData3 = {
-      labels  : ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli','Agustus','September','Oktober','November','Desember'],
-      datasets: [
-        {
-          label               : 'Realisasi',
-          fillColor           : 'rgba(255, 255, 102,0.9)',
-          strokeColor         : 'rgba(255, 255, 102,0.8)',
-          pointColor          : '#ffff33',
-          pointStrokeColor    : 'rgba(255, 255, 102,1)',
-          pointHighlightFill  : '#ffff33',
-          pointHighlightStroke: 'rgba(255, 255, 102,1)',
-          data                : data_variabel_realiasasi
-        }]
-    };
-
-    var areaChartOptions = {
+  var areaChartOptions = {
       //Boolean - If we should show the scale at all
       showScale               : true,
       //Boolean - Whether grid lines are shown across the chart
@@ -156,14 +83,14 @@
       maintainAspectRatio     : true,
       //Boolean - whether to make the chart responsive to window resizing
       responsive              : true
-    };
+  }
 
-    //Create the line chart
-    areaChart.Line(areaChartData, areaChartOptions);
-    areaChart1.Line(areaChartData1, areaChartOptions);
-    areaChart2.Line(areaChartData2, areaChartOptions);
-    areaChart3.Line(areaChartData3, areaChartOptions);
+  //Create the line chart
+  //areaChart.Line(areaChartData, areaChartOptions)
 
-    
-
+  var lineChartCanvas          = $('#lineChart').get(0).getContext('2d')
+  var lineChart                = new Chart(lineChartCanvas)
+  var lineChartOptions         = areaChartOptions
+  lineChartOptions.datasetFill = false
+  lineChart.Line(areaChartData, lineChartOptions)
 </script>

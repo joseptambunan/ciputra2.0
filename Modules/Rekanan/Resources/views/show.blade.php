@@ -145,9 +145,7 @@
                                 @endif
                               @elseif ( $value->group_cost == "2")
                                 @if ( $value->parent_id == null )
-                                  <option value="{{ $value->id }}">{{ $value->code }} / {{ $value->name }}</option>                              
-                                @elseif ( $value->parent->parent == null )
-                                  <option value="{{ $value->id }}">{{ $value->code }} / {{ $value->name }}</option>
+                                  <option value="{{ $value->id }}">{{ $value->code }} / {{ $value->name }}</option>   
                                 @endif
                               @endif
                               @endforeach

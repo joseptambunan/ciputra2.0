@@ -36,68 +36,67 @@
               <form action="{{ url('/')}}/project/unit/senderems" method="post" name="form1">
                 <a href="{{ url('/')}}/project/add-unit?id={{ $blok->id }}" class="btn btn-primary"><i class="glyphicon glyphicon-plus-sign"></i>Tambah Unit</a>
                 <input type="hidden" name="blok_id" id="blok_id" value="{{ $blok->id }}">
-                <button class="btn btn-warning" type="submit">Simpan</button><br><br>
+                <input type="hidden" name="unit_id" id="unit_id"> 
+                <button class="btn btn-warning" type="submit">Simpan</button>
+                <button class="btn btn-danger" type="button" id="btn_del_unit">Delete</button><br><br>
                 <table id="example2" class="table table-bordered table-hover">   
                 {{ csrf_field() }}              
                 <thead style="background-color: greenyellow;">
-                  <tr>                 
+                  <tr>   
+                    <td>No.</td>              
                     <td>Unit No.</td>
-                    <td>Luas Tanah(m2)</td>
-                    <td>Luas Bangunan(m2)</td>
-                    <td>Sellable</td>
+                    <td>Type Unit</td>
+                    <td>LB(m2)</td>
+                    <td>LT(m2)</td>
                     <td>Kategori</td>
-                    <td>Type</td>
                     <td>Progress</td>
-                    <td>Status</td>
-                    <td>ST 1</td>
-                    <td>ST 2</td>
                     <td>Kirim ke EREMS</td>
+                    <td>Status</td>
                     <td>Edit</td>
                   </tr>
                 </thead>
-                  <tbody>
-                   @foreach ( $blok->units as $key => $value )
-                   @php $arrayAngin = array("1" => "Utara", "2" =>"Timur Laut", "3" => "Timur", "4" => "Tenggara", "5" => "Selatan", "6" => "Barat Daya", "7" => "Barat", "8" => "Barat Laut") @endphp
-                   <tr>
-                      <td>{{ $value->name }}</td>
-                      <td>{{ number_format($value->tanah_luas,2) }}</td>
-                      <td>{{ number_format($value->bangunan_luas) }}</td>
-                      <td>{{ $value->is_sellable ? 'Ya' : 'Tidak' }}</td>
-                      <td>{{ $value->tag_kategori == 'B' ? 'Bangunan' : 'Kavling'}}</td>
-                      <td>{{ $value->type->name or '' }}</td>
-                      <td>0 %</td>
-                      <td>
-                        @if($value->status == 0)
-                          <div class="alert-info fade in" style="text-align:center;background-color:#b3ffb3;color:#cc7a00">Planning</div>
-                        @elseif($value->status == 0)
-                          <div class="alert-info fade in" style="text-align:center;background-color:#b3ffb3;color:#cc7a00">Ready for Stock</div>
-                        @elseif($value->status == 2)
-                          <div class="alert-info fade in" style="text-align:center;background-color:#fdfc93;color:#817f01">In Progress</div>                       
-                        @elseif($value->status == 3)
-                          <div class="alert-info fade in" style="text-align:center;background-color:#97dbfd;color:#036697">Siap Jual</div> 
-                        @elseif($value->status == 5)
-                          <div class="alert-info fade in" style="text-align:center;background-color:#89fda7;color:#038725">Siap Bangun</div>
-                        @elseif($value->status == 7)
-                          <div class="alert-info fade in" style="text-align:center;background-color:#fda8a8;color:#b70101">Rejected</div>
+                <tbody>
+                  @foreach ( $blok->units as $key => $value )
+                  <tr>
+                    <td>{{ $key + 1 }}</td>
+                    <td>{{ $value->name }}</td>  
+                    <td>{{ $value->type->name or '' }}</td>                    
+                    <td>{{ number_format($value->tanah_luas,2) }}</td>
+                    <td>{{ number_format($value->bangunan_luas) }}</td>
+                    <td>
+                      @if ( $value->is_sellbale == 1 )
+                        @if (  $value->tag_kategori == 'B' )
+                          Bangunan
                         @else
-                          <div class="alert-info fade in" style="text-align:center;background-color:#fda8a8;color:#b70101">Non Sellable</div>
+                          Kavling
                         @endif
-                      </td>
-                      <td>{{ $value->st1_date }}</td>
-                      <td>{{ $value->st2_date }}</td>
-                      <td>
-                        @if ( $value->is_sellable != 1 )
-                        @if ( $value->unit_id == "")
-                        <input type="checkbox" name="unit_[{{$key}}]" value="{{ $value->id }}">
+                      @else
+                        Tidak Dijual
+                      @endif
+                    </td>
+                    <td>
+                      @if ( count($value->progresses) > 0 ) 
+                        @if ( $value->status == 7 )
+                          ST 1 : <strong>{{ date("d/M/Y",strtotime($value->st_1)) }}</strong>
+                        @else
+                          ST 2 : <strong>{{ date("d/M/Y",strtotime($value->st_1)) }}</strong>
                         @endif
-                        @endif
-                      </td>
-                      <td>                       
+                      @else
+                      0%
+                      @endif
+                    </td>
+                    <td></td>
+                    <td></td>
+                     <td>        
+                          @if ( $value->status < 3 )     
+                            <input type="checkbox" name="delete_unit_{{$value->id}}" id="delete_unit_{{$value->id}}" onClick="addunitdelete('{{$value->id}}')"><span class="label label-danger">Delete </span> 
+                          @endif        
                           <a class="btn btn-warning" href="{{ url('/')}}/project/edit-unit?id={{ $value->id }}">Detail</a>                        
                       </td>
-                   </tr>
-                   @endforeach
-                  </tbody>
+                      
+                  </tr>
+                  @endforeach
+                </tbody>
                 </table>
               </form>
             </div>

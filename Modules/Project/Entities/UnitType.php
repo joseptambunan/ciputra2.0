@@ -49,4 +49,8 @@ class UnitType extends CustomModel
         }
         return $nilai;
     }
+
+    public function specifications(){
+        return $this->hasMany("Modules\Project\Entities\UnitTypeSpecification");
+    }
 }

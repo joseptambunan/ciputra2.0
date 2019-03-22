@@ -37,7 +37,7 @@
               <a href="{{ url('/')}}/rekanan/user/tender/detail/?id={{ $tenderRekanan->tender->id }}" class="btn btn-warning">Kembali</a>
               <button type="submit" class="btn btn-primary">Simpan</button><br><input type="file" name="fileupload"><br>
               {{ csrf_field() }}
-              <input type="hidden" name="tender_id" value="{{ $tenderpenawaran->id }}">
+              <input type="hidden" name="tender_id" value="{{ $tenderRekanan->id }}">
               <h3><center>Rekanan : <strong>{{ $tenderRekanan->rekanan->name }}</strong></center></h3>
               <hr>
               <table class="table table-bordered">

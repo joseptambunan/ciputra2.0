@@ -32,9 +32,19 @@
         <div class="box-body">
           <div class="row">
             <div class="col-md-12">
-              <h3 class="box-title">Detail Data Budget Proyek</h3>
+              <h3 class="box-title">Tambah Item Pekerjaan</h3>
               <h4>Project : <strong>{{ $budget_tahunan->budget->project->name }}</strong></h4>
               <h4>Kawasan :  <strong>{{ $budget_tahunan->budget->kawasan->name or '' }}</strong></h4>
+              <button type="submit" class="btn btn-primary submitbtn" id="btn_submit">Simpan</button>
+              <select class="select2" style="display: none;"></select>
+              <a class="btn btn-warning" href="{{ url('/')}}/workorder/detail?id={{ $workorder->id}}">Kembali</a>
+              @if ( $workorder->approval != "" )
+                @if ( $workorder->approval_action_id == 7 )
+                  <a href="{{ url('/')}}/workorder/non-budget?id={{$workorder->id}}&budget={{$budget_tahunan->id}}" class="btn btn-info">Item Pekerjaan non Budget</a>
+                @endif
+              @else
+                <a href="{{ url('/')}}/workorder/non-budget?id={{$workorder->id}}&budget={{$budget_tahunan->id}}" class="btn btn-info">Item Pekerjaan non Budget</a>
+              @endif
             </div>
             
             <!-- /.col -->
@@ -47,7 +57,7 @@
               </ul>
               <div class="tab-content">
                 <div class="tab-pane active table-responsive" id="tab_1">
-                  <form action="{{ url('/')}}/workorder/save-pekerjaan" method="post">
+                  <form action="{{ url('/')}}/workorder/save-pekerjaan" method="post" name="form1" id="form1">
                     {{ csrf_field() }}
                   <input type="hidden" name="workorder_id" value="{{ $workorder->id }}">
                   <input type="hidden" name="budget_tahunan" value="{{ $budget_tahunan->id }}">
@@ -149,8 +159,7 @@
                   </table>
 
                   <i class="fa fa-refresh ld ld-spin submitbtn" id="loading" style="display: none;"></i>
-                  <button type="submit" class="btn btn-primary submitbtn" id="btn_submit">Simpan</button>
-                  <a class="btn btn-warning" href="{{ url('/')}}/workorder/detail?id={{ $workorder->id}}">Kembali</a>
+
                   <!--a href="{{ url('/')}}/workorder/non-budget?id={{ $workorder->id }}&budget={{ $budget_tahunan->id}}" class="btn btn-info">Draft Budget Tambahan</a-->
                 </div>
               </div>
@@ -182,11 +191,13 @@
 <!-- ./wrapper -->
 
 @include("master/footer_table")
+<script src="{{ url('/')}}/assets/bower_components/select2/dist/js/select2.full.min.js"></script>
 @include("workorder::app")
 <script type="text/javascript">
   $("#btn_submit").click(function(){
     $(".submitbtn").hide();
     $("#loading").show();
+    $("#form1").submit();
   });
 </script>
 </body>

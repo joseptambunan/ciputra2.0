@@ -37,7 +37,9 @@
               <a href="{{ url('/')}}/rekanan/user/tender/detail/?id={{ $tender_rekanan->id }}" class="btn btn-warning">Kembali</a>
               <button type="submit" class="btn btn-primary">Simpan</button>
               {{ csrf_field() }}
-              <input type="hidden" name="tender_id" value="{{ $tender_rekanan->id }}"><br>
+              <input type="hidden" name="tender_id" value="{{ $tender_rekanan->tender->id }}"><br>
+              <input type="hidden" name="tender_rekanan" value="{{ $tender_rekanan->id }}">
+              <input type="hidden" name="step" value="1">
               <h3><center>Rekanan : <strong>{{ $tender_rekanan->rekanan->name }}</strong></center></h3>
               <span>Nilai : Rp. <strong>{{ number_format($tender_rekanan->penawarans->take($step)->last()->nilai) }}</strong></span>
               <hr>
@@ -54,7 +56,8 @@
                 </thead>
                 <tbody>
                   @php $start=0; @endphp
-                  @foreach( $tender_rekanan->penawarans->take($step)->last()->details as $key => $value )                   
+                  @foreach( $tender_rekanan->penawarans->take($step)->last()->details as $key => $value ) 
+                    @if ( $value->rab_pekerjaan->volume > 0 )                  
                     <tr>
                       <td>{{ $value->rab_pekerjaan->itempekerjaan->code or '' }}</td>
                       <td>{{ $value->rab_pekerjaan->itempekerjaan->name or '' }}</td>
@@ -64,11 +67,13 @@
                         @if ( count($tender_rekanan->penawarans) > $step )
                         {{ number_format($value->nilai) or '' }}
                         @else
+                        <input type="hidden" name="input_rab_id_[{{ $key}}]"  id="input_rab_id_{{ $key}}" class="form-control vol" onKeyUp="showSummary('{{ $key}}')" value="{{ $value->id }}" style="text-align: right;" autocomplete="off">
                         <input type="text" name="input_rab_nilai_[{{ $key}}]"  id="input_rab_nilai_{{ $key}}" class="form-control vol" onKeyUp="showSummary('{{ $key}}')" value="{{ $value->nilai }}" style="text-align: right;" autocomplete="off">
                         @endif
                       </td>
                       <td>{{ number_format($value->nilai * $value->volume) }}</td>
-                    </tr>                   
+                    </tr>  
+                    @endif                 
                   @endforeach
                 </tbody>
               </table>

@@ -137,6 +137,7 @@ class RekananController extends Controller
             $rekanan_child->name = $request->name;
             $rekanan_child->surat_alamat = $request->alamat;
             $rekanan_child->surat_kota = $request->kota;
+            $rekanan_child->ppn = 10;
             $rekanan_child->save();
         }elseif ( count($rekanan_group->rekanans) == 1 ){
             foreach ($rekanan_group->rekanans as $key2 => $value2) {
@@ -144,6 +145,7 @@ class RekananController extends Controller
                 $rekanan_child->name = $request->name;
                 $rekanan_child->surat_alamat = $request->alamat;
                 $rekanan_child->surat_kota = $request->kota;
+                $rekanan_child->ppn = 10;
                 $rekanan_child->save();
             }
         }

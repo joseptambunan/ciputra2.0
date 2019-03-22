@@ -13,7 +13,7 @@ class TenderRekanan extends CustomModel
 
     public function tender()
     {
-        return $this->belongsTo('Modules\Tender\Entities\Tender');
+        return $this->belongsTo('Modules\Tender\Entities\Tender')->orderBy("id","desc");
     }
 
     public function rekanan()

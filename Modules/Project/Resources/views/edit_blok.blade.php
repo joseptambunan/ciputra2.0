@@ -40,16 +40,16 @@
                 <input type="text" class="form-control" value="{{ $blok->kawasan->name }}" readonly>
               </div>
               <div class="form-group">
-                <label>Nama</label>
+                <label>Nama Blok <span style="color:red;">*</span></label>
                 <input type="text" class="form-control" name="name"  value="{{ $blok->name }}">
               </div>
               <div class="form-group">
-                <label>Luas(m2)</label>
+                <label>Luas Blok Netto(m2) <span style="color:red;">*</span></label>
                 <input type="text" class="form-control" name="luas" id="luas" value="{{ $blok->luas}}">
               </div>
               
               <div class="form-group">
-                <label>Keterangan</label>
+                <label>Keterangan <span style="color:red;">*</span></label>
                 <textarea class='form-control' name="description" id="description" cols="45" rows="5" placeholder="Descriptions">{{ $blok->description }}</textarea>
               </div>     
               <div class="box-footer">
@@ -76,13 +76,7 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-  <footer class="main-footer">
-    <div class="pull-right hidden-xs">
-      <b>Version</b> 2.4.0
-    </div>
-    <strong>Copyright &copy; 2014-2016 <a href="https://adminlte.io">Almsaeed Studio</a>.</strong> All rights
-    reserved.
-  </footer>
+  @include("master/copyright")
 
   
   <!-- Add the sidebar's background. This div must be placed

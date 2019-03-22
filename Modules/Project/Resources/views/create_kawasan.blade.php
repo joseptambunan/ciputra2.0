@@ -91,7 +91,7 @@
                 <textarea class='form-control' name="description" id="description" cols="45" rows="5" required></textarea>
               </div>  
               <div class="form-group">
-                <label>Is Kawasan</label>
+                <label>Kawasan Sellable</label>
                 <select name="is_kawasan" id="is_kawasan" class="form-control" >
                   <option value="1">Ya</option>
                   <option value="0">Tidak</option>
@@ -122,13 +122,7 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-  <footer class="main-footer">
-    <div class="pull-right hidden-xs">
-      <b>Version</b> 2.4.0
-    </div>
-    <strong>Copyright &copy; 2014-2016 <a href="https://adminlte.io">Almsaeed Studio</a>.</strong> All rights
-    reserved.
-  </footer>
+  @include("master/copyright")
 
   
   <!-- Add the sidebar's background. This div must be placed

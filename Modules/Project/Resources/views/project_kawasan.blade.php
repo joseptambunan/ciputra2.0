@@ -31,31 +31,21 @@
             </div>
             <!-- /.box-header -->
             <div class="box-body table-responsive">
-              <a href="{{ url('/')}}/project/add-kawasan" class="btn-lg btn-primary"><i class="glyphicon glyphicon-plus-sign"></i>Tambah Kawasan</a>
+              <a href="{{ url('/')}}/project/add-kawasan" class="btn-lg btn-primary"><i class="glyphicon glyphicon-plus-sign"></i>Tambah Kawasan</a><br/><br/>
               <table id="example2" class="table table-bordered table-hover ">   
               {{ csrf_field() }}              
               <thead style="background-color: greenyellow;">
                 <tr>
                   <td rowspan="3">Kawasan</td>
-                  <td rowspan="3">Jumlah Blok</td>
-                  <td rowspan="3">Luas Lahan Brutto(m2)</td>
-                  <td rowspan="3">Luas Lahan Netto(m2)</td>
-                  <td rowspan="3">Unit</td>
+                  <td rowspan="3">Luas<br/>Lahan Brutto(m2)</td>
+                  <td rowspan="3">Luas<br/>Lahan Netto(m2)</td>
+                  <td rowspan="3">Jumlah<br/> Blok</td>
+                  <td rowspan="3">Jumlah<br/> Unit</td>
                   <td rowspan="3">Status Lahan<br>(PL,UC,F)</td>
-                  <td colspan="5"><center>Dev Cost</center></td>
-                  <td rowspan="3">Edit</td>
+                  <td rowspan="3">Edit Blok</td>
+                  <td rowspan="3">Edit Kawasan</td>
                   <td rowspan="3">Delete</td>
-                </tr>
-                <tr>
-                  <td colspan="3">Budget<br><small>(spk,rencana,faskot)</small></td>
-                  <td rowspan="2">SPK(Rp)</td>
-                  <td rowspan="2">Terbayar(Rp)</td>
-                </tr>
-                <tr>
-                  <td>Total(Rp)</td>
-                  <td>HPP Bruto(Rp/m2)</td>
-                  <td>HPP Netto(Rp/m2)</td>
-                </tr>
+                </tr>                
               </thead>
                 <tbody>
                  @foreach ( $project->kawasans as $key => $value )
@@ -68,38 +58,13 @@
                  @endphp
                  <tr>
                     <td>{{ $value->name }}</td>
-                    <td><a href="{{ url('/')}}/project/bloks/?id={{ $value->id }}" class="btn btn-primary">{{ count($value->bloks) }}</a></td>
                     <td>{{ number_format($value->lahan_luas) }}</td>
                     <td>{{ number_format($value->netto_kawasan) }}</td>
-                    <td>{{ number_format($value->units->count())}}</td>
+                    <td>{{ number_format($value->bloks->count()) }}</td>
+                    <td>{{ number_format($value->units->count()) }}</td>
                     <td>Planning</td>
-                    <td>{{ number_format($value->total_budget,2)}}</td>
-                    <td>
-                      @if ( $value->lahan_luas >  0 )
-                      {{ number_format(($value->total_budget ) / $value->lahan_luas,2)}}
-                      @endif
-                    </td>
-                    <td>
-                      @if ( $value->netto_kawasan > 0 )
-                       {{ number_format( ( $value->total_budget  )/ $value->netto_kawasan,2)}}
-                      @else
-                      {{ number_format(0,2)}}
-                      @endif
-                    </td>
-                    <td>
-                      @if ( $value->HppDevCostReportSummary->count() > 0 )
-                        {{ number_format($value->HppDevCostReportSummary->last()->total_kontrak )}}
-                      @else
-                        {{ number_format(0,2)}}
-                      @endif
-                    </td>
-                    <td>
-                      @if ( $value->HppDevCostReportSummary->count() > 0 )
-                        {{ number_format($value->HppDevCostReportSummary->last()->total_kontrak_terbayar )}}
-                      @else
-                        {{ number_format(0,2)}}
-                      @endif
-                    </td>
+                    
+                    <td><a href="{{ url('/')}}/project/bloks/?id={{ $value->id }}" class="btn btn-primary">Edit</a></td>
                     <td><a class="btn btn-warning" href="{{ url('/')}}/project/edit-kawasan?id={{ $value->id }}">Edit</a></td>
                     <td><button class="btn btn-danger" onclick="removeKawasan('{{ $value->id }}','{{ $value->name }}')">Hapus</button></td>
                  </tr>

@@ -196,6 +196,7 @@ class AccessController extends Controller
             if ( $approva_history->no_urut == $highest){        
                 $approval_ac = Approval::find($budget->approval->id);
                 $approval_ac->approval_action_id = $request->status;
+                $approval_ac->updated_at = date("Y-m-d H:i:s.u");
                 $approval_ac->save();
 
                 if ( $request->status == "6" ){
@@ -321,15 +322,12 @@ class AccessController extends Controller
         $workorder_unit = $workorder->details->where("asset_type","Modules\Project\Entities\Unit");
         $devcost = 0;
         
-        foreach ($workorder_unit as $key => $value) {
-            # code...
-            //$devcost = $devcost + $value->asset->templatepekerjaan->con_cost ;
-        }
-
+        
         return view("access::user.workoder_detail",compact("workorder","pekerjaan","project","user","workorder_unit","devcost","approval"));
     }
 
     public function workorder_approval(Request $request){
+        $workorder = Workorder::find($request->workorder_id);
         $approval_id = Workorder::find($request->workorder_id)->approval;
 
         $approva_history_id = ApprovalHistory::where("approval_id",$approval_id->id)->where("user_id",$request->user_id)->get()->first();
@@ -342,7 +340,50 @@ class AccessController extends Controller
         if ( $approva_history_id->no_urut == $highest){     
             $approval_ac = Approval::find($approval_id->id);
             $approval_ac->approval_action_id = $request->status;
+            $approval_ac->updated_at = date("Y-m-d H:i:s.u");
             $approval_ac->save();
+
+            if ( $workorder->budget_draft != "" ){
+                $budget_draft_approval = $workorder->budget_draft->approval;
+                if ( $workorder->budget_draft->approval != "" ){
+                    $approval = Approval::find($workorder->budget_draft->approval->id);
+                    $approval->approval_action_id = 6;
+                    $approval->save();
+
+                    /*$coa = $workorder->itempekerjaan["coa_code"];
+                    $explode_coa = explode(".",$coa);
+                    
+                    if ( count($explode_coa) > 0 ){
+                        $itempekerjaan_id = Itempekerjaan::where("code",$explode_coa[0])->first()->id;
+                    }else{
+                        $itempekerjaan_id = Itempekerjaan::where("code",$coa)->first()->id;
+                    }
+                    $itempekerjaan = Itempekerjaan::find($itempekerjaan_id);*/
+                    
+                    /*foreach ($workorder->detail_pekerjaan as $key2 => $value2) {
+                        $budget = Budget::find($workorder->budget_draft->budget_tahunan->budget->id);
+                        $budget_detail = new BudgetDetail;
+                        $budget_detail->budget_id = $budget->id;
+                        $budget_detail->itempekerjaan_id = $value2->itempekerjaan->parent->id;
+                        $budget_detail->volume = $value2->volume;
+                        $budget_detail->nilai = $value2->nilai;
+                        $budget_detail->satuan = $value2->satuan;
+                        $budget_detail->save();
+
+                        $budget_tahunan = BudgetTahunan::find($workorder->budget_draft->budget_tahunan->id);
+                        $budget_tahunan_detail = new BudgetTahunanDetail;
+                        $budget_tahunan_detail->budget_tahunan_id = $budget_tahunan->id;
+                        $budget_tahunan_detail->itempekerjaan_id = $value2->itempekerjaan_id;
+                        $budget_tahunan_detail->volume = $value2->volume;
+                        $budget_tahunan_detail->nilai = $value2->nilai;
+                        $budget_tahunan_detail->satuan = $value2->satuan;
+                        $budget_tahunan_detail->save();
+
+
+                    }    */           
+
+                }
+            }
         }
 
         if ( $status ){
@@ -791,6 +832,7 @@ class AccessController extends Controller
             if ( $approval_history->no_urut == $highest){     
                 $approval_ac = Approval::find($budget_id->approval->id);
                 $approval_ac->approval_action_id = $status;
+                $approval_ac->updated_at = date("Y-m-d H:i:s.u");
                 $status = $approval_ac->save();
             }
             if ( $status ){
@@ -836,6 +878,7 @@ class AccessController extends Controller
             if ( $approval_history->no_urut == $highest){     
                 $approval_ac = Approval::find($rab->approval->id);
                 $approval_ac->approval_action_id = $status;
+                $approval_ac->updated_at = date("Y-m-d H:i:s.u");
                 $status = $approval_ac->save();
             }
 
@@ -1155,83 +1198,65 @@ class AccessController extends Controller
     }
 
     public function ispemenang(Request $request){
+        $user = User::find(\Auth::user()->id);
         $tender_rekanan = TenderRekanan::find($request->id);
         $tender_rekanan->is_recomendasi = "1";
         $tender_rekanan->save();
 
-        foreach ($tender_rekanan->tender->rab->units as $key => $value) {
-            $tender_menang = new TenderMenang;
-            $tender_menang->tender_rekanan_id = $request->id;
-            $tender_menang->tender_unit_id = $value->id;
-            $tender_menang->asset_type = $value->asset_type;
-            $tender_menang->asset_id = $value->asset_id;
-            $tender_menang->save();
+        if ( count($tender_rekanan->menangs) <= 0 ){
+            foreach ($tender_rekanan->tender->rab->units as $key => $value) {
+                $tender_menang = new TenderMenang;
+                $tender_menang->tender_rekanan_id = $request->id;
+                $tender_menang->tender_unit_id = $value->id;
+                $tender_menang->asset_type = $value->asset_type;
+                $tender_menang->asset_id = $value->asset_id;
+                $tender_menang->save();
 
-            foreach ($tender_rekanan->tender->penawarans->last()->details as $key2 => $value2) {
-                
-                $tender_menang_details = new TenderMenangDetail;
-                $tender_menang_details->tender_menang_id = $tender_menang->id;
-                $tender_menang_details->itempekerjaan_id = $value2->rab_pekerjaan->itempekerjaan_id;
-                $tender_menang_details->nilai = $value2->nilai;
-                $tender_menang_details->volume = $value2->volume;
-                $tender_menang_details->satuan = $value2->satuan;
-                if ( $value->asset_type == "Modules\Project\Entities\Unit"){
-                    $unit = \Modules\Project\Entities\Unit::find($value->asset_id);
-                    $tender_menang_details->templatepekerjaan_detail_id = $unit->templatepekerjaan_id;
-                }else{
-                    $tender_menang_details->templatepekerjaan_detail_id = "0";
+                foreach ($tender_rekanan->tender->penawarans->last()->details as $key2 => $value2) {
+                    
+                    $tender_menang_details = new TenderMenangDetail;
+                    $tender_menang_details->tender_menang_id = $tender_menang->id;
+                    $tender_menang_details->itempekerjaan_id = $value2->rab_pekerjaan->itempekerjaan_id;
+                    $tender_menang_details->nilai = $value2->nilai;
+                    $tender_menang_details->volume = $value2->volume;
+                    $tender_menang_details->satuan = $value2->satuan;
+                    if ( $value->asset_type == "Modules\Project\Entities\Unit"){
+                        $unit = \Modules\Project\Entities\Unit::find($value->asset_id);
+                        $tender_menang_details->templatepekerjaan_detail_id = $unit->templatepekerjaan_id;
+                    }else{
+                        $tender_menang_details->templatepekerjaan_detail_id = "0";
+                    }
+                    $tender_menang_details->save();
                 }
-                $tender_menang_details->save();
             }
+
+            $tender_menang_id = $tender_rekanan->tender->id;
+            $class  = "TenderMenang";
+            $approval = \App\Helpers\Document::make_approval('Modules\Tender\Entities\TenderMenang',$tender_menang->id);
         }
 
-        $tender_menang_id = $tender_rekanan->tender->id;
-        $class  = "TenderMenang";
-        $approval = \App\Helpers\Document::make_approval('Modules\Tender\Entities\TenderMenang',$tender_menang->id);
+        if ( $tender_rekanan->tender->approval != "" ){
+            foreach ($tender_rekanan->tender->approval->histories as $key => $value) {
+                if ( $value->user_id == $user->id ){
+                    $approval_history = ApprovalHistory::find($value->id);
+                    $approval_history->approval_action_id = 6;
+                    $approval_history->description = " User ini memilih ".$tender_rekanan->rekanan->name." : ".$request->description_pemenang_tender;
+                    $approval_history->save();
 
+                    $highest  = $tender_rekanan->tender->approval->histories->min("no_urut");
+                    if ( $highest == $value->no_urut ){
+                        $tender_rekanan_update = TenderRekanan::find($tender_rekanan->id);
+                        $tender_rekanan_update->is_pemenang = 1;
+                        $tender_rekanan_update->save();
 
-        /*Cek Approval is GM */
-        $tender = $tender_rekanan->tender;
-        $cek = $tender->approval->histories->min('no_urut');
-        if ( $cek == 5 ){
-            foreach ($tender->rekanans as $key => $value) {
-                $rekanan = TenderRekanan::find($value->id);
-                if ( $value->id == $request->id ){               
-                    $rekanan->is_pemenang = 1;    
-                    $tender_koresponden                     = new TenderKorespondensi;
-                    $tender_koresponden->tender_rekanan_id  = $value->id;
-                    $tender_koresponden->no                 = "";
-                    $tender_koresponden->type               = "sipp";
-                    $tender_koresponden->date               = date("Y-m-d H:i:s.u");
-                    $tender_koresponden->diundang_at        = date("Y-m-d H:i:s.u");
-                    $tender_koresponden->tempat_undangan    = "";
-                    $tender_koresponden->due_at             = date("Y-m-d H:i:s.u");
-                    $tender_koresponden->save();            
-                    $rekanan->save();
-                }else{
-                    //if ( $value->is_pemenang "1"){
-                        $rekanan->is_pemenang = 0 ;
-                    //}
-                    $tender_koresponden                     = new TenderKorespondensi;
-                    $tender_koresponden->tender_rekanan_id  = $value->id;
-                    $tender_koresponden->no                 = "";
-                    $tender_koresponden->type               = "sutk";
-                    $tender_koresponden->date               = date("Y-m-d H:i:s.u");
-                    $tender_koresponden->diundang_at        = date("Y-m-d H:i:s.u");
-                    $tender_koresponden->tempat_undangan    = "";
-                    $tender_koresponden->due_at             = date("Y-m-d H:i:s");
-                    $tender_koresponden->save();       
-                    $rekanan->save();  
-                }               
-                
+                        $approvals = Approval::find($tender_rekanan->tender->approval->id);
+                        $approvals->approval_action_id = 6;
+                        $approvals->save();
+                    }
+                }
             }
-            $approval = Approval::find($tender->approval->id);
-            $approval->approval_action_id = 6;
-            $approval->save();
+            
         }
-        /*foreach ($tender->approval->histories as $key => $value) {
-            # code...
-        }*/
 
         return response()->json( ["status" => "0"]);
         
@@ -1265,6 +1290,13 @@ class AccessController extends Controller
         
         return response()->json( ["status" => "0"] );
 
+    }
+
+    public function workorderdetaildocument(Request $request){
+        $workorder_budget_detail = WorkorderBudgetDetail::find($request->id);
+        $workorder = $workorder_budget_detail->workorder;
+        $user = \Auth::user();
+        return view("access::user.workoder_detail_document",compact("user","workorder","workorder_budget_detail"));
     }
 }
 

@@ -26,7 +26,7 @@
           <div class="box">
    
             <!-- /.box-header -->
-            <div class="box-body">
+            <div class="box-body">  
               
               <div class="col-md-12 table-responsive">
                 <table class="table table-bordered">
@@ -40,6 +40,7 @@
                     </tr>
                   </thead>
                   <tbody>
+                    @if ( $tender->aanwijing != "" )
                     <tr>
                       <td>{{ $tender->no }}</td>
                       <td>{{ $tender->name }}</td>
@@ -67,6 +68,11 @@
                         @endif
                       </td>
                     </tr>
+                    @else
+                    <tr>
+                      <td colspan="5">Dokumen Aanwjinng blm dibuat. Silahkan hubungi Proyek yang bersangkutan</td>
+                    </tr>
+                    @endif
                   </tbody>
                 </table>
               </div>
