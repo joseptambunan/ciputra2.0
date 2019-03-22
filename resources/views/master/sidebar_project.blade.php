@@ -59,7 +59,7 @@
           </a>
           <ul class="treeview-menu">
             <li><a href="{{ url('/')}}/project/data-umum/"><i class="fa fa-circle-o"></i> Data Umum Proyek</a></li>
-            <li><a href="{{ url('/')}}/kontraktor/"><i class="fa fa-circle-o"></i> Master Rekanan</a></li>
+            <!--li><a href="{{ url('/')}}/kontraktor/"><i class="fa fa-circle-o"></i> Master Rekanan</a></li>
             <!--li><a href="{{ url('/')}}/project/unit-hadap/"><i class="fa fa-circle-o"></i> Unit Hadap</a></li-->
             
           </ul>
@@ -74,10 +74,10 @@
           </a>
           <ul class="treeview-menu">            
             <li><a href="{{ url('/')}}/project/kawasan"><i class="fa fa-circle-o"></i> Kawasan</a></li>
-            <li><a href="{{ url('/')}}/project/unit-type/"><i class="fa fa-circle-o"></i> Unit Type</a></li>
+            <!--li><a href="{{ url('/')}}/project/unit-type/"><i class="fa fa-circle-o"></i> Unit Type</a></li-->
           </ul>
         </li>        
-        <li class="treeview">
+        <!--li class="treeview">
           <a href="#">
             <i class="fa fa-pie-chart"></i>
             <span>Budget</span>
@@ -89,7 +89,7 @@
             <li><a href="{{ url('/')}}/budget/proyek/"><i class="fa fa-circle-o"></i>Budget</a></li>
           </ul>
         </li>
-        <li class="treeview">
+        <!--li class="treeview">
           <a href="#">
             <i class="fa fa-pie-chart"></i>
             <span>Pengajuan Biaya</span>
@@ -100,7 +100,7 @@
           <ul class="treeview-menu">
             <li><a href="{{ url('/')}}/pengajuanbiaya/"><i class="fa fa-circle-o"></i> Pengajuan Biaya</a></li>
           </ul>
-        </li>        
+        </li-->        
         <li class="treeview">
           <a href="#">
             <i class="fa fa-pie-chart"></i>
@@ -113,7 +113,7 @@
             <li><a href="{{ url('/')}}/workorder/"><i class="fa fa-circle-o"></i> Workorder</a></li>
             <li><a href="{{ url('/')}}/tender/"><i class="fa fa-circle-o"></i> Tender</a></li>
             <li><a href="{{ url('/')}}/spk/"><i class="fa fa-circle-o"></i> SPK - BAP</a></li>
-            <li><a href="{{ url('/')}}/voucher/"><i class="fa fa-circle-o"></i> Voucher</a></li>
+            <!--li><a href="{{ url('/')}}/voucher/"><i class="fa fa-circle-o"></i> Voucher</a></li-->
           </ul>
         </li>
         <li><a href="{{ url('/')}}/logout">Logout</a></li>

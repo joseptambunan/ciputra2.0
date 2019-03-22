@@ -52,7 +52,7 @@
             <li><a href="{{ url('/')}}/rekanan/user/cabang/"><i class="fa fa-circle-o"></i> Cabang</a></li>
             <li><a href="{{ url('/')}}/rekanan/user/tender/"><i class="fa fa-circle-o"></i> Tender</a></li>
             <li><a href="{{ url('/')}}/rekanan/user/spk/"><i class="fa fa-circle-o"></i> Spk</a></li>
-            <li><a href="{{ url('/')}}/rekanan/user/price/"><i class="fa fa-circle-o"></i> Price List</a></li>
+            <!--li><a href="{{ url('/')}}/rekanan/user/price/"><i class="fa fa-circle-o"></i> Price List</a></li-->
             <li><a href="{{ url('/')}}/logout/"><i class="fa fa-circle-o"></i>Logout</a></li>
           </ul>
         </li>      
