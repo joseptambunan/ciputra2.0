@@ -182,9 +182,9 @@
                       <li><a href="#tab_1" data-toggle="tab">Data Pembayaran</a></li> -->
                       <li><a href="#tab_2" data-toggle="tab">Item Pekerjaan</a></li>                
                       <li><a href="#tab_3" data-toggle="tab">Unit</a></li>            
-                      <li><a href="#tab_4" data-toggle="tab">Progress Lapangan</a></li>
+                      <li><a href="#tab_4" data-toggle="tab">Progress Lapangan</a></li><!-- 
                       <li><a href="#tab_5" data-toggle="tab">Variation Order (VO)</a></li>
-                      <li><a href="#tab_6" data-toggle="tab">BAP</a></li>
+                      <li><a href="#tab_6" data-toggle="tab">BAP</a></li> -->
                     </ul>
                     <div class="tab-content"> 
                       <div class="tab-pane" id="tab_8">
