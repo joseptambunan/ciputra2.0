@@ -1,0 +1,25 @@
+{
+    "name": "nwidart/purchaseorder",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Modules\\PurchaseOrder\\Providers\\PurchaseOrderServiceProvider"
+            ],
+            "aliases": {
+                
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\PurchaseOrder\\": ""
+        }
+    }
+}
