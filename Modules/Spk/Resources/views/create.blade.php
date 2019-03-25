@@ -122,10 +122,16 @@
             </div>
             <div class="col-md-12">
               <div class="box-footer">
-                <button class="btn btn-success">Cetak Laporan Tender</button>
-                <button class="btn btn-success">Cetak SIPP</button>
+                <button class="btn btn-success" onClick="printaanwijing();" type="button" >Cetak Aanwijing</button>
+                <button class="btn btn-success" onClick="printtender();" type="button" >Cetak Laporan Tender</button>
+                <button class="btn btn-success" type="button" onClick="printsipp();">Cetak SIPP</button>
+                @if ( $spk->approval != "" )
+                  @if ( $spk->approval->approval_action_id == "6")
+                    <button class="btn btn-info" type="button" onclick="printspk();">Cetak SPK</button>
+                  @endif  
+                @endif
                 @if ( $spk->rekanan->supps->count() > 0 )
-                  <a class="btn bg-purple" href="{{ url('/')}}/spk/supp/show?id={{$spk->id}}">SUPP</a>
+                  <a class="btn bg-purple" href="{{ url('/')}}/spk/supp/show?id={{$spk->id}}">SUPP</a><br/><br/>
                   @if ( $spk->approval == "" )
                   <button type="submit" class="btn btn-primary">Simpan</button>
                   <button type="button" class="btn btn-info" onclick="approval('{{ $spk->id }}');">Request Approval</button>
@@ -138,14 +144,13 @@
                         "" => array("label" => "","class" => "")
                       )
                     @endphp
-                    <span class="{{ $array[$spk->approval->approval_action_id]['class'] }}">{{ $array[$spk->approval->approval_action_id]['label'] }}</span>
+                    Status : <span class="{{ $array[$spk->approval->approval_action_id]['class'] }}">{{ $array[$spk->approval->approval_action_id]['label'] }}</span>
+                    <a href="{{ url('/')}}/tender/detail?id={{$spk->tender->id}}" class="btn btn-success" target="_blank">Tender</a>
                   @endif
                   <a class="btn btn-warning" href="{{ url('/')}}/spk/">Kembali</a>
                   @if ( $spk->approval != "" )
                   <a href="{{ url('/')}}/spk/approval_history?id={{ $spk->id }}" class="btn btn-success">Approval History</a>
-                    @if ( $spk->approval->approval_action_id == "6")
-                    <button class="btn btn-info" type="button" onclick="printspk();">Cetak SPK</button>
-                    @endif                  
+                                    
                   @php
                     $array = array (
                       "6" => array("label" => "Disetujui", "class" => "label label-success"),
@@ -177,12 +182,12 @@
                   @if ( $spk->rekanan->supps->count() > 0 )
                   <div class="nav-tabs-custom"> 
                     <ul class="nav nav-tabs">                      
-                      <li class="active"><a href="#tab_7" data-toggle="tab">Data DP</a></li>
-                      <li><a href="#tab_8" data-toggle="tab">Retensi</a></li><!-- 
+                      <li class="active"><a href="#tab_7" data-toggle="tab">1. Data DP</a></li>
+                      <li><a href="#tab_8" data-toggle="tab">2. Retensi</a></li><!-- 
                       <li><a href="#tab_1" data-toggle="tab">Data Pembayaran</a></li> -->
-                      <li><a href="#tab_2" data-toggle="tab">Item Pekerjaan</a></li>                
-                      <li><a href="#tab_3" data-toggle="tab">Unit</a></li>            
-                      <li><a href="#tab_4" data-toggle="tab">Progress Lapangan</a></li><!-- 
+                      <li><a href="#tab_2" data-toggle="tab">3. Item Pekerjaan</a></li>                
+                      <li><a href="#tab_3" data-toggle="tab">4. Unit</a></li>            
+                      <li><a href="#tab_4" data-toggle="tab">5. Termin Pembayaran</a></li><!-- 
                       <li><a href="#tab_5" data-toggle="tab">Variation Order (VO)</a></li>
                       <li><a href="#tab_6" data-toggle="tab">BAP</a></li> -->
                     </ul>
@@ -480,89 +485,30 @@
                         </table>
                       </div>
                       <div class="tab-pane" id="tab_4">
-                        @if ( count($spk->termyn) <=0 )
-                        <h3>Item Coa ini belum disetting di master progress Item Pekerjaan.</h3>
-                          @if ( count($spk->progresses->last()->itempekerjaan->item_progress) > 0  )
-                            <button type="button" class="btn btn-primary" onclick="setprogress('{{ $spk->id}}')">Buat Progress</button>
-                          @endif
-                        @else
-                        <table class="table table-bordered">
-                          <thead class="head_table">
-                            <tr>
-                              <td>COA</td>
-                              <td>Item Pekerjaan</td>
-                              <td>Bobot(%)</td>
-                              <td>Prog. Lap.(%)</td>
-                              <td>Total Prog.(%)</td>
-                              @foreach ( $spk->termyn as $key3 => $value3)
-                              @if ( $key3 > 0)
-                              <td>T-{{ $value3->termin  }} (%)</td>
-                              @endif
-                              @endforeach
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr>
-                              <td>&nbsp;</td>
-                              <td>&nbsp;</td>
-                              <td>
-                                @php $nilai = 0; @endphp
-                                @foreach ( $spk->list_pekerjaan as $key11 => $value11 )
-                                    @php $nilai = $value11['bobot_coa'] + $nilai; @endphp
-                                @endforeach
-                                {{ number_format($nilai,2) }} %
-                              </td>
-                              <td>
-                                @php $nilai = 0; @endphp
-                                @foreach ( $spk->tender->units as $key => $value )
-                                  @php 
-                                    $nilai = $nilai + $value->progress;
-                                  @endphp
-                                @endforeach
-                                {{ number_format($nilai,2) }} %
-                              </td>                          
-                              <td>
-                                
-                              </td>
-
-                              @foreach ( $spk->termyn as $key3 => $value3)
-                              @if ( $key3 > 0 )
-                              <td><span>{{ number_format($value3->progress,2) }} %</span></td>
-                              @endif
-
-                              @endforeach
-                            </tr>
-                            @php $bobot = 0;  @endphp
-                            
-                            @foreach ( $spk->list_pekerjaan as $key11 => $value11 )
-                            <tr>
-                              <td>{{ $value11['pekerjaan_coa'] }}</td>
-                              <td>{{ $value11['pekerjaan_name'] }}</td>
-                              <td>{{ number_format($value11['bobot_coa'],2) }}</td>
-                              <td>{{ number_format($rata2 = $spk->progresses->where("itempekerjaan_id",$value11['itempekerjaan_id'])->avg('progresslapangan_percent') * 100 ,2) }}</td>
-                              @if ( $rata2 != "0" )
-                                <td>{{ number_format( ($rata2 / 100 ) * $value11['bobot_coa'], 2) }} % </td>
+                       @if ( count($spk->termyn) > 0 )
+                       <table class="table table-bordered">
+                         <thead class="head_table">
+                           <tr>
+                              <td>Termin</td>
+                              <td>Persen Bayar(%)</td>
+                           </tr>
+                         </thead>
+                         <tbody>
+                           @foreach ( $spk->termyn as $key => $value )
+                           <tr>
+                            <td>
+                              @if ( $key == 0 )
+                                Termin ke 1 (DP)
                               @else
-                                <td></td>
+                                Termin {{ $key + 1 }}
                               @endif
-                              @foreach ( $value11['termyn'] as $key12 => $value12 )
-                                @if ( $value12 == "0")
-                                  <td> {{ number_format( ( $value12 * $value11['bobot_coa'] ) / 100, 2 ) }} </td>
-                                @else
-                                  <td><strong> {{ number_format( ( $value12 * $value11['bobot_coa'] ) / 100, 2 ) }} </strong></td>
-                                  @if ( isset($termyn[$key12]))
-                                  @php                                                                      
-                                    $termyn[$key12] = $termyn[$key12] + (( $value12 * $value11['bobot_coa'] ) / 100);
-                                  @endphp
-                                  @endif
-                                @endif
-                                <input type="hidden" id="termyn_{{$key12}}" value="{{ $termyn[$key12] }}" name="">
-                              @endforeach
-                            </tr>
-                            @endforeach
-                          </tbody>
-                        </table>
-                        @endif
+                            </td>
+                            <td>{{ $value->termin }}</td>
+                           </tr>
+                           @endforeach
+                         </tbody>
+                       </table>
+                       @endif
                       </div>
                       <div class="tab-pane" id="tab_5">
                         <table class="table table-bordered">
@@ -673,7 +619,9 @@
 @if ( $spk->approval != "" )
 @if ( $spk->approval->approval_action_id == 6 )
 @include("spk::cetakan")
-@include("spk::cetakan_bap")
+@include("spk::cetakan_aanwijing")
+@include("spk::cetakan_tender")
+@include("spk::cetakan_sipp")
 @endif
 @endif
 

@@ -34,11 +34,17 @@
             <!-- /.box-header -->
             <div class="box-body table-responsive">
               <form action="{{ url('/')}}/project/unit/senderems" method="post" name="form1">
-                <a href="{{ url('/')}}/project/add-unit?id={{ $blok->id }}" class="btn btn-primary"><i class="glyphicon glyphicon-plus-sign"></i>Tambah Unit</a>
+                <!-- <a href="{{ url('/')}}/project/add-unit?id={{ $blok->id }}" class="btn btn-primary"><i class="glyphicon glyphicon-plus-sign"></i>Tambah Unit</a> -->
                 <input type="hidden" name="blok_id" id="blok_id" value="{{ $blok->id }}">
                 <input type="hidden" name="unit_id" id="unit_id"> 
-                <button class="btn btn-warning" type="submit">Simpan</button>
-                <button class="btn btn-danger" type="button" id="btn_del_unit">Delete</button><br><br>
+
+                <div class="col-xs-3">
+                  <input type="text" class="form-control" name="total_unit" id="total_unit">
+                  <i class="fa fa-refresh ld ld-spin" id="loading" style="display: none;"></i><br/>
+                  <button type="button" class="btn btn-info" onClick="generateunit();" id="btn_generate">Buat Unit</button>
+                  <button class="btn btn-warning" type="submit">Simpan</button>
+                  <button class="btn btn-danger" type="button" id="btn_del_unit">Delete</button><br><br>
+                </div>
                 <table id="example2" class="table table-bordered table-hover">   
                 {{ csrf_field() }}              
                 <thead style="background-color: greenyellow;">
@@ -118,6 +124,27 @@
   <!-- Add the sidebar's background. This div must be placed
        immediately after the control sidebar -->
   <div class="control-sidebar-bg"></div>
+  <div class="modal fade" id="modal-default">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Buat Unit</h4>
+          </div>
+          <div class="modal-body">
+            <p>One fine body&hellip;</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save changes</button>
+          </div>
+        </div>
+        <!-- /.modal-content -->
+      </div>
+      <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
 </div>
 <!-- ./wrapper -->
 
@@ -134,8 +161,35 @@
       fixedColumns:   {
           leftColumns: 4
       }
-    });
+  });
 
+  function generateunit(){
+    if ( confirm("Apakah anda yakin ingin membuat ini sebanyak " + $("#total_unit").val() + " unit ?")){
+      $("#btn_generate").hide();
+      $("#loading").show();
+      var request = $.ajax({
+        url : "{{url('/')}}/project/generateunit",
+        dataType : "json",
+        data : {
+          blok : $("#blok_id").val(),
+          total_unit : $("#total_unit").val()
+        },
+        type : "post"
+      });
+
+      request.done(function(data){
+        $("#btn_generate").show();
+        $("#loading").hide();
+
+        if ( data.status == "0"){
+          alert("Unit telah dibuat");
+        }
+        window.location.reload();
+      })
+    }else{
+      return false;
+    }
+  }
 
 </script>
 </body>

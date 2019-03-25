@@ -49,11 +49,13 @@ Route::group(['middleware' => 'web', 'prefix' => 'spk', 'namespace' => 'Modules\
     Route::get('/supp','SuppController@create');
     Route::post('/supp/store','SuppController@store');
     Route::get('/supp/show','SuppController@show');
+    Route::get('/supp/download','SuppController@downloadsupp');
 
     //PIC
     Route::post('/addpic','SpkController@addpic');
 
     //Cetakan
     Route::post('/cetak_bap','SpkController@cetakan_bap');
+    Route::get('/cetakspk','DownloadsController@cetakspk');
     
 });

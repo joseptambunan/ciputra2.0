@@ -10,6 +10,8 @@ use Modules\Project\Entities\Project;
 use Modules\Rekanan\Entities\RekananSupp;
 use Modules\Rekanan\Entities\RekananSuppTemplate;
 use Modules\Rekanan\Entities\SuppTemplate;
+use PDFMerger;
+use PDF;
 
 class SuppController extends Controller
 {
@@ -103,5 +105,35 @@ class SuppController extends Controller
      */
     public function destroy()
     {
+    }
+
+    public function downloadsupp(Request $request){
+        $supp = RekananSupp::find($request->id);
+        $download_pdf = new PDFMerger;
+        $jabatan = "";
+        $user = $supp->user_penandatangan;
+        if ( $user->jabatan != "" ){
+            foreach ($user->jabatan as $key => $value) {
+                if ( $value['pt_id'] == $supp->pt_id ){
+                    $jabatan = $value['jabatan'];
+                }
+            }
+        }
+
+        $data = $supp;
+        $cover = PDF::loadView('spk::supp.cover',compact("data","jabatan"))->setPaper('a4', 'portrait');
+        $cover->save(public_path().'/template_document/'.$supp->no_.'cover.pdf');
+
+        $signature =  PDF::loadView('spk::supp.signature',compact("data","jabatan"))->setPaper('a4', 'portrait');
+        $signature->save(public_path().'/template_document/'.$supp->no_.'signature.pdf');
+
+        $public_path = public_path().'/template_document/supp_format.pdf';
+        $cover_path =  public_path().'/template_document/'.$supp->no_.'cover.pdf';
+        $signature_path =  public_path().'/template_document/'.$supp->no_.'signature.pdf';
+        $download_pdf->addPDF($cover_path, 'all');
+        $download_pdf->addPDF($public_path, 'all');
+        $download_pdf->addPDF($signature_path, 'all');
+        $download_pdf->merge('download', $supp->no."_".strtotime("now")."_.pdf");
+            
     }
 }

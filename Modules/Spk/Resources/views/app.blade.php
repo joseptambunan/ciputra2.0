@@ -292,4 +292,41 @@
       window.location.reload();
     })
   }
+
+  
+function printtender(){
+  var myPrintContent = document.getElementById('head_Content_tender');
+  var myPrintWindow = window.open("", "");
+  myPrintWindow.document.write(myPrintContent.innerHTML);
+  myPrintWindow.document.getElementById('dvContents_tender').style.display='block';
+  myPrintWindow.document.close();
+  myPrintWindow.focus();
+  myPrintWindow.print();
+  myPrintWindow.close();    
+  return false;
+}
+
+function printaanwijing(){
+  var myPrintContent = document.getElementById('head_Content_aanwijing');
+  var myPrintWindow = window.open("", "");
+  myPrintWindow.document.write(myPrintContent.innerHTML);
+  myPrintWindow.document.getElementById('dvContents_aanwijing').style.display='block';
+  myPrintWindow.document.close();
+  myPrintWindow.focus();
+  myPrintWindow.print();
+  myPrintWindow.close();    
+  return false;
+}
+
+function printsipp(){
+ var myPrintContent = document.getElementById('head_Content_sipp');
+  var myPrintWindow = window.open("", "");
+  myPrintWindow.document.write(myPrintContent.innerHTML);
+  myPrintWindow.document.getElementById('dvContents_sipp').style.display='block';
+  myPrintWindow.document.close();
+  myPrintWindow.focus();
+  myPrintWindow.print();
+  myPrintWindow.close();    
+  return false; 
+}
 </script>

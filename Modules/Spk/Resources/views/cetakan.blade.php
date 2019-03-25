@@ -22,7 +22,7 @@
         <td>
           <table border="1" width="100%" style="border:1px solid black; border-collapse: collapse;">
             <tr>
-              <td width="50%;"><center>No. Spk</center></td>
+              <td width="50%;"><center>Surat Perintah Kerja</center></td>
               <td width="50%;"><center>{{ $spk->project->name }}</center></td>              
             </tr>
             <tr>
@@ -154,11 +154,11 @@
             <tr>
               <td>                
                 <span>LAIN - LAIN  :</span>
-                <p style="margin:0">
-                  SPK ini menjadi bagian yang terikat dari dokumen kontrak dan surat penunjukan kontraktor beserta segala isinya 
-                  Demikian Surat Perintah Kerja  ini  diberikan untuk dilaksanakan dengan sebaik-baiknya dan   dipergunakan sebagaimana mestinya. Lampirkan Struktur organisasi, K-3
-                </p>
-                <span style="text-align: right;">{{ $spk->project->city->name }},  {{ date("d/m/Y")}}</span>
+                <ol>
+                  <li>Syarat-2 umum mengikuti SUPP, kecuali hal-2 yang diatur dalam syarat-syarat khusus ( PARTICULAR CONDITIONS) terlampir (bila ada)</li>
+                  <li>Struktur Organisasi terlampir</li>
+                  <li>Kelengkapan K3L terlampir</li>
+                </ol>
               </td>
             </tr>
           </table>

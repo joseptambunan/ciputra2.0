@@ -1266,4 +1266,29 @@ class ProjectController extends Controller
 
         return response()->json(["status" => "0", "html" => $html]);
     }
+
+    public function generateunit(Request $request){
+        $blok = Blok::find($request->blok);
+        for ($i=1; $i <= $request->total_unit ; $i++) { 
+            
+            $units = $blok->units;
+            $global_setting = Globalsetting::where("parameter","length_number")->first()->value;
+
+            $start = "";
+            for ( $j=0;  $j < ( $global_setting - (strlen(count($units) + 1) )) ; $j++ ){
+                $start .= "0";
+            }
+
+            $unit_no = str_replace(" ","",$blok->kode) .'/'. $start.(count($units) - 1 +$i);
+            $project_units                         = new Unit;
+            $project_units->blok_id                = $blok->id;
+            $project_units->pt_id                  = NULL;
+            $project_units->name                   = $unit_no;
+            $project_units->code                   = $unit_no;
+            $project_units->tag_kategori           = 'B';
+            $project_units->status = 0;
+            $status = $project_units->save();
+        }
+        return response()->json(["status" => 0]);
+    }
 }

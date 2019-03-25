@@ -31,6 +31,7 @@ use Modules\Tender\Entities\TenderUnit;
 use Modules\Rab\Entities\RabUnit;
 use Modules\User\Entities\User;
 use Modules\Globalsetting\Entities\Globalsetting;
+use PDFMerger;
 
 class SpkController extends Controller
 {
@@ -341,7 +342,9 @@ class SpkController extends Controller
         if (!("./assets/spk/".$spk->id)) {
             mkdir("./assets/spk/".$spk->id,0777);
         }
-        return view('spk::create',compact("itempekerjaan","tender_menang","project","user","spk","spktype","termyn","list_ttd","ttd_pertama","ppn","sipp","user_pic","nilai_bap",'list_ttd_bap'));
+
+        $step = count($spk->tender->menangs->first()->tender_rekanan->penawarans);
+        return view('spk::create',compact("itempekerjaan","tender_menang","project","user","spk","spktype","termyn","list_ttd","ttd_pertama","ppn","sipp","user_pic","nilai_bap",'list_ttd_bap','step'));
     }
 
     /**
@@ -1006,14 +1009,5 @@ class SpkController extends Controller
         ]);
     }
 
-    public function downloadsupp(Request $request){
-        $spk = Spk::find($request->id);
-        $rekanan_group = $spk->rekanan->group;
-        if ( $spk->rekanan->group != "" ){
-            $supp = $spk->rekanan->group->supps;
-            if ( count($supp) > 0 ){
-                
-            }
-        }   
-    }
+    
 }

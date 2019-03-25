@@ -45,7 +45,7 @@
                   </div>
                   <div class="box-footer">
                     @if ( $spk->rekanan->supps->count() > 0 )
-                    <a href="" class="btn btn-success">Download SUPP No. {{ $spk->rekanan->supps->last()->no or  ''}}</a>
+                    <a href="{{url('/')}}/spk/supp/download/?id={{$spk->rekanan->supps->last()->id}}" class="btn btn-success">Download SUPP No. {{ $spk->rekanan->supps->last()->no or  ''}}</a>
                     @endif
                     <a href="{{ url('/')}}/spk/detail/?id={{$spk->id}}" class="btn btn-warning">Kembali</a>
                   </div>

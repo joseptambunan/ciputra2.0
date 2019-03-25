@@ -58,4 +58,5 @@ Route::group(['middleware' => 'web', 'prefix' => 'project', 'namespace' => 'Modu
 
     Route::post('/unit/senderems','ProjectController@senderems');
     Route::post('/todolist','ProjectController@todolist');
+    Route::post('/generateunit','ProjectController@generateunit');
 });
