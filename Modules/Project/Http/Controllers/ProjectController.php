@@ -426,6 +426,7 @@ class ProjectController extends Controller
         $blok->project_kawasan_id = $request->projectkawasan;
         $blok->name = $request->name;
         $blok->luas = str_replace(",","",$request->luas);
+        $blok->description = $request->description;
         $status  = $blok->save();
 
         //Save to EREM
@@ -472,6 +473,7 @@ class ProjectController extends Controller
         $blok = Blok::find($request->blok_id);
         $blok->name = $request->name;
         $blok->luas = str_replace(",","",$request->luas);
+        $blok->description = $request->description;
         $blok->save();
 
         $cluster_id = $blok->kawasan->cluster_id;
@@ -1279,7 +1281,7 @@ class ProjectController extends Controller
                 $start .= "0";
             }
 
-            $unit_no = str_replace(" ","",$blok->kode) .'/'. $start.(count($units) - 1 +$i);
+            $unit_no = str_replace(" ","",$blok->kode) .'/'. $start.(count($units) +$i);
             $project_units                         = new Unit;
             $project_units->blok_id                = $blok->id;
             $project_units->pt_id                  = NULL;
@@ -1287,6 +1289,7 @@ class ProjectController extends Controller
             $project_units->code                   = $unit_no;
             $project_units->tag_kategori           = 'B';
             $project_units->status = 0;
+            $project_units->is_sellable = 1;
             $status = $project_units->save();
         }
         return response()->json(["status" => 0]);

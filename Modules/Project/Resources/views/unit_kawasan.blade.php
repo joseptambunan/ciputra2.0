@@ -39,11 +39,14 @@
                 <input type="hidden" name="unit_id" id="unit_id"> 
 
                 <div class="col-xs-3">
-                  <input type="text" class="form-control" name="total_unit" id="total_unit">
+                  <input type="text" class="form-control" name="total_unit" id="total_unit" placeholder="total unit yang akan dibangun">
                   <i class="fa fa-refresh ld ld-spin" id="loading" style="display: none;"></i><br/>
-                  <button type="button" class="btn btn-info" onClick="generateunit();" id="btn_generate">Buat Unit</button>
+                  <button type="button" class="btn btn-info" onClick="generateunit();" id="btn_generate">Buat Unit</button><br/><br/>
                   <button class="btn btn-warning" type="submit">Simpan</button>
                   <button class="btn btn-danger" type="button" id="btn_del_unit">Delete</button><br><br>
+                  <span>Total Unit : <strong>{{ count($blok->units)}}</strong></span><br/>
+                  <span>Total Luas Tanah : <strong>{{ number_format($blok->total_tanah) }}</strong></span><br/>
+                  <span>Total Luas Bangunan : <strong>{{ number_format($blok->total_bangunan )}}</strong></span><br><br>
                 </div>
                 <table id="example2" class="table table-bordered table-hover">   
                 {{ csrf_field() }}              
@@ -70,7 +73,7 @@
                     <td>{{ number_format($value->tanah_luas,2) }}</td>
                     <td>{{ number_format($value->bangunan_luas) }}</td>
                     <td>
-                      @if ( $value->is_sellbale == 1 )
+                      @if ( $value->is_sellable == 1 )
                         @if (  $value->tag_kategori == 'B' )
                           Bangunan
                         @else

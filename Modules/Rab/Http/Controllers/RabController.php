@@ -427,7 +427,8 @@ class RabController extends Controller
         if ( $rab->tenders->count() > 0 ){
             return redirect("/tender/detail/?id=".$rab->tenders->last()->id);
         }else{
-            $itempekerjaan = Itempekerjaan::find($rab->units->first()->pekerjaans->last()->itempekerjaan->parent->id);
+            //echo $rab->units->last()->pekerjaans->last()->id;
+            $itempekerjaan = Itempekerjaan::find($rab->pekerjaans->last()->itempekerjaan->parent->id);
             $department_from = $rab->workorder->department_from;
             $project = Project::find($request->session()->get('project_id'));
             $tender = new Tender;

@@ -62,7 +62,7 @@
                     <input type="text" class="nilai_budget form-control" name="jaminan_pelaksanaan" autocomplete="off" required>
                   </div>
                   <div class="form-group">
-                    <label>Denda Keterlambatan(%)</label>
+                    <label>Denda Keterlambatan per mil/hari</label>
                     <input type="text" class="form-control" name="denda" autocomplete="off" required>
                   </div>                  
                   <div class="form-group">

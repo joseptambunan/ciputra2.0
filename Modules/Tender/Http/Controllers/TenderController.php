@@ -345,48 +345,50 @@ class TenderController extends Controller
             }           
             
         }else{
+            if ( isset($request->dokumen)){
+                
+                foreach ($request->dokumen as $key => $value) {
 
-            foreach ($request->dokumen as $key => $value) {
+                    $tender_dokumen = new TenderDocument;
+                    $tender_dokumen->tender_id = $tenders->id;
+                    $tender_dokumen->document_name = $request->dokumen[$key];
+                    $tender_dokumen->created_by = \Auth::user()->id;
+                    $tender_dokumen->save(); 
 
-                $tender_dokumen = new TenderDocument;
-                $tender_dokumen->tender_id = $tenders->id;
-                $tender_dokumen->document_name = $request->dokumen[$key];
-                $tender_dokumen->created_by = \Auth::user()->id;
-                $tender_dokumen->save(); 
-
-                $approval_references = \Modules\Approval\Entities\ApprovalReference::where('document_type', 'Tender')
-                                        ->where('project_id', $project->id )
-                                        //->where('pt_id', $pt_id )
-                                        ->where('min_value', '<=', '0')
-                                        //->where('max_value', '>=', $approval->total_nilai)
-                                        ->orderBy('no_urut','ASC')
-                                        ->get();
-                foreach ($approval_references as $key2 => $each2) 
-                {
-                    $users = User::find($each2->user_id);   
-                    if ( isset($users->jabatan)) {
-                        foreach( $users->jabatan as $key3 => $value3){
-                            
-                            if ( $value3['jabatan_id'] == "7" ){
-                                $tender_dokumen_approval = new TenderDocumentApproval;
-                                $tender_dokumen_approval->tender_document_id = $tender_dokumen->id;
-                                $tender_dokumen_approval->user_id = $each2->user->id;
-                                $tender_dokumen_approval->status = "1";
-                                $tender_dokumen_approval->created_by = \Auth::user()->id;
-                                $tender_dokumen_approval->level = $value3['jabatan_id'];
-                                $tender_dokumen_approval->save(); 
-                            }else if (  $value3['jabatan_id'] == "6" || $value3['jabatan_id'] == "5" ){
-                                $tender_dokumen_approval = new TenderDocumentApproval;
-                                $tender_dokumen_approval->tender_document_id = $tender_dokumen->id;
-                                $tender_dokumen_approval->user_id = $each2->user->id;
-                                $tender_dokumen_approval->status =  1;
-                                $tender_dokumen_approval->created_by = \Auth::user()->id;
-                                $tender_dokumen_approval->level = $value3['jabatan_id'];
-                                $tender_dokumen_approval->save();
-                            }
-                        }   
-                    }                       
-                }           
+                    $approval_references = \Modules\Approval\Entities\ApprovalReference::where('document_type', 'Tender')
+                                            ->where('project_id', $project->id )
+                                            //->where('pt_id', $pt_id )
+                                            ->where('min_value', '<=', '0')
+                                            //->where('max_value', '>=', $approval->total_nilai)
+                                            ->orderBy('no_urut','ASC')
+                                            ->get();
+                    foreach ($approval_references as $key2 => $each2) 
+                    {
+                        $users = User::find($each2->user_id);   
+                        if ( isset($users->jabatan)) {
+                            foreach( $users->jabatan as $key3 => $value3){
+                                
+                                if ( $value3['jabatan_id'] == "7" ){
+                                    $tender_dokumen_approval = new TenderDocumentApproval;
+                                    $tender_dokumen_approval->tender_document_id = $tender_dokumen->id;
+                                    $tender_dokumen_approval->user_id = $each2->user->id;
+                                    $tender_dokumen_approval->status = "1";
+                                    $tender_dokumen_approval->created_by = \Auth::user()->id;
+                                    $tender_dokumen_approval->level = $value3['jabatan_id'];
+                                    $tender_dokumen_approval->save(); 
+                                }else if (  $value3['jabatan_id'] == "6" || $value3['jabatan_id'] == "5" ){
+                                    $tender_dokumen_approval = new TenderDocumentApproval;
+                                    $tender_dokumen_approval->tender_document_id = $tender_dokumen->id;
+                                    $tender_dokumen_approval->user_id = $each2->user->id;
+                                    $tender_dokumen_approval->status =  1;
+                                    $tender_dokumen_approval->created_by = \Auth::user()->id;
+                                    $tender_dokumen_approval->level = $value3['jabatan_id'];
+                                    $tender_dokumen_approval->save();
+                                }
+                            }   
+                        }                       
+                    }           
+                }
             }
         }
 

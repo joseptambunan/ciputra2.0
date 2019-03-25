@@ -30,8 +30,8 @@
         <!-- /.box-header -->
         <div class="box-body">
           <div class="row">
-            <div class="col-md-6">              
               <h3 class="box-title">Tambah Data Unit</h3>
+            <div class="col-md-6">              
               <form action="{{ url('/')}}/project/update-unit" method="post" name="form1">
                 {{ csrf_field() }}
               <input type="hidden" name="project_id" id="project_id" value="{{ $unit->blok->kawasan->project->id }}">
@@ -79,6 +79,16 @@
                 <label>Luas Bangunan(m2)</label>
                 <input type="text" class="form-control" name="luas_bangunan" id="luas_bangunan" value="{{ $unit->bangunan_luas }}" {{ $readonly }}>
               </div>
+               
+              <div class="box-footer">
+                @if ( $unit->unit_id == "" )
+                  <button type="submit" class="btn btn-primary" {{ $readonly }}>Simpan</button>
+                @endif
+                <a href="{{ url('/')}}/project/units/?id={{ $unit->blok->id }}" class="btn btn-warning">Kembali</a>
+              </div>
+              <!-- /.form-group -->
+            </div>
+            <div class="col-md-6">
               <div class="form-group">
                 <label>Arah Bangunan </label>
                 <select class="form-control" name="unit_arah_id" id="unit_arah_id" {{ $readonly }}>
@@ -135,16 +145,9 @@
               <div class="form-group">
                 <label>Keterangan</label>
                 <textarea class='form-control' name="description" id="description" cols="45" rows="5" placeholder="Descriptions" {{ $readonly }}></textarea>
-              </div>     
-              <div class="box-footer">
-                @if ( $unit->unit_id == "" )
-                  <button type="submit" class="btn btn-primary" {{ $readonly }}>Simpan</button>
-                @endif
-                <a href="{{ url('/')}}/project/units/?id={{ $unit->blok->id }}" class="btn btn-warning">Kembali</a>
-              </div>
-              </form>
-              <!-- /.form-group -->
+              </div>    
             </div>
+              </form>
             <!-- /.col -->
             <div class="col-md-12">
             </div>

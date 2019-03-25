@@ -43,7 +43,7 @@
                 <label>Nama Blok <span style="color:red;">*</span></label>
                 <input type="text" class="form-control" name="name"  value="{{ $blok->name }}">
               </div>
-              <div class="form-group">
+              <div class="form-group" style="display: none;">
                 <label>Luas Blok Netto(m2) <span style="color:red;">*</span></label>
                 <input type="text" class="form-control" name="luas" id="luas" value="{{ $blok->luas}}">
               </div>

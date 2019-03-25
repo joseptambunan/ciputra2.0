@@ -56,7 +56,7 @@
 	 					@if ( $key == 0 )
 	 						<li>Tagihan pertama {{ $value->termin }} % dapat ditagihkan setelah spk ditandatangani kedua belah pihak.Pada saat pengambilan giro kontraktor harus menyerahkan progress lapangan sebesar {{ $spk->min_progress_dp}} %.</li>
 	 					@else
-	 						<li>Tagihan kedua {{ $value->termin }} %</li>
+	 						<li>Tagihan ke {{ $key + 1}} {{ $value->termin }} %</li>
 	 					@endif
 	 					@endforeach
 

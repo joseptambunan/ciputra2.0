@@ -70,30 +70,39 @@
               <div class="form-group">
                 <label>Luas Brutto yang ada site plan(m2)</label>
                 <input type="text" class="form-control" name="luas" id="luas" value="{{ number_format($project->luas,2) }}">
+              </div>               
+              <div class="box-footer" >
+                <i class="fa fa-refresh ld ld-spin" id="loading" style="display: none;" disabled></i>
+                <button type="submit" id="btn_submit" class="submitbtn btn btn-primary">Simpan</button>
+                <a href="{{ url('/')}}/project/" class="submitbtn btn btn-warning">Kembali</a>
               </div>
+              </form>
+              <!-- /.form-group -->
+            </div>
+            <div class="col-md-6">
               <div class="form-group">
                 <label>Telepon Proyek</label>
-                <input type="text" class="form-control" name="phone" value="{{ $project->phone }}">
+                <input type="text" class="form-control" name="phone" value="{{ $project->phone }}" disabled>
               </div>
               <div class="form-group">
                 <label>Fax Proyek</label>
-                <input type="text" class="form-control" name="fax" value="{{ $project->fax }}">
+                <input type="text" class="form-control" name="fax" value="{{ $project->fax }}" disabled>
               </div>
               <div class="form-group">
                 <label>Email Proyek</label>
-                <input type="text" class="form-control" name="email" value="{{ $project->email }}">
+                <input type="text" class="form-control" name="email" value="{{ $project->email }}" disabled>
               </div>
               <div class="form-group">
                 <label>Alamat Proyek</label>
-                <textarea class="form-control" name="address" rows="3">{{ $project->address }}</textarea>
+                <textarea class="form-control" name="address" rows="3" disabled>{{ $project->address }}</textarea>
               </div>  
               <div class="form-group">
                 <label>Kode Pos Proyek</label>
-                <input type="text" class="form-control" name="zipcode" value="{{ $project->zipcode }}">
+                <input type="text" class="form-control" name="zipcode" value="{{ $project->zipcode }}" disabled>
               </div> 
               <div class="form-group">
                 <label>Kota</label>
-                <select class="form-control select2" name="city_id" required>
+                <select class="form-control select2" name="city_id" disabled required>
                   @foreach( $cities as $data => $value )
                   @if ( $value->id == $project->city_id )
                   <option value="{{ $value->id}}" selected>{{ $value->name}}</option>
@@ -105,15 +114,8 @@
               </div>
               <div class="form-group">
                 <label>Keterangan</label>
-                <textarea class="form-control" name="description" rows="3">{{ $project->description }}</textarea>
-              </div>        
-              <div class="box-footer" >
-                <i class="fa fa-refresh ld ld-spin" id="loading" style="display: none;"></i>
-                <button type="submit" id="btn_submit" class="submitbtn btn btn-primary">Simpan</button>
-                <a href="{{ url('/')}}/project/" class="submitbtn btn btn-warning">Kembali</a>
-              </div>
-              </form>
-              <!-- /.form-group -->
+                <textarea class="form-control" name="description" rows="3" disabled>{{ $project->description }}</textarea>
+              </div>       
             </div>
             <!-- /.col -->
             <div class="col-md-12">

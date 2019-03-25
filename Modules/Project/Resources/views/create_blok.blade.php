@@ -48,9 +48,9 @@
                 <label>Nama Blok <span style="color:red;">*</span></label>
                 <input type="text" class="form-control" name="name"  value="" autocomplete="off" autocomplete="off" required>
               </div>
-              <div class="form-group">
+              <div class="form-group" style="display: none;">
                 <label>Luas Blok Netto (m2) <span style="color:red;">*</span></label>
-                <input type="text" class="form-control" name="luas" id="luas" autocomplete="off" autocomplete="off" required>
+                <input type="text" class="form-control" name="luas" autocomplete="off" value="0" required>
               </div>
               
               <div class="form-group">
