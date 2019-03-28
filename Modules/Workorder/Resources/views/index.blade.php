@@ -30,7 +30,7 @@
               <h3 class="box-title">Data Workorder</h3>
             </div>
             <!-- /.box-header -->
-            <div class="box-body table-responsive">
+            <div class="box-body">
               <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal-default">
                 Cari Workorder
               </button>
@@ -39,8 +39,8 @@
                 <thead class="head_table">
                 <tr>
                   <th>No. Workorder </th>
-                  <th>Nama Workorder</th>
-                  <th>Jumlah Pekerjaan</th>
+                  <th style="width: 200px;">Nama Workorder</th>
+                  <th>Jumlah<br/>Pekerjaan</th>
                   <th>Total Nilai(Rp)</th>
                   <th>Dibuat oleh</th>
                   <th>Tanggal Dibuat</th>
@@ -55,7 +55,7 @@
                       @if ( $value->all_spk <= 0 )
                         <tr>
                           <td>{{ $value->no }}</td>
-                          <td>{{ $value->name }}</td>
+                          <td  style="width: 200px;">{{ $value->name }}</td>
                           <td>{{ count($value->detail_pekerjaan)}}</td>
                           <td>{{ number_format($value->nilai) }}</td>
                           <td>{{ \App\User::find($value->created_by)->user_name }}</td>

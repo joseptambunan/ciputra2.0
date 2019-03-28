@@ -94,8 +94,20 @@
                       0%
                       @endif
                     </td>
-                    <td></td>
-                    <td></td>
+                    <td>
+                      <input type="checkbox" name="unit_{{$value->id}}" id="unit_{{$value->id}}" onClick="addunitdelete('{{$value->id}}')">
+                    </td>
+                    <td>
+                      @if ( $value->status == 0 )
+                        Draft P&D
+                      @elseif ( $value->status == 1 )
+                        Planning EREMS
+                      @elseif ( $value->status == 3)
+                        Stok
+                      @elseif ( $value->status == 5 )
+                        Sold
+                      @endif
+                    </td>
                      <td>        
                           @if ( $value->status < 3 )     
                             <input type="checkbox" name="delete_unit_{{$value->id}}" id="delete_unit_{{$value->id}}" onClick="addunitdelete('{{$value->id}}')"><span class="label label-danger">Delete </span> 

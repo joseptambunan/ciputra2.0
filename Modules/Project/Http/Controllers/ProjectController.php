@@ -32,6 +32,9 @@ use Modules\Project\Entities\UnitTypeSpecification;
 use Modules\TypeSpecification\Entities\TypeSpecification;
 use Storage;
 use Intervention\Image\Facades\Image ;
+use Modules\Department\Entities\Department;
+use Modules\Budget\Entities\Budget;
+use Modules\Budget\Entities\BudgetTahunan;
 
 class ProjectController extends Controller
 {
@@ -147,7 +150,9 @@ class ProjectController extends Controller
             "desember" => 0
         );
 
-        foreach ($project->budget_tahunans as $key => $value) {
+
+        //Enable Fase 3 
+        /*foreach ($project->budget_tahunans as $key => $value) {
             if ( $value->tahun_anggaran == date("Y")){
                 //Budget SPK 
                 foreach ($value->details as $key2 => $value2) {
@@ -195,9 +200,9 @@ class ProjectController extends Controller
                     }
                 }
             }
-        }
+        }*/
         
-        foreach ($project->voucher as $key => $value) {
+        /*foreach ($project->voucher as $key => $value) {
             if ( $value->pencairan_date != NULL ){
                 $month = $value->pencairan_date->format("M");
             }
@@ -227,9 +232,9 @@ class ProjectController extends Controller
             }elseif( $month == "12"){
                 $arrayRealisasi["desember"] = $arrayRealisasi["desember"] + $value->nilai;
             }
-        }
+        }*/
         
-        $variabel_cash_out = "";
+        /*$variabel_cash_out = "";
         $nilai_cash_out = 0;
         foreach ($arrayBulananCashOut as $key => $value) {
             $nilai_cash_out = $nilai_cash_out + $value;
@@ -270,8 +275,11 @@ class ProjectController extends Controller
             $real_bulanan .= ($value) .",";
         }
         $real_bulanan = $real_bulanan;
-        
-        return view('project::show',compact("project","user","level","variabel_cash_out","variabel_carry_over","variabel_realiasasi","nilai_cash_out","nilai_carry_over","todolist","budget_cashout","budget_carry_over","real_bulanan"));
+        */
+
+
+        $array_serah_terima = $project->total_sold;
+        return view('project::show',compact("project","user","array_serah_terima"/*,"level","variabel_cash_out","variabel_carry_over","variabel_realiasasi","nilai_cash_out","nilai_carry_over","todolist","budget_cashout","budget_carry_over","real_bulanan"*/));
     }
 
     /**
@@ -303,7 +311,9 @@ class ProjectController extends Controller
     public function deleteKawasan(Request $request)
     {   
         $project_kawasan = ProjectKawasan::find($request->id);
-        $status = $project_kawasan->delete();
+        $project_kawasan->deleted_at = date("Y-m-d H:i:s.u");
+        $project_kawasan->deleted_by = \Auth::user()->id;
+        $status = $project_kawasan->save();
         if ( $status ){
             return response()->json( ["status" => "0"] );
         }else{
@@ -342,6 +352,39 @@ class ProjectController extends Controller
         $project_kawasan->project_type_id        = $request->project_type_id;
         $project_kawasan->description            = $request->description;
         $status = $project_kawasan->save();
+
+        //Create Budget
+        //Fungsi ini dihapus jika menu BUdget sudah Live
+        $project = Project::find($request->project_id);
+        foreach ($project->pt as $key => $value) {
+           $department = Department::get();
+            foreach ($department as $key2 => $value2) {
+
+                $budget = new Budget;
+                $project = Project::find($request->session()->get('project_id'));
+                $pt = Pt::find($value->pt_id);
+
+                $number = \App\Helpers\Document::new_number('BDG', $value2->id,$project->id).$pt->code;
+                $budget->pt_id = $value->pt_id;
+                $budget->department_id = $value2->id;
+                $budget->project_id = $request->project_id;
+                $budget->project_kawasan_id = $project_kawasan->id;
+                $budget->no = $number;
+                $budget->start_date = date("Y-m-d H:i:s.u");
+                $budget->end_date = $request->end_date;
+                $budget->description = "Budget Generate Otomtasi Fase 1 CPMS";
+                $budget->created_by = \Auth::user()->id;
+                $budget->save();
+
+                $budget_tahunan                 = new BudgetTahunan;
+                $budget_tahunan->budget_id      = $budget->id;
+                $budget_tahunan->no             = \App\Helpers\Document::new_number('BDG-T', $value2->id,$project->id).$pt->code;
+                $budget_tahunan->tahun_anggaran = date("Y");
+                $budget_tahunan->description    = "Budget Tahunan Generate Otomtasi Fase 1 CPMS";
+                $status = $budget_tahunan->save();
+            }        
+        }
+        
 
         //Save to EREM
         $erems = \Config::get('constants.options.erems');
@@ -485,8 +528,10 @@ class ProjectController extends Controller
     }
 
     public function deleteblok(Request $request){
-        $blok = Blok::find($request->id);
-        $status = $blok->delete();
+        $blok = Blok::find($request->id);        
+        $blok->deleted_at = date("Y-m-d H:i:s.u");
+        $blok->deleted_by = \Auth::user()->id;
+        $status = $blok->save();
         if ( $status ){
             return response()->json( ["status" => "0"] );
         }else{
@@ -586,8 +631,10 @@ class ProjectController extends Controller
     }
 
     public function deletetype(Request $request){
-        $unit_type = UnitType::find($request->id);
-        $status = $unit_type->delete();
+        $unit_type = UnitType::find($request->id);             
+        $unit_type->deleted_at = date("Y-m-d H:i:s.u");
+        $unit_type->deleted_by = \Auth::user()->id;
+        $status = $unit_type->save();
         if ( $status ){
             return response()->json( ["status" => "0"] );
         }else{
@@ -1190,8 +1237,10 @@ class ProjectController extends Controller
         $explode = explode(",", $request->unit_id);
         foreach ($explode as $key => $value) {
             if ( $value != "" ){                
-                $unit = Unit::find($value);
-                $unit->delete();
+                $unit = Unit::find($value);                   
+                $unit->deleted_at = date("Y-m-d H:i:s.u");
+                $unit->deleted_by = \Auth::user()->id;
+                $unit->save();
             }
         }
 
@@ -1245,7 +1294,9 @@ class ProjectController extends Controller
 
     public function deletespec(Request $request){
         $unit_type_spec = UnitTypeSpecification::find($request->id);
-        $unit_type_spec->delete();
+        $unit_type_spec->deleted_at = date("Y-m-d H:i:s.u");
+        $unit_type_spec->deleted_by = \Auth::user()->id;
+        $unit_type_spec->save();
         return response()->json(["status" => "0"]);
     }
 
@@ -1293,5 +1344,38 @@ class ProjectController extends Controller
             $status = $project_units->save();
         }
         return response()->json(["status" => 0]);
+    }
+
+    public function unitsold(Request $request){    
+        $project = Project::find($request->session()->get('project_id'));   
+        $bln = $request->bln;
+        $user = \Auth::user();
+        $array_total_sold = $project->total_sold;
+        $start = 0;
+        foreach ($array_total_sold as $key => $value) {
+            if ( $key == $bln ){
+                foreach ($value['unit_id'] as $key2 => $value2) {
+                    $unit = Unit::find($value2);
+                    if ( $unit->type != "" ){
+                        $type = $unit->type->name;
+                    }else{
+                        $type = "";
+                    }
+
+                    $array_unit[$start] = array(
+                        "id" => $unit->id,
+                        "kawasan" => $unit->blok->kawasan->name,
+                        "blok" => $unit->blok->name,
+                        "name" => $unit->name,
+                        "serah_terima" => date("d/M/Y",strtotime($unit->serah_terima_plan)),
+                        "pembayaran" => 0,
+                        "type" => $type
+                    );
+                    $start++;
+                }
+            }
+        }
+        
+        return view("project::unit_sold",compact("user","bln","project","array_unit"));
     }
 }

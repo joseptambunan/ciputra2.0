@@ -87,7 +87,7 @@
                       )
                     @endphp
                     <span class="{{ $array[$workorder->approval->approval_action_id]['class'] }}">{{ $array[$workorder->approval->approval_action_id]['label'] }}</span>
-                    <a href="{{ url('/')}}/workorder/approval_history/?id={{ $workorder->id}}" class="btn btn-primary">Histroy Approval</a>
+                    <a href="{{ url('/')}}/workorder/approval_history/?id={{ $workorder->id}}" class="btn btn-primary">History Approval</a>
                     @if ( $workorder->approval->approval_action_id == "7")
                       <button type="button" class="btn btn-info" onclick="woupdapprove('{{ $workorder->id }}')">Request Approve</button>
                     @elseif ( $workorder->approval->approval_action_id == "6")
@@ -180,10 +180,12 @@
                             <td>
                               @if ( $workorder->approval != "")
                                 @if ( $workorder->approval->approval_action_id == 7 ) 
+                                <button class="btn btn-success" data-toggle="modal" data-target="#modal-default" onClick="updateWorkorder('{{$value->id}}','{{ $value->volume }}','{{$value->nilai}}','{{ $value->itempekerjaan->name }}')">Edit</button>
                                 <small class="label pull-right bg-red"><i class="fa fa-fw fa-remove" onclick="removepekerjaan('{{ $value->id }}')">&nbsp;</i></small>
                                 @elseif ( $workorder->approval->approval_action_id == 6)
                                 @endif
                               @else 
+                                <button class="btn btn-success" data-toggle="modal" data-target="#modal-editwo" onClick="updateWorkorder('{{$value->id}}','{{ $value->volume }}','{{$value->nilai}}','{{ $value->itempekerjaan->name }}')">Edit</button>
                                 <i class="fa fa-fw fa-remove" onclick="removepekerjaan('{{ $value->id }}')"></i>
                               @endif
                             </td>
@@ -225,7 +227,14 @@
                         <tr>
                           <td>{{ $key + 1 }}</td>
                           <td>{{ str_replace("Modules\Project\Entities","",$value->asset_type) }}</td>
-                          <td>{{ $value->asset->name or ''}}</td>
+                          <td>
+                            {{ $value->asset->name or ''}}
+                            @if ( $value->asset_type == "Modules\Project\Entities\Unit")
+                              @if ( $value->asset->type != "")
+                                {{ $value->asset->type->name or '' }}
+                              @endif
+                            @endif
+                          </td>
                           <td>
                             @if ( $workorder->approval == "" )
                             <button class="btn btn-danger" onclick="removeunitswo('{{ $value->id }}')">Delete</button>
@@ -318,18 +327,42 @@
     <!-- /.modal-dialog -->
   </div>
   <!-- /.modal -->
-  <div class="modal fade" id="modal-info">
+  <div class="modal fade" id="modal-editwo">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">Edit WO</h4>
         </div>
+        <div class="modal-body">
+          <form action="{{ url('/')}}/workorder/updatepekerjaan" method="post" name="form1">
+            <input type="hidden" name="wokorder_detailpekerjaan_id" id="wokorder_detailpekerjaan_id">
+            {{ csrf_field() }}
+            <div class="form-group">
+              <label>Item Pekerjaan</label>
+              <input type="text" class="form-control" name="itempekerjaan_id" id="itempekerjaan_id" disabled>
+            </div>
+            <div class="form-group">
+              <label>Volume</label>
+              <input type="text" class="form-control" name="volume" id="volume" autocomplete="off" required>
+            </div>
+            <div class="form-group">
+              <label>Nilai</label>
+              <input type="text" class="form-control" name="nilai" id="nilai" autocomplete="off" required>
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Save changes</button>
+        </div>
+          </form>
       </div>
       <!-- /.modal-content -->
     </div>
     <!-- /.modal-dialog -->
   </div>
+  <!-- /.modal -->
   <!-- /.modal -->
 </div>
 <!-- ./wrapper -->
@@ -388,6 +421,16 @@
       return false;
     }
   }
+
+  function updateWorkorder(id,volume,nilai,pekerjaan){
+    $("#wokorder_detailpekerjaan_id").val(id);
+    $("#volume").val(volume);
+    $("#nilai").val(nilai);
+    $("#nilai").number(true);
+    $("#itempekerjaan_id").val(pekerjaan)
+  }
+
+  updateWorkorder('{{$value->id}}','{{ $value->volume }}','{{$value->nilai}}')
 </script>
 </body>
 </html>

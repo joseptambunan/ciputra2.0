@@ -27,4 +27,7 @@ Route::group(['middleware' => 'web', 'prefix' => 'workorder', 'namespace' => 'Mo
     Route::post('/save-document','WorkorderController@savedocument');
     Route::post('/deletedocument','WorkorderController@deletedocument');
     Route::get('/downloaddoc','WorkorderController@downloaddoc');
+
+    Route::post('/savequick','WorkorderController@savequick');
+    Route::post('/updatepekerjaan','WorkorderController@updatepekerjaan');
 });

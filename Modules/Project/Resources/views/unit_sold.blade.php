@@ -42,38 +42,40 @@
             </div>
             <!-- /.box-header -->
             <div class="box-body">
-              <table id="example1" class="table table-bordered">
-                <thead class="head_table">
-                  <tr>
-                    <td colspan="2">Pekerjaan</td>
-                  </tr>
-                </thead>
-                <tbody id="todo_list">
-                  <tr>
-                    <td colspan="2">&nbsp;</td>
-                  </tr>
-                </tbody>
-              </table>
-
+              <form action="{{url('/')}}/workorder/savequick" method="post" name="form1">
+                {{ csrf_field() }}
+                <button type="submit" class="btn btn-primary">Set ke WO</button>
+                <a class="btn btn-warning" href="{{ url('/')}}/project/detail/?id={{$project->id}}">Kembali</a>
               <h4>Rumah Sold belum SPK</h4>
               <table id="example2" class="table table-bordered">
                 <thead class="head_table">
                   <tr>
-                    <td>Serah Terima Dalam</td>
-                    <td>Jumlah Unit</td>
-                    <td>Detail</td>
+                    <td>&nbsp;</td>
+                    <td>No.</td>
+                    <td>Kawasan</td>
+                    <td>Blok</td>
+                    <td>Unit No.</td>
+                    <td>Type</td>
+                    <td>Serah Terima</td>
+                    <td>Pembayaran</td>
                   </tr>
                 </thead>
                 <tbody>
-                  @foreach ( $array_serah_terima as $key => $value )
+                  @foreach ( $array_unit as $key => $value )
                   <tr>
-                    <td>{{ $key }} bln</td>
-                    <td>{{ count($value['unit_id']) }} unit</td>
-                    <td><a href="{{url('/')}}/project/unitsold?bln={{$key}}" class="btn btn-primary">Detail</a></td>
+                    <td><input type="checkbox" name="unit[{{$key}}]" value="{{$value['id']}}"></td>
+                    <td>{{ $key + 1 }}</td>
+                    <td>{{ $value['kawasan'] }}</td>
+                    <td>{{ $value['blok'] }}</td>
+                    <td>{{ $value['name'] }}</td>
+                    <td>{{ $value['type']}}</td>
+                    <td>{{ $value['serah_terima'] }}</td>
+                    <td>{{ number_format($value['pembayaran'])}} %</td>
                   </tr>
                   @endforeach
                 </tbody>
-              </table>
+              </table>              
+              </form>
             </div>
           </div>
           <!-- /.box -->

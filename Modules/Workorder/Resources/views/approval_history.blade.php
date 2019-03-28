@@ -31,7 +31,7 @@
         <!-- /.box-header -->
         <div class="box-body">
           <div class="row">
-            <div class="col-md-12"><h3 class="box-title">Detail Data Budget Tahunan</h3></div>
+            <div class="col-md-12"><h3 class="box-title">Detail Approval History</h3></div>
    
             <!-- /.col -->
             <div class="col-md-12">

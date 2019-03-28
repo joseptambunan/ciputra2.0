@@ -101,4 +101,10 @@ ALTER TABLE dbo.baps ALTER COLUMN percentage_lapangan DECIMAL (25, 2) ;
 GO 
 
 ALTER TABLE dbo.baps ALTER COLUMN percentage_sebelumnyas DECIMAL (25, 2) ;  
+GO
+
+ALTER TABLE dbo.units ADD serah_terima_plan DATETIME ;  
+GO 
+
+ALTER TABLE dbo.units ADD pembayaran DECIMAL (25, 2) INT NULL ;  
 GO 

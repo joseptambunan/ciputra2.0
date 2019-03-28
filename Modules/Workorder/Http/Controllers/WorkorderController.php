@@ -22,6 +22,7 @@ use \App\Mail\EmailApproved2;
 use Modules\Approval\Entities\Approval;
 use Modules\Tender\Entities\TenderDocument;
 use Storage;
+use Modules\Project\Entities\ProjectKawasan;
 
 class WorkorderController extends Controller
 {
@@ -480,5 +481,98 @@ class WorkorderController extends Controller
            ];
 
         return response()->download($file, 'filename.pdf', $headers);
+    }
+
+    public function savequick(Request $request){
+        
+        if ( $request->unit != "" ){     
+            $kawasan = "";
+            
+
+            $department = Department::find(2);
+            $project = Project::find($request->session()->get('project_id'));
+
+            $work_order_no = \App\Helpers\Document::new_number('WO', $department->id,$project->id);
+
+            $work_order = new Workorder;
+            $work_order->budget_tahunan_id = $project->id;
+            $work_order->department_from = $department->id;
+            $work_order->department_to = $department->id;
+            $work_order->no = $work_order_no;
+            $work_order->name = "Workorder Pembangunan Rumah";
+            $work_order->durasi = '0';
+            $work_order->satuan_waktu = '0';
+            $work_order->date = date("Y-m-d H:i:s.u");
+            $work_order->estimasi_nilaiwo = '0';
+            $work_order->description = "Workorder Pembangunan Rumah";
+            $work_order->created_by = \Auth::user()->id;
+            $work_order->end_date = NULL;
+            $status = $work_order->save();
+
+            foreach ($request->unit as $key => $value) {
+                $workorder_unit = new WorkorderDetail;
+                $workorder_unit->workorder_id = $work_order->id;
+                $workorder_unit->asset_id = $request->unit[$key];
+                $workorder_unit->asset_type = "Modules\Project\Entities\Unit";
+                $workorder_unit->description = 'Save Unit Sold Workorder Quick';
+                $workorder_unit->save();
+            }
+
+            $array_type = array();
+
+            foreach ($request->unit as $key => $value) {
+                $unit = Unit::find($request->unit[$key]);
+                if ( $unit->type != "" ){
+                    if ( isset($array_type[$unit->type->id])){
+                        $array_type[$unit->type->id]["bangunan_luas"] = $array_type[$unit->type->id]["bangunan_luas"] + $unit->bangunan_luas;
+                    }else{
+                        $array_type[$unit->type->id]["bangunan_luas"] = $unit->bangunan_luas;
+                    }                    
+                }
+
+                if ( $unit->blok != "" ){
+                    if ( $unit->blok->kawasan != "" ){
+                        $project_kawasan_id = ProjectKawasan::find($unit->blok->kawasan->id);
+                        foreach ($project_kawasan_id->budgets as $key => $value) {
+                            if ( $value->deleted_at == "" ){
+                                if ( $value->department_id == 2 ){
+                                    foreach ($value->budget_tahunans as $key2 => $value2) {
+                                        if ( $value2->tahun_anggaran == date("Y")){
+                                            $array_type[$unit->type->id]["budget_tahunan"] = $value2->id;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            foreach ($array_type as $key => $value) {
+                $workorder = new WorkorderBudgetDetail;
+                $workorder->workorder_id = $work_order->id;
+                $workorder->budget_tahunan_id = $value['budget_tahunan'];
+                $workorder->itempekerjaan_id = 293;
+                $workorder->tahun_anggaran = date('Y');
+                $workorder->volume = $value['bangunan_luas'];
+                $workorder->satuan = 'm2';
+                $workorder->nilai = 0;
+                $workorder->save();
+            }
+
+            return redirect("/workorder/detail?id=".$work_order->id);
+
+        }else{
+            return view("/workorder");
+        }
+    }
+
+    public function updatepekerjaan(Request $request){
+        $workorder_pekerjaan = WorkorderBudgetDetail::find($request->wokorder_detailpekerjaan_id);
+        $workorder_pekerjaan->nilai = str_replace(",", "", $request->nilai);
+        $workorder_pekerjaan->volume = str_replace(",", "", $request->volume);
+        $workorder_pekerjaan->save();
+
+        return redirect("workorder/detail?id=".$workorder_pekerjaan->workorder_id);
     }
 }
