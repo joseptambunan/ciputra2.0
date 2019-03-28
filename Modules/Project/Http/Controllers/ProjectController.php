@@ -360,28 +360,30 @@ class ProjectController extends Controller
            $department = Department::get();
             foreach ($department as $key2 => $value2) {
 
-                $budget = new Budget;
-                $project = Project::find($request->session()->get('project_id'));
-                $pt = Pt::find($value->pt_id);
+                if ( $value2->id == 1 || $value2->id == 2 ){
+                    $budget = new Budget;
+                    $project = ProjectKawasanject::find($request->session()->get('project_id'));
+                    $pt = Pt::find($value->pt_id);
 
-                $number = \App\Helpers\Document::new_number('BDG', $value2->id,$project->id).$pt->code;
-                $budget->pt_id = $value->pt_id;
-                $budget->department_id = $value2->id;
-                $budget->project_id = $request->project_id;
-                $budget->project_kawasan_id = $project_kawasan->id;
-                $budget->no = $number;
-                $budget->start_date = date("Y-m-d H:i:s.u");
-                $budget->end_date = $request->end_date;
-                $budget->description = "Budget Generate Otomtasi Fase 1 CPMS";
-                $budget->created_by = \Auth::user()->id;
-                $budget->save();
+                    $number = \App\Helpers\Document::new_number('BDG', $value2->id,$project->id).$pt->code;
+                    $budget->pt_id = $value->pt_id;
+                    $budget->department_id = $value2->id;
+                    $budget->project_id = $request->project_id;
+                    $budget->project_kawasan_id = $project_kawasan->id;
+                    $budget->no = $number;
+                    $budget->start_date = date("Y-m-d H:i:s.u");
+                    $budget->end_date = $request->end_date;
+                    $budget->description = "Budget Generate Otomtasi Fase 1 CPMS";
+                    $budget->created_by = \Auth::user()->id;
+                    $budget->save();
 
-                $budget_tahunan                 = new BudgetTahunan;
-                $budget_tahunan->budget_id      = $budget->id;
-                $budget_tahunan->no             = \App\Helpers\Document::new_number('BDG-T', $value2->id,$project->id).$pt->code;
-                $budget_tahunan->tahun_anggaran = date("Y");
-                $budget_tahunan->description    = "Budget Tahunan Generate Otomtasi Fase 1 CPMS";
-                $status = $budget_tahunan->save();
+                    $budget_tahunan                 = new BudgetTahunan;
+                    $budget_tahunan->budget_id      = $budget->id;
+                    $budget_tahunan->no             = \App\Helpers\Document::new_number('BDG-T', $value2->id,$project->id).$pt->code;
+                    $budget_tahunan->tahun_anggaran = date("Y");
+                    $budget_tahunan->description    = "Budget Tahunan Generate Otomtasi Fase 1 CPMS";
+                    $status = $budget_tahunan->save();
+                }
             }        
         }
         
@@ -1199,7 +1201,7 @@ class ProjectController extends Controller
                         $is_readystock = 1;
                     }
 
-                    $users = DB::connection('sqlsrv')->table('dbo.baps')->get();
+                    //$users = DB::connection('sqlsrv')->table('dbo.m_unit')->get();
                     $ins_erem = DB::connection('sqlsrv3')->insert('insert into [dbo].[m_unit] (project_id,pt_id,cluster_id,unit_number,productcategory_id,type_id,land_size,building_size,floor_size,floor,electricity,block_id,is_readystock,state_admistrative,Addon,Addby,Modion,Modiby) values (?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?,?,?)', [
                         $project_pt_erem, 
                         $pt->pt_id,
