@@ -311,7 +311,7 @@ class ProjectController extends Controller
     public function deleteKawasan(Request $request)
     {   
         $project_kawasan = ProjectKawasan::find($request->id);
-        $project_kawasan->deleted_at = date("Y-m-d H:i:s.u");
+        $project_kawasan->deleted_at = date("Y-m-d H:i:s.000");
         $project_kawasan->deleted_by = \Auth::user()->id;
         $status = $project_kawasan->save();
         if ( $status ){
@@ -529,7 +529,7 @@ class ProjectController extends Controller
 
     public function deleteblok(Request $request){
         $blok = Blok::find($request->id);        
-        $blok->deleted_at = date("Y-m-d H:i:s.u");
+        $blok->deleted_at = date("Y-m-d H:i:s.000");
         $blok->deleted_by = \Auth::user()->id;
         $status = $blok->save();
         if ( $status ){
@@ -632,7 +632,7 @@ class ProjectController extends Controller
 
     public function deletetype(Request $request){
         $unit_type = UnitType::find($request->id);             
-        $unit_type->deleted_at = date("Y-m-d H:i:s.u");
+        $unit_type->deleted_at = date("Y-m-d H:i:s.000");
         $unit_type->deleted_by = \Auth::user()->id;
         $status = $unit_type->save();
         if ( $status ){
@@ -1238,7 +1238,7 @@ class ProjectController extends Controller
         foreach ($explode as $key => $value) {
             if ( $value != "" ){                
                 $unit = Unit::find($value);                   
-                $unit->deleted_at = date("Y-m-d H:i:s.u");
+                $unit->deleted_at = date("Y-m-d H:i:s.000");
                 $unit->deleted_by = \Auth::user()->id;
                 $unit->save();
             }
@@ -1294,7 +1294,7 @@ class ProjectController extends Controller
 
     public function deletespec(Request $request){
         $unit_type_spec = UnitTypeSpecification::find($request->id);
-        $unit_type_spec->deleted_at = date("Y-m-d H:i:s.u");
+        $unit_type_spec->deleted_at = date("Y-m-d H:i:s.000");
         $unit_type_spec->deleted_by = \Auth::user()->id;
         $unit_type_spec->save();
         return response()->json(["status" => "0"]);
