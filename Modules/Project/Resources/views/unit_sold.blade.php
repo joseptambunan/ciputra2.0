@@ -56,7 +56,7 @@
                     <td>Blok</td>
                     <td>Unit No.</td>
                     <td>Type</td>
-                    <td>Serah Terima</td>
+                    <td>Serah Terima ke konsumen</td>
                     <td>Pembayaran</td>
                   </tr>
                 </thead>
