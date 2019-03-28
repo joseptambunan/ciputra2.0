@@ -27,7 +27,7 @@ class Project extends Model
 
     public function kawasans()
     {
-        return $this->hasMany('Modules\Project\Entities\ProjectKawasan')->whereNull('deleted_at')->get();
+        return $this->hasMany('Modules\Project\Entities\ProjectKawasan')->where('deleted_at',null);
     }
 
     public function budgets()
