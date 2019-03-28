@@ -50,17 +50,21 @@ class Document
         }*/
         $pt = "";
         $doc_last = $doc_type.'/'.$department.'/'.$bulan.'/'.$tahun.'/'.$project.'/'.$pt;
-        $count[0] = \Modules\Budget\Entities\Budget::where('no','LIKE', '%'.$doc_last.'%')->count();
-        $count[1] = \Modules\Budget\Entities\BudgetTahunan::where('no','LIKE', '%'.$doc_last.'%')->count();
-        $count[2] = \Modules\Workorder\Entities\Workorder::where('no','LIKE', '%'.$doc_last.'%')->count();
-        $count[3] = \Modules\Rab\Entities\Rab::where('no','LIKE', '%'.$doc_last.'%')->count();
-        $count[4] = \Modules\Tender\Entities\Tender::where('no','LIKE', '%'.$doc_last.'%')->withTrashed()->count();
-        $count[5] = \Modules\Spk\Entities\Spk::where('no','LIKE', '%'.$doc_last.'%')->withTrashed()->count();
-        $count[6] = \Modules\Spk\Entities\Suratinstruksi::where('no','LIKE', '%'.$doc_last.'%')->count();
-        $count[7] = \Modules\Spk\Entities\Vo::where('no','LIKE', '%'.$doc_last.'%')->count();
-        $count[8] = \Modules\Spk\Entities\Bap::where('no','LIKE', '%'.$doc_last.'%')->withTrashed()->count();
-        $count[9] = \Modules\Tender\Entities\TenderRekanan::where('sipp_no','LIKE', '%'.$doc_last.'%')->withTrashed()->count();
-        $count[13] = \Modules\Tender\Entities\TenderKorespondensi::where('no','LIKE', '%'.$doc_last.'%')->withTrashed()->count();
+        //echo date("Y");die;
+        $count['BDG'] = \Modules\Budget\Entities\Budget::where('no','LIKE', '%'.$doc_last.'%')->where("created_at",'LIKE','%'.date("Y").'%')->count();
+        $count['BDG-T'] = \Modules\Budget\Entities\BudgetTahunan::where('no','LIKE', '%'.$doc_last.'%')->where("created_at",'LIKE','%'.date("Y").'%')->count();
+        $count['WO'] = \Modules\Workorder\Entities\Workorder::where('no','LIKE', '%'.$doc_last.'%')->where("created_at",'LIKE','%'.date("Y").'%')->count();
+        $count['RAB'] = \Modules\Rab\Entities\Rab::where('no','LIKE', '%'.$doc_last.'%')->where("created_at",'LIKE','%'.date("Y").'%')->count();
+        $count['TENDER'] = \Modules\Tender\Entities\Tender::where('no','LIKE', '%'.$doc_last.'%')->where("created_at",'LIKE','%'.date("Y").'%')->count();
+        $count['SPK'] = \Modules\Spk\Entities\Spk::where('no','LIKE', '%'.$doc_last.'%')->where("created_at",'LIKE','%'.date("Y").'%')->count();
+        $count['SIPP'] = \Modules\Tender\Entities\TenderKorespondensi::where('no','LIKE', '%'.$doc_last.'%')->where("created_at",'LIKE','%'.date("Y").'%')->count();
+        $count['SUPP'] = \Modules\Rekanan\Entities\RekananSupp::get()->count();
+        
+        //$count[6] = \Modules\Spk\Entities\Suratinstruksi::where('no','LIKE', '%'.$doc_last.'%')->where(date("created_at"),date("Y"))->count();
+        //$count[7] = \Modules\Spk\Entities\Vo::where('no','LIKE', '%'.$doc_last.'%')->where(date("created_at"),date("Y"))->count();
+        //$count[8] = \Modules\Spk\Entities\Bap::where('no','LIKE', '%'.$doc_last.'%')->where(date("created_at"),date("Y"))->count();
+        //$count[9] = \Modules\Tender\Entities\TenderRekanan::where('sipp_no','LIKE', '%'.$doc_last.'%')->where(date("created_at"),date("Y"))->count();
+        //$count[13] = \Modules\Tender\Entities\TenderKorespondensi::where('no','LIKE', '%'.$doc_last.'%')->where(date("created_at"),date("Y"))->count();
 		//$count[10] = \App\PermintaanBarang::where('no','LIKE', '%'.$doc_last)->withTrashed()->count();
 		//$count[11] = \App\PurchaseRequest::where('no','LIKE', '%'.$doc_last)->withTrashed()->count();
         //$count[12] = \App\Piutang::where('no','LIKE', '%'.$doc_last)->withTrashed()->count();
@@ -69,9 +73,9 @@ class Document
         //$count[16] = \App\Barangmasuk::where('no','LIKE','%'.$doc_last)->withTrashed()->count();
         //$count[17] = \App\TenderPurchaseRequest::where('no','LIKE','%'.$doc_last)->withTrashed()->count();
         //$count[17] = \App\TenderPurchaseKorespondensi::where('no','LIKE','%'.$doc_last)->withTrashed()->count();*/
-        $count[18] = \Modules\Voucher\Entities\Voucher::where('no','LIKE','%'.$doc_last.'%')->count();
-        $count[19] = \Modules\Pengajuanbiaya\Entities\Pengajuanbiaya::where("no",'LIKE','%'.$doc_last.'%')->count();
-        $number = str_pad( (array_sum($count) + 1) ,4,"0",STR_PAD_LEFT);
+        //$count[18] = \Modules\Voucher\Entities\Voucher::where('no','LIKE','%'.$doc_last.'%')->count();
+        //$count[19] = \Modules\Pengajuanbiaya\Entities\Pengajuanbiaya::where("no",'LIKE','%'.$doc_last.'%')->count();
+        $number = str_pad( (($count[$doc_type]) + 1) ,4,"0",STR_PAD_LEFT);
         return $number."/".$doc_last;
 
     }
@@ -87,23 +91,21 @@ class Document
             $class = 'App\Nontender';
         }
 
-        /*$approval = $document->approval()->create([
-            'approval_action_id' => 1,      //open
-            'total_nilai' => $document->nilai
-            //'total_nilai' => $max_value_multiplier * $document->nilai
-        ]);*/
-
         $approval = new \App\Approval;
-        $approval->approval_action_id = 1;
-        $approval->total_nilai = $document->nilai;
-        $approval->document_id = $id;
-        $approval->document_type = $class;
-        $approval->save();
-        self::make_approval_history($approval->id,$class);
+        
 
-        if ( $class == "Modules\Budget\Entities\Budget"){
+        if ( $class != "Modules\Budget\Entities\Budget"){
             $budget = \Modules\Budget\Entities\Budget::find($id);
-            foreach ($budget->details as $key => $value) {
+
+            $approval->approval_action_id = 1;
+            $approval->total_nilai = $document->nilai;
+            $approval->document_id = $id;
+            $approval->document_type = $class;
+            $approval->save();
+            self::make_approval_history($approval->id,$class);
+            
+        }elseif ( $class == "Modules\Budget\Entities\Budget" || $class == "Modules\Budget\Entities\BudgetTahunan" || $class == "Modules\Spk\Entities\Spk" ) {
+            /*foreach ($budget->details as $key => $value) {
 
                 $approval = new \App\Approval;
                 $approval->approval_action_id = 1;
@@ -113,7 +115,17 @@ class Document
                 $approval->save();
                 self::make_approval_history($approval->id,"Modules\Budget\Entities\BudgetDetail");
             }
+            */
+
+
+            $approval = new \App\Approval;
+            $approval->approval_action_id = 6;
+            $approval->total_nilai = $document->nilai ;
+            $approval->document_id = $value->id;
+            $approval->document_type = "Modules\Spk\Entities\Spk";
+            $approval->save();
         }
+
         return $document;
 
     }
@@ -188,21 +200,24 @@ class Document
             //$department_id = \App\User::find($each->user_id)->details->first()->mappingperusahaan->department_id;
             //$user_level = \App\User::find($each->user_id)->details->first()->user_level;
             //if ( $user_level <= 4 ){
+
+            if ( $class == "Spk" || $class == "Budget" || $class == "BudgetTahunan"){                
+                $status = 6;
+            }else{
+                $status = 1;
+            }
+
             $user = \Modules\User\Entities\User::find($each->user_id);
             if ( isset($user->jabatan ) ) {                    
                 $jabatan = $user->jabatan;
                 $document->approval_histories()->create([
                     'no_urut' => $each->no_urut,
                     'user_id' => $each->user_id,
-                    'approval_action_id' => 1, // open
+                    'approval_action_id' => $status, // open
                     'approval_id' => $approval->id
                 ]);
                 
-                Mail::to($user->email)->send(new EmailApproved($value->user));
-                /*Mail::to("josep.tambunan7@gmail.com")->send(new EmailApproved($value->user));
-                Mail::to("arman.djohan@ciputra.com")->send(new EmailApproved($value->user));
-                Mail::to("wibowo.rahardjo@ciputra.com")->send(new EmailApproved($value->user));
-                Mail::to("arifiradat@ciputra.com")->send(new EmailApproved($value->user));*/
+                /*Mail::to("arifiradat@ciputra.com")->send(new EmailApproved($value->user));*/
             }
         }
         return $document;
