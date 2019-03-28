@@ -204,7 +204,9 @@ class RabController extends Controller
 
     public function deleteunit(Request $request){
         $rabunits = RabUnit::find($request->id);
-        $status = $rabunits->delete();
+        $rabunits->deleted_at = date("Y-m-d H:i:s.u");
+        $rabunits->deleted_by = \Auth::user()->id;
+        $status = $rabunits->save();
         if ( $status ){
             return response()->json( ["status" => "0"] );
         }else{
@@ -359,7 +361,9 @@ class RabController extends Controller
         $rab = Rab::find($request->id);
         foreach ($rab->pekerjaans as $key => $value) {
             $rab_pekerjaan = RabPekerjaan::find($value->id);
-            $rab_pekerjaan->delete();
+            $rab_pekerjaan->deleted_at = date("Y-m-d H:i:s.u");
+            $rab_pekerjaan->deleted_by = \Auth::user()->id;
+            $rab_pekerjaan->save();
         }
 
          return response()->json( ["status" => "0"] );

@@ -39,12 +39,12 @@ class Rab extends Model
     
 	public function units()
     {
-        return $this->hasMany('Modules\Rab\Entities\RabUnit');
+        return $this->hasMany('Modules\Rab\Entities\RabUnit')->whereNull('deleted_at')->get();
     }
 
     public function pekerjaans()
     {
-        return $this->hasMany('Modules\Rab\Entities\RabPekerjaan', 'rab_unit_id');
+        return $this->hasMany('Modules\Rab\Entities\RabPekerjaan', 'rab_unit_id')->whereNull('deleted_at')->get();
     }
     
     public function workorder()

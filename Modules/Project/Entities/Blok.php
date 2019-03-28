@@ -13,7 +13,7 @@ class Blok extends Model
 
     public function units()
     {
-        return $this->hasMany('Modules\Project\Entities\Unit');
+        return $this->hasMany('Modules\Project\Entities\Unit')->whereNull('deleted_at')->get();
     }
 
     public function workorder_details()

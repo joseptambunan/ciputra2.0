@@ -22,7 +22,7 @@ class ProjectKawasan extends CustomModel
 
     public function bloks()
     {
-        return $this->hasMany('Modules\Project\Entities\Blok');
+        return $this->hasMany('Modules\Project\Entities\Blok')->whereNull('deleted_at')->get();
     }
     
 	public function budgets()
@@ -812,7 +812,7 @@ class ProjectKawasan extends CustomModel
     }
 
     public function unit_type(){
-        return $this->hasMany("Modules\Project\Entities\UnitType","cluster_id");
+        return $this->hasMany("Modules\Project\Entities\UnitType","cluster_id")->whereNull('deleted_at')->get();
     }
 
     public function getTotalKontrakProporsionalAttribute(){
