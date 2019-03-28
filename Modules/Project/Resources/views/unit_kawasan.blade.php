@@ -95,7 +95,7 @@
                       @endif
                     </td>
                     <td>
-                      <input type="checkbox" name="unit_{{$value->id}}" id="unit_{{$value->id}}" onClick="addunitdelete('{{$value->id}}')">
+                      <input type="checkbox" name="unit_[{{$value->id}}]" id="unit_{{$value->id}}" onClick="addunitdelete('{{$value->id}}')">
                     </td>
                     <td>
                       @if ( $value->status == 0 )
