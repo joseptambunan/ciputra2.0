@@ -38,10 +38,10 @@ class Workorder extends Model
     public function rabs()
     {
         return $this->hasMany('Modules\Rab\Entities\Rab')->where('deleted_at',null);
-
+    }
     public function tenders()
     {
-        return $this->hasManyThrough('Modules\Tender\Entities\Tender', 'App\Rab');
+        return $this->hasManyThrough('Modules\Tender\Entities\Tender', 'Modules\Rab\Entities\Rab');
     }
 
     public function departmentFrom()
