@@ -74,7 +74,7 @@
           </a>
           <ul class="treeview-menu">            
             <li><a href="{{ url('/')}}/project/kawasan"><i class="fa fa-circle-o"></i> Kawasan</a></li>
-            <!--li><a href="{{ url('/')}}/project/unit-type/"><i class="fa fa-circle-o"></i> Unit Type</a></li-->
+            <li><a href="{{ url('/')}}/project/unit-type/"><i class="fa fa-circle-o"></i> Unit Type</a></li>
           </ul>
         </li>        
         <!--li class="treeview">
