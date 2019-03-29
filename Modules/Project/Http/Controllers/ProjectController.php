@@ -369,7 +369,7 @@ class ProjectController extends Controller
 
                 if ( $value2->id == 1 || $value2->id == 2 ){
                     $budget = new Budget;
-                    $project = ProjectKawasanject::find($request->session()->get('project_id'));
+                    $project = Project::find($request->session()->get('project_id'));
                     $pt = Pt::find($value->pt_id);
 
                     $number = \App\Helpers\Document::new_number('BDG', $value2->id,$project->id).$pt->code;
