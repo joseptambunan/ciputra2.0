@@ -71,8 +71,8 @@
                     <td>{{ $key + 1 }}</td>
                     <td>{{ $value->name }}</td>  
                     <td>{{ $value->type->name or '' }}</td>                    
+                    <td>{{ number_format($value->bangunan_luas,2) }}</td>
                     <td>{{ number_format($value->tanah_luas,2) }}</td>
-                    <td>{{ number_format($value->bangunan_luas) }}</td>
                     <td>
                       @if ( $value->is_sellable == 1 )
                         @if (  $value->tag_kategori == 'B' )
