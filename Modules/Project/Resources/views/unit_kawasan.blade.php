@@ -102,7 +102,7 @@
                       @if ( $value->status == 0 )
                         Draft P&D
                       @elseif ( $value->status == 1 )
-                        Planning EREMS
+                        Planning
                       @elseif ( $value->status == 3)
                         Stok
                       @elseif ( $value->status == 5 )
