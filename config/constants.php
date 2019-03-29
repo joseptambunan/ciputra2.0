@@ -1,7 +1,7 @@
 <?php
 return [
     'options' => [
-        'erems' => '0'
+        'erems' => '1'
     ]
 ];
 
