@@ -66,6 +66,7 @@
                 </thead>
                 <tbody>
                   @foreach ( $blok->units as $key => $value )
+                  
                   <tr>
                     <td>{{ $key + 1 }}</td>
                     <td>{{ $value->name }}</td>  
@@ -95,7 +96,7 @@
                       @endif
                     </td>
                     <td>
-                      <input type="checkbox" name="unit_[{{$value->id}}]" id="unit_{{$value->id}}" onClick="addunitdelete('{{$value->id}}')">
+                      <input type="checkbox" name="unit_[{{$value->id}}]" id="unit_{{$value->id}}" onClick="addunitdelete('{{$value->id}}')" value="{{$value->id}}">
                     </td>
                     <td>
                       @if ( $value->status == 0 )

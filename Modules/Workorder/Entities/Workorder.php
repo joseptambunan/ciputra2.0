@@ -37,8 +37,7 @@ class Workorder extends Model
 
     public function rabs()
     {
-        return $this->hasMany('Modules\Rab\Entities\Rab')->whereNotNull("budget_tahunan_id");
-    }
+        return $this->hasMany('Modules\Rab\Entities\Rab')->where('deleted_at',null);
 
     public function tenders()
     {
@@ -57,7 +56,7 @@ class Workorder extends Model
 
     public function details()
     {
-        return $this->hasMany('Modules\Workorder\Entities\WorkorderDetail');
+        return $this->hasMany('Modules\Workorder\Entities\WorkorderDetail')->where('deleted_at',null);
     }
 
     public function getPtAttribute()
@@ -102,7 +101,7 @@ class Workorder extends Model
     }
 
     public function detail_pekerjaan(){
-        return $this->hasMany("Modules\Workorder\Entities\WorkorderBudgetDetail");
+        return $this->hasMany("Modules\Workorder\Entities\WorkorderBudgetDetail")->where('deleted_at',null);
     }
 
     public function getSelfApprovalAttribute(){

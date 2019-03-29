@@ -18,7 +18,7 @@ class Tender extends CustomModel
 
     public function units()
     {
-        return $this->hasMany('Modules\Tender\Entities\TenderUnit');
+        return $this->hasMany('Modules\Tender\Entities\TenderUnit')->where('deleted_at',null);;
     }
 
     public function tersisa_units()
@@ -41,7 +41,7 @@ class Tender extends CustomModel
 
     public function rekanans()
     {
-        return $this->hasMany('Modules\Tender\Entities\TenderRekanan');
+        return $this->hasMany('Modules\Tender\Entities\TenderRekanan')->where('deleted_at',null);;
     }
 
     public function penawarans()

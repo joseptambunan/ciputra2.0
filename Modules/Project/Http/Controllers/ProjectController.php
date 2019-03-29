@@ -279,7 +279,14 @@ class ProjectController extends Controller
 
 
         $array_serah_terima = $project->total_sold;
-        return view('project::show',compact("project","user","array_serah_terima"/*,"level","variabel_cash_out","variabel_carry_over","variabel_realiasasi","nilai_cash_out","nilai_carry_over","todolist","budget_cashout","budget_carry_over","real_bulanan"*/));
+        $array_bulan = array(
+            "6" => "0-6",
+            "12" => "6-12",
+            "24" => "12-24",
+            "36" => "24-36" 
+        );
+
+        return view('project::show',compact("project","user","array_serah_terima","array_bulan"/*,"level","variabel_cash_out","variabel_carry_over","variabel_realiasasi","nilai_cash_out","nilai_carry_over","todolist","budget_cashout","budget_carry_over","real_bulanan"*/));
     }
 
     /**

@@ -16,7 +16,9 @@
     <!-- Content Header (Page header) -->
     <section class="content-header">
       <h1>Data Proyek <strong>{{ $project->name }}</strong></h1>
-
+      <h4>Total Luas Brutto : {{ number_format($project->luas) }} m2</h4>
+      <h4>Total Luas Netto  : {{ number_format( $project->netto) }} m2</h4>
+      <h4>Total Unit  : {{ number_format( count($project->units)) }} m2</h4>
     </section>
 
     <!-- Main content -->

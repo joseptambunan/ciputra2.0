@@ -55,7 +55,7 @@
                 </tbody>
               </table>
 
-              <h4>Rumah Sold belum SPK</h4>
+              <h4>Rumah Terjual belum SPK</h4>
               <table id="example2" class="table table-bordered">
                 <thead class="head_table">
                   <tr>

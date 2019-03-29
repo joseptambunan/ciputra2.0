@@ -28,17 +28,17 @@ class TenderRekanan extends CustomModel
 
     public function penawarans()
     {
-        return $this->hasMany('Modules\Tender\Entities\TenderPenawaran');
+        return $this->hasMany('Modules\Tender\Entities\TenderPenawaran')->where('deleted_at',null);;
     }
 
     public function menangs()
     {
-        return $this->hasMany('Modules\Tender\Entities\TenderMenang');
+        return $this->hasMany('Modules\Tender\Entities\TenderMenang')->where('deleted_at',null);;
     }
 
     public function korespondensis()
     {
-        return $this->hasMany('Modules\Tender\Entities\TenderKorespondensi');
+        return $this->hasMany('Modules\Tender\Entities\TenderKorespondensi')->where('deleted_at',null);;
     }
 
     public function workorder()

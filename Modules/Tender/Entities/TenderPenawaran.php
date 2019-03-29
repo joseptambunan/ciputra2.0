@@ -17,7 +17,7 @@ class TenderPenawaran extends CustomModel
 
     public function details()
     {
-        return $this->hasMany('Modules\Tender\Entities\TenderPenawaranDetail');
+        return $this->hasMany('Modules\Tender\Entities\TenderPenawaranDetail')->where('deleted_at',null);;
     }
 
     public function getNilaiAttribute()

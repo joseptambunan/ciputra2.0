@@ -1830,24 +1830,26 @@ class Project extends Model
 
         foreach ($this->units as $key => $value) {
             if ( $value->status == 5 ){
-                if ( $value->serah_terima_plan != "" ){                    
-                    $hari_ini = strtotime(date("Y-m-d H:i:s.u"));
-                    $serah_terima_plan = strtotime($value->serah_terima_plan);
-                    $selisih = $serah_terima_plan - $hari_ini;
-                    $hari = floor($selisih / (60 * 60 * 24)) ;  
-                    $bulan = ceil($hari / 30);
-                    if ( $bulan > 0 && $bulan <= 6 ){
-                        $total_sold["6"]['unit_id'][$index_a] = $value->id;
-                        $index_a++;
-                    }elseif ( $bulan > 6 && $bulan <=12 ){
-                        $total_sold["12"]['unit_id'][$index_b] = $value->id;
-                        $index_b++;
-                    }elseif ( $bulan > 12 && $bulan <=24 ){
-                        $total_sold["24"]['unit_id'][$index_c] = $value->id;
-                        $index_c++;
-                    }elseif ( $bulan > 24 ){
-                        $total_sold["36"]['unit_id'][$index_d] = $value->id;
-                        $index_d++;
+                if ( $value->serah_terima_plan != "" ){ 
+                    if ( $value->is_readywo == ""){                   
+                        $hari_ini = strtotime(date("Y-m-d H:i:s.u"));
+                        $serah_terima_plan = strtotime($value->serah_terima_plan);
+                        $selisih = $serah_terima_plan - $hari_ini;
+                        $hari = floor($selisih / (60 * 60 * 24)) ;  
+                        $bulan = ceil($hari / 30);
+                        if ( $bulan > 0 && $bulan <= 6 ){
+                            $total_sold["6"]['unit_id'][$index_a] = $value->id;
+                            $index_a++;
+                        }elseif ( $bulan > 6 && $bulan <=12 ){
+                            $total_sold["12"]['unit_id'][$index_b] = $value->id;
+                            $index_b++;
+                        }elseif ( $bulan > 12 && $bulan <=24 ){
+                            $total_sold["24"]['unit_id'][$index_c] = $value->id;
+                            $index_c++;
+                        }elseif ( $bulan > 24 ){
+                            $total_sold["36"]['unit_id'][$index_d] = $value->id;
+                            $index_d++;
+                        }
                     }
                 }
             }

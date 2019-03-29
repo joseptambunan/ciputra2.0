@@ -125,7 +125,29 @@
   });
 
   function formsubmit(){
-    $("#form1").submit();
+    //$("#form1").submit();
+    $("#loading").show();
+    $("#btn_submit").hide();
+    var request = $.ajax({
+      url : "{{url('/')}}/workorder/savenonbudget",
+      type : "post",
+      data : {
+        budget_tahunan : $("#budget_tahunan").val(),
+        workorder_id : $("#workorder_id").val(),
+        volume : $('input[name^="volume"]').serialize(),
+        nilai : $('input[name^="nilai"]').serialize(),
+        satuan : $('input[name^="satuan"]').serialize(),
+        item_id : $('input[name^="item_id"]').serialize()
+      },
+      dataType : "json"
+    });
+
+
+    request.done(function(data){
+      $("#loading").hide();
+      $("#btn_submit").show();
+      window.location.href = data.url;
+    });
   }
 </script>
 </body>

@@ -247,7 +247,9 @@ class WorkorderController extends Controller
 
     public function deleteunit(Request $request){
         $workorder = WorkorderDetail::find($request->id);
-        $status = $workorder->delete();
+        $workorder->deleted_at = date("Y-m-d H:i:s.u");
+        $workorder->deleted_by = \Auth::user()->id;
+        $status = $workorder->save();
         if ( $status ){
             return response()->json( ["status" => "0"] );
         }else{
@@ -306,27 +308,28 @@ class WorkorderController extends Controller
             if ( $request->volume[$key] != "" && $request->nilai[$key] != "" ){
                 $budget_draft_detail = new BudgetDraftDetail;
                 $budget_draft_detail->budget_draft_id = $budget_draft->id;
-                $budget_draft_detail->itempekerjaan_id = $request->item_id[$key];
-                $budget_draft_detail->volume = str_replace(",", "",$request->volume[$key]);
-                $budget_draft_detail->satuan = $request->satuan[$key];
-                $budget_draft_detail->nilai  = str_replace(",", "",$request->nilai[$key]); 
+                $budget_draft_detail->itempekerjaan_id = $request->item_id[$key]['value'];
+                $budget_draft_detail->volume = str_replace(",", "",$request->volume[$key]['value']);
+                $budget_draft_detail->satuan = $request->satuan[$key]['value'];
+                $budget_draft_detail->nilai  = str_replace(",", "",$request->nilai[$key]['value']); 
                 $budget_draft_detail->save();
             
 
                 $workorder = new WorkorderBudgetDetail;
                 $workorder->workorder_id = $request->workorder_id;
                 $workorder->budget_tahunan_id = $budget_tahunan->id;
-                $workorder->itempekerjaan_id = $request->item_id[$key];
+                $workorder->itempekerjaan_id = $request->item_id[$key]['value'];
                 $workorder->tahun_anggaran = date('Y');
-                $workorder->volume = str_replace(",", "",$request->volume[$key]);
+                $workorder->volume = str_replace(",", "",$request->volume[$key]['value']);
                 $workorder->satuan = $request->satuan[$key];
-                $workorder->nilai = str_replace(",", "", $request->nilai[$key]);
+                $workorder->nilai = str_replace(",", "", $request->nilai[$key]['value']);
                 $workorder->save();
             }
         }
 
         $approval = \App\Helpers\Document::make_approval('Modules\BudgetDraft\Entities\BudgetDraft',$budget_draft->id);
-        return redirect("workorder/detail?id=".$request->workorder_id);
+        return response()->json(["url" => "/workorder/detail?id=".$request->workorder_id]);
+        //return redirect("workorder/detail?id=".$request->workorder_id);
 
     }
 
@@ -351,10 +354,13 @@ class WorkorderController extends Controller
         $workorder = WorkorderBudgetDetail::find($request->id);
         if ( $workorder->workorder->budget_draft != "" ){
             $draft_id = BudgetDraft::find($workorder->workorder->budget_draft->id);
+            $draft_id->deleted_at = date("Y-m-d H:i:s.u");
+            $draft_id->deleted_by = \Auth::user()->id;
             $draft_id->delete();
         }
-
-        $status = $workorder->delete();
+        $workorder->deleted_at = date("Y-m-d H:i:s.u");
+        $workorder->deleted_by = \Auth::user()->id;
+        $status = $workorder->save();
 
         
 

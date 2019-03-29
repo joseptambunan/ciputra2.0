@@ -5,14 +5,14 @@ Route::group(['middleware' => 'web', 'prefix' => 'access', 'namespace' => 'Modul
     Route::get('/', 'AccessController@project');
     Route::get('/budget/detail','AccessController@budget_detail');
     /* Menu Approval */
-	Route::get("/privilege","UserPrivilegeController@index");
-	Route::post("/privilege/set","UserPrivilegeController@setprivilege");
+	//Route::get("/privilege","UserPrivilegeController@index");
+	//Route::post("/privilege/set","UserPrivilegeController@setprivilege");
 
 
-	Route::get("/project/manager/","UserManagerController@index");
+	/* Route::get("/project/manager/","UserManagerController@index");
 	Route::get("/project/manager/document","UserManagerController@index");
 	Route::get("/project/manager/project","UserManagerController@project");
-	Route::get("/project/manager/spk","UserManagerController@spks");
+	Route::get("/project/manager/spk","UserManagerController@spks"); */
 
 	Route::get('/project/','AccessController@project');
 	Route::get('/approval_summary','AccessController@approval_summary');
@@ -55,7 +55,7 @@ Route::group(['middleware' => 'web', 'prefix' => 'access', 'namespace' => 'Modul
 	Route::get("/tender_korespondensi/detail/","AccessController@tender_korespondensi");
 	Route::post("/tender_korespondensi/approval/","AccessController@tender_korespondensi_approval");
 
-	Route::get("/report","UserReportController@index");
+	/* Route::get("/report","UserReportController@index");
 	Route::get("/report/document","UserReportController@document");
 	Route::get("/report/hpp/devcost/summary","UserReportController@reportHppDevcostSummary");
 	Route::get("/report/hpp/devcost/detail","UserReportController@reportHppDevcostDetail");
@@ -70,7 +70,7 @@ Route::group(['middleware' => 'web', 'prefix' => 'access', 'namespace' => 'Modul
 	Route::post("user/report/search/kontraktor","UserReportController@search_kontraktor");
 	Route::post("user/report/search/proyek","UserReportController@search_proyek");
 	Route::post("user/report/search/proyek/itempekerjaan","UserReportController@search_proyek_pekerjaan");
-	Route::post("user/report/search/proyek/spk","UserReportController@search_proyek_pekerjaan_spk");
+	Route::post("user/report/search/proyek/spk","UserReportController@search_proyek_pekerjaan_spk"); */
 
 	Route::get("/tender/detail-penawaran",'AccessController@rekaptender');
 	Route::post("/tender/document/save/","AccessController@approvedeoc");
