@@ -76,9 +76,7 @@
                     <td>
                       @if ( $value->is_sellable == 1 )
                         @if (  $value->tag_kategori == 'B' )
-                          Bangunan
-                        @elseif ( $value->tanah_luas <= 0 ) 
-                           Kavling
+                          Bangunan               
                         @else
                           Kavling
                         @endif
